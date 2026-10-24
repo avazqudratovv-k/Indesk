@@ -30,6 +30,106 @@
   "demoNotice": {
     "text": "Indesk is a demo. Do not upload private or sensitive files."
   },
+  "home": {
+    "hero": {
+      "eyebrow": "A team of AI agents that shows its work",
+      "title": "Answers from your files, with proof.",
+      "lede": "Upload a file, ask a question and watch five agents check every claim.",
+      "tryExample": "Try with an example",
+      "workspace": "Go to Workspace"
+    },
+    "demo": {
+      "label": "Demo of an Indesk run",
+      "description": "Silent animation. A question is typed: “Which stations grew fastest since 2019?”. Owl plans the work, Beaver reads the large file, Hound quotes a passage and Cat checks every claim. The answer paper is then stamped “Verified {verified} of {total}” and one claim is flagged as not proven.",
+      "pause": "Pause demo",
+      "play": "Play demo",
+      "questionLabel": "Your question",
+      "question": "Which stations grew fastest since 2019?",
+      "status": {
+        "waiting": "Waiting",
+        "done": "Done",
+        "skipped": "Not needed"
+      },
+      "working": {
+        "owl": "Plans the work",
+        "beaver": "Reads the large file",
+        "hound": "Quotes a passage",
+        "cat": "Checks every claim"
+      },
+      "paper": {
+        "title": "Hapjeong leads station growth since 2019",
+        "stamp": "Verified {verified} of {total}",
+        "flagged": "The growth is driven by new housing nearby",
+        "flaggedMark": "! not proven"
+      }
+    },
+    "team": {
+      "title": "Meet the team",
+      "sub": "Each agent has one job, and you can open its work at any time.",
+      "plate": "Plate {n}",
+      "seeLabel": "You can see:",
+      "owl": {
+        "name": "Owl",
+        "role": "Manager",
+        "desc": "Reads your question, picks a plan and merges the results.",
+        "tag": "router · planner",
+        "see": "The plan, and how your question was classified."
+      },
+      "chameleon": {
+        "name": "Chameleon",
+        "role": "Vision",
+        "desc": "Reads photos, charts and scanned pages.",
+        "tag": "OCR · vision model",
+        "see": "The photo with every detected bar and the text it read."
+      },
+      "beaver": {
+        "name": "Beaver",
+        "role": "Data",
+        "desc": "Runs real calculations on your tables in a safe sandbox.",
+        "tag": "pandas · NumPy",
+        "see": "The exact code and the table it produced."
+      },
+      "hound": {
+        "name": "Hound",
+        "role": "Retrieval",
+        "desc": "Sniffs out the right passages in long PDFs.",
+        "tag": "embeddings · keywords",
+        "see": "Matched passages with page numbers and scores."
+      },
+      "cat": {
+        "name": "Cat",
+        "role": "Critic",
+        "desc": "Checks every claim against the evidence, and flags the weak ones.",
+        "tag": "checks · LLM judge",
+        "see": "Each claim with its evidence and a verdict."
+      }
+    },
+    "modes": {
+      "title": "Three ways to work with your files",
+      "sub": "Tables are computed over every row, never pasted into a chat. Each answer shows where it came from.",
+      "open": "Open in Workspace",
+      "ask": {
+        "title": "Ask a question",
+        "body": "Ask in your own words. The team computes, reads and checks, then hands you a cited report.",
+        "example": "Example: Which stations grew fastest since 2019?"
+      },
+      "check": {
+        "title": "Check a document",
+        "body": "Give us a report and the data behind it. We test every claim and show which ones do not hold.",
+        "example": "Example: 4 of 6 claims hold, 1 does not match"
+      },
+      "compare": {
+        "title": "Compare",
+        "body": "Two months, two versions, two sources. We show what changed and prove it.",
+        "example": "Example: Total boardings rose 6.3%"
+      }
+    },
+    "closing": {
+      "title": "See a full run in one click",
+      "body": "The example is a prepared Seoul subway run. It opens instantly and costs no AI calls.",
+      "tryExample": "Try with an example"
+    }
+  },
   "ui": {
     "button": {
       "default": "Default",
