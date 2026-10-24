@@ -105,7 +105,7 @@ The design has no named scale; these are the values it uses most: **4, 6, 8, 10,
 ### Breakpoints
 - **760 px:** below this, mobile layout (brand name hidden, language selector becomes a dropdown, grids become one column, a sticky bottom tab bar appears).
 - **700 px:** only the report paper (padding, title size, stamp position) and the Check/Compare "no" row switch here. Use 760 for everything else and treat 700 as a known inconsistency of the board.
-- **Mobile tab bar:** sticky at the bottom, three items (Home, Workspace, Plans) with a 22 px icon and an 11.5 px label; active item has ink text and a 2 px accent line on top; background paper at 88% with blur. Not in the desktop layout. `OPEN:` the design shows only the signed-out items; confirm the signed-in items (People, My reports) on mobile.
+- **Mobile tab bar:** sticky at the bottom, three items (Home, Workspace, Plans) with a 22 px icon and an 11.5 px label; active item has ink text and a 2 px accent line on top; background paper at 88% with blur. Not in the desktop layout. Signed in: Home, Workspace, My, Plans (decided Oct 25, DECISIONS #62); the boards show only the signed-out bar.
 - Design boards: desktop 1280, mobile 390. Container max 1200.
 
 ## 3. Screens
@@ -158,4 +158,4 @@ Navbar: Home, Workspace, People (signed in), My reports (signed in), Plans; Log 
 - **Busy state:** when a daily AI cap is reached the page shows the outcome-style message "Busy today, try again tomorrow", with the cached example as the next step.
 
 ## OPEN questions in this file
-1. Exact content of the Moments board (reference only; confirm before using it for the Home animation).
+None. (The Moments board is reference only and not in Tier A, DECISIONS #63.)

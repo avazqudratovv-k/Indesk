@@ -11,14 +11,14 @@ Repo: this one (monorepo: `web/`, `api/`, `docs/`). Product detail: `docs/ai/SPE
 - Work follows `docs/ai/ROADMAP.md` in order (UI first, then backend, then swap mock to real). Check a box only when its "done when" is true.
 
 ## Commands
-Nothing is built yet (ROADMAP 1.2 and 3.1 create these). Update this section when each exists.
-- Web (`web/`): install `npm ci`; dev `npm run dev` (port 3000); build `npm run build`; lint `npm run lint`; typecheck `npm run typecheck`; tests `npm test`.
+`web/` exists; `api/` is only a stub (ROADMAP 3.1 creates it). Update this section as things appear.
+- Web (`web/`, exists): install `npm ci`; dev `npm run dev` (port 3000); build `npm run build`; lint `npm run lint`; typecheck `npm run typecheck`. No test runner yet (add with the first real logic).
 - API (`api/`): Python 3.12 virtualenv in `api/.venv`; dev `uvicorn app.main:app --reload` (port 8000); lint `ruff check .`; typecheck `mypy .`; tests `pytest`; migrations `alembic upgrade head`.
 - All services: `docker compose up` (API, Postgres + pgvector, Redis, RQ worker).
-- Ports and exact script names are placeholders until the folders exist; verify before relying on them.
+- The `api/` commands are placeholders until it exists; verify before relying on them.
 
 ## Project layout
-- `web/` — Next.js app: `app/` routes, `components/`, `styles/tokens.css`, `messages/` (en, ko), `mocks/` (mock JSON from DATA.md)
+- `web/` — Next.js 16 app: `app/` routes (`app/dev/tokens` is a dev-only swatch page), `components/`, `styles/tokens.css`; later `messages/` (en, ko) and `mocks/`
 - `api/` — FastAPI app: routers, agents, Gemini gateway, sandbox runner, models, migrations, tests; model IDs in a config file
 - `docs/ai/` — SPEC, DECISIONS, DATA, ROADMAP, STATE, BACKLOG, LEARNING (the project's memory)
 - `docs/security/SECURITY.md` — security plan and status

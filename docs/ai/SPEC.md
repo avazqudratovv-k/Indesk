@@ -111,7 +111,7 @@ There is **no admin role** in v1. Operate through the database and logs.
 ## 6. Constraints
 - **Deadline:** about 2026-11-01 (two weeks from 2026-10-18); 12 to 14 hours a day planned. Only Tier A is promised for that date.
 - **Budget:** $0 while developing on the Gemini free tier. After moving to the paid tier, a **$20 monthly limit** until deploy. Per-run cost caps (estimated at paid prices, tracked even on the free tier): Ask about $0.05, Check about $0.12, Compare about $0.08.
-- **AI provider:** Google Gemini only, key only on the server. **Free-tier warning:** Google's pricing page says free-tier content is used to improve Google's products; paid tier is not. So while on the free tier, use only the public Seoul demo data and test files, never real private files. Move to the paid tier before recruiters or anyone else upload their own files. `OPEN:` the date for that move; recommendation: before the link is shared.
+- **AI provider:** Google Gemini only, key only on the server. **Free-tier warning:** Google's pricing page says free-tier content is used to improve Google's products; paid tier is not. So while on the free tier, use only the public Seoul demo data and test files, never real private files. Move to the paid tier before recruiters or anyone else upload their own files. The move happens before the link is shared with anyone (decided Oct 25).
 - **Must-learn (first AI project):** FastAPI, pandas, computer vision/OCR, NLP, RAG, LLMs, agent orchestration. The user wants to understand each step.
 - **Languages:** English and Korean first; all text in translation files so Japanese, Russian and Uzbek can be added after (the design already has all five).
 - **Touch targets:** at least 44 px on mobile.
@@ -129,4 +129,4 @@ There is **no admin role** in v1. Operate through the database and logs.
 - A recruiter who uploads their own big file gets either a correct cited answer or a clear, polite message ("needs better input", size limit, "busy today"), never a crash.
 
 ## OPEN questions in this file
-1. Date to move from the Gemini free tier to the paid tier (recommend: before the link is shared with anyone).
+None. (The paid-tier switch happens before the link is shared; hosting is the user's existing VPS with an sslip.io hostname.)

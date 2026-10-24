@@ -46,7 +46,7 @@ Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 dec
 | 31 | Oct 25 | Time budget: 35 s per model request, shared across the whole fallback chain. A model that errors, hits a rate limit (HTTP 429) or runs out of its slice passes the request to the next model. If all fail, the agent shows "Failed" with Retry | Within the 30 to 40 s the user asked for | Fixed 45 s per step |
 | 32 | Oct 25 | Per-user daily cap: 30 runs and 300 model calls. Global daily cap: 100 runs and 1,000 model calls (the cached example is excluded). Starting values in config; tune after reading the project's real limits at aistudio.google.com/rate-limit | The free tier has per-project limits that Google no longer lists in one table | No caps |
 | 33 | Oct 25 | Free tier only while developing, with public demo data only. Move to the paid tier (billing on, $20 monthly limit) before anyone uploads their own files | Google's pricing page says free-tier content is used to improve Google's products; paid is not | Using real files on the free tier |
-| 34 | Oct 25 | Embeddings: a Gemini embedding model. `OPEN:` the exact model ID and vector size. Recommend: pick the current Gemini embedding model in AI Studio, store the vector size in config, and keep BGE-M3 (local) only as a comparison test | "Gemini for all AI features" | BGE-M3 as the main choice |
+| 34 | Oct 25 | Embeddings: a Gemini embedding model. Model ID and vector size are decided at the backend step (ROADMAP 3.12), not now (Oct 25). Plan: pick the current Gemini embedding model in AI Studio, store the vector size in config, and keep BGE-M3 (local) only as a comparison test | "Gemini for all AI features" | BGE-M3 as the main choice |
 | 35 | Oct 24 | Compute in code: pandas on the whole file; the model sees column names, a sample and results | Reliable on big files | Sending whole files to the model |
 | 36 | Oct 24 | Agents return structured results (claim, value, method, evidence, confidence, caveats); the app renders them and draws charts | Consistent look, numbers cannot change | Free-form AI formatting |
 | 37 | Oct 24 | Orchestration: our own typed state machine | Learn how agents work; easy to test | Heavy agent frameworks |
@@ -70,7 +70,7 @@ Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 dec
 | 51 | Oct 25 | Styling: CSS variables from DESIGN.md with CSS Modules; no component library | The design is custom | A component library |
 | 52 | Oct 25 | i18n: `next-intl` | Works with the Next.js App Router | none discussed |
 | 53 | Oct 25 | Touch targets at least 44 px on mobile | Accessibility | 38 px small buttons |
-| 54 | Oct 25 | Hosting: one small VPS running Docker Compose with nginx in front, and a free subdomain. `OPEN:` which VPS company and which free subdomain service. Recommend choosing when deploying, by price and a nearby region | Simple and cheap | none discussed |
+| 54 | Oct 25 | Hosting: the same VPS as the user's other project, running Docker Compose with nginx in front, with an sslip.io hostname (decided Oct 25) | Simple and cheap | none discussed |
 | 55 | Oct 25 | Repo folders: `web/`, `api/`, `docs/ai/`, `docs/security/`, `docs/design/` (design files inside docs, no top-level `design/`); `AGENTS.md` and `.gitignore` at the repo root | User decision | A top-level `design/` |
 | 56 | Oct 24 | Tests: pytest; 50-question benchmark in CI | Proof it works | none discussed |
 | 57 | Oct 25 | Roadmap is UI-first: skeleton and tokens, then each screen on mock data, then backend, then swap mock to real, then deploy | See the product early; screens define the data | Backend first |
@@ -82,7 +82,11 @@ Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 dec
 | 59 | Oct 19 | Logo "Assembly" (five dots around a file); animal agent look | Memorable | none discussed |
 | 60 | Oct 24 | Themes: Nocturne (light) and Midnight (dark, more than a black background); desktop and mobile boards | Polish for recruiters | Plain black dark mode |
 | 61 | Oct 24 | Collaboration and the fine-tuned router come after v1 | Scope | Building them in v1 |
+| 62 | Oct 25 | Mobile bottom tab bar: signed in = Home, Workspace, My, Plans; signed out = Home, Workspace, Plans. People is reached from the desktop navbar and from My. | The design boards show only the signed-out bar; the user decided the signed-in one | Five tabs |
+| 63 | Oct 25 | The Moments board is not in Tier A; it is reference only and is left for later | Time | Using it for the Home animation now |
+| 64 | Oct 25 | The paid Gemini tier is switched on before the link is shared with anyone (same as #33) | Free-tier content is used by Google | Sharing the link on the free tier |
+| 65 | Oct 25 | The product demo notice uses the SPEC wording "Indesk is a demo. Do not upload private or sensitive files." The design boards' "clickable design mockup" footer text is not used | The app is real, not a mockup | Board wording |
 
 ## OPEN questions in this file
-1. Gemini embedding model ID and vector size (#34).
-2. VPS company and free subdomain service (#54).
+1. Gemini embedding model ID and vector size (#34), decided at ROADMAP 3.12.
+2. Confirm every Gemini model ID in Google AI Studio before the first real call (#30).

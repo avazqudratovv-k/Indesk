@@ -6,26 +6,32 @@
 Updated: 2026-10-25
 
 ## Status in one line
-Design and docs are finished; no app code yet. Roadmap 0 of 7 items in section 1 done. Deadline for Tier A: about 2026-11-01.
+Design and docs finished. ROADMAP 1.1 to 1.3 done in code (repo folders, Next.js app with all routes, design tokens and swatch page). No real screens yet. Tier A deadline about 2026-11-01.
 
 ## Last session
-- Checked `docs/design/DESIGN.md` against `docs/design/source/`: colors all matched; fixed missing tokens, report paper details, radius table, spacing, mobile padding (20, not 16), the 700 px report breakpoint, the mobile bottom tab bar, and screen file names.
-- Filled in `AGENTS.md` (stack, commands, layout, Gemini rules) and adapted `.claude/rules/` to `web/` and `api/`.
+- Recorded the answers to the OPEN items in DECISIONS (#34, #54, #62 to #65), SPEC, ROADMAP and DESIGN.
+- 1.1: created `web/` and `api/` (stub, `.env.example` with names only); `.env` already ignored.
+- 1.2: Next.js 16.4.3 app, one placeholder page per route, plus dev-only `/dev/tokens`.
+- 1.3: `web/styles/tokens.css` (light, dark, `.dk`, report paper), fonts loaded from Google Fonts, `data-theme` on `<html>`, CSS Modules.
+- Passed: lint, typecheck, build. Swatch page checked in headless Chrome at 390 and 1280 px.
 
 ## In progress
-- ROADMAP 1.1 (repo and docs) — next exact step: create `web/` and `api/` folders, `.env.example` files with placeholder names only, and confirm `.env` is ignored. Waiting for the user's OK on the plan.
+- Nothing. Stopped after 1.3 as agreed.
 
 ## Next
-1. ROADMAP 1.1 to 1.7: skeleton, tokens, base components, layout shell, translations, mock data.
+1. ROADMAP 1.4 base components, 1.5 layout shell (with the mobile tab bar from DECISIONS #62), 1.6 translations, 1.7 mock data.
 2. ROADMAP section 2: each screen on mock data.
-3. ROADMAP section 3: backend (Gemini gateway 3.8 needs model IDs confirmed in Google AI Studio first).
+3. ROADMAP section 3: backend (confirm Gemini model IDs in AI Studio first; choose the embedding model at 3.12).
 
 ## Known issues
-- None in code. Open questions: Gemini embedding model ID and vector size (DECISIONS #34); VPS company and free subdomain (#54); date for the move to the paid Gemini tier (SPEC); signed-in items of the mobile tab bar (DESIGN.md).
-- The design source files include `support.js` by reference but it is not in the repo; the boards don't render on their own (read them as markup).
+- Pinned TypeScript 6.0.3, not 7.0.2: typescript-eslint does not support TS 7 yet. Revisit when it does.
+- `next dev` writes `web/AGENTS.md` (Next.js agent rules) on its own; kept for now, can be disabled with `agentRules: false` in next.config.
+- The theme toggle on `/dev/tokens` (whole page light/dark) was not clicked in a browser; the dark palette itself was checked via its scoped panels.
+- The design source references `support.js`, which is not in the repo; boards don't render alone.
+- No test runner yet.
 
 ## Environments
-- Local: frontend http://localhost:3000, API http://localhost:8000 (planned), DB not created yet
+- Local: frontend http://localhost:3000, API http://localhost:8000 (planned); swatch page http://localhost:3000/dev/tokens, DB not created yet
 - Production: not deployed yet
 
 ## Releases

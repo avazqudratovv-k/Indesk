@@ -1,0 +1,143 @@
+/* Design tokens from docs/design/DESIGN.md (values checked against docs/design/source/). */
+:root,
+[data-theme="light"] {
+  --paper: #EDEFF5;
+  --paper2: #E3E6EF;
+  --card: #F8F9FC;
+  --rule: #D5D9E5;
+  --rule2: #AEB4C7;
+  --ink: #0A0D18;
+  --ink2: #2A2F42;
+  --mute: #636A80;
+  --accent: #5B49F0;
+  --accentInk: #FFFFFF;
+  --accentSoft: #E6E3FF;
+  --accentText: #4033C4;
+  --green: #0B7F54;
+  --ok: var(--green);
+  --greenBg: #D8F2E4;
+  --bad: #D93A22;
+  --badBg: #FFE6E1;
+  --badLine: #F2A598;
+  --warn: #8A5A00;
+  --warnBg: #FFF0C9;
+  --warm: #FFF0C9;
+  --hl: #DAD6FF;
+  --hlInk: #0A0D18;
+  --medal: #E3E6EF;
+  --track: #D5D9E5;
+  --disabled: #CBD0DD;
+  --code: #0B0E18;
+  --codeInk: #E8EAF4;
+  --quoteBg: #E3EEFF;
+  --quoteInk: #1B4C8F;
+  --grid: rgba(10, 13, 24, .07);
+  --dot: rgba(10, 13, 24, .28);
+  --shadow: 0 18px 40px -26px rgba(20, 24, 60, .35);
+  --glow: rgba(91, 73, 240, .25);
+  --c-owl: #C98A12;
+  --c-cham: #0E9F7E;
+  --c-bea: #D4601F;
+  --c-hou: #6C4CF0;
+  --c-cat: #D8316E;
+  --btn-grad: linear-gradient(135deg, #B3A6FF, #6FE3E8);
+  --btn-grad-ink: #07081A;
+  --sans: "Onest", "Noto Sans KR", "Noto Sans JP", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --paper: #0D1024;
+  --paper2: #12163A;
+  --card: #171C42;
+  --rule: #232A5A;
+  --rule2: #38417C;
+  --ink: #ECEEFF;
+  --ink2: #C5CAEC;
+  --mute: #8F97C9;
+  --accent: #A596FF;
+  --accentInk: #0B0A2A;
+  --accentSoft: #272470;
+  --accentText: #C6BDFF;
+  --green: #5CE5AA;
+  --greenBg: #103A33;
+  --bad: #FF8A7C;
+  --badBg: #3D1C2E;
+  --badLine: #8A3A4E;
+  --warn: #FFCB62;
+  --warnBg: #3A2E1A;
+  --warm: #3A2E1A;
+  --hl: #332F85;
+  --hlInk: #ECE9FF;
+  --medal: #1E2452;
+  --track: #262D63;
+  --disabled: #2B3270;
+  --code: #090B1F;
+  --codeInk: #E6E8FA;
+  --quoteBg: #14305A;
+  --quoteInk: #A9D6FF;
+  --grid: rgba(165, 175, 255, .08);
+  --dot: rgba(190, 198, 255, .35);
+  --shadow: 0 24px 60px -30px rgba(3, 5, 30, .95);
+  --glow: rgba(165, 150, 255, .38);
+  --c-owl: #F4BE55;
+  --c-cham: #52E0B8;
+  --c-bea: #F58E52;
+  --c-hou: #B49DFF;
+  --c-cat: #FF80B2;
+  color-scheme: dark;
+}
+
+/* Always-dark panels (code, dark cards inside the light theme). */
+.dk {
+  --paper: #06080F;
+  --paper2: #0B0E18;
+  --card: #0F1320;
+  --rule: #1A2030;
+  --rule2: #2E3650;
+  --ink: #EEF0FA;
+  --ink2: #BFC4D8;
+  --mute: #848CA6;
+  --accent: #9B8CFF;
+  --accentInk: #0A0A1E;
+  --accentSoft: #1C1A45;
+  --accentText: #B7ADFF;
+  --green: #5BE0A0;
+  --greenBg: #0F2A1D;
+  --bad: #FF7A6B;
+  --badBg: #331713;
+  --badLine: #7A3027;
+  --warn: #FFC857;
+  --warnBg: #2E2406;
+  --warm: #2E2406;
+  --hl: #2C2A63;
+  --hlInk: #E6E3FF;
+  --medal: #131828;
+  --track: #1E2538;
+  --disabled: #2A3144;
+  --code: #05060B;
+  --codeInk: #E4E6F2;
+  --quoteBg: #10223A;
+  --quoteInk: #9FD2FF;
+  --grid: rgba(255, 255, 255, .05);
+  --dot: rgba(255, 255, 255, .3);
+  --shadow: 0 20px 50px -28px rgba(0, 0, 0, .9);
+  --glow: rgba(155, 140, 255, .3);
+  --c-owl: #F0B54A;
+  --c-cham: #4FD9B0;
+  --c-bea: #F0884A;
+  --c-hou: #A28BFF;
+  --c-cat: #FF77A9;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* Report paper (design B): same in both themes. */
+:root {
+  --report-paper: #FBF8F1;
+  --report-ink: #1A1C28;
+  --report-ok: #0E7A4F;
+  --report-bad: #B3261E;
+  --report-mute: #6B7088;
+}
