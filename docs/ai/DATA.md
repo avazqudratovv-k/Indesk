@@ -248,5 +248,13 @@ Use these shapes for the UI-first mock data. The Seoul figures are placeholders 
 {"id":"bm_01","commit_sha":"a1b2c3d","score":44,"total":50,"details":{"failed":["q07","q19"]}}
 ```
 
+## summary_json shapes (mock, to confirm at 3.13 and 3.14)
+Taken from `web/mocks/reports.json`. Every shape has `answer`.
+- Ask: `{ "answer": string }`
+- Check: `{ "answer": string, "not_checked": string[] }`
+- Compare: `{ "answer": string, "totals": [{ "label", "a", "b", "change" }], "movers": [{ "label", "change_pct" }], "could_not_compare": string[] }`
+
+Example claim IDs overlap across reports because they are examples; real IDs are uuids.
+
 ## OPEN questions in this file
 1. The Gemini embedding model ID and its vector size `N` for `chunks.embedding` (recommend: choose the current Gemini embedding model in Google AI Studio and keep `N` in config).

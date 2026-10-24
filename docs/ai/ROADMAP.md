@@ -13,13 +13,13 @@ If time runs out, cut from the bottom: [C] first, then [B] items from the bottom
 How to work: for each item, Claude writes a prompt, you paste it into a fresh Claude Code session, paste back the report, then commit. Never put keys in prompts. The Gemini key goes only in `api/.env` (ignored by git), and Claude Code never reads it.
 
 ## 1. Skeleton, design tokens, layout
-- [ ] **1.1 [A] Repo and docs.** Create the repo with `web/`, `api/`, `docs/ai/`, `docs/security/`, `docs/design/`. Put `SPEC.md`, `DECISIONS.md`, `DATA.md`, `ROADMAP.md` in `docs/ai/`; `SECURITY.md` in `docs/security/`; `DESIGN.md`, the board sources in `docs/design/source/` and the board PNGs in `docs/design/png/` (names like `0. Home.png` and `Mobile · 0. Home.png`) in `docs/design/`. Add `AGENTS.md` and a `.gitignore` containing `.env` at the repo root. Done when: docs are in place and `.env` is ignored.
-- [ ] **1.2 [A] Next.js app.** `web/`: Next.js App Router, TypeScript, one empty page per route in `DESIGN.md`. Done when: every route opens and shows its name.
-- [ ] **1.3 [A] Design tokens.** `tokens.css` with all light and dark variables from `DESIGN.md`, fonts loaded, theme switch via `data-theme`, CSS Modules for components. Done when: a test page shows every color swatch in both themes.
-- [ ] **1.4 [A] Base components.** Button (default, ink, primary, sm/lg), icon button, eyebrow, card, chip, demo notice. Touch targets at least 44 px on mobile. Done when: a components page shows each in light and dark.
-- [ ] **1.5 [A] Layout shell.** Navbar (links, language switch, theme toggle, avatar), footer with the demo notice, 760 px breakpoint, signed-in/signed-out nav, mobile bottom tab bar (signed in: Home, Workspace, My, Plans; signed out: Home, Workspace, Plans). Done when: it matches the Home board at 1280 and 390 px.
-- [ ] **1.6 [A] Translations.** `next-intl`; `en` and `ko` files with keys for all UI text. Done when: switching language changes the navbar and footer.
-- [ ] **1.7 [A] Mock data.** `web/mocks/*.json` using the example records in `DATA.md`, plus a development switch "signed in / signed out". Done when: a page can read a mock report.
+- [x] **1.1 [A] Repo and docs.** Create the repo with `web/`, `api/`, `docs/ai/`, `docs/security/`, `docs/design/`. Put `SPEC.md`, `DECISIONS.md`, `DATA.md`, `ROADMAP.md` in `docs/ai/`; `SECURITY.md` in `docs/security/`; `DESIGN.md`, the board sources in `docs/design/source/` and the board PNGs in `docs/design/png/` (names like `0. Home.png` and `Mobile · 0. Home.png`) in `docs/design/`. Add `AGENTS.md` and a `.gitignore` containing `.env` at the repo root. Done when: docs are in place and `.env` is ignored.
+- [x] **1.2 [A] Next.js app.** `web/`: Next.js App Router, TypeScript, one empty page per route in `DESIGN.md`. Done when: every route opens and shows its name.
+- [x] **1.3 [A] Design tokens.** `tokens.css` with all light and dark variables from `DESIGN.md`, fonts loaded, theme switch via `data-theme`, CSS Modules for components. Done when: a test page shows every color swatch in both themes.
+- [x] **1.4 [A] Base components.** Button (default, ink, primary, sm/lg), icon button, eyebrow, card, chip, demo notice. Touch targets at least 44 px on mobile. Done when: a components page shows each in light and dark.
+- [x] **1.5 [A] Layout shell.** Navbar (links, language switch, theme toggle, avatar), footer with the demo notice, 760 px breakpoint, signed-in/signed-out nav, mobile bottom tab bar (signed in: Home, Workspace, My, Plans; signed out: Home, Workspace, Plans). Done when: it matches the Home board at 1280 and 390 px.
+- [x] **1.6 [A] Translations.** `next-intl`; `en` and `ko` files with keys for all UI text. Done when: switching language changes the navbar and footer.
+- [x] **1.7 [A] Mock data.** `web/mocks/*.json` using the example records in `DATA.md`, plus a development switch "signed in / signed out". Done when: a page can read a mock report.
 
 ## 2. Screens on mock data (one per item)
 - [ ] **2.1 [A] Home.** Headline, looping silent demo (can be a recorded animation), "Try with an example", team, three modes.

@@ -130,7 +130,7 @@ Routes below are accepted. Design images are in `docs/design/png/` and design so
 Navbar: Home, Workspace, People (signed in), My reports (signed in), Plans; Log in and Sign up when signed out.
 
 ## 4. Components
-- **Navbar:** brand, links with accent underline on the active one, language switch (buttons on desktop, dropdown on mobile), theme toggle, avatar.
+- **Navbar:** brand, links with accent underline on the active one, language switch (buttons on desktop, dropdown on mobile), theme toggle, avatar. The footer shows the tagline "Indesk · field notes for your files" under the demo notice.
 - **Buttons:** default, ink, primary (gradient), sizes sm / default / lg; icon button.
 - **Eyebrow label** (small mono caps with accent dot or line), **cards**, **chips** (pills), **footer**.
 - **Mode switch** (Ask / Check / Compare) and **tabs** (Ask / Agents at work); both use `aria-pressed` buttons.

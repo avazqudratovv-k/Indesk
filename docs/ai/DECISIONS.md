@@ -75,6 +75,9 @@ Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 dec
 | 56 | Oct 24 | Tests: pytest; 50-question benchmark in CI | Proof it works | none discussed |
 | 57 | Oct 25 | Roadmap is UI-first: skeleton and tokens, then each screen on mock data, then backend, then swap mock to real, then deploy | See the product early; screens define the data | Backend first |
 | 58 | Oct 19 | Working method: Claude writes prompts for Claude Code; no secrets in prompts; `.env` never read by Claude Code; minimum database rights | Security and control | none discussed |
+| 66 | Oct 25 | Locale comes from the `NEXT_LOCALE` cookie, no URL prefix (next-intl without i18n routing) | Simple routes; matches the routes in DESIGN.md | Locale in the URL |
+| 67 | Oct 25 | The mock session (`dev_session` cookie) is ignored in production builds; `/dev/*` pages return 404 in production | The deployed demo must never fake a sign-in | none discussed |
+| 68 | Oct 25 | Mock files use the shape `{ "_note", "records" }` so invented values can be marked as placeholders | Honesty about what is real | none discussed |
 
 ## Design
 | # | Date | Decision | Why | Rejected alternatives |
