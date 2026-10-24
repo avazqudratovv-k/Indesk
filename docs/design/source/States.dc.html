@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indesk · States</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EDEFF5}
+.dd{--paper:#EDEFF5;--paper2:#E3E6EF;--card:#F8F9FC;--rule:#D5D9E5;--rule2:#AEB4C7;--ink:#0A0D18;--ink2:#2A2F42;--mute:#636A80;--accent:#5B49F0;--accentInk:#FFFFFF;--accentSoft:#E6E3FF;--accentText:#4033C4;--green:#0B7F54;--greenBg:#D8F2E4;--hl:#DAD6FF;--hlInk:#0A0D18;--medal:#E3E6EF;--warn:#8A5A00;--warnBg:#FFF0C9;--grid:rgba(10,13,24,.07);--glow:rgba(91,73,240,.25);--shadow:0 18px 40px -26px rgba(20,24,60,.35);
+--c-owl:#C98A12;--c-cham:#0E9F7E;--c-bea:#D4601F;--c-hou:#6C4CF0;--c-cat:#D8316E;
+--bg:var(--paper);--feedFlag:var(--badBg);--feedFlagInk:var(--bad);--mgr:var(--c-owl);--surface:var(--card);--surface2:var(--paper2);--line:var(--rule);--line2:var(--rule2);--ok:var(--green);--okBg:var(--greenBg);--bad:#D93A22;--badBg:#FFE6E1;--badLine:#F2A598;--scene:var(--paper2);--warm:#FFF0C9;--track:#D5D9E5;--disabled:#CBD0DD;--code:#0B0E18;--codeInk:#E8EAF4;--quoteBg:#E3EEFF;--quoteInk:#1B4C8F;--dot:rgba(10,13,24,.28);
+--serif:'Onest','Noto Sans KR','Noto Sans JP',system-ui,sans-serif;--sans:'Onest','Noto Sans KR','Noto Sans JP',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+position:relative;isolation:isolate;min-height:100%;box-sizing:border-box;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.dd[data-theme="dark"]{--paper:#0D1024;--paper2:#12163A;--card:#171C42;--rule:#232A5A;--rule2:#38417C;--ink:#ECEEFF;--ink2:#C5CAEC;--mute:#8F97C9;--accent:#A596FF;--accentInk:#0B0A2A;--accentSoft:#272470;--accentText:#C6BDFF;--green:#5CE5AA;--greenBg:#103A33;--hl:#332F85;--hlInk:#ECE9FF;--medal:#1E2452;--bad:#FF8A7C;--badBg:#3D1C2E;--badLine:#8A3A4E;--warm:#3A2E1A;--warn:#FFCB62;--warnBg:#3A2E1A;--track:#262D63;--disabled:#2B3270;--code:#090B1F;--codeInk:#E6E8FA;--quoteBg:#14305A;--quoteInk:#A9D6FF;--grid:rgba(165,175,255,.08);--glow:rgba(165,150,255,.38);--shadow:0 24px 60px -30px rgba(3,5,30,.95);--dot:rgba(190,198,255,.35);--c-owl:#F4BE55;--c-cham:#52E0B8;--c-bea:#F58E52;--c-hou:#B49DFF;--c-cat:#FF80B2}
+.dd .dk{--paper:#06080F;--paper2:#0B0E18;--card:#0F1320;--rule:#1A2030;--rule2:#2E3650;--ink:#EEF0FA;--ink2:#BFC4D8;--mute:#848CA6;--accent:#9B8CFF;--accentInk:#0A0A1E;--accentSoft:#1C1A45;--accentText:#B7ADFF;--green:#5BE0A0;--greenBg:#0F2A1D;--hl:#2C2A63;--hlInk:#E6E3FF;--medal:#131828;--bad:#FF7A6B;--badBg:#331713;--badLine:#7A3027;--warm:#2E2406;--warn:#FFC857;--warnBg:#2E2406;--track:#1E2538;--disabled:#2A3144;--code:#05060B;--codeInk:#E4E6F2;--quoteBg:#10223A;--quoteInk:#9FD2FF;--grid:rgba(255,255,255,.05);--glow:rgba(155,140,255,.3);--shadow:0 20px 50px -28px rgba(0,0,0,.9);--dot:rgba(255,255,255,.3);--c-owl:#F0B54A;--c-cham:#4FD9B0;--c-bea:#F0884A;--c-hou:#A28BFF;--c-cat:#FF77A9;color:var(--ink)}
+.dd *{box-sizing:border-box}
+.dd a{color:inherit;text-decoration:none}
+.dd button,.dd input,.dd select,.dd textarea{font-family:inherit}
+.dd a:focus-visible,.dd button:focus-visible,.dd input:focus-visible,.dd select:focus-visible,.dd textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;padding:0;border:0;background:none;font:700 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.eyebrow i{display:block;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:blinksq 2s ease-in-out infinite}
+.display{font-family:var(--serif);font-weight:300;letter-spacing:-.04em;line-height:1;margin:0}
+.h2{font-family:var(--serif);font-weight:300;letter-spacing:-.03em;line-height:1.08;margin:0;font-size:46px}
+.h3{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;margin:0;font-size:22px;line-height:1.2}
+.lede{font-size:18px;line-height:1.65;color:var(--ink2);margin:0}
+.sub{font-size:17px;line-height:1.55;color:var(--mute);margin:0}
+.fine{font-size:13.5px;color:var(--mute)}
+.mono{font-family:var(--mono)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border:1px solid var(--rule2);border-radius:12px;background:color-mix(in srgb,var(--card) 55%,transparent);backdrop-filter:blur(10px);color:var(--ink);font:500 15px var(--sans);cursor:pointer;transition:transform .2s,box-shadow .25s,border-color .2s,background .2s;text-align:center}
+.btn:hover{border-color:var(--ink);transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.btn-ink{background:var(--ink);color:var(--paper);border-color:var(--ink);backdrop-filter:none}
+.btn-red{background:linear-gradient(135deg,#B3A6FF,#6FE3E8);border-color:transparent;color:#07081A;font-weight:600;backdrop-filter:none}
+.btn-red:hover{border-color:transparent;box-shadow:0 0 0 5px var(--glow),0 12px 30px -10px rgba(111,227,232,.55)}
+.btn-lg{min-height:54px;padding:0 28px;font-size:16.5px}
+.btn-sm{min-height:38px;padding:0 15px;font-size:14px}
+.icon-btn{width:40px;height:40px;border:1px solid var(--rule2);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s}
+.icon-btn:hover{border-color:var(--ink)}
+.rule{border:0;border-top:1px solid var(--rule2);margin:0}
+.mast{background:color-mix(in srgb,var(--paper) 62%,transparent);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:30}
+.mast-in{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:70px}
+.brand{display:inline-flex;align-items:center;gap:10px}
+@media (max-width:760px){.brand-n{display:none}.mast-r{gap:6px}.nl{padding:0 8px}.btn-sm{padding:0 11px}}
+.brand-n{font-family:var(--sans,Onest,sans-serif);font-weight:400;font-size:25px;letter-spacing:-.045em}
+.nav{display:flex;gap:2px}
+.nl{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;font-size:14.5px;font-weight:500;color:var(--mute);border-radius:8px;position:relative}
+.nl:hover{color:var(--ink)}
+.nl.on{color:var(--ink)}
+.nl.on::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.mast-r{display:flex;align-items:center;gap:10px}
+.langs{display:flex;gap:0;margin-right:6px;border:1px solid var(--rule2);border-radius:12px;padding:2px;background:transparent}
+.lg{border:0;border-radius:9px;background:transparent;color:var(--mute);font:500 12.5px var(--sans);min-height:30px;padding:0 9px;cursor:pointer}
+.lg[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.lang-sel{min-height:40px;border:1px solid var(--rule2);border-radius:12px;background:var(--card);color:var(--ink);font:500 14px var(--sans);padding:0 8px}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#B3A6FF,#6FE3E8);color:#07081A;display:inline-flex;align-items:center;justify-content:center;font:600 16px var(--serif)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;padding-top:22px;padding-bottom:28px;margin-top:48px;border-top:1px solid var(--rule);font:400 12px var(--mono);color:var(--mute)}
+.tabbar{display:none}
+.only-mob{display:none !important}
+.med{position:relative;display:inline-block;flex:none}
+.med svg{display:block;width:100%;height:100%}
+.med.idle svg{filter:grayscale(1);opacity:.5}
+.med.run svg{animation:tilt 1.2s ease-in-out infinite}
+.med.flag svg{animation:shk .45s ease-in-out 3}
+.med .badge{position:absolute;right:-4px;top:-4px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 12px var(--mono);color:#fff;border:2px solid var(--paper)}
+.med .zz{position:absolute;right:-6px;top:-8px;font:500 14px var(--serif);color:var(--mute);animation:zz 1.8s ease-in-out infinite}
+@keyframes tilt{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-2px)}}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes zz{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes stampin{0%{opacity:0;transform:scale(2.2) rotate(-12deg)}70%{opacity:1;transform:scale(.95) rotate(-7deg)}100%{opacity:1;transform:scale(1) rotate(-7deg)}}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes blinkeye{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+@keyframes orb{to{transform:rotate(360deg)}}
+@keyframes blinksq{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes kb{from{transform:scale(1.04) translate(0,0)}to{transform:scale(1.16) translate(-2.5%,2%)}}
+@keyframes hpkb{from{background-size:112% auto;background-position:30% 40%}to{background-size:128% auto;background-position:62% 55%}}
+@keyframes sweepx{from{transform:translateX(0)}to{transform:translateX(1200px)}}
+@keyframes dotdrift{from{background-position:0 0}to{background-position:18px 18px}}
+@keyframes ringrot{to{transform:rotate(360deg)}}
+@keyframes gridmove{from{background-position:0 0,0 0}to{background-position:0 72px,72px 0}}
+@keyframes scanmove{from{transform:translateY(-240px)}to{transform:translateY(1500px)}}
+@keyframes breathe{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+.fadein,.ev{animation:rise .35s ease-out}
+.gbar{transform-origin:left center;animation:grow .7s ease-out both}
+.stampbox{display:inline-block;border:2px solid var(--green);border-radius:6px;color:var(--green);padding:5px 12px;font:600 14px var(--mono);letter-spacing:.1em;background:transparent;animation:stampin .5s cubic-bezier(.2,.8,.3,1) both}
+.mqwrap{overflow:hidden;white-space:nowrap;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);color:var(--mute);margin-top:28px}
+.mq{display:inline-flex;animation:mq 40s linear infinite}
+.mq span{padding:12px 0;font:500 12.5px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.bg{position:absolute;left:0;top:0;width:100%;height:100%;z-index:-1;overflow:hidden;pointer-events:none;background:var(--paper)}
+.bgimg{position:absolute;left:0;top:0;width:100%;height:100%;background:url(/_blob/b45d51cb071fad7fdc5ba72970c497ed) top center/max(100%,1200px) auto repeat-y;opacity:.55}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--paper) 70%,transparent) 0,transparent 260px)}
+.dd[data-theme="light"] .bgimg{filter:invert(1) hue-rotate(180deg) saturate(1.3);mix-blend-mode:multiply;opacity:.42}
+.bgn{position:absolute;left:0;top:0;width:100%;height:100%;opacity:.05}
+.dd[data-theme="dark"] .bgn{opacity:.07}
+.heropanel{position:relative;border-radius:28px;overflow:hidden;border:1px solid var(--rule2);background:#05070d;box-shadow:0 50px 100px -50px rgba(0,0,0,.8);isolation:isolate}
+.heropanel::before{content:"";position:absolute;inset:-8%;z-index:0;background:url(/_blob/73abdf69737f0c0955a8f754bd003587) center/cover no-repeat;animation:hpz 36s ease-in-out infinite alternate}
+.heropanel>*{position:relative;z-index:1}.heropanel>.hgrain{position:absolute}
+@keyframes hpz{from{transform:scale(1) translate(-2%,-1%)}to{transform:scale(1.1) translate(2%,2%)}}
+.sidepanel{border-radius:24px;overflow:hidden;border:1px solid var(--rule2);background:#05070d url(/_blob/480df26e41df353bdd9757217d65797f) center/cover no-repeat;position:relative}
+.bandpanel{border-radius:24px;overflow:hidden;border:1px solid var(--rule2);background:#05070d url(/_blob/6e666e4abd79b9aa021cd1d827de5657) center/cover no-repeat}
+.hgrain{position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 80% at 15% 30%,rgba(5,7,13,.75),transparent 70%)}
+.dd [style*="background: var(--surface);"]{background:color-mix(in srgb,var(--card) 68%,transparent) !important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow)}
+.ey{transform-box:fill-box;transform-origin:center;animation:blinkeye 5.4s infinite}
+.ey2{animation-duration:6.3s;animation-delay:-1.2s}.ey3{animation-duration:4.9s;animation-delay:-2.6s}.ey4{animation-duration:7.1s;animation-delay:-3.3s}
+.led{animation:blinksq 2s ease-in-out infinite;border-radius:50%;box-shadow:0 0 8px currentColor}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.3,1),border-color .3s,box-shadow .35s}
+.lift:hover{transform:translateY(-6px);border-color:var(--accent) !important;box-shadow:0 26px 60px -30px var(--glow) !important}
+.lift svg{animation:floaty 6s ease-in-out infinite}
+.lift:nth-child(2n) svg{animation-duration:7.2s;animation-delay:-1.3s}
+.lift:nth-child(3n) svg{animation-duration:5.4s;animation-delay:-2.1s}
+.brand svg{transition:transform .5s}.brand:hover svg{transform:rotate(-8deg)}
+.orbit{position:absolute;left:50%;top:50%;width:780px;height:780px;margin:-390px 0 0 -390px;z-index:-1;pointer-events:none}
+.orbit .o{transform-origin:50% 50%;transform-box:view-box}
+.o1{animation:orb 80s linear infinite}.o2{animation:orb 120s linear infinite reverse}.o3{animation:orb 170s linear infinite}
+@media (max-width:760px){
+.bgimg{background-size:max(100%,1100px) auto}
+.wrap{padding:0 20px}
+.only-desk{display:none !important}
+.only-mob{display:inline-flex !important}
+.mast-in{min-height:60px}
+.brand-n{font-size:23px}
+.h2{font-size:32px}
+.lede{font-size:16.5px}
+.orbit{display:none}
+.dd{overflow-x:clip}
+.tabbar{display:grid !important;grid-auto-flow:column;grid-auto-columns:1fr;position:sticky;bottom:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--rule2);margin-top:40px}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 10px;font:500 11.5px var(--sans);color:var(--mute)}
+.tabbar a.on{color:var(--ink);box-shadow:inset 0 2px 0 var(--accent)}
+.foot{margin-top:28px}
+.mqwrap,.dd [class^="fcap"]{display:none !important}
+}
+@media (prefers-reduced-motion: reduce){.med.run svg,.med.flag svg,.med .zz,.fadein,.ev,.gbar,.stampbox,.mq,.eyebrow i,.ey,.lift svg,.led,.bgimg,.heropanel,.heropanel::before,.o1,.o2,.o3{animation:none !important}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes stamp{0%{opacity:0;transform:scale(2.4) rotate(-14deg)}70%{opacity:1;transform:scale(0.94) rotate(-8deg)}100%{opacity:1;transform:scale(1) rotate(-8deg)}}
+.gbar{transform-origin:left center;animation:grow .7s ease-out both}
+.stamp{animation:stamp .5s cubic-bezier(.2,.8,.3,1) both}
+@media (prefers-reduced-motion: reduce){.gbar,.stamp{animation:none !important}}
+
+.mob-block{display:none}
+.dd h1,.dd h2{font-family:var(--serif)}.dd h1,.dd h2{font-weight:300;letter-spacing:-.03em}.dd h3{font-weight:500}
+@media (max-width:760px){
+.dd{overflow-x:clip}
+.side{order:-1;flex-basis:100% !important}
+.dd main,.dd section{padding-left:20px !important;padding-right:20px !important}
+.dd main{padding-top:22px !important}
+.dd [style*="grid-template-columns"]{grid-template-columns:1fr !important}
+.dd h1{font-size:40px !important;line-height:1.05 !important}
+.dd [style*="padding: 40px 44px"]{padding:28px 22px !important}
+.dd [style*="font-size: 38px"]{font-size:30px !important}
+.dd [style*="white-space: nowrap"]{white-space:normal !important}
+.mob-block{display:block !important}
+.dd table{display:block;overflow-x:auto}
+}
+
+
+/*fx-css-start*/
+.fx-spin{animation:fxspin 1.1s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes fxspin{to{transform:rotate(360deg)}}
+.fx-zz{animation:fxzz 1.8s ease-in-out infinite}
+@keyframes fxzz{0%,100%{opacity:.35}50%{opacity:1}}
+@media (prefers-reduced-motion: reduce){.fx-spin,.fx-zz{animation:none !important}}
+.fx-sec{background:var(--surface);border:1px solid var(--rule2);border-radius:14px;padding:26px;display:flex;flex-direction:column;gap:18px}
+.fx-sec h2{margin:0;font-size:22px;font-weight:400;letter-spacing:-.02em}
+.fx-sub{margin:0;font-size:14.5px;line-height:1.55;color:var(--mute);max-width:760px}
+.fx-pill{display:inline-flex;align-items:center;min-height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:700;white-space:nowrap}
+.fx-btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 16px;border-radius:12px;border:1px solid var(--rule2);background:var(--card);color:var(--ink);font:600 13.5px var(--sans);cursor:pointer}
+.fx-btn:hover{border-color:var(--ink)}
+.fx-btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accentInk)}
+.fx-seg{display:inline-flex;border:1px solid var(--rule2);border-radius:12px;padding:2px;gap:2px;background:transparent;flex-wrap:wrap}
+.fx-seg button{border:0;border-radius:9px;background:transparent;color:var(--mute);font:600 13px var(--sans);min-height:34px;padding:0 12px;cursor:pointer}
+.fx-seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.fx-lab{font:700 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+
+.fx-top{border:1px solid var(--line2);background:var(--surface);color:var(--ink);border-radius:14px;padding:0 16px;min-height:50px;font:600 14px var(--sans);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.fx-top:hover{border-color:var(--ink)}
+.fx-top[aria-expanded="true"],.btn[aria-expanded="true"]{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.fx-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.ws-tabs{display:flex;gap:4px;border-bottom:1px solid var(--rule2);margin-bottom:-6px;flex-wrap:wrap}
+.ws-tab{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 20px;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--mute);font:600 15px var(--sans);cursor:pointer;margin-bottom:-1px}
+.ws-tab:hover{color:var(--ink)}
+.ws-tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.ws-n{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--medal);color:var(--ink2);font:700 12.5px var(--mono)}
+.ws-tab[aria-selected="true"] .ws-n{background:var(--accent);color:var(--accentInk)}
+.ws-live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);animation:blinksq 1.2s ease-in-out infinite}
+.ws-peek{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;background:var(--warm);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
+.ws-peek b{font-size:17px}.ws-peek p{margin:4px 0 0;font-size:14.5px;color:var(--ink2);max-width:640px;line-height:1.5}
+.evleg{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:13px;color:var(--mute)}
+.evleg span{display:inline-flex;align-items:center;gap:6px}
+.mp-help{margin:-4px 0 0;font-size:13.5px;color:var(--mute);max-width:640px;line-height:1.5}
+.mp-ft{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:24px;padding:0 8px;border-radius:6px;font:700 11.5px var(--mono);color:#fff}
+/*fx-css-end*/
+/*dkv2-start*/
+.dd[data-theme="dark"]{color-scheme:dark}
+.dd[data-theme="dark"] .bg{background:radial-gradient(900px 620px at 8% -8%,rgba(122,92,255,.30),transparent 62%),radial-gradient(760px 520px at 100% 4%,rgba(42,205,225,.16),transparent 60%),radial-gradient(820px 560px at 52% 105%,rgba(255,110,170,.12),transparent 62%),var(--paper)}
+.dd[data-theme="dark"] .bgimg{opacity:.14;mix-blend-mode:screen;filter:hue-rotate(20deg) saturate(1.2)}
+.dd[data-theme="dark"] [style*="var(--surface)"],.dd[data-theme="dark"] [style*="var(--card)"],.dd[data-theme="dark"] .fx-sec{box-shadow:inset 0 1px 0 rgba(200,208,255,.09),0 22px 46px -30px rgba(3,5,32,.95)}
+.dd[data-theme="dark"] .display,.dd[data-theme="dark"] main h1{background:linear-gradient(180deg,#FFFFFF 12%,#BFB7FF 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.dd[data-theme="dark"] .btn-red,.dd[data-theme="dark"] .avatar{box-shadow:0 0 0 1px rgba(255,255,255,.18) inset,0 10px 30px -12px rgba(120,100,255,.7)}
+.dd[data-theme="dark"] ::selection{background:rgba(165,150,255,.4)}
+.dd[data-theme="dark"] *{scrollbar-color:#38417C transparent}
+/*dkv2-end*/
+</style>
+</helmet>
+<div class="dd" data-theme="{{theme}}">
+<div class="bg" aria-hidden="true"><i class="bgimg"></i>
+<svg class="bgn" aria-hidden="true"><filter id="nz"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0"/></filter><rect width="100%" height="100%" filter="url(#nz)"/></svg></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="h-owl" viewBox="0 0 100 100"><image href="/_blob/cd7693b1f5766043ebb07f70c1910249" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-cham" viewBox="0 0 100 100"><image href="/_blob/38ae874554d23765475ed410b74d8ac2" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-bea" viewBox="0 0 100 100"><image href="/_blob/34b349f4eeb78baaac5dad8cca39e264" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-hou" viewBox="0 0 100 100"><image href="/_blob/d505f19c2b90e901668f7bc9de17be36" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-cat" viewBox="0 0 100 100"><image href="/_blob/0634a5f3a713a03bb8af51a7568c6f50" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol></defs></svg>
+
+<header class="mast"><div class="wrap mast-in">
+<a class="brand" href="Home.dc.html" aria-label="Indesk"><svg width="40" height="40" viewBox="0 0 48 48" role="img" aria-label="Indesk" style="display:block;flex:none;color:var(--ink,currentColor)"><g transform="translate(0 -2)" fill="currentColor"><circle cx="6.2" cy="26.5" r="3.6"/><circle cx="13.1" cy="17.4" r="3.6"/><circle cx="24" cy="14" r="3.6"/><circle cx="34.9" cy="17.4" r="3.6"/><circle cx="41.8" cy="26.5" r="3.6"/><path d="M17 24 H27.5 L32 28.5 V40 C32 41.1 31.1 42 30 42 H18 C16.9 42 16 41.1 16 40 V25 C16 24.4 16.4 24 17 24 Z"/></g></svg><span class="brand-n">indesk</span></a>
+<nav class="nav only-desk" aria-label="Main"><a class="nl" href="Home.dc.html">{{t.navHome}}</a><a class="nl" href="Workspace.dc.html">{{t.navWork}}</a><a class="nl" href="Plans.dc.html">{{t.navPlans}}</a></nav>
+<div class="mast-r">
+<div class="langs only-desk" role="group" aria-label="Language"><sc-for list="{{langs}}" as="g" hint-placeholder-count="5"><button class="lg" aria-pressed="{{g.on}}" onClick="{{g.pick}}">{{g.label}}</button></sc-for></div>
+<select class="lang-sel only-mob" aria-label="Language" value="{{langCode}}" onChange="{{pickSel}}"><option value="en">EN</option><option value="ko">한국어</option><option value="ja">日本語</option><option value="ru">RU</option><option value="uz">UZ</option></select>
+<button class="icon-btn" onClick="{{toggleTheme}}" aria-label="{{t.themeLabel}}"><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></sc-if><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></sc-if></button>
+<a class="nl" href="Login.dc.html">{{t.login}}</a><a class="btn btn-red btn-sm" href="Signup.dc.html">{{t.signup}}</a>
+</div></div></header>
+<main style="max-width:1200px;margin:0 auto;padding:36px 32px 0;display:flex;flex-direction:column;gap:24px;box-sizing:border-box">
+<div><div style="font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">8 · States and rules</div><h1 style="margin:6px 0 0;font-family:var(--serif);font-weight:300;letter-spacing:-.03em;font-size:44px;line-height:1.1">When things do not go to plan</h1><p style="margin:10px 0 0;font-size:16px;line-height:1.55;color:var(--mute);max-width:720px">Every run ends in one clear outcome, and every agent shows what really happened. This board holds the screens and rules decided in the logic discussion.</p></div><section class="fx-sec" aria-labelledby="fx-st">
+<div><h2 id="fx-st">{{fx.s.stTitle}}</h2><p class="fx-sub" style="margin-top:6px">{{fx.s.stSub}}</p></div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px">
+<sc-for list="{{fx.agents}}" as="a" hint-placeholder-count="5">
+<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+<svg width="88" height="88" viewBox="0 0 88 88" aria-hidden="true">
+<g style="{{a.medStyle}}"><circle cx="44" cy="44" r="33" fill="var(--surface)"/><use href="{{a.sym}}" x="10" y="10" width="68" height="68"/></g>
+<circle class="{{a.ringCls}}" cx="44" cy="44" r="40" fill="none" stroke="{{a.ring}}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="{{a.dash}}"/>
+<sc-if value="{{a.badge}}" hint-placeholder-val="{{ true }}"><circle cx="72" cy="72" r="11" fill="{{a.badgeBg}}" stroke="var(--card)" stroke-width="2"/><text x="72" y="77" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" style="font-family:var(--sans)">{{a.badgeTxt}}</text></sc-if>
+</svg>
+<div style="font-weight:700;font-size:15px">{{a.name}}</div>
+<span class="fx-pill" style="background:{{a.pillBg}};color:{{a.pillFg}}">{{a.label}}</span>
+<div style="font-size:13px;line-height:1.45;color:var(--mute)">{{a.line}}</div>
+<sc-if value="{{a.retry}}" hint-placeholder-val="{{ false }}"><button class="fx-btn pri" type="button">{{fx.s.retry}}</button></sc-if>
+</div>
+</sc-for>
+</div>
+</section><section class="fx-sec" aria-labelledby="fx-oc">
+<div><h2 id="fx-oc">{{fx.s.oTitle}}</h2><p class="fx-sub" style="margin-top:6px">{{fx.s.oSub}}</p></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+<sc-for list="{{fx.outcomes}}" as="o" hint-placeholder-count="6">
+<div style="background:var(--card);border:1px solid var(--line);border-top:4px solid {{o.col}};border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="fx-pill" style="background:{{o.bg}};color:{{o.fg}}">{{o.label}}</span><span style="font:500 11.5px var(--mono);color:var(--mute)">{{o.count}}</span></div>
+<div style="font-size:18px;font-weight:600;line-height:1.3">{{o.head}}</div>
+<div style="font-size:14px;line-height:1.55;color:var(--ink2)">{{o.body}}</div>
+<sc-if value="{{o.hasChips}}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{o.chips}}" as="c" hint-placeholder-count="2"><span class="fx-btn" style="min-height:30px;font-size:12.5px">{{c}}</span></sc-for></div></sc-if>
+<sc-if value="{{o.hasBtn}}" hint-placeholder-val="{{ false }}"><div><button class="fx-btn pri" type="button">{{o.btn}}</button></div></sc-if>
+</div>
+</sc-for>
+</div>
+</section><section class="fx-sec" aria-labelledby="fx-th">
+<div><h2 id="fx-th">{{fx.s.thTitle}}</h2><p class="fx-sub" style="margin-top:6px">{{fx.s.thSub}}</p></div>
+<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden">
+<div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--line);font-size:13px">
+<span style="font-family:var(--mono)">{{fx.s.thFile}}</span>
+<span style="display:flex;gap:10px;flex-wrap:wrap"><span class="fx-pill" style="background:var(--accentSoft);color:var(--accentText)">{{fx.s.thKept}}</span><span class="fx-pill" style="background:var(--medal);color:var(--ink2)">{{fx.s.thUsed}}</span></span>
+</div>
+<div style="padding:20px 18px;display:flex;flex-direction:column;gap:14px">
+<div style="align-self:flex-end;max-width:70%;background:var(--accent);color:var(--accentInk);border-radius:16px 16px 4px 16px;padding:10px 16px;font-size:15px">{{fx.s.thQ}}</div>
+<div style="align-self:flex-start;max-width:86%;background:var(--surface);border:1px solid var(--rule2);border-radius:16px 16px 16px 4px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between">
+<span style="font-size:16px;line-height:1.5">{{fx.s.thA}}</span>
+<span style="border:2.5px solid var(--ok);color:var(--ok);border-radius:10px;padding:3px 10px;font-weight:700;font-size:13px;letter-spacing:.03em;transform:rotate(-4deg)">{{fx.s.thStamp}}</span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<sc-for list="{{fx.chips}}" as="c" hint-placeholder-count="3"><span class="fx-btn" style="flex-direction:column;align-items:flex-start;gap:0;padding:6px 14px;min-height:46px"><span>{{c.label}}</span><span style="font:600 11px var(--mono);color:{{c.col}}">{{c.cost}}</span></span></sc-for>
+</div>
+</div>
+<div style="display:flex;gap:10px;padding:12px 18px;border-top:1px solid var(--line);background:var(--surface2)">
+<div style="flex:1;min-height:42px;border:1px solid var(--rule2);border-radius:12px;background:var(--card);display:flex;align-items:center;padding:0 14px;color:var(--mute);font-size:14.5px">{{fx.s.thIn}}</div>
+<button class="fx-btn pri" type="button" style="min-height:42px">{{fx.s.thSend}}</button>
+</div>
+</div>
+<p class="fx-sub">{{fx.s.thHint}}</p>
+<div style="display:flex;gap:12px;align-items:flex-start;background:var(--warm);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-size:14px;line-height:1.5"><span aria-hidden="true" style="font-weight:700">i</span><span>{{fx.s.thExp}}</span></div>
+</section><section class="fx-sec" aria-labelledby="fx-ex">
+<div><h2 id="fx-ex">{{fx.s.exTitle}}</h2><p class="fx-sub" style="margin-top:6px">{{fx.s.exSub}}</p></div>
+<div style="display:grid;grid-template-columns:minmax(0,350px) minmax(0,1fr);gap:24px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:18px">
+<div><div class="fx-lab">{{fx.s.lbTpl}}</div><div class="fx-seg" role="group" aria-label="{{fx.s.lbTpl}}"><sc-for list="{{fx.tpls}}" as="b" hint-placeholder-count="4"><button type="button" aria-pressed="{{b.on}}" onClick="{{b.pick}}">{{b.label}}</button></sc-for></div></div>
+<div><div class="fx-lab">{{fx.s.lbFont}}</div><div class="fx-seg" role="group" aria-label="{{fx.s.lbFont}}"><sc-for list="{{fx.fonts}}" as="b" hint-placeholder-count="3"><button type="button" aria-pressed="{{b.on}}" onClick="{{b.pick}}">{{b.label}}</button></sc-for></div></div>
+<div><div class="fx-lab">{{fx.s.lbSize}}</div><div class="fx-seg" role="group" aria-label="{{fx.s.lbSize}}"><sc-for list="{{fx.sizes}}" as="b" hint-placeholder-count="3"><button type="button" aria-pressed="{{b.on}}" onClick="{{b.pick}}">{{b.label}}</button></sc-for></div></div>
+<div><div class="fx-lab">{{fx.s.exDl}}</div><div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{fx.exports}}" as="e" hint-placeholder-count="4"><button class="fx-btn" type="button" onClick="{{e.go}}">{{e.label}}</button></sc-for></div>
+<div style="min-height:22px;margin-top:8px;font:500 12.5px var(--mono);color:var(--ok)">{{fx.dlMsg}}</div>
+<p class="fx-sub" style="font-size:13px">{{fx.s.exNote}}</p></div>
+</div>
+<div style="background:#fff;color:#14161f;border:1px solid var(--rule2);border-radius:10px;box-shadow:var(--shadow);padding:30px 32px;font-family:{{fx.pv.font}};font-size:{{fx.pv.size}}px;line-height:1.5;min-width:0;overflow:hidden">
+<sc-if value="{{fx.isPlain}}" hint-placeholder-val="{{ true }}">
+<div style="font-weight:700;font-size:1.35em;letter-spacing:-.01em;margin-bottom:14px">{{fx.s.pvQ}}</div>
+<div style="font-size:.92em">
+<div style="display:flex;gap:8px;text-align:left;font-weight:700;border-bottom:2px solid #14161f;padding:6px 0"><span style="flex:0 0 34%">{{fx.s.cClaim}}</span><span style="flex:0 0 22%">{{fx.s.cValue}}</span><span style="flex:1 1 0">{{fx.s.cSrc}}</span><span style="flex:0 0 22%">{{fx.s.cStat}}</span></div>
+<sc-for list="{{fx.rows}}" as="r" hint-placeholder-count="3"><div style="display:flex;gap:8px;border-bottom:1px solid #d9dce6;padding:8px 0"><span style="flex:0 0 34%">{{r.claim}}</span><span style="flex:0 0 22%;font-weight:600">{{r.value}}</span><span style="flex:1 1 0;font-style:italic;color:#4a5068">{{r.src}}</span><span style="flex:0 0 22%;font-weight:700;color:{{r.col}}">{{r.mark}} {{r.stat}}</span></div></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{fx.isClassic}}" hint-placeholder-val="{{ false }}">
+<div style="text-align:center;border-bottom:1px solid #14161f;padding-bottom:12px;margin-bottom:16px"><div style="font-size:1.45em;font-weight:700">{{fx.s.pvQ}}</div></div>
+<sc-for list="{{fx.rows}}" as="r" hint-placeholder-count="3"><p style="margin:0 0 12px"><span style="font-weight:700">{{r.n}}.</span> {{r.claim}}: <span style="font-weight:700">{{r.value}}</span> <span style="font-style:italic;color:#4a5068">({{r.src}})</span> <span style="font-weight:700;color:{{r.col}}">{{r.mark}}</span></p></sc-for>
+</sc-if>
+<sc-if value="{{fx.isCompact}}" hint-placeholder-val="{{ false }}">
+<div style="font-weight:700;font-size:1.1em;margin-bottom:8px">{{fx.s.pvQ}}</div>
+<div style="font-size:.8em">
+<div style="display:flex;gap:8px;background:#14161f;color:#fff;text-align:left;font-weight:700;padding:4px 8px"><span style="flex:0 0 34%">{{fx.s.cClaim}}</span><span style="flex:0 0 22%">{{fx.s.cValue}}</span><span style="flex:1 1 0">{{fx.s.cSrc}}</span><span style="flex:0 0 8%"></span></div>
+<sc-for list="{{fx.rows}}" as="r" hint-placeholder-count="3"><div style="display:flex;gap:8px;padding:3px 8px;background:{{r.zebra}}"><span style="flex:0 0 34%">{{r.claim}}</span><span style="flex:0 0 22%;font-weight:700">{{r.value}}</span><span style="flex:1 1 0;font-style:italic;color:#4a5068">{{r.src}}</span><span style="flex:0 0 8%;font-weight:700;color:{{r.col}}">{{r.mark}}</span></div></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{fx.isSummary}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start"><div><div style="font-size:2.1em;font-weight:700;letter-spacing:-.02em;line-height:1.1">{{fx.s.smHead}}</div><div style="margin-top:6px;color:#4a5068">{{fx.s.smSub}}</div></div><div style="border:3px solid #0B7F54;color:#0B7F54;border-radius:12px;padding:5px 12px;font-weight:700;font-size:.85em;transform:rotate(-5deg)">{{fx.s.stampV}}</div></div>
+<ul style="margin:18px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px"><sc-for list="{{fx.rows}}" as="r" hint-placeholder-count="3"><li>{{r.claim}}: <b>{{r.value}}</b> <i style="color:#4a5068">({{r.src}})</i> <b style="color:{{r.col}}">{{r.mark}}</b></li></sc-for></ul>
+</sc-if>
+</div>
+</div>
+</section><section class="fx-sec" aria-labelledby="fx-up">
+<div><h2 id="fx-up">{{fx.s.upTitle}}</h2><p class="fx-sub" style="margin-top:6px">{{fx.s.upNote}}</p></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px">
+<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px"><div class="fx-lab" style="color:var(--ok)">{{fx.s.upOkL}}</div><div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{fx.upOk}}" as="x" hint-placeholder-count="4"><span class="fx-pill" style="background:var(--okBg);color:var(--ok);min-height:30px;font-size:13px">{{x}}</span></sc-for></div></div>
+<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px"><div class="fx-lab" style="color:var(--bad)">{{fx.s.upNoL}}</div><div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{fx.upNo}}" as="x" hint-placeholder-count="5"><span class="fx-pill" style="background:var(--badBg);color:var(--bad);min-height:30px;font-size:13px">{{x}}</span></sc-for></div></div>
+</div>
+</section>
+</main>
+<footer class="wrap foot"><span>Indesk · field notes for your files</span><span>{{t.demo}}</span></footer>
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2950}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    let dark = false;
+    try { dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { dark = false; }
+    this.state = { fxTpl: 'plain', fxFont: 'clean', fxSize: 'm', fxDl: '', fxFmt: 'pdf', fxPanel: '', fxShared: false, fxCopied: false, lang: 'en', theme: dark ? 'dark' : 'light' };
+  }
+  __fx(L) {
+    const st = this.state;
+    const set = (o) => this.setState(o);
+    const S = {
+      stTitle: L("How each agent can end", "각 에이전트가 끝나는 방식", "各エージェントの終わり方", "Как может закончить каждый агент", "Har bir agent qanday tugashi mumkin"),
+      stSub: L("Only the agents a question needs are woken. A failed agent is never hidden: it shows Failed and can be retried.", "질문에 필요한 에이전트만 깨웁니다. 실패한 에이전트는 숨기지 않고 “실패”로 표시하며 다시 시도할 수 있습니다.", "質問に必要なエージェントだけを起こします。失敗したエージェントは隠さず「失敗」と表示し、再試行できます。", "Включаются только нужные вопросу агенты. Сбой не скрывается: агент показывает «Сбой», его можно повторить.", "Savolga kerakli agentlargina uyg‘otiladi. Xato qilgan agent yashirilmaydi: “Xato” ko‘rsatiladi va qayta urinish mumkin."),
+      nOwl: L("Owl", "부엉이", "フクロウ", "Сова", "Boyqush"),
+      nCham: L("Chameleon", "카멜레온", "カメレオン", "Хамелеон", "Xameleon"),
+      nBea: L("Beaver", "비버", "ビーバー", "Бобёр", "Qunduz"),
+      nHou: L("Hound", "사냥개", "猟犬", "Гончая", "Ovchi it"),
+      nCat: L("Cat", "고양이", "ネコ", "Кот", "Mushuk"),
+      stDone: L("Done", "완료", "完了", "Готово", "Tayyor"),
+      stSkip: L("Skipped", "건너뜀", "スキップ", "Пропущен", "O‘tkazildi"),
+      stWork: L("Working", "작업 중", "作業中", "Работает", "Ishlamoqda"),
+      stFail: L("Failed", "실패", "失敗", "Сбой", "Xato"),
+      stWait: L("Waiting", "대기 중", "待機中", "Ждёт", "Kutmoqda"),
+      lnDone: L("Finished its part.", "맡은 일을 마쳤습니다.", "担当分を終えました。", "Свою часть закончил.", "O‘z qismini tugatdi."),
+      lnSkip: L("Not needed: no images in this file.", "필요 없음: 이 파일에 이미지가 없습니다.", "不要：このファイルに画像はありません。", "Не нужен: в файле нет изображений.", "Kerak emas: faylda rasm yo‘q."),
+      lnWork: L("Reading 41,200 rows…", "41,200행을 읽는 중…", "41,200行を読み込み中…", "Читает 41 200 строк…", "41 200 qator o‘qilmoqda…"),
+      lnFail: L("No answer after 45 s and one retry.", "45초 후 재시도에도 응답이 없습니다.", "45秒と1回の再試行でも応答がありません。", "Нет ответа за 45 с и после повтора.", "45 soniya va bir urinishdan keyin ham javob yo‘q."),
+      lnWait: L("Waits for the others.", "다른 에이전트를 기다립니다.", "他のエージェントを待っています。", "Ждёт остальных.", "Boshqalarni kutmoqda."),
+      retry: L("Retry", "다시 시도", "再試行", "Повторить", "Qayta urinish"),
+      oTitle: L("How a run can end", "실행이 끝나는 방식", "実行の終わり方", "Как может закончиться запуск", "Ishga tushirish qanday tugashi mumkin"),
+      oSub: L("Every run ends in exactly one of these outcomes. Nothing fails silently, and the model’s own memory is never used to fill a gap.", "모든 실행은 아래 결과 중 정확히 하나로 끝납니다. 조용히 실패하는 일은 없고, 모델의 기억으로 빈틈을 채우지 않습니다.", "すべての実行は次のいずれか1つで終わります。黙って失敗することはなく、モデルの記憶で穴を埋めることもありません。", "Каждый запуск заканчивается ровно одним из этих исходов. Тихих сбоев нет, а пробелы никогда не заполняются «памятью» модели.", "Har bir ishga tushirish aynan shu natijalardan biri bilan tugaydi. Jim xato yo‘q, bo‘shliqlar modelning xotirasi bilan to‘ldirilmaydi."),
+      o1l: L("Answered", "답변 완료", "回答済み", "Ответ получен", "Javob berildi"),
+      o1h: L("5 of 6 statements verified", "6개 진술 중 5개 검증", "6件中5件を検証", "Проверено 5 из 6 утверждений", "6 ta fikrdan 5 tasi tekshirildi"),
+      o1b: L("Every number links to the row or page it came from.", "모든 숫자는 출처 행이나 쪽으로 연결됩니다.", "すべての数字は元の行やページにリンクしています。", "Каждое число ведёт к строке или странице-источнику.", "Har bir raqam manba qatori yoki sahifasiga bog‘langan."),
+      o2l: L("Partial", "일부 완료", "一部完了", "Частично", "Qisman"),
+      o2h: L("Vision failed on page 3", "3쪽에서 비전 에이전트 실패", "3ページでビジョンが失敗", "Зрение не справилось на стр. 3", "3-sahifada Vision xato qildi"),
+      o2b: L("3 of 6 statements are verified. The ones that depend on page 3 are marked unverified.", "6개 중 3개만 검증되었습니다. 3쪽에 의존하는 진술은 “미검증”으로 표시됩니다.", "6件中3件を検証済み。3ページに依存する記述は「未検証」と表示されます。", "Проверено 3 из 6. Всё, что зависит от стр. 3, помечено как непроверенное.", "6 tadan 3 tasi tekshirildi. 3-sahifaga bog‘liq fikrlar “tekshirilmagan” deb belgilanadi."),
+      o2c: L("Retry Vision", "비전 다시 시도", "ビジョンを再試行", "Повторить Зрение", "Vision’ni qayta urinish"),
+      o3l: L("Not answerable", "답할 수 없음", "回答不可", "Ответа нет", "Javob topilmadi"),
+      o3h: L("The file does not cover 2015", "이 파일에는 2015년 내용이 없습니다", "このファイルは2015年を含みません", "В файле нет данных за 2015 год", "Fayl 2015-yilni qamramaydi"),
+      o3b: L("It holds ridership from 2019 to 2025 and nothing earlier. Here is what it does contain.", "2019~2025년 이용객 자료만 있고 그 이전 자료는 없습니다. 파일에 들어 있는 내용은 아래와 같습니다.", "2019〜2025年の利用者数のみで、それ以前のデータはありません。ファイルに含まれる内容は次のとおりです。", "В файле только пассажиропоток за 2019–2025 годы, более ранних данных нет. Вот что в нём есть.", "Faylda faqat 2019–2025-yillardagi yo‘lovchi oqimi bor, undan oldingisi yo‘q. Quyida nimalar borligi."),
+      o3c1: L("Ridership per year in this file?", "이 파일의 연도별 이용객은?", "このファイルの年別利用者数は？", "Пассажиропоток по годам в этом файле?", "Bu fayldagi yillar bo‘yicha yo‘lovchilar?"),
+      o3c2: L("Which station has the most riders?", "이용객이 가장 많은 역은?", "最も利用者が多い駅は？", "Какая станция самая загруженная?", "Qaysi bekatda yo‘lovchi eng ko‘p?"),
+      o4l: L("Needs better input", "더 나은 입력 필요", "入力の改善が必要", "Нужен файл получше", "Yaxshiroq fayl kerak"),
+      o4h: L("This photo is too blurry to read", "사진이 흐려서 읽을 수 없습니다", "写真がぼやけて読み取れません", "Фото слишком размыто", "Rasm o‘qish uchun juda xira"),
+      o4b: L("We could not find text we can trust. Try a sharper photo, or upload the original file.", "신뢰할 수 있는 글자를 찾지 못했습니다. 더 선명한 사진이나 원본 파일을 올려 주세요.", "信頼できる文字が見つかりませんでした。より鮮明な写真か元のファイルをアップロードしてください。", "Не нашли текста, которому можно доверять. Загрузите более чёткое фото или исходный файл.", "Ishonchli matn topilmadi. Aniqroq rasm yoki asl faylni yuklang."),
+      o4c: L("Upload again", "다시 올리기", "再アップロード", "Загрузить снова", "Qayta yuklash"),
+      o5l: L("Not accepted", "처리 불가", "受け付けられません", "Не принято", "Qabul qilinmadi"),
+      o5h: L("This file can’t be processed", "이 파일은 처리할 수 없습니다", "このファイルは処理できません", "Этот файл нельзя обработать", "Bu faylni qayta ishlab bo‘lmaydi"),
+      o5b: L("It was removed and not stored or read. See the upload rules.", "삭제되었으며 저장되거나 읽히지 않았습니다. 업로드 규칙을 확인하세요.", "削除され、保存も読み取りもされていません。アップロードのルールをご確認ください。", "Он удалён, не сохранён и не прочитан. См. правила загрузки.", "U o‘chirildi, saqlanmadi va o‘qilmadi. Yuklash qoidalariga qarang."),
+      o6l: L("Failed", "실패", "失敗", "Сбой", "Xato"),
+      o6h: L("Something broke on our side", "저희 쪽에서 문제가 생겼습니다", "当社側で問題が発生しました", "Что-то сломалось у нас", "Bizning tomonda nosozlik yuz berdi"),
+      o6b: L("Please try again. This run was not used up.", "다시 시도해 주세요. 이번 실행은 차감되지 않았습니다.", "もう一度お試しください。今回の実行は消費されていません。", "Попробуйте ещё раз. Этот запуск не списан.", "Qayta urinib ko‘ring. Bu ishga tushirish hisobga olinmadi."),
+      o6c: L("Try again", "다시 시도", "もう一度", "Ещё раз", "Qayta urinish"),
+      o7l: L("Checked, mismatches found", "확인 완료, 불일치 발견", "確認済み・不一致あり", "Проверено, есть расхождения", "Tekshirildi, nomuvofiqliklar bor"),
+      o7h: L("4 of 6 claims hold, 1 does not match", "6개 주장 중 4개 일치, 1개 불일치", "6件中4件が一致、1件が不一致", "4 из 6 утверждений верны, 1 не совпадает", "6 ta da’vodan 4 tasi to‘g‘ri, 1 tasi mos emas"),
+      o7b: L("The report shows the document’s figure next to the figure we computed, and marks the one it could not verify.", "보고서는 문서의 수치와 우리가 계산한 수치를 나란히 보여 주고, 검증하지 못한 항목도 표시합니다.", "レポートは文書の数値と計算した数値を並べて示し、検証できなかった項目も明記します。", "В отчёте цифра из документа стоит рядом с нашей, а непроверенное утверждение помечено.", "Hisobotda hujjatdagi raqam biz hisoblagan raqam yonida ko‘rsatiladi, tekshirib bo‘lmagani belgilanadi."),
+      o8l: L("Files cannot be compared", "파일을 비교할 수 없음", "ファイルを比較できません", "Файлы нельзя сравнить", "Fayllarni solishtirib bo‘lmaydi"),
+      o8h: L("These two files share no columns", "두 파일에 공통 열이 없습니다", "2つのファイルに共通の列がありません", "У этих файлов нет общих столбцов", "Bu ikki faylda umumiy ustun yo‘q"),
+      o8b: L("We say why and what to try instead, for example two months of the same table. This run is not used up.", "이유와 대안(예: 같은 표의 두 달 치)을 알려 드립니다. 이번 실행은 차감되지 않습니다.", "理由と代わりの方法（例：同じ表の2か月分）をお伝えします。今回の実行は消費されません。", "Мы объясним причину и предложим другой вариант, например два месяца одной таблицы. Запуск не списывается.", "Sababini va boshqa yo‘lni aytamiz, masalan bir jadvalning ikki oyi. Bu ishga tushirish hisobdan chiqmaydi."),
+      o9l: L("Nothing to check", "확인할 내용 없음", "確認対象なし", "Нечего проверять", "Tekshiradigan narsa yo‘q"),
+      o9h: L("The document has no checkable claims", "문서에 확인할 수 있는 주장이 없습니다", "文書に確認できる主張がありません", "В документе нет проверяемых утверждений", "Hujjatda tekshirib bo‘ladigan da’vo yo‘q"),
+      o9b: L("Opinions and general statements are listed as “not checked”. We never guess a number to fill the gap.", "의견과 일반적인 서술은 “확인하지 않음”으로 표시합니다. 빈틈을 메우려고 숫자를 추측하지 않습니다.", "意見や一般的な記述は「未確認」として一覧にします。空白を埋めるために数字を推測することはありません。", "Мнения и общие фразы помечены «не проверялось». Мы никогда не выдумываем цифру, чтобы закрыть пробел.", "Fikrlar va umumiy gaplar “tekshirilmadi” deb belgilanadi. Bo‘shliqni to‘ldirish uchun raqamni taxmin qilmaymiz."),
+      cnt1: L("Counts as a run", "실행 횟수에 포함", "実行回数に含む", "Считается запуском", "Ishga tushirish sifatida sanaladi"),
+      cnt0: L("Not counted", "횟수에 미포함", "回数に含まない", "Не считается", "Sanalmaydi"),
+      thTitle: L("Ask more about the same file", "같은 파일에 더 물어보기", "同じファイルについてさらに質問", "Ещё вопросы по тому же файлу", "Shu fayl haqida yana so‘rang"),
+      thSub: L("No re-upload. The file is prepared once, so follow-ups are faster and cheaper.", "다시 올릴 필요가 없습니다. 파일은 한 번만 준비하므로 후속 질문이 더 빠르고 저렴합니다.", "再アップロードは不要です。ファイルは一度だけ準備されるため、追加の質問はより速く低コストです。", "Повторная загрузка не нужна. Файл готовится один раз, поэтому следующие вопросы быстрее и дешевле.", "Qayta yuklash shart emas. Fayl bir marta tayyorlanadi, shuning uchun keyingi savollar tezroq va arzonroq."),
+      thFile: L("seoul-subway-ridership.csv · 3,640 rows", "seoul-subway-ridership.csv · 3,640행", "seoul-subway-ridership.csv · 3,640行", "seoul-subway-ridership.csv · 3 640 строк", "seoul-subway-ridership.csv · 3 640 qator"),
+      thKept: L("File kept for 23 h", "파일 보관 23시간 남음", "ファイル保存 残り23時間", "Файл хранится ещё 23 ч", "Fayl yana 23 soat saqlanadi"),
+      thUsed: L("3 of 10 questions used", "질문 10개 중 3개 사용", "10問中3問を使用", "Использовано 3 из 10 вопросов", "10 ta savoldan 3 tasi ishlatildi"),
+      thQ: L("Which stations grew fastest since 2019?", "2019년 이후 가장 빨리 성장한 역은?", "2019年以降に最も伸びた駅は？", "Какие станции росли быстрее всего с 2019 года?", "2019-yildan beri qaysi bekatlar eng tez o‘sdi?"),
+      thA: L("Hapjeong (+18.2%), Seongsu (+16.9%) and Magok (+14.1%) grew the most.", "합정(+18.2%), 성수(+16.9%), 마곡(+14.1%)이 가장 많이 성장했습니다.", "合井（+18.2%）、聖水（+16.9%）、馬谷（+14.1%）が最も伸びました。", "Больше всего выросли Хапчжон (+18,2%), Соннсу (+16,9%) и Магок (+14,1%).", "Eng ko‘p o‘sganlar: Hapjeong (+18,2%), Seongsu (+16,9%) va Magok (+14,1%)."),
+      thStamp: L("VERIFIED 4/4", "검증 4/4", "検証済み 4/4", "ПРОВЕРЕНО 4/4", "TEKSHIRILDI 4/4"),
+      thC1: L("Show as a table", "표로 보기", "表で見る", "Показать таблицей", "Jadval ko‘rinishida"),
+      thC2: L("Why was claim 3 flagged?", "3번 진술이 표시된 이유는?", "記述3が指摘された理由は？", "Почему отмечено утверждение 3?", "3-fikr nega belgilandi?"),
+      thC3: L("Ask a new question", "새 질문하기", "新しい質問", "Новый вопрос", "Yangi savol"),
+      thFree: L("Free", "무료", "無料", "Бесплатно", "Bepul"),
+      thCost: L("Uses 1 question", "질문 1개 사용", "1問を使用", "Тратит 1 вопрос", "1 ta savol ishlatadi"),
+      thIn: L("Ask about this file…", "이 파일에 대해 질문…", "このファイルについて質問…", "Спросите об этом файле…", "Shu fayl haqida so‘rang…"),
+      thSend: L("Ask", "질문", "質問", "Спросить", "So‘rash"),
+      thHint: L("Tables and explanations are free. A new question uses 1 of your 10 per file.", "표 변환과 설명은 무료입니다. 새 질문은 파일당 10개 중 1개를 사용합니다.", "表への変換と説明は無料です。新しい質問はファイルごとの10問のうち1問を使います。", "Таблицы и пояснения бесплатны. Новый вопрос тратит 1 из 10 на файл.", "Jadval va tushuntirishlar bepul. Yangi savol har fayl uchun 10 tadan 1 tasini ishlatadi."),
+      thExp: L("File expired. Your reports stay here; upload the file again to ask more.", "파일이 만료되었습니다. 보고서는 그대로 남아 있으며, 더 질문하려면 파일을 다시 올려 주세요.", "ファイルの保存期限が切れました。レポートは残ります。続けて質問するにはファイルを再アップロードしてください。", "Срок хранения файла истёк. Отчёты остаются; чтобы спросить ещё, загрузите файл снова.", "Fayl muddati tugadi. Hisobotlar qoladi; yana so‘rash uchun faylni qayta yuklang."),
+      exTitle: L("Report style and download", "보고서 스타일과 다운로드", "レポートのスタイルとダウンロード", "Стиль отчёта и скачивание", "Hisobot uslubi va yuklab olish"),
+      exSub: L("Pick a template and a typeface. Styling is applied after the analysis, never by the AI, so a re-format can never change a number or hide a warning.", "템플릿과 서체를 고르세요. 스타일은 분석이 끝난 뒤 적용되며 AI가 만지지 않으므로, 형식을 바꿔도 숫자가 바뀌거나 경고가 사라지지 않습니다.", "テンプレートと書体を選びます。スタイルは分析後に適用され、AIは関与しないため、形式を変えても数字が変わったり警告が消えたりしません。", "Выберите шаблон и шрифт. Стиль применяется после анализа и без участия ИИ, поэтому смена формата не изменит число и не спрячет предупреждение.", "Shablon va shriftni tanlang. Uslub tahlildan keyin qo‘llanadi va sun’iy intellektsiz bajariladi, shuning uchun format o‘zgarishi raqamni o‘zgartirmaydi va ogohlantirishni yashirmaydi."),
+      lbTpl: L("Template", "템플릿", "テンプレート", "Шаблон", "Shablon"),
+      lbFont: L("Typeface", "서체", "書体", "Шрифт", "Shrift"),
+      lbSize: L("Text size", "글자 크기", "文字サイズ", "Размер текста", "Matn o‘lchami"),
+      tPlain: L("Plain", "기본", "シンプル", "Простой", "Oddiy"),
+      tClassic: L("Classic", "클래식", "クラシック", "Классика", "Klassik"),
+      tCompact: L("Compact table", "컴팩트 표", "コンパクト表", "Компактная таблица", "Ixcham jadval"),
+      tSummary: L("Summary", "요약형", "要約", "Резюме", "Xulosa"),
+      fClean: L("Clean", "깔끔", "クリーン", "Чистый", "Toza"),
+      fSerif: L("Serif", "세리프", "セリフ", "С засечками", "Serif"),
+      fTech: L("Technical", "테크니컬", "テクニカル", "Технический", "Texnik"),
+      pvQ: L("Which stations grew fastest since 2019?", "2019년 이후 가장 빨리 성장한 역은?", "2019年以降に最も伸びた駅は？", "Какие станции росли быстрее всего с 2019 года?", "2019-yildan beri qaysi bekatlar eng tez o‘sdi?"),
+      cClaim: L("Claim", "진술", "記述", "Утверждение", "Fikr"),
+      cValue: L("Value", "값", "値", "Значение", "Qiymat"),
+      cSrc: L("Source", "출처", "出典", "Источник", "Manba"),
+      cStat: L("Status", "상태", "状態", "Статус", "Holat"),
+      r1c: L("Fastest-growing station", "가장 빨리 성장한 역", "最も伸びた駅", "Быстрее всего выросла станция", "Eng tez o‘sgan bekat"),
+      r1v: L("Hapjeong +18.2%", "합정 +18.2%", "合井 +18.2%", "Хапчжон +18,2%", "Hapjeong +18,2%"),
+      r1s: L("rows 1–3,640", "1–3,640행", "1–3,640行", "строки 1–3 640", "1–3 640-qatorlar"),
+      r2c: L("Second place", "2위", "2位", "Второе место", "Ikkinchi o‘rin"),
+      r2v: L("Seongsu +16.9%", "성수 +16.9%", "聖水 +16.9%", "Соннсу +16,9%", "Seongsu +16,9%"),
+      r2s: L("rows 1–3,640", "1–3,640행", "1–3,640行", "строки 1–3 640", "1–3 640-qatorlar"),
+      r3c: L("New line caused the growth", "새 노선이 성장의 원인", "新線が成長の原因", "Причина роста — новая линия", "O‘sishga yangi liniya sabab"),
+      r3v: L("not confirmed", "확인 안 됨", "未確認", "не подтверждено", "tasdiqlanmadi"),
+      r3s: L("not in the files", "파일에 없음", "ファイルに記載なし", "нет в файлах", "fayllarda yo‘q"),
+      okS: L("Verified", "검증됨", "検証済み", "Проверено", "Tekshirildi"),
+      badS: L("Flagged", "표시됨", "要確認", "Отмечено", "Belgilandi"),
+      smHead: L("Hapjeong, +18.2%", "합정, +18.2%", "合井、+18.2%", "Хапчжон, +18,2%", "Hapjeong, +18,2%"),
+      smSub: L("grew fastest since 2019 according to your file (rows 1–3,640).", "(파일 1–3,640행 기준) 2019년 이후 가장 빨리 성장한 역입니다.", "あなたのファイル（1–3,640行）では、2019年以降で最も伸びた駅です。", "быстрее всего выросла с 2019 года по вашему файлу (строки 1–3 640).", "faylingizga ko‘ra (1–3 640-qatorlar) 2019-yildan beri eng tez o‘sgan."),
+      stampV: L("VERIFIED 2/3", "검증 2/3", "検証済み 2/3", "ПРОВЕРЕНО 2/3", "TEKSHIRILDI 2/3"),
+      exPdf: L("PDF", "PDF", "PDF", "PDF", "PDF"),
+      exWord: L("Word", "Word", "Word", "Word", "Word"),
+      exXls: L("Excel", "Excel", "Excel", "Excel", "Excel"),
+      exCsv: L("CSV", "CSV", "CSV", "CSV", "CSV"),
+      exTop: L("Style & download", "스타일과 다운로드", "スタイルとダウンロード", "Стиль и скачивание", "Uslub va yuklab olish"),
+      exFmt: L("Format", "형식", "形式", "Формат", "Format"),
+      exDl: L("Download", "다운로드", "ダウンロード", "Скачать", "Yuklab olish"),
+      exReady: L("Ready:", "준비됨:", "準備完了：", "Готово:", "Tayyor:"),
+      exNote: L("Free on every plan. CSV holds the data only, with no styling.", "모든 요금제에서 무료입니다. CSV에는 스타일 없이 데이터만 담깁니다.", "すべてのプランで無料です。CSVにはスタイルなしでデータのみが入ります。", "Бесплатно на всех тарифах. CSV содержит только данные, без стилей.", "Barcha tariflarda bepul. CSV faqat ma’lumotni saqlaydi, uslubsiz."),
+      upTitle: L("What you can upload", "업로드할 수 있는 것", "アップロードできるもの", "Что можно загрузить", "Nimalarni yuklash mumkin"),
+      upOkL: L("Works with", "지원", "対応", "Поддерживается", "Qo‘llab-quvvatlanadi"),
+      upNoL: L("Not supported", "지원 안 함", "非対応", "Не поддерживается", "Qo‘llab-quvvatlanmaydi"),
+      ok1: L("CSV tables", "CSV 표", "CSV表", "CSV-таблицы", "CSV jadvallar"),
+      ok2: L("PDFs with text", "텍스트가 있는 PDF", "テキスト入りPDF", "PDF с текстом", "Matnli PDF"),
+      ok3: L("Photos and scans", "사진과 스캔본", "写真とスキャン", "Фото и сканы", "Rasm va skanerlar"),
+      ok4: L("Pasted text, up to 200 KB", "붙여넣은 텍스트 (최대 200KB)", "貼り付けたテキスト（最大200KB）", "Вставленный текст до 200 КБ", "Joylangan matn, 200 KB gacha"),
+      no1: L("Video or audio", "동영상·오디오", "動画・音声", "Видео и аудио", "Video va audio"),
+      no2: L("Word or PowerPoint (later)", "Word·PowerPoint (추후)", "Word・PowerPoint（今後）", "Word и PowerPoint (позже)", "Word va PowerPoint (keyin)"),
+      no3: L("Password-protected PDFs", "암호 걸린 PDF", "パスワード付きPDF", "PDF с паролем", "Parolli PDF"),
+      no4: L("ZIP archives", "ZIP 압축 파일", "ZIPアーカイブ", "ZIP-архивы", "ZIP arxivlar"),
+      no5: L("Live databases or web links", "실시간 DB·웹 링크", "ライブDB・Webリンク", "Живые БД и веб-ссылки", "Jonli ma’lumotlar bazasi va havolalar"),
+      upNote: L("Large files are fine: the numbers are computed over the whole file, and the model only reads column names, a sample and the results.", "큰 파일도 괜찮습니다. 숫자는 파일 전체에서 계산하고, 모델은 열 이름·샘플·결과만 읽습니다.", "大きなファイルも問題ありません。数値はファイル全体で計算され、モデルは列名・サンプル・結果だけを読みます。", "Большие файлы — не проблема: числа считаются по всему файлу, а модель читает только названия столбцов, образец и результаты.", "Katta fayllar muammo emas: raqamlar butun fayl bo‘yicha hisoblanadi, model faqat ustun nomlari, namuna va natijalarni o‘qiydi."),
+      btnShare: L("Share", "공유", "共有", "Поделиться", "Ulashish"),
+      btnShared: L("Shared", "공유 중", "共有中", "Общий доступ", "Ulashilgan"),
+      shTitle: L("Share this report", "이 보고서 공유하기", "このレポートを共有", "Поделиться отчётом", "Hisobotni ulashish"),
+      shPrivate: L("Private right now. Only you can open this report. Nobody else can see it unless you create a link.", "지금은 비공개입니다. 나만 열 수 있고, 링크를 만들기 전까지 아무도 볼 수 없습니다.", "現在は非公開です。リンクを作成しない限り、あなた以外は見られません。", "Сейчас отчёт приватный. Его видите только вы, пока не создадите ссылку.", "Hozir shaxsiy. Havola yaratmaguningizcha faqat siz ochasiz."),
+      shCreate: L("Create a read-only link", "읽기 전용 링크 만들기", "閲覧専用リンクを作成", "Создать ссылку для чтения", "Faqat o‘qish uchun havola yaratish"),
+      shOn: L("Shared. Anyone with this link can read the report. They cannot see your files or change anything.", "공유 중입니다. 링크가 있는 사람은 보고서를 읽을 수 있지만, 파일을 보거나 수정할 수는 없습니다.", "共有中です。リンクを知っている人はレポートを読めますが、ファイルの閲覧や変更はできません。", "Отчёт открыт по ссылке. Любой с ссылкой может его читать, но не увидит ваши файлы и ничего не изменит.", "Ulashilgan. Havolasi borlar hisobotni o‘qiy oladi, ammo fayllaringizni ko‘ra olmaydi va hech narsani o‘zgartira olmaydi."),
+      shCopy: L("Copy link", "링크 복사", "リンクをコピー", "Копировать ссылку", "Havolani nusxalash"),
+      shCopied: L("Copied", "복사됨", "コピーしました", "Скопировано", "Nusxalandi"),
+      shUnshare: L("Unshare", "공유 중지", "共有を停止", "Закрыть доступ", "Ulashishni to‘xtatish"),
+      shExp: L("The link stops working in 6 days, or the moment you press Unshare.", "링크는 6일 뒤 또는 공유 중지를 누르는 즉시 작동하지 않습니다.", "リンクは6日後、または共有停止を押した瞬間に無効になります。", "Ссылка перестанет работать через 6 дней или сразу после «Закрыть доступ».", "Havola 6 kundan keyin yoki “To‘xtatish” bosilgan zahoti ishlamay qoladi."),
+      shPrev: L("See what viewers will see", "보는 사람에게 보이는 화면 미리보기", "閲覧者に見える画面を確認", "Посмотреть, что увидят читатели", "Ko‘ruvchilar nimani ko‘rishini ko‘rish"),
+      evLegend: L("Every claim shows where it comes from", "모든 주장은 출처를 함께 보여줍니다", "すべての主張に出典を表示します", "У каждого утверждения указан источник", "Har bir da’vo manbasini ko‘rsatadi"),
+      evT: L("Table rows", "표의 행", "表の行", "Строки таблицы", "Jadval qatorlari"),
+      evI: L("Photo", "사진", "写真", "Фото", "Rasm"),
+      evD: L("PDF page", "PDF 쪽", "PDFのページ", "Страница PDF", "PDF sahifasi"),
+      evN: L("No source found", "출처 없음", "出典なし", "Источник не найден", "Manba topilmadi")
+    };
+    const A = [
+      ['owl', S.nOwl, 'done', S.stDone, S.lnDone], ['cham', S.nCham, 'skip', S.stSkip, S.lnSkip], ['bea', S.nBea, 'work', S.stWork, S.lnWork],
+      ['hou', S.nHou, 'fail', S.stFail, S.lnFail], ['cat', S.nCat, 'wait', S.stWait, S.lnWait]];
+    const V = {
+      done: { ring: 'var(--ok)', dash: '252 0', cls: '', med: '', bg: 'var(--okBg)', fg: 'var(--ok)', badge: '\u2713', bb: 'var(--ok)' },
+      skip: { ring: 'var(--rule2)', dash: '3 8', cls: '', med: 'opacity:.4;filter:grayscale(1)', bg: 'var(--medal)', fg: 'var(--mute)', badge: '\u2013', bb: 'var(--mute)' },
+      work: { ring: 'var(--accent)', dash: '70 182', cls: 'fx-spin', med: '', bg: 'var(--accentSoft)', fg: 'var(--accentText)', badge: '', bb: '' },
+      fail: { ring: 'var(--bad)', dash: '86 12 58 10 72 14', cls: '', med: 'filter:grayscale(1)', bg: 'var(--badBg)', fg: 'var(--bad)', badge: '!', bb: 'var(--bad)' },
+      wait: { ring: 'var(--rule2)', dash: '2 6', cls: '', med: 'opacity:.6;filter:grayscale(.7)', bg: 'var(--medal)', fg: 'var(--mute)', badge: '', bb: '' } };
+    const agents = A.map(a => { const v = V[a[2]]; return { sym: '#h-' + a[0], name: a[1], label: a[3], line: a[4], ring: v.ring, dash: v.dash, ringCls: v.cls, medStyle: v.med, pillBg: v.bg, pillFg: v.fg, badge: !!v.badge, badgeTxt: v.badge, badgeBg: v.bb, retry: a[2] === 'fail' }; });
+    const O = [
+      ['o1', 'var(--ok)', 'var(--okBg)', 'var(--ok)', 1, null, []], ['o2', 'var(--warn)', 'var(--warnBg)', 'var(--warn)', 1, S.o2c, []],
+      ['o3', 'var(--accent)', 'var(--accentSoft)', 'var(--accentText)', 0, null, [S.o3c1, S.o3c2]], ['o4', 'var(--warn)', 'var(--warnBg)', 'var(--warn)', 0, S.o4c, []],
+      ['o5', 'var(--bad)', 'var(--badBg)', 'var(--bad)', 0, null, []], ['o6', 'var(--mute)', 'var(--medal)', 'var(--ink2)', 0, S.o6c, []],
+      ['o7', 'var(--warn)', 'var(--warnBg)', 'var(--warn)', 1, null, []], ['o8', 'var(--accent)', 'var(--accentSoft)', 'var(--accentText)', 0, null, []], ['o9', 'var(--mute)', 'var(--medal)', 'var(--ink2)', 0, null, []]];
+    const outcomes = O.map(o => ({ col: o[1], bg: o[2], fg: o[3], label: S[o[0] + 'l'], head: S[o[0] + 'h'], body: S[o[0] + 'b'], count: o[4] ? S.cnt1 : S.cnt0, hasBtn: !!o[5], btn: o[5] || '', hasChips: o[6].length > 0, chips: o[6] }));
+    const chips = [{ label: S.thC1, cost: S.thFree, col: 'var(--ok)' }, { label: S.thC2, cost: S.thFree, col: 'var(--ok)' }, { label: S.thC3, cost: S.thCost, col: 'var(--warn)' }];
+    const mk = (list, key, cur, name) => list.map(x => ({ label: x[1], on: cur === x[0], pick: () => set({ [key]: x[0] }) }));
+    const tpls = mk([['plain', S.tPlain], ['classic', S.tClassic], ['compact', S.tCompact], ['summary', S.tSummary]], 'fxTpl', st.fxTpl);
+    const fonts = mk([['clean', S.fClean], ['serif', S.fSerif], ['tech', S.fTech]], 'fxFont', st.fxFont);
+    const sizes = mk([['s', 'S'], ['m', 'M'], ['l', 'L']], 'fxSize', st.fxSize);
+    const FONT = { clean: "var(--sans)", serif: "Georgia, 'Noto Serif KR', 'Times New Roman', serif", tech: "var(--mono)" };
+    const SIZE = { s: 13, m: 15, l: 17 };
+    const rows = [
+      { n: 1, claim: S.r1c, value: S.r1v, src: S.r1s, ok: true }, { n: 2, claim: S.r2c, value: S.r2v, src: S.r2s, ok: true }, { n: 3, claim: S.r3c, value: S.r3v, src: S.r3s, ok: false }
+    ].map((r, i) => ({ n: r.n, claim: r.claim, value: r.value, src: r.src, col: r.ok ? '#0B7F54' : '#C2331E', mark: r.ok ? '\u2713' : '\u26A0', stat: r.ok ? S.okS : S.badS, zebra: i % 2 ? '#f1f2f7' : '#ffffff' }));
+    const focusPanel = () => setTimeout(() => { try { const e = document.getElementById('fx-pan'); if (e && e.scrollIntoView) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (x) {} }, 60);
+    const ext = { pdf: 'pdf', word: 'docx', xls: 'xlsx', csv: 'csv' };
+    const exports = [['pdf', S.exPdf], ['word', S.exWord], ['xls', S.exXls], ['csv', S.exCsv]].map(e => ({ label: e[1], on: st.fxFmt === e[0], bg: st.fxFmt === e[0] ? 'var(--accent)' : 'var(--card)', fg: st.fxFmt === e[0] ? 'var(--accentInk)' : 'var(--ink)', bd: st.fxFmt === e[0] ? 'var(--accent)' : 'var(--rule2)', go: () => set({ fxFmt: e[0], fxDl: '' }) }));
+    const doDownload = () => { set({ fxDl: ext[st.fxFmt] }); if (this._fxT) clearTimeout(this._fxT); this._fxT = setTimeout(() => set({ fxDl: '' }), 2600); };
+    const goLabel = S.exDl + ' .' + ext[st.fxFmt];
+    return {
+      s: S, agents, outcomes, chips, tpls, fonts, sizes, rows, exports, doDownload, goLabel,
+      panelDl: st.fxPanel === 'dl', panelShare: st.fxPanel === 'share', panelAny: !!st.fxPanel,
+      togDl: () => { set({ fxPanel: st.fxPanel === 'dl' ? '' : 'dl' }); focusPanel(); },
+      togShare: () => { set({ fxPanel: st.fxPanel === 'share' ? '' : 'share' }); focusPanel(); },
+      shared: !!st.fxShared, notShared: !st.fxShared,
+      btnShareLabel: st.fxShared ? S.btnShared : S.btnShare,
+      createLink: () => set({ fxShared: true }),
+      unshare: () => set({ fxShared: false, fxCopied: false }),
+      copyLink: () => { set({ fxCopied: true }); if (this._fxC) clearTimeout(this._fxC); this._fxC = setTimeout(() => set({ fxCopied: false }), 1800); },
+      copyLabel: st.fxCopied ? S.shCopied : S.shCopy,
+      pv: { font: FONT[st.fxFont], size: SIZE[st.fxSize] },
+      isPlain: st.fxTpl === 'plain', isClassic: st.fxTpl === 'classic', isCompact: st.fxTpl === 'compact', isSummary: st.fxTpl === 'summary',
+      dlMsg: st.fxDl ? S.exReady + ' seoul_report.' + st.fxDl : '',
+      upOk: [S.ok1, S.ok2, S.ok3, S.ok4], upNo: [S.no1, S.no2, S.no3, S.no4, S.no5]
+    };
+  }
+  renderVals() {
+    const codes = ['en', 'ko', 'ja', 'ru', 'uz'];
+    const labels = ['EN', '한국어', '日本語', 'RU', 'UZ'];
+    const I = codes.indexOf(this.state.lang);
+    const L = (...a) => a[I];
+    const s = this.state;
+    const t = {
+      navHome: L('Home', '홈', 'ホーム', 'Главная', 'Bosh sahifa'),
+      navPeople: L('People', '사람 찾기', 'ユーザーを探す', 'Люди', 'Odamlar'),
+      navWork: L('Workspace', '워크스페이스', 'ワークスペース', 'Рабочая область', 'Ish maydoni'),
+      navMine: L('My reports', '내 보고서', 'マイレポート', 'Мои отчёты', 'Hisobotlarim'),
+      navPlans: L('Plans', '요금제', 'プラン', 'Тарифы', 'Tariflar'),
+      login: L('Log in', '로그인', 'ログイン', 'Войти', 'Kirish'),
+      signup: L('Sign up', '가입하기', '新規登録', 'Регистрация', 'Ro‘yxatdan o‘tish'),
+      themeLabel: L('Switch light or dark mode', '라이트/다크 모드 전환', 'ライト/ダークモードを切り替え', 'Переключить светлую или тёмную тему', 'Yorug‘ yoki qorong‘i rejimni almashtirish'),
+
+      demo: L('Demo data. This is a clickable design mockup, not a running system.', '데모 데이터입니다. 실제 시스템이 아닌 클릭 가능한 디자인 목업입니다.', 'デモデータです。実際のシステムではなく、クリックできるデザインモックアップです。', 'Демо-данные. Это кликабельный макет, а не работающая система.', 'Demo ma’lumotlar. Bu ishlayotgan tizim emas, bosib ko‘riladigan dizayn maketi.'),
+
+    };
+    const langs = codes.map((c, i) => ({
+      label: labels[i], on: c === s.lang,
+      bg: c === s.lang ? 'var(--ink)' : 'transparent',
+      fg: c === s.lang ? 'var(--bg)' : 'var(--mute)',
+      pick: () => this.setState({ lang: c })
+    }));
+    return {
+      fx: this.__fx(L),
+      langCode: this.state.lang, pickSel: (e) => this.setState({ lang: e.target.value }),
+      t, langs,
+      theme: s.theme, isDark: s.theme === 'dark', isLight: s.theme !== 'dark',
+      toggleTheme: () => this.setState({ theme: s.theme === 'dark' ? 'light' : 'dark' })
+    };
+  }
+}
+</script>
+</body>
+</html>

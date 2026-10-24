@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indesk · Shared</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EDEFF5}
+.dd{--paper:#EDEFF5;--paper2:#E3E6EF;--card:#F8F9FC;--rule:#D5D9E5;--rule2:#AEB4C7;--ink:#0A0D18;--ink2:#2A2F42;--mute:#636A80;--accent:#5B49F0;--accentInk:#FFFFFF;--accentSoft:#E6E3FF;--accentText:#4033C4;--green:#0B7F54;--greenBg:#D8F2E4;--hl:#DAD6FF;--hlInk:#0A0D18;--medal:#E3E6EF;--warn:#8A5A00;--warnBg:#FFF0C9;--grid:rgba(10,13,24,.07);--glow:rgba(91,73,240,.25);--shadow:0 18px 40px -26px rgba(20,24,60,.35);
+--c-owl:#C98A12;--c-cham:#0E9F7E;--c-bea:#D4601F;--c-hou:#6C4CF0;--c-cat:#D8316E;
+--bg:var(--paper);--feedFlag:var(--badBg);--feedFlagInk:var(--bad);--mgr:var(--c-owl);--surface:var(--card);--surface2:var(--paper2);--line:var(--rule);--line2:var(--rule2);--ok:var(--green);--okBg:var(--greenBg);--bad:#D93A22;--badBg:#FFE6E1;--badLine:#F2A598;--scene:var(--paper2);--warm:#FFF0C9;--track:#D5D9E5;--disabled:#CBD0DD;--code:#0B0E18;--codeInk:#E8EAF4;--quoteBg:#E3EEFF;--quoteInk:#1B4C8F;--dot:rgba(10,13,24,.28);
+--serif:'Onest','Noto Sans KR','Noto Sans JP',system-ui,sans-serif;--sans:'Onest','Noto Sans KR','Noto Sans JP',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+position:relative;isolation:isolate;min-height:100%;box-sizing:border-box;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.dd[data-theme="dark"]{--paper:#0D1024;--paper2:#12163A;--card:#171C42;--rule:#232A5A;--rule2:#38417C;--ink:#ECEEFF;--ink2:#C5CAEC;--mute:#8F97C9;--accent:#A596FF;--accentInk:#0B0A2A;--accentSoft:#272470;--accentText:#C6BDFF;--green:#5CE5AA;--greenBg:#103A33;--hl:#332F85;--hlInk:#ECE9FF;--medal:#1E2452;--bad:#FF8A7C;--badBg:#3D1C2E;--badLine:#8A3A4E;--warm:#3A2E1A;--warn:#FFCB62;--warnBg:#3A2E1A;--track:#262D63;--disabled:#2B3270;--code:#090B1F;--codeInk:#E6E8FA;--quoteBg:#14305A;--quoteInk:#A9D6FF;--grid:rgba(165,175,255,.08);--glow:rgba(165,150,255,.38);--shadow:0 24px 60px -30px rgba(3,5,30,.95);--dot:rgba(190,198,255,.35);--c-owl:#F4BE55;--c-cham:#52E0B8;--c-bea:#F58E52;--c-hou:#B49DFF;--c-cat:#FF80B2}
+.dd .dk{--paper:#06080F;--paper2:#0B0E18;--card:#0F1320;--rule:#1A2030;--rule2:#2E3650;--ink:#EEF0FA;--ink2:#BFC4D8;--mute:#848CA6;--accent:#9B8CFF;--accentInk:#0A0A1E;--accentSoft:#1C1A45;--accentText:#B7ADFF;--green:#5BE0A0;--greenBg:#0F2A1D;--hl:#2C2A63;--hlInk:#E6E3FF;--medal:#131828;--bad:#FF7A6B;--badBg:#331713;--badLine:#7A3027;--warm:#2E2406;--warn:#FFC857;--warnBg:#2E2406;--track:#1E2538;--disabled:#2A3144;--code:#05060B;--codeInk:#E4E6F2;--quoteBg:#10223A;--quoteInk:#9FD2FF;--grid:rgba(255,255,255,.05);--glow:rgba(155,140,255,.3);--shadow:0 20px 50px -28px rgba(0,0,0,.9);--dot:rgba(255,255,255,.3);--c-owl:#F0B54A;--c-cham:#4FD9B0;--c-bea:#F0884A;--c-hou:#A28BFF;--c-cat:#FF77A9;color:var(--ink)}
+.dd *{box-sizing:border-box}
+.dd a{color:inherit;text-decoration:none}
+.dd button,.dd input,.dd select,.dd textarea{font-family:inherit}
+.dd a:focus-visible,.dd button:focus-visible,.dd input:focus-visible,.dd select:focus-visible,.dd textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;padding:0;border:0;background:none;font:700 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.eyebrow i{display:block;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:blinksq 2s ease-in-out infinite}
+.display{font-family:var(--serif);font-weight:300;letter-spacing:-.04em;line-height:1;margin:0}
+.h2{font-family:var(--serif);font-weight:300;letter-spacing:-.03em;line-height:1.08;margin:0;font-size:46px}
+.h3{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;margin:0;font-size:22px;line-height:1.2}
+.lede{font-size:18px;line-height:1.65;color:var(--ink2);margin:0}
+.sub{font-size:17px;line-height:1.55;color:var(--mute);margin:0}
+.fine{font-size:13.5px;color:var(--mute)}
+.mono{font-family:var(--mono)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border:1px solid var(--rule2);border-radius:12px;background:color-mix(in srgb,var(--card) 55%,transparent);backdrop-filter:blur(10px);color:var(--ink);font:500 15px var(--sans);cursor:pointer;transition:transform .2s,box-shadow .25s,border-color .2s,background .2s;text-align:center}
+.btn:hover{border-color:var(--ink);transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.btn-ink{background:var(--ink);color:var(--paper);border-color:var(--ink);backdrop-filter:none}
+.btn-red{background:linear-gradient(135deg,#B3A6FF,#6FE3E8);border-color:transparent;color:#07081A;font-weight:600;backdrop-filter:none}
+.btn-red:hover{border-color:transparent;box-shadow:0 0 0 5px var(--glow),0 12px 30px -10px rgba(111,227,232,.55)}
+.btn-lg{min-height:54px;padding:0 28px;font-size:16.5px}
+.btn-sm{min-height:38px;padding:0 15px;font-size:14px}
+.icon-btn{width:40px;height:40px;border:1px solid var(--rule2);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s}
+.icon-btn:hover{border-color:var(--ink)}
+.rule{border:0;border-top:1px solid var(--rule2);margin:0}
+.mast{background:color-mix(in srgb,var(--paper) 62%,transparent);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:30}
+.mast-in{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:70px}
+.brand{display:inline-flex;align-items:center;gap:10px}
+@media (max-width:760px){.brand-n{display:none}.mast-r{gap:6px}.nl{padding:0 8px}.btn-sm{padding:0 11px}}
+.brand-n{font-family:var(--sans,Onest,sans-serif);font-weight:400;font-size:25px;letter-spacing:-.045em}
+.nav{display:flex;gap:2px}
+.nl{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;font-size:14.5px;font-weight:500;color:var(--mute);border-radius:8px;position:relative}
+.nl:hover{color:var(--ink)}
+.nl.on{color:var(--ink)}
+.nl.on::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.mast-r{display:flex;align-items:center;gap:10px}
+.langs{display:flex;gap:0;margin-right:6px;border:1px solid var(--rule2);border-radius:12px;padding:2px;background:transparent}
+.lg{border:0;border-radius:9px;background:transparent;color:var(--mute);font:500 12.5px var(--sans);min-height:30px;padding:0 9px;cursor:pointer}
+.lg[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.lang-sel{min-height:40px;border:1px solid var(--rule2);border-radius:12px;background:var(--card);color:var(--ink);font:500 14px var(--sans);padding:0 8px}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#B3A6FF,#6FE3E8);color:#07081A;display:inline-flex;align-items:center;justify-content:center;font:600 16px var(--serif)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;padding-top:22px;padding-bottom:28px;margin-top:48px;border-top:1px solid var(--rule);font:400 12px var(--mono);color:var(--mute)}
+.tabbar{display:none}
+.only-mob{display:none !important}
+.med{position:relative;display:inline-block;flex:none}
+.med svg{display:block;width:100%;height:100%}
+.med.idle svg{filter:grayscale(1);opacity:.5}
+.med.run svg{animation:tilt 1.2s ease-in-out infinite}
+.med.flag svg{animation:shk .45s ease-in-out 3}
+.med .badge{position:absolute;right:-4px;top:-4px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 12px var(--mono);color:#fff;border:2px solid var(--paper)}
+.med .zz{position:absolute;right:-6px;top:-8px;font:500 14px var(--serif);color:var(--mute);animation:zz 1.8s ease-in-out infinite}
+@keyframes tilt{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-2px)}}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes zz{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes stampin{0%{opacity:0;transform:scale(2.2) rotate(-12deg)}70%{opacity:1;transform:scale(.95) rotate(-7deg)}100%{opacity:1;transform:scale(1) rotate(-7deg)}}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes blinkeye{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+@keyframes orb{to{transform:rotate(360deg)}}
+@keyframes blinksq{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes kb{from{transform:scale(1.04) translate(0,0)}to{transform:scale(1.16) translate(-2.5%,2%)}}
+@keyframes hpkb{from{background-size:112% auto;background-position:30% 40%}to{background-size:128% auto;background-position:62% 55%}}
+@keyframes sweepx{from{transform:translateX(0)}to{transform:translateX(1200px)}}
+@keyframes dotdrift{from{background-position:0 0}to{background-position:18px 18px}}
+@keyframes ringrot{to{transform:rotate(360deg)}}
+@keyframes gridmove{from{background-position:0 0,0 0}to{background-position:0 72px,72px 0}}
+@keyframes scanmove{from{transform:translateY(-240px)}to{transform:translateY(1500px)}}
+@keyframes breathe{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+.fadein,.ev{animation:rise .35s ease-out}
+.gbar{transform-origin:left center;animation:grow .7s ease-out both}
+.stampbox{display:inline-block;border:2px solid var(--green);border-radius:6px;color:var(--green);padding:5px 12px;font:600 14px var(--mono);letter-spacing:.1em;background:transparent;animation:stampin .5s cubic-bezier(.2,.8,.3,1) both}
+.mqwrap{overflow:hidden;white-space:nowrap;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);color:var(--mute);margin-top:28px}
+.mq{display:inline-flex;animation:mq 40s linear infinite}
+.mq span{padding:12px 0;font:500 12.5px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.bg{position:absolute;left:0;top:0;width:100%;height:100%;z-index:-1;overflow:hidden;pointer-events:none;background:var(--paper)}
+.bgimg{position:absolute;left:0;top:0;width:100%;height:100%;background:url(/_blob/b45d51cb071fad7fdc5ba72970c497ed) top center/max(100%,1200px) auto repeat-y;opacity:.55}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--paper) 70%,transparent) 0,transparent 260px)}
+.dd[data-theme="light"] .bgimg{filter:invert(1) hue-rotate(180deg) saturate(1.3);mix-blend-mode:multiply;opacity:.42}
+.bgn{position:absolute;left:0;top:0;width:100%;height:100%;opacity:.05}
+.dd[data-theme="dark"] .bgn{opacity:.07}
+.heropanel{position:relative;border-radius:28px;overflow:hidden;border:1px solid var(--rule2);background:#05070d;box-shadow:0 50px 100px -50px rgba(0,0,0,.8);isolation:isolate}
+.heropanel::before{content:"";position:absolute;inset:-8%;z-index:0;background:url(/_blob/73abdf69737f0c0955a8f754bd003587) center/cover no-repeat;animation:hpz 36s ease-in-out infinite alternate}
+.heropanel>*{position:relative;z-index:1}.heropanel>.hgrain{position:absolute}
+@keyframes hpz{from{transform:scale(1) translate(-2%,-1%)}to{transform:scale(1.1) translate(2%,2%)}}
+.sidepanel{border-radius:24px;overflow:hidden;border:1px solid var(--rule2);background:#05070d url(/_blob/480df26e41df353bdd9757217d65797f) center/cover no-repeat;position:relative}
+.bandpanel{border-radius:24px;overflow:hidden;border:1px solid var(--rule2);background:#05070d url(/_blob/6e666e4abd79b9aa021cd1d827de5657) center/cover no-repeat}
+.hgrain{position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 80% at 15% 30%,rgba(5,7,13,.75),transparent 70%)}
+.dd [style*="background: var(--surface);"]{background:color-mix(in srgb,var(--card) 68%,transparent) !important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow)}
+.ey{transform-box:fill-box;transform-origin:center;animation:blinkeye 5.4s infinite}
+.ey2{animation-duration:6.3s;animation-delay:-1.2s}.ey3{animation-duration:4.9s;animation-delay:-2.6s}.ey4{animation-duration:7.1s;animation-delay:-3.3s}
+.led{animation:blinksq 2s ease-in-out infinite;border-radius:50%;box-shadow:0 0 8px currentColor}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.3,1),border-color .3s,box-shadow .35s}
+.lift:hover{transform:translateY(-6px);border-color:var(--accent) !important;box-shadow:0 26px 60px -30px var(--glow) !important}
+.lift svg{animation:floaty 6s ease-in-out infinite}
+.lift:nth-child(2n) svg{animation-duration:7.2s;animation-delay:-1.3s}
+.lift:nth-child(3n) svg{animation-duration:5.4s;animation-delay:-2.1s}
+.brand svg{transition:transform .5s}.brand:hover svg{transform:rotate(-8deg)}
+.orbit{position:absolute;left:50%;top:50%;width:780px;height:780px;margin:-390px 0 0 -390px;z-index:-1;pointer-events:none}
+.orbit .o{transform-origin:50% 50%;transform-box:view-box}
+.o1{animation:orb 80s linear infinite}.o2{animation:orb 120s linear infinite reverse}.o3{animation:orb 170s linear infinite}
+@media (max-width:760px){
+.bgimg{background-size:max(100%,1100px) auto}
+.wrap{padding:0 20px}
+.only-desk{display:none !important}
+.only-mob{display:inline-flex !important}
+.mast-in{min-height:60px}
+.brand-n{font-size:23px}
+.h2{font-size:32px}
+.lede{font-size:16.5px}
+.orbit{display:none}
+.dd{overflow-x:clip}
+.tabbar{display:grid !important;grid-auto-flow:column;grid-auto-columns:1fr;position:sticky;bottom:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--rule2);margin-top:40px}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 10px;font:500 11.5px var(--sans);color:var(--mute)}
+.tabbar a.on{color:var(--ink);box-shadow:inset 0 2px 0 var(--accent)}
+.foot{margin-top:28px}
+.mqwrap,.dd [class^="fcap"]{display:none !important}
+}
+@media (prefers-reduced-motion: reduce){.med.run svg,.med.flag svg,.med .zz,.fadein,.ev,.gbar,.stampbox,.mq,.eyebrow i,.ey,.lift svg,.led,.bgimg,.heropanel,.heropanel::before,.o1,.o2,.o3{animation:none !important}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes stamp{0%{opacity:0;transform:scale(2.4) rotate(-14deg)}70%{opacity:1;transform:scale(0.94) rotate(-8deg)}100%{opacity:1;transform:scale(1) rotate(-8deg)}}
+.gbar{transform-origin:left center;animation:grow .7s ease-out both}
+.stamp{animation:stamp .5s cubic-bezier(.2,.8,.3,1) both}
+@media (prefers-reduced-motion: reduce){.gbar,.stamp{animation:none !important}}
+
+.mob-block{display:none}
+.dd h1,.dd h2{font-family:var(--serif)}.dd h1,.dd h2{font-weight:300;letter-spacing:-.03em}.dd h3{font-weight:500}
+@media (max-width:760px){
+.dd{overflow-x:clip}
+.side{order:-1;flex-basis:100% !important}
+.dd main,.dd section{padding-left:20px !important;padding-right:20px !important}
+.dd main{padding-top:22px !important}
+.dd [style*="grid-template-columns"]{grid-template-columns:1fr !important}
+.dd h1{font-size:40px !important;line-height:1.05 !important}
+.dd [style*="padding: 40px 44px"]{padding:28px 22px !important}
+.dd [style*="font-size: 38px"]{font-size:30px !important}
+.dd [style*="white-space: nowrap"]{white-space:normal !important}
+.mob-block{display:block !important}
+.dd table{display:block;overflow-x:auto}
+}
+/*dkv2-start*/
+.dd[data-theme="dark"]{color-scheme:dark}
+.dd[data-theme="dark"] .bg{background:radial-gradient(900px 620px at 8% -8%,rgba(122,92,255,.30),transparent 62%),radial-gradient(760px 520px at 100% 4%,rgba(42,205,225,.16),transparent 60%),radial-gradient(820px 560px at 52% 105%,rgba(255,110,170,.12),transparent 62%),var(--paper)}
+.dd[data-theme="dark"] .bgimg{opacity:.14;mix-blend-mode:screen;filter:hue-rotate(20deg) saturate(1.2)}
+.dd[data-theme="dark"] [style*="var(--surface)"],.dd[data-theme="dark"] [style*="var(--card)"],.dd[data-theme="dark"] .fx-sec{box-shadow:inset 0 1px 0 rgba(200,208,255,.09),0 22px 46px -30px rgba(3,5,32,.95)}
+.dd[data-theme="dark"] .display,.dd[data-theme="dark"] main h1{background:linear-gradient(180deg,#FFFFFF 12%,#BFB7FF 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.dd[data-theme="dark"] .btn-red,.dd[data-theme="dark"] .avatar{box-shadow:0 0 0 1px rgba(255,255,255,.18) inset,0 10px 30px -12px rgba(120,100,255,.7)}
+.dd[data-theme="dark"] ::selection{background:rgba(165,150,255,.4)}
+.dd[data-theme="dark"] *{scrollbar-color:#38417C transparent}
+/*dkv2-end*/
+</style>
+</helmet>
+<div class="dd" data-theme="{{theme}}">
+<div class="bg" aria-hidden="true"><i class="bgimg"></i>
+<svg class="bgn" aria-hidden="true"><filter id="nz"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0"/></filter><rect width="100%" height="100%" filter="url(#nz)"/></svg></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="h-owl" viewBox="0 0 100 100"><image href="/_blob/cd7693b1f5766043ebb07f70c1910249" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-cham" viewBox="0 0 100 100"><image href="/_blob/38ae874554d23765475ed410b74d8ac2" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-bea" viewBox="0 0 100 100"><image href="/_blob/34b349f4eeb78baaac5dad8cca39e264" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-hou" viewBox="0 0 100 100"><image href="/_blob/d505f19c2b90e901668f7bc9de17be36" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-cat" viewBox="0 0 100 100"><image href="/_blob/0634a5f3a713a03bb8af51a7568c6f50" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol></defs></svg>
+
+<header class="mast"><div class="wrap mast-in">
+<a class="brand" href="HomeM.dc.html" aria-label="Indesk"><svg width="40" height="40" viewBox="0 0 48 48" role="img" aria-label="Indesk" style="display:block;flex:none;color:var(--ink,currentColor)"><g transform="translate(0 -2)" fill="currentColor"><circle cx="6.2" cy="26.5" r="3.6"/><circle cx="13.1" cy="17.4" r="3.6"/><circle cx="24" cy="14" r="3.6"/><circle cx="34.9" cy="17.4" r="3.6"/><circle cx="41.8" cy="26.5" r="3.6"/><path d="M17 24 H27.5 L32 28.5 V40 C32 41.1 31.1 42 30 42 H18 C16.9 42 16 41.1 16 40 V25 C16 24.4 16.4 24 17 24 Z"/></g></svg><span class="brand-n">indesk</span></a>
+<nav class="nav only-desk" aria-label="Main"><a class="nl" href="HomeM.dc.html">{{t.navHome}}</a><a class="nl" href="WorkspaceM.dc.html">{{t.navWork}}</a><a class="nl" href="PlansM.dc.html">{{t.navPlans}}</a></nav>
+<div class="mast-r">
+<div class="langs only-desk" role="group" aria-label="Language"><sc-for list="{{langs}}" as="g" hint-placeholder-count="5"><button class="lg" aria-pressed="{{g.on}}" onClick="{{g.pick}}">{{g.label}}</button></sc-for></div>
+<select class="lang-sel only-mob" aria-label="Language" value="{{langCode}}" onChange="{{pickSel}}"><option value="en">EN</option><option value="ko">한국어</option><option value="ja">日本語</option><option value="ru">RU</option><option value="uz">UZ</option></select>
+<button class="icon-btn" onClick="{{toggleTheme}}" aria-label="{{t.themeLabel}}"><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></sc-if><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></sc-if></button>
+<a class="nl" href="LoginM.dc.html">{{t.login}}</a><a class="btn btn-red btn-sm" href="SignupM.dc.html">{{t.signup}}</a>
+</div></div></header>
+
+<div style="background: var(--warm); border-bottom: 1px solid var(--line);">
+<div style="max-width: 980px; margin: 0 auto; padding: 12px 32px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-size: 13.5px; font-weight: 600; box-sizing: border-box;">
+<span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>{{t.readOnly}}</span>
+<span>{{t.by}}</span>
+<span>{{t.expires}}</span>
+<span>{{t.noFiles}}</span>
+</div>
+</div>
+
+<main style="max-width: 980px; margin: 0 auto; padding: 36px 32px 0; display: flex; flex-direction: column; gap: 22px; box-sizing: border-box;">
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px;">
+<div style="max-width: 640px;">
+<div style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute);">{{t.question}}</div>
+<h1 style="margin: 6px 0 0; font-family: var(--serif); font-weight: 300; letter-spacing: -0.03em; font-size: 38px; line-height: 1.15; letter-spacing: -0.02em;">{{t.q}}</h1>
+</div>
+<div class="stamp" style="margin-top: 10px; border: 3px solid var(--ok); color: var(--ok); border-radius: 14px; padding: 8px 14px; font-weight: 700; font-size: 16px; letter-spacing: 0.04em; background: var(--surface);">{{t.stamp}}</div>
+</div>
+
+<section style="background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 26px; display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-size: 18px;">{{t.short}}</h2>
+<sc-for list="{{points}}" as="p" hint-placeholder-count="3">
+<div style="display: flex; gap: 14px; align-items: flex-start; font-size: 17px; line-height: 1.55;">
+<span style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accentSoft); color: var(--accentText); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; margin-top: 1px;">{{p.n}}</span>{{p.text}}
+</div>
+</sc-for>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch;">
+<div style="flex: 1 1 380px; background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-size: 17px;">{{t.chart}}</h2>
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="5">
+<div>
+<div style="display: flex; justify-content: space-between; font-size: 14.5px; font-weight: 600; margin-bottom: 5px;"><span>{{b.name}}</span><span style="font-family: var(--mono);">+{{b.v}}%</span></div>
+<div style="height: 14px; border-radius: 6px; background: var(--track);"><div class="gbar" style="height: 14px; border-radius: 6px; width: {{b.w}}%; background: {{b.color}};"></div></div>
+</div>
+</sc-for>
+</div>
+<div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 20px;">
+<div style="background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+<h2 style="margin: 0; font-size: 17px;">{{t.conf}}</h2>
+<div style="display: flex; gap: 6px;" role="img" aria-label="5 of 6">
+<span style="flex: 1; height: 14px; border-radius: 6px; background: #0E9F7E;"></span><span style="flex: 1; height: 14px; border-radius: 6px; background: #0E9F7E;"></span><span style="flex: 1; height: 14px; border-radius: 6px; background: #0E9F7E;"></span><span style="flex: 1; height: 14px; border-radius: 6px; background: #0E9F7E;"></span><span style="flex: 1; height: 14px; border-radius: 6px; background: #0E9F7E;"></span><span style="flex: 1; height: 14px; border-radius: 6px; background: #D8316E;"></span>
+</div>
+<div style="font-size: 14.5px; line-height: 1.5; color: var(--ink2);">{{t.confText}}</div>
+</div>
+<div style="background: var(--badBg); border: 1px solid var(--bad); border-radius: 14px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px;">
+<div style="font-weight: 700; font-size: 15.5px; color: var(--bad);">{{t.flagTitle}}</div>
+<div style="font-size: 14.5px; line-height: 1.55; color: var(--ink2);">{{t.flagText}}</div>
+</div>
+</div>
+</section>
+
+<section style="background: var(--scene); border-radius: 14px; padding: 22px 26px; display: flex; flex-direction: column; gap: 14px;">
+<h2 style="margin: 0; font-size: 17px;">{{t.how}}</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 14px;">
+<sc-for list="{{team}}" as="m" hint-placeholder-count="5">
+<div style="flex: 1 1 160px; display: flex; align-items: flex-start; gap: 10px;">
+<svg width="44" height="44" viewBox="0 0 64 64" style="flex: none;" aria-hidden="true"><use href="{{m.sym}}" width="64" height="64"/></svg>
+<div><div style="font-weight: 700; font-size: 14px;">{{m.name}}</div><div style="margin-top: 2px; font-size: 13px; line-height: 1.4; color: var(--mute);">{{m.text}}</div></div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="background: var(--accent); color: var(--accentInk); border-radius: 14px; padding: 30px 34px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; justify-content: space-between;">
+<div style="max-width: 560px;">
+<div style="font-family: var(--serif); font-weight: 300; letter-spacing: -0.03em; font-size: 28px; line-height: 1.2;">{{t.ctaTitle}}</div>
+<div style="margin-top: 6px; font-size: 15px; opacity: 0.9;">{{t.ctaSub}}</div>
+</div>
+<a href="SignupM.dc.html" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 14px; background: var(--accentInk); color: var(--accent); font-weight: 700; font-size: 16px;">{{t.makeOwn}}</a>
+</section>
+
+<p style="margin: 0; font-size: 12.5px; color: var(--mute);">{{t.demo}}</p>
+</main>
+<footer class="wrap foot"><span>Indesk · field notes for your files</span><span>{{t.demo}}</span></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1600}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    let dark = false;
+    try { dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { dark = false; }
+    this.state = { lang: 'en', theme: dark ? 'dark' : 'light' };
+  }
+  renderVals() {
+    const codes = ['en', 'ko', 'ja', 'ru', 'uz'];
+    const labels = ['EN', '한국어', '日本語', 'RU', 'UZ'];
+    const I = codes.indexOf(this.state.lang);
+    const L = (...a) => a[I];
+    const s = this.state;
+    const t = {
+      navHome: L('Home', '홈', 'ホーム', 'Главная', 'Bosh sahifa'),
+      navPeople: L('People', '사람 찾기', 'ユーザーを探す', 'Люди', 'Odamlar'),
+      navWork: L('Workspace', '워크스페이스', 'ワークスペース', 'Рабочая область', 'Ish maydoni'),
+      navMine: L('My reports', '내 보고서', 'マイレポート', 'Мои отчёты', 'Hisobotlarim'),
+      navPlans: L('Plans', '요금제', 'プラン', 'Тарифы', 'Tariflar'),
+      login: L('Log in', '로그인', 'ログイン', 'Войти', 'Kirish'),
+      signup: L('Sign up', '가입하기', '新規登録', 'Регистрация', 'Ro‘yxatdan o‘tish'),
+      themeLabel: L('Switch light or dark mode', '라이트/다크 모드 전환', 'ライト/ダークモードを切り替え', 'Переключить светлую или тёмную тему', 'Yorug‘ yoki qorong‘i rejimni almashtirish'),
+
+      themeLabel: L('Switch light or dark mode', '라이트/다크 모드 전환', 'ライト/ダークモードを切り替え', 'Переключить светлую или тёмную тему', 'Yorug‘ yoki qorong‘i rejimni almashtirish'),
+      makeOwn: L('Make your own', '나도 만들어 보기', '自分でも作る', 'Создать свой', 'O‘zingiznikini yarating'),
+      readOnly: L('Read-only shared report', '읽기 전용 공유 보고서', '閲覧専用の共有レポート', 'Общий отчёт только для чтения', 'Faqat o‘qish uchun ulashilgan hisobot'),
+      by: L('Shared by Kim', '공유한 사람: Kim', '共有者：Kim', 'Поделился: Kim', 'Ulashgan: Kim'),
+      expires: L('Link expires in 6 days', '링크는 6일 후 만료됩니다', 'リンクは6日後に期限切れ', 'Ссылка действует ещё 6 дней', 'Havola 6 kundan keyin tugaydi'),
+      noFiles: L('The original files are not included', '원본 파일은 포함되지 않습니다', '元のファイルは含まれません', 'Исходные файлы не прилагаются', 'Asl fayllar kiritilmagan'),
+      question: L('Question', '질문', '質問', 'Вопрос', 'Savol'),
+      q: L('Which stations grew fastest since 2019, and does the chart agree?', '2019년 이후 가장 빠르게 성장한 역은 어디이며, 차트와 일치하나요?', '2019年以降に最も伸びた駅はどこで、グラフと一致していますか？', 'Какие станции росли быстрее всего с 2019 года, и совпадает ли это с графиком?', '2019-yildan beri qaysi bekatlar eng tez o‘sdi va grafik bunga mos keladimi?'),
+      stamp: L('VERIFIED 5/6', '검증 5/6', '検証済み 5/6', 'ПРОВЕРЕНО 5/6', 'TEKSHIRILDI 5/6'),
+      short: L('In short', '한눈에 보기', 'ひとことで言うと', 'Коротко', 'Qisqacha'),
+      chart: L('Growth since 2019', '2019년 이후 성장률', '2019年以降の成長率', 'Рост с 2019 года', '2019-yildan beri o‘sish'),
+      conf: L('How sure can you be?', '얼마나 믿을 수 있나요?', 'どのくらい信頼できる？', 'Насколько можно доверять?', 'Qanchalik ishonish mumkin?'),
+      confText: L('5 of 6 statements were checked against the data or a document. 1 could not be confirmed.', '6개 진술 중 5개를 데이터나 문서와 대조해 확인했습니다. 1개는 확인하지 못했습니다.', '6つの記述のうち5つをデータや文書と照合して確認しました。1つは確認できませんでした。', '5 из 6 утверждений проверены по данным или документу. Одно подтвердить не удалось.', '6 ta fikrdan 5 tasi ma’lumot yoki hujjat bilan tekshirildi. 1 tasini tasdiqlab bo‘lmadi.'),
+      flagTitle: L('One statement is not confirmed', '확인되지 않은 진술이 1개 있습니다', '確認できなかった記述が1件あります', 'Одно утверждение не подтверждено', 'Bitta fikr tasdiqlanmadi'),
+      flagText: L('“The new line caused the growth.” The official report says it does not credit any single project, so we can’t say this.', '“신규 노선이 성장의 원인이다.” 공식 보고서는 특정 사업 하나의 효과로 보지 않으므로 그렇게 말할 수 없습니다.', '「新路線が成長の原因」。公式レポートは単一の事業の成果としていないため、そうは言えません。', '«Рост вызвала новая линия». Официальный отчёт не приписывает рост одному проекту, поэтому мы не можем так утверждать.', '“O‘sishga yangi liniya sabab bo‘lgan.” Rasmiy hisobot buni bitta loyihaga bog‘lamaydi, shuning uchun buni ayta olmaymiz.'),
+      how: L('How this was checked', '확인 방법', '確認の方法', 'Как это проверялось', 'Bu qanday tekshirildi'),
+      ctaTitle: L('Want to check your own files?', '내 파일도 확인해 보고 싶나요?', '自分のファイルも確認してみませんか？', 'Хотите проверить свои файлы?', 'O‘z fayllaringizni tekshirmoqchimisiz?'),
+      ctaSub: L('Sign up and get 2 free runs. No card needed.', '가입하면 무료 2회를 드립니다. 카드는 필요 없습니다.', '登録すると無料で2回使えます。カードは不要です。', 'Зарегистрируйтесь и получите 2 бесплатных запуска. Карта не нужна.', 'Ro‘yxatdan o‘ting va 2 ta bepul ishga tushirish oling. Karta shart emas.'),
+      demo: L('Demo data. This is a clickable design mockup, not a running system.', '데모 데이터입니다. 실제 시스템이 아닌 클릭 가능한 디자인 목업입니다.', 'デモデータです。実際のシステムではなく、クリックできるデザインモックアップです。', 'Демо-данные. Это кликабельный макет, а не работающая система.', 'Demo ma’lumotlar. Bu ishlayotgan tizim emas, bosib ko‘riladigan dizayn maketi.')
+    };
+    const points = [
+      { n: 1, text: L('Hapjeong, Seongsu and Magok grew the most: +18.2%, +16.9% and +14.1%.', '합정, 성수, 마곡이 가장 많이 성장했습니다: +18.2%, +16.9%, +14.1%.', 'Hapjeong、Seongsu、Magokが最も伸びました：+18.2%、+16.9%、+14.1%。', 'Сильнее всего выросли Hapjeong, Seongsu и Magok: +18,2%, +16,9% и +14,1%.', 'Eng ko‘p Hapjeong, Seongsu va Magok o‘sdi: +18,2%, +16,9% va +14,1%.') },
+      { n: 2, text: L('The photo of the chart shows the same top three, so the two sources agree.', '차트 사진도 같은 상위 3곳을 보여주므로 두 자료가 일치합니다.', 'グラフの写真も同じ上位3駅を示しており、2つの資料は一致しています。', 'Фото графика показывает те же три станции, так что источники согласуются.', 'Diagramma surati ham xuddi shu uchtani ko‘rsatadi, ya’ni ikki manba mos keladi.') },
+      { n: 3, text: L('The report links the growth to new offices nearby, but does not name the new line as the cause.', '보고서는 성장을 주변 신규 사무실과 연결하지만 신규 노선을 원인으로 꼽지는 않습니다.', 'レポートは成長を近隣の新しいオフィスと結びつけていますが、新路線を原因とはしていません。', 'Отчёт связывает рост с новыми офисами рядом, но не называет причиной новую линию.', 'Hisobot o‘sishni yaqin atrofdagi yangi ofislar bilan bog‘laydi, lekin yangi liniyani sabab deb atamaydi.') }
+    ];
+    const bars = [['Hapjeong', 18.2], ['Seongsu', 16.9], ['Magok', 14.1], ['Gangnam', 7.0], ['Jamsil', 6.6]].map((b, i) => ({ name: b[0], v: b[1].toFixed(1), w: Math.round(b[1] / 20 * 100), color: i < 3 ? 'var(--accent)' : 'var(--line2)' }));
+    const team = [
+      { sym: '#h-owl', name: L('Owl', '부엉이', 'フクロウ', 'Сова', 'Boyqush'), text: L('Planned the work and wrote the claims.', '작업을 계획하고 주장을 작성했습니다.', '作業を計画し、主張を書きました。', 'Спланировала работу и написала утверждения.', 'Ishni rejalashtirdi va da’volarni yozdi.') },
+      { sym: '#h-cham', name: L('Chameleon', '카멜레온', 'カメレオン', 'Хамелеон', 'Xameleon'), text: L('Read the chart photo.', '차트 사진을 읽었습니다.', 'グラフの写真を読み取りました。', 'Прочитал фото графика.', 'Diagramma suratini o‘qidi.') },
+      { sym: '#h-bea', name: L('Beaver', '비버', 'ビーバー', 'Бобр', 'Qunduz'), text: L('Calculated growth from the CSV.', 'CSV로 성장률을 계산했습니다.', 'CSVから成長率を計算しました。', 'Посчитал рост по CSV.', 'CSV dan o‘sishni hisobladi.') },
+      { sym: '#h-hou', name: L('Hound', '사냥개', '猟犬', 'Гончая', 'Ovchi it'), text: L('Found the right pages in the PDF.', 'PDF에서 알맞은 쪽을 찾았습니다.', 'PDFから該当ページを見つけました。', 'Нашла нужные страницы в PDF.', 'PDF dan kerakli sahifalarni topdi.') },
+      { sym: '#h-cat', name: L('Cat', '고양이', 'ネコ', 'Кот', 'Mushuk'), text: L('Checked each claim and flagged one.', '주장을 하나씩 확인하고 1개를 표시했습니다.', '各主張を確認し、1件に警告を付けました。', 'Проверил каждое утверждение и пометил одно.', 'Har bir da’voni tekshirdi va bittasini belgiladi.') }
+    ];
+    const langs = codes.map((c, i) => ({
+      label: labels[i], on: c === s.lang,
+      bg: c === s.lang ? 'var(--ink)' : 'transparent',
+      fg: c === s.lang ? 'var(--bg)' : 'var(--mute)',
+      pick: () => this.setState({ lang: c })
+    }));
+    return {
+      langCode: this.state.lang, pickSel: (e) => this.setState({ lang: e.target.value }),
+      t, points, bars, team, langs,
+      theme: s.theme, isDark: s.theme === 'dark', isLight: s.theme !== 'dark',
+      toggleTheme: () => this.setState({ theme: s.theme === 'dark' ? 'light' : 'dark' })
+    };
+  }
+}
+</script>
+</body>
+</html>

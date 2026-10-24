@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indesk · Workspace</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EDEFF5}
+.dd{--paper:#EDEFF5;--paper2:#E3E6EF;--card:#F8F9FC;--rule:#D5D9E5;--rule2:#AEB4C7;--ink:#0A0D18;--ink2:#2A2F42;--mute:#636A80;--accent:#5B49F0;--accentInk:#FFFFFF;--accentSoft:#E6E3FF;--accentText:#4033C4;--green:#0B7F54;--greenBg:#D8F2E4;--hl:#DAD6FF;--hlInk:#0A0D18;--medal:#E3E6EF;--warn:#8A5A00;--warnBg:#FFF0C9;--grid:rgba(10,13,24,.07);--glow:rgba(91,73,240,.25);--shadow:0 18px 40px -26px rgba(20,24,60,.35);
+--c-owl:#C98A12;--c-cham:#0E9F7E;--c-bea:#D4601F;--c-hou:#6C4CF0;--c-cat:#D8316E;
+--bg:var(--paper);--feedFlag:var(--badBg);--feedFlagInk:var(--bad);--mgr:var(--c-owl);--surface:var(--card);--surface2:var(--paper2);--line:var(--rule);--line2:var(--rule2);--ok:var(--green);--okBg:var(--greenBg);--bad:#D93A22;--badBg:#FFE6E1;--badLine:#F2A598;--scene:var(--paper2);--warm:#FFF0C9;--track:#D5D9E5;--disabled:#CBD0DD;--code:#0B0E18;--codeInk:#E8EAF4;--quoteBg:#E3EEFF;--quoteInk:#1B4C8F;--dot:rgba(10,13,24,.28);
+--serif:'Onest','Noto Sans KR','Noto Sans JP',system-ui,sans-serif;--sans:'Onest','Noto Sans KR','Noto Sans JP',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+position:relative;isolation:isolate;min-height:100%;box-sizing:border-box;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.dd[data-theme="dark"]{--paper:#0D1024;--paper2:#12163A;--card:#171C42;--rule:#232A5A;--rule2:#38417C;--ink:#ECEEFF;--ink2:#C5CAEC;--mute:#8F97C9;--accent:#A596FF;--accentInk:#0B0A2A;--accentSoft:#272470;--accentText:#C6BDFF;--green:#5CE5AA;--greenBg:#103A33;--hl:#332F85;--hlInk:#ECE9FF;--medal:#1E2452;--bad:#FF8A7C;--badBg:#3D1C2E;--badLine:#8A3A4E;--warm:#3A2E1A;--warn:#FFCB62;--warnBg:#3A2E1A;--track:#262D63;--disabled:#2B3270;--code:#090B1F;--codeInk:#E6E8FA;--quoteBg:#14305A;--quoteInk:#A9D6FF;--grid:rgba(165,175,255,.08);--glow:rgba(165,150,255,.38);--shadow:0 24px 60px -30px rgba(3,5,30,.95);--dot:rgba(190,198,255,.35);--c-owl:#F4BE55;--c-cham:#52E0B8;--c-bea:#F58E52;--c-hou:#B49DFF;--c-cat:#FF80B2}
+.dd .dk{--paper:#06080F;--paper2:#0B0E18;--card:#0F1320;--rule:#1A2030;--rule2:#2E3650;--ink:#EEF0FA;--ink2:#BFC4D8;--mute:#848CA6;--accent:#9B8CFF;--accentInk:#0A0A1E;--accentSoft:#1C1A45;--accentText:#B7ADFF;--green:#5BE0A0;--greenBg:#0F2A1D;--hl:#2C2A63;--hlInk:#E6E3FF;--medal:#131828;--bad:#FF7A6B;--badBg:#331713;--badLine:#7A3027;--warm:#2E2406;--warn:#FFC857;--warnBg:#2E2406;--track:#1E2538;--disabled:#2A3144;--code:#05060B;--codeInk:#E4E6F2;--quoteBg:#10223A;--quoteInk:#9FD2FF;--grid:rgba(255,255,255,.05);--glow:rgba(155,140,255,.3);--shadow:0 20px 50px -28px rgba(0,0,0,.9);--dot:rgba(255,255,255,.3);--c-owl:#F0B54A;--c-cham:#4FD9B0;--c-bea:#F0884A;--c-hou:#A28BFF;--c-cat:#FF77A9;color:var(--ink)}
+.dd *{box-sizing:border-box}
+.dd a{color:inherit;text-decoration:none}
+.dd button,.dd input,.dd select,.dd textarea{font-family:inherit}
+.dd a:focus-visible,.dd button:focus-visible,.dd input:focus-visible,.dd select:focus-visible,.dd textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;padding:0;border:0;background:none;font:700 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.eyebrow i{display:block;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:blinksq 2s ease-in-out infinite}
+.display{font-family:var(--serif);font-weight:300;letter-spacing:-.04em;line-height:1;margin:0}
+.h2{font-family:var(--serif);font-weight:300;letter-spacing:-.03em;line-height:1.08;margin:0;font-size:46px}
+.h3{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;margin:0;font-size:22px;line-height:1.2}
+.lede{font-size:18px;line-height:1.65;color:var(--ink2);margin:0}
+.sub{font-size:17px;line-height:1.55;color:var(--mute);margin:0}
+.fine{font-size:13.5px;color:var(--mute)}
+.mono{font-family:var(--mono)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border:1px solid var(--rule2);border-radius:12px;background:color-mix(in srgb,var(--card) 55%,transparent);backdrop-filter:blur(10px);color:var(--ink);font:500 15px var(--sans);cursor:pointer;transition:transform .2s,box-shadow .25s,border-color .2s,background .2s;text-align:center}
+.btn:hover{border-color:var(--ink);transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.btn-ink{background:var(--ink);color:var(--paper);border-color:var(--ink);backdrop-filter:none}
+.btn-red{background:linear-gradient(135deg,#B3A6FF,#6FE3E8);border-color:transparent;color:#07081A;font-weight:600;backdrop-filter:none}
+.btn-red:hover{border-color:transparent;box-shadow:0 0 0 5px var(--glow),0 12px 30px -10px rgba(111,227,232,.55)}
+.btn-lg{min-height:54px;padding:0 28px;font-size:16.5px}
+.btn-sm{min-height:38px;padding:0 15px;font-size:14px}
+.icon-btn{width:40px;height:40px;border:1px solid var(--rule2);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s}
+.icon-btn:hover{border-color:var(--ink)}
+.rule{border:0;border-top:1px solid var(--rule2);margin:0}
+.mast{background:color-mix(in srgb,var(--paper) 62%,transparent);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:30}
+.mast-in{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:70px}
+.brand{display:inline-flex;align-items:center;gap:10px}
+@media (max-width:760px){.brand-n{display:none}.mast-r{gap:6px}.nl{padding:0 8px}.btn-sm{padding:0 11px}}
+.brand-n{font-family:var(--sans,Onest,sans-serif);font-weight:400;font-size:25px;letter-spacing:-.045em}
+.nav{display:flex;gap:2px}
+.nl{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;font-size:14.5px;font-weight:500;color:var(--mute);border-radius:8px;position:relative}
+.nl:hover{color:var(--ink)}
+.nl.on{color:var(--ink)}
+.nl.on::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.mast-r{display:flex;align-items:center;gap:10px}
+.langs{display:flex;gap:0;margin-right:6px;border:1px solid var(--rule2);border-radius:12px;padding:2px;background:transparent}
+.lg{border:0;border-radius:9px;background:transparent;color:var(--mute);font:500 12.5px var(--sans);min-height:30px;padding:0 9px;cursor:pointer}
+.lg[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.lang-sel{min-height:40px;border:1px solid var(--rule2);border-radius:12px;background:var(--card);color:var(--ink);font:500 14px var(--sans);padding:0 8px}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#B3A6FF,#6FE3E8);color:#07081A;display:inline-flex;align-items:center;justify-content:center;font:600 16px var(--serif)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;padding-top:22px;padding-bottom:28px;margin-top:48px;border-top:1px solid var(--rule);font:400 12px var(--mono);color:var(--mute)}
+.tabbar{display:none}
+.only-mob{display:none !important}
+.med{position:relative;display:inline-block;flex:none}
+.med svg{display:block;width:100%;height:100%}
+.med.idle svg{filter:grayscale(1);opacity:.5}
+.med.run svg{animation:tilt 1.2s ease-in-out infinite}
+.med.flag svg{animation:shk .45s ease-in-out 3}
+.med .badge{position:absolute;right:-4px;top:-4px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 12px var(--mono);color:#fff;border:2px solid var(--paper)}
+.med .zz{position:absolute;right:-6px;top:-8px;font:500 14px var(--serif);color:var(--mute);animation:zz 1.8s ease-in-out infinite}
+@keyframes tilt{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-2px)}}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes zz{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes stampin{0%{opacity:0;transform:scale(2.2) rotate(-12deg)}70%{opacity:1;transform:scale(.95) rotate(-7deg)}100%{opacity:1;transform:scale(1) rotate(-7deg)}}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes blinkeye{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+@keyframes orb{to{transform:rotate(360deg)}}
+@keyframes blinksq{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes kb{from{transform:scale(1.04) translate(0,0)}to{transform:scale(1.16) translate(-2.5%,2%)}}
+@keyframes hpkb{from{background-size:112% auto;background-position:30% 40%}to{background-size:128% auto;background-position:62% 55%}}
+@keyframes sweepx{from{transform:translateX(0)}to{transform:translateX(1200px)}}
+@keyframes dotdrift{from{background-position:0 0}to{background-position:18px 18px}}
+@keyframes ringrot{to{transform:rotate(360deg)}}
+@keyframes gridmove{from{background-position:0 0,0 0}to{background-position:0 72px,72px 0}}
+@keyframes scanmove{from{transform:translateY(-240px)}to{transform:translateY(1500px)}}
+@keyframes breathe{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+.fadein,.ev{animation:rise .35s ease-out}
+.gbar{transform-origin:left center;animation:grow .7s ease-out both}
+.stampbox{display:inline-block;border:2px solid var(--green);border-radius:6px;color:var(--green);padding:5px 12px;font:600 14px var(--mono);letter-spacing:.1em;background:transparent;animation:stampin .5s cubic-bezier(.2,.8,.3,1) both}
+.mqwrap{overflow:hidden;white-space:nowrap;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);color:var(--mute);margin-top:28px}
+.mq{display:inline-flex;animation:mq 40s linear infinite}
+.mq span{padding:12px 0;font:500 12.5px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.bg{position:absolute;left:0;top:0;width:100%;height:100%;z-index:-1;overflow:hidden;pointer-events:none;background:var(--paper)}
+.bgimg{position:absolute;left:0;top:0;width:100%;height:100%;background:url(/_blob/b45d51cb071fad7fdc5ba72970c497ed) top center/max(100%,1200px) auto repeat-y;opacity:.55}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--paper) 70%,transparent) 0,transparent 260px)}
+.dd[data-theme="light"] .bgimg{filter:invert(1) hue-rotate(180deg) saturate(1.3);mix-blend-mode:multiply;opacity:.42}
+.bgn{position:absolute;left:0;top:0;width:100%;height:100%;opacity:.05}
+.dd[data-theme="dark"] .bgn{opacity:.07}
+.heropanel{position:relative;border-radius:28px;overflow:hidden;border:1px solid var(--rule2);background:#05070d;box-shadow:0 50px 100px -50px rgba(0,0,0,.8);isolation:isolate}
+.heropanel::before{content:"";position:absolute;inset:-8%;z-index:0;background:url(/_blob/73abdf69737f0c0955a8f754bd003587) center/cover no-repeat;animation:hpz 36s ease-in-out infinite alternate}
+.heropanel>*{position:relative;z-index:1}.heropanel>.hgrain{position:absolute}
+@keyframes hpz{from{transform:scale(1) translate(-2%,-1%)}to{transform:scale(1.1) translate(2%,2%)}}
+.sidepanel{border-radius:24px;overflow:hidden;border:1px solid var(--rule2);background:#05070d url(/_blob/480df26e41df353bdd9757217d65797f) center/cover no-repeat;position:relative}
+.bandpanel{border-radius:24px;overflow:hidden;border:1px solid var(--rule2);background:#05070d url(/_blob/6e666e4abd79b9aa021cd1d827de5657) center/cover no-repeat}
+.hgrain{position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 80% at 15% 30%,rgba(5,7,13,.75),transparent 70%)}
+.dd [style*="background: var(--surface);"]{background:color-mix(in srgb,var(--card) 68%,transparent) !important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow)}
+.ey{transform-box:fill-box;transform-origin:center;animation:blinkeye 5.4s infinite}
+.ey2{animation-duration:6.3s;animation-delay:-1.2s}.ey3{animation-duration:4.9s;animation-delay:-2.6s}.ey4{animation-duration:7.1s;animation-delay:-3.3s}
+.led{animation:blinksq 2s ease-in-out infinite;border-radius:50%;box-shadow:0 0 8px currentColor}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.3,1),border-color .3s,box-shadow .35s}
+.lift:hover{transform:translateY(-6px);border-color:var(--accent) !important;box-shadow:0 26px 60px -30px var(--glow) !important}
+.lift svg{animation:floaty 6s ease-in-out infinite}
+.lift:nth-child(2n) svg{animation-duration:7.2s;animation-delay:-1.3s}
+.lift:nth-child(3n) svg{animation-duration:5.4s;animation-delay:-2.1s}
+.brand svg{transition:transform .5s}.brand:hover svg{transform:rotate(-8deg)}
+.orbit{position:absolute;left:50%;top:50%;width:780px;height:780px;margin:-390px 0 0 -390px;z-index:-1;pointer-events:none}
+.orbit .o{transform-origin:50% 50%;transform-box:view-box}
+.o1{animation:orb 80s linear infinite}.o2{animation:orb 120s linear infinite reverse}.o3{animation:orb 170s linear infinite}
+@media (max-width:760px){
+.bgimg{background-size:max(100%,1100px) auto}
+.wrap{padding:0 20px}
+.only-desk{display:none !important}
+.only-mob{display:inline-flex !important}
+.mast-in{min-height:60px}
+.brand-n{font-size:23px}
+.h2{font-size:32px}
+.lede{font-size:16.5px}
+.orbit{display:none}
+.dd{overflow-x:clip}
+.tabbar{display:grid !important;grid-auto-flow:column;grid-auto-columns:1fr;position:sticky;bottom:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--rule2);margin-top:40px}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 10px;font:500 11.5px var(--sans);color:var(--mute)}
+.tabbar a.on{color:var(--ink);box-shadow:inset 0 2px 0 var(--accent)}
+.foot{margin-top:28px}
+.mqwrap,.dd [class^="fcap"]{display:none !important}
+}
+@media (prefers-reduced-motion: reduce){.med.run svg,.med.flag svg,.med .zz,.fadein,.ev,.gbar,.stampbox,.mq,.eyebrow i,.ey,.lift svg,.led,.bgimg,.heropanel,.heropanel::before,.o1,.o2,.o3{animation:none !important}}
+button,textarea{font-family:inherit}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lvs{position:relative;display:block;overflow:hidden;flex:none}
+.lvs img{display:block;height:100%;width:2400%;max-width:none;animation:lvstep 2.4s steps(24,jump-end) infinite;animation-play-state:paused;filter:drop-shadow(0 4px 5px rgba(0,0,0,.3))}
+.lvs.on img{animation-play-state:running}
+.lvs.dim img{opacity:.55;filter:grayscale(.5) drop-shadow(0 4px 5px rgba(0,0,0,.2))}
+@keyframes lvstep{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion: reduce){.lvs img{animation:none !important}}
+.bench{border-radius:12px;background:radial-gradient(ellipse at 50% 42%,transparent 52%,color-mix(in srgb,var(--ink) 7%,transparent) 100%),radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--ink) 18%,transparent) 1.1px,transparent 1.7px) 0 0/24px 24px,var(--paper2)}
+.bench::before,.bench::after{content:"";position:absolute;width:16px;height:16px;pointer-events:none;border:2px solid var(--rule2)}
+.bench::before{left:8px;top:8px;border-right:0;border-bottom:0;border-top-left-radius:5px}
+.bench::after{right:8px;bottom:8px;border-left:0;border-top:0;border-bottom-right-radius:5px}
+.pool{position:absolute;left:-14px;right:-14px;bottom:-30px;height:42px;pointer-events:none;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--pc) 48%,transparent),transparent);opacity:var(--po,0);transition:opacity .4s}
+.pool.run{animation:poolp 1.6s ease-in-out infinite}
+@keyframes poolp{50%{opacity:.5}}
+@media (prefers-reduced-motion: reduce){.pool.run{animation:none !important}}
+.bench.topo{background:var(--paper2)}
+.bench.topo::before,.bench.topo::after{display:none}
+.tpg{position:absolute;inset:0;display:block;pointer-events:none}
+.tpg.mn{background:var(--mute);opacity:.45;-webkit-mask:url(/_blob/c8f702f78cb82ad5054996812c13fa38) center/100% 100% no-repeat;mask:url(/_blob/c8f702f78cb82ad5054996812c13fa38) center/100% 100% no-repeat}
+.tpg.mj{background:var(--ink);opacity:.32;-webkit-mask:url(/_blob/7ccc06c43beff8e53339fad36ce0fe13) center/100% 100% no-repeat;mask:url(/_blob/7ccc06c43beff8e53339fad36ce0fe13) center/100% 100% no-repeat}
+.bench.topo>svg:not(.tcmp)>path{stroke-dasharray:1 8;stroke-width:5 !important}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(0.1)}}
+@keyframes stamp{0%{opacity:0;transform:scale(2.4) rotate(-14deg)}70%{opacity:1;transform:scale(0.94) rotate(-8deg)}100%{opacity:1;transform:scale(1) rotate(-8deg)}}
+@keyframes pop{0%{opacity:0;transform:translateY(4px) scale(0.9)}100%{opacity:1;transform:none}}
+@keyframes zz{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.ev{animation:rise .25s ease-out}
+.bob{animation:bob .7s ease-in-out infinite}
+.shake{animation:shake .4s ease-in-out 3}
+.eye{transform-box:fill-box;transform-origin:center}
+.blinky{animation:blink 3s infinite}
+.stamp{animation:stamp .45s cubic-bezier(.2,.8,.3,1) both}
+.bubble{animation:pop .2s ease-out}
+.zz{animation:zz 1.6s ease-in-out infinite}
+.fadein{animation:rise .3s ease-out}
+.gbar{transform-origin:left center;animation:grow .6s ease-out both}
+.node{transition:border-color .25s,box-shadow .25s}
+.tabbtn{transition:background .15s,border-color .15s}
+@media (prefers-reduced-motion: reduce){.bob,.shake,.blinky,.stamp,.ev,.bubble,.zz,.fadein,.gbar{animation:none !important}.pk{display:none}}
+
+.mob-block{display:none}
+.dd h1,.dd h2{font-family:var(--serif)}.dd h1,.dd h2{font-weight:300;letter-spacing:-.03em}.dd h3{font-weight:500}
+@media (max-width:760px){
+.dd{overflow-x:clip}
+.side{order:-1;flex-basis:100% !important}
+.dd main,.dd section{padding-left:20px !important;padding-right:20px !important}
+.dd main{padding-top:22px !important}
+.dd [style*="grid-template-columns"]{grid-template-columns:1fr !important}
+.dd h1{font-size:40px !important;line-height:1.05 !important}
+.dd [style*="padding: 40px 44px"]{padding:28px 22px !important}
+.dd [style*="font-size: 38px"]{font-size:30px !important}
+.dd [style*="white-space: nowrap"]{white-space:normal !important}
+.mob-block{display:block !important}
+.dd table{display:block;overflow-x:auto}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*fx-css-start*/
+.fx-spin{animation:fxspin 1.1s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes fxspin{to{transform:rotate(360deg)}}
+.fx-zz{animation:fxzz 1.8s ease-in-out infinite}
+@keyframes fxzz{0%,100%{opacity:.35}50%{opacity:1}}
+@media (prefers-reduced-motion: reduce){.fx-spin,.fx-zz{animation:none !important}}
+.fx-sec{background:var(--surface);border:1px solid var(--rule2);border-radius:14px;padding:26px;display:flex;flex-direction:column;gap:18px}
+.fx-sec h2{margin:0;font-size:22px;font-weight:400;letter-spacing:-.02em}
+.fx-sub{margin:0;font-size:14.5px;line-height:1.55;color:var(--mute);max-width:760px}
+.fx-pill{display:inline-flex;align-items:center;min-height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:700;white-space:nowrap}
+.fx-btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 16px;border-radius:12px;border:1px solid var(--rule2);background:var(--card);color:var(--ink);font:600 13.5px var(--sans);cursor:pointer}
+.fx-btn:hover{border-color:var(--ink)}
+.fx-btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accentInk)}
+.fx-seg{display:inline-flex;border:1px solid var(--rule2);border-radius:12px;padding:2px;gap:2px;background:transparent;flex-wrap:wrap}
+.fx-seg button{border:0;border-radius:9px;background:transparent;color:var(--mute);font:600 13px var(--sans);min-height:34px;padding:0 12px;cursor:pointer}
+.fx-seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.fx-lab{font:700 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+
+.fx-top{border:1px solid var(--line2);background:var(--surface);color:var(--ink);border-radius:14px;padding:0 16px;min-height:50px;font:600 14px var(--sans);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.fx-top:hover{border-color:var(--ink)}
+.fx-top[aria-expanded="true"],.btn[aria-expanded="true"]{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.fx-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.ws-tabs{display:flex;gap:4px;border-bottom:1px solid var(--rule2);margin-bottom:-6px;flex-wrap:wrap}
+.ws-tab{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 20px;border:0;border-bottom:3px solid transparent;background:transparent;color:var(--mute);font:600 15px var(--sans);cursor:pointer;margin-bottom:-1px}
+.ws-tab:hover{color:var(--ink)}
+.ws-tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.ws-n{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--medal);color:var(--ink2);font:700 12.5px var(--mono)}
+.ws-tab[aria-selected="true"] .ws-n{background:var(--accent);color:var(--accentInk)}
+.ws-live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);animation:blinksq 1.2s ease-in-out infinite}
+.ws-peek{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;background:var(--warm);border:1px solid var(--line);border-radius:14px;padding:18px 22px}
+.ws-peek b{font-size:17px}.ws-peek p{margin:4px 0 0;font-size:14.5px;color:var(--ink2);max-width:640px;line-height:1.5}
+.evleg{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:13px;color:var(--mute)}
+.evleg span{display:inline-flex;align-items:center;gap:6px}
+.mp-help{margin:-4px 0 0;font-size:13.5px;color:var(--mute);max-width:640px;line-height:1.5}
+.mp-ft{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:24px;padding:0 8px;border-radius:6px;font:700 11.5px var(--mono);color:#fff}
+/*fx-css-end*/
+/*wm-css-start*/
+.ws-modes{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;border:1px solid var(--rule2);border-radius:16px;background:var(--surface2)}
+.ws-mode{min-height:44px;padding:0 20px;border:0;border-radius:12px;background:transparent;color:var(--mute);font:600 15px var(--sans);cursor:pointer}
+.ws-mode:hover{color:var(--ink)}
+.ws-mode[aria-checked="true"]{background:var(--ink);color:var(--paper)}
+.ws-modehint{margin:10px 0 0;font-size:15px;color:var(--mute);max-width:720px;line-height:1.5}
+.ws-hand{border:1px dashed var(--rule2);border-radius:14px;padding:14px 18px;display:flex;flex-direction:column;gap:10px;background:var(--surface2)}
+.ws-hand-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;font-size:14px}
+.ws-hand-h span{color:var(--mute)}
+.ws-hand-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.ws-hand-g small{display:block;color:var(--mute);font-size:12.5px}
+.ws-hand-g b{font:600 15px var(--mono)}
+.rp-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.rp-tile{background:var(--surface);border:1px solid var(--rule2);border-radius:14px;padding:16px 18px;border-top:4px solid var(--c,var(--rule2))}
+.rp-tile small{display:block;color:var(--mute);font-size:13px}
+.rp-tile b{display:block;margin-top:4px;font:500 26px var(--mono)}
+.rp-claim{background:var(--surface);border:1px solid var(--rule2);border-left:5px solid var(--c,var(--rule2));border-radius:14px;padding:16px 20px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.8fr) minmax(0,1.4fr);gap:10px 24px;align-items:start}
+.rp-claim small{display:block;color:var(--mute);font-size:12.5px;margin-bottom:3px}
+.rp-claim .q{font-size:16px;line-height:1.5}
+.rp-claim .v{font:600 18px var(--mono)}
+.rp-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font:700 12.5px var(--sans)}
+.rp-chip{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 8px;border:1px solid var(--line2);background:var(--surface);color:var(--accentText);border-radius:8px;padding:6px 10px;font-size:12.5px;margin:6px 6px 0 0;max-width:100%}
+.rp-bar{height:12px;border-radius:6px;min-width:4px}
+.rp-row{display:grid;grid-template-columns:minmax(0,1.1fr) 90px 90px minmax(0,2fr) 80px;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid var(--line)}
+@media (max-width:760px){.rp-claim{grid-template-columns:1fr}.rp-head{display:none !important}.rp-row{grid-template-columns:1fr 1fr 1fr;row-gap:8px}.rp-row>b:first-child{grid-column:1/-1}.rp-row>.rbar{grid-column:1/-1;order:5}.mast-r a{white-space:nowrap}.ws-mode{padding:0 12px;font-size:14px}}
+/*wm-css-end*/
+/*dkv2-start*/
+.dd[data-theme="dark"]{color-scheme:dark}
+.dd[data-theme="dark"] .bg{background:radial-gradient(900px 620px at 8% -8%,rgba(122,92,255,.30),transparent 62%),radial-gradient(760px 520px at 100% 4%,rgba(42,205,225,.16),transparent 60%),radial-gradient(820px 560px at 52% 105%,rgba(255,110,170,.12),transparent 62%),var(--paper)}
+.dd[data-theme="dark"] .bgimg{opacity:.14;mix-blend-mode:screen;filter:hue-rotate(20deg) saturate(1.2)}
+.dd[data-theme="dark"] [style*="var(--surface)"],.dd[data-theme="dark"] [style*="var(--card)"],.dd[data-theme="dark"] .fx-sec{box-shadow:inset 0 1px 0 rgba(200,208,255,.09),0 22px 46px -30px rgba(3,5,32,.95)}
+.dd[data-theme="dark"] .display,.dd[data-theme="dark"] main h1{background:linear-gradient(180deg,#FFFFFF 12%,#BFB7FF 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.dd[data-theme="dark"] .btn-red,.dd[data-theme="dark"] .avatar{box-shadow:0 0 0 1px rgba(255,255,255,.18) inset,0 10px 30px -12px rgba(120,100,255,.7)}
+.dd[data-theme="dark"] ::selection{background:rgba(165,150,255,.4)}
+.dd[data-theme="dark"] *{scrollbar-color:#38417C transparent}
+/*dkv2-end*/
+</style>
+</helmet>
+<div class="dd" data-theme="{{theme}}">
+<div class="bg" aria-hidden="true"><i class="bgimg"></i>
+<svg class="bgn" aria-hidden="true"><filter id="nz"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0"/></filter><rect width="100%" height="100%" filter="url(#nz)"/></svg></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="h-owl" viewBox="0 0 100 100"><image href="/_blob/cd7693b1f5766043ebb07f70c1910249" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-cham" viewBox="0 0 100 100"><image href="/_blob/38ae874554d23765475ed410b74d8ac2" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-bea" viewBox="0 0 100 100"><image href="/_blob/34b349f4eeb78baaac5dad8cca39e264" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-hou" viewBox="0 0 100 100"><image href="/_blob/d505f19c2b90e901668f7bc9de17be36" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol><symbol id="h-cat" viewBox="0 0 100 100"><image href="/_blob/0634a5f3a713a03bb8af51a7568c6f50" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></symbol></defs></svg>
+
+<header class="mast"><div class="wrap mast-in">
+<a class="brand" href="Home.dc.html" aria-label="Indesk"><svg width="40" height="40" viewBox="0 0 48 48" role="img" aria-label="Indesk" style="display:block;flex:none;color:var(--ink,currentColor)"><g transform="translate(0 -2)" fill="currentColor"><circle cx="6.2" cy="26.5" r="3.6"/><circle cx="13.1" cy="17.4" r="3.6"/><circle cx="24" cy="14" r="3.6"/><circle cx="34.9" cy="17.4" r="3.6"/><circle cx="41.8" cy="26.5" r="3.6"/><path d="M17 24 H27.5 L32 28.5 V40 C32 41.1 31.1 42 30 42 H18 C16.9 42 16 41.1 16 40 V25 C16 24.4 16.4 24 17 24 Z"/></g></svg><span class="brand-n">indesk</span></a>
+<nav class="nav only-desk" aria-label="Main"><a class="nl" href="Home.dc.html">{{t.navHome}}</a><a class="nl on" href="Workspace.dc.html">{{t.navWork}}</a><a class="nl" href="People.dc.html">{{t.navPeople}}</a><a class="nl" href="MyPage.dc.html">{{t.navMine}}</a><a class="nl" href="Plans.dc.html">{{t.navPlans}}</a></nav>
+<div class="mast-r">
+<div class="langs only-desk" role="group" aria-label="Language"><sc-for list="{{langs}}" as="g" hint-placeholder-count="5"><button class="lg" aria-pressed="{{g.on}}" onClick="{{g.pick}}">{{g.label}}</button></sc-for></div>
+<select class="lang-sel only-mob" aria-label="Language" value="{{langCode}}" onChange="{{pickSel}}"><option value="en">EN</option><option value="ko">한국어</option><option value="ja">日本語</option><option value="ru">RU</option><option value="uz">UZ</option></select>
+<button class="icon-btn" onClick="{{toggleTheme}}" aria-label="{{t.themeLabel}}"><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></sc-if><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></sc-if></button>
+<a class="avatar" href="MyPage.dc.html" aria-label="{{t.navMine}}">K</a>
+</div></div></header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 32px 32px 0; display: flex; flex-direction: column; gap: 22px; box-sizing: border-box;">
+
+<!--wst-start--><div class="ws-tabs" role="tablist" aria-label="{{ws.s.tabsLabel}}"><sc-for list="{{ws.tabs}}" as="b" hint-placeholder-count="2"><button type="button" role="tab" class="ws-tab" aria-selected="{{b.on}}" onClick="{{b.pick}}"><span class="ws-n">{{b.n}}</span>{{b.label}}<sc-if value="{{b.live}}" hint-placeholder-val="{{ false }}"><i class="ws-live" aria-hidden="true"></i></sc-if></button></sc-for></div>
+<!--wst-end-->
+<!-- ASK STAGE -->
+<sc-if value="{{isAsk}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px;">
+<div style="max-width: 720px;">
+<h1 style="margin: 0; font-family: var(--serif); font-weight: 300; letter-spacing: -0.03em; font-size: 42px; line-height: 1.1; letter-spacing: -0.02em;">{{t.askTitle}}</h1>
+<p style="margin: 10px 0 0; font-size: 17px; line-height: 1.55; color: var(--mute);">{{t.askSub}}</p>
+</div>
+<a href="Plans.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; background: var(--warm); color: var(--ink); font-size: 14px; font-weight: 700;">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent);"></span>{{t.usagePill}}
+</a>
+</div>
+
+<!--wmm-start--><div><div class="ws-modes" role="radiogroup" aria-label="{{wm.s.modeLabel}}"><sc-for list="{{wm.modes}}" as="m" hint-placeholder-count="3"><button type="button" role="radio" class="ws-mode" aria-checked="{{m.on}}" onClick="{{m.pick}}">{{m.label}}</button></sc-for></div><p class="ws-modehint">{{wm.intro}}</p></div><!--wmm-end-->
+<section style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch;">
+<div style="flex: 1 1 440px; min-width: 0; background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box;">
+<h2 style="margin: 0; font-size: 18px;">{{wm.step1}}</h2>
+<sc-for list="{{wm.files}}" as="f" hint-placeholder-count="3">
+<button onClick="{{f.toggle}}" aria-pressed="{{f.on}}" style="display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; cursor: pointer; background: {{f.bg}}; border: 2px solid {{f.border}}; border-radius: 14px; padding: 12px 14px; color: var(--ink); min-height: 64px;">
+<span style="flex: none; width: 44px; height: 44px; border-radius: 14px; background: {{f.color}}; color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; font-weight: 500;">{{f.kind}}</span>
+<span style="flex: 1 1 auto; min-width: 0;"><span style="display: block; font-weight: 700; font-size: 15px; word-break: break-all;">{{f.name}}</span><span style="display: block; margin-top: 2px; font-size: 13px; color: var(--mute);">{{f.meta}}</span></span>
+<span style="flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid {{f.border}}; background: {{f.dotBg}}; color: var(--accentInk); display: flex; align-items: center; justify-content: center;"><sc-if value="{{f.on}}" hint-placeholder-val="{{ true }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.500l5 5 9-10"/></svg></sc-if></span>
+</button>
+</sc-for>
+<div style="border: 2px dashed var(--line2); border-radius: 14px; padding: 14px; text-align: center; font-size: 14px; color: var(--mute); line-height: 1.5;">{{t.drop}}</div>
+</div>
+
+<div style="flex: 1 1 440px; min-width: 0; background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box;">
+<h2 style="margin: 0; font-size: 18px;">{{wm.step2}}</h2>
+<sc-if value="{{wm.hasText}}" hint-placeholder-val="{{ true }}"><label for="q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">{{t.step2}}</label>
+<textarea id="q" rows="4" value="{{q}}" onInput="{{onQ}}" placeholder="{{wm.ph}}" style="width: 100%; box-sizing: border-box; border: 2px solid var(--line2); border-radius: 14px; padding: 14px 16px; font-size: 16px; line-height: 1.5; background: var(--surface2); color: var(--ink); resize: vertical;"></textarea></sc-if>
+<sc-if value="{{wm.isCheck}}" hint-placeholder-val="{{ false }}"><ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px"><sc-for list="{{wm.steps}}" as="x" hint-placeholder-count="3"><li style="display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.5"><span class="ws-n">{{x.n}}</span><span>{{x.text}}</span></li></sc-for></ol></sc-if>
+<div style="display: flex; flex-wrap: wrap; gap: 8px;">
+<sc-for list="{{wm.chips}}" as="c" hint-placeholder-count="3">
+<button onClick="{{c.pick}}" style="border: 1px solid var(--line2); background: var(--surface); color: var(--ink2); border-radius: 999px; padding: 0 14px; min-height: 40px; font-size: 13.5px; font-weight: 600; cursor: pointer;">{{c.text}}</button>
+</sc-for>
+</div>
+<div style="margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 14px;">
+<button onClick="{{wm.go}}" disabled="{{wm.cant}}" style="display: inline-flex; align-items: center; gap: 10px; border: 0; border-radius: 14px; min-height: 56px; padding: 0 28px; background: {{wm.goBg}}; color: {{wm.goFg}}; font-weight: 700; font-size: 17px; cursor: pointer;">{{wm.btn}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+<span style="font-size: 13.5px; color: var(--mute);">{{wm.hint}}</span>
+</div>
+</div>
+</section>
+
+<section style="background: var(--scene); border-radius: 14px; padding: 20px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 22px;">
+<div style="font-weight: 700; font-size: 16px; min-width: 180px;">{{t.ready}}</div>
+<div style="display: flex; flex-wrap: wrap; gap: 22px;">
+<sc-for list="{{readyTeam}}" as="m" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--ink2);">
+<svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true"><use href="{{m.sym}}" width="64" height="64"/></svg>{{m.name}}
+</div>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<!-- RUN STAGE -->
+<sc-if value="{{isRun}}" hint-placeholder-val="{{ false }}">
+<!--wsp-start--><sc-if value="{{ws.peek}}" hint-placeholder-val="{{ false }}"><div class="ws-peek"><div><b>{{ws.s.peekTitle}}</b><p>{{ws.s.peekSub}}</p></div><button type="button" class="fx-btn pri" onClick="{{ws.goAsk}}" style="min-height:44px">{{ws.s.peekBtn}}</button></div></sc-if>
+<!--wsp-end--><div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px;">
+<div style="max-width: 800px;">
+<div style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute);">{{t.question}}</div>
+<h1 style="margin: 6px 0 0; font-family: var(--serif); font-weight: 300; letter-spacing: -0.03em; font-size: 30px; line-height: 1.2; letter-spacing: -0.01em;"><sc-if value="{{wm.isAsk}}" hint-placeholder-val="{{ true }}">{{q}}</sc-if><sc-if value="{{wm.notAsk}}" hint-placeholder-val="{{ false }}">{{wm.runTitle}}</sc-if></h1>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+<button onClick="{{backToAsk}}" style="border: 1px solid var(--line2); background: var(--surface); color: var(--ink); border-radius: 14px; padding: 0 16px; min-height: 48px; font-weight: 600; font-size: 14.5px; cursor: pointer;">{{t.change}}</button>
+<button onClick="{{replay}}" disabled="{{running}}" style="border: 2px solid var(--accent); background: var(--surface); color: var(--accentText); border-radius: 14px; padding: 0 18px; min-height: 48px; font-weight: 700; font-size: 14.5px; cursor: pointer; opacity: {{replayOp}};">{{t.replayBtn}}</button>
+<sc-if value="{{finished}}" hint-placeholder-val="{{ true }}">
+<a href="{{wm.reportHref}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 14px; background: var(--accent); color: var(--accentInk); font-weight: 700; font-size: 15px;">{{t.viewReport}}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</sc-if>
+</div>
+</div>
+
+<section style="display: flex; flex-wrap: wrap; gap: 14px;" aria-label="Run summary">
+<sc-for list="{{tiles}}" as="k" hint-placeholder-count="4">
+<div style="flex: 1 1 180px; background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 14px 18px;">
+<div style="font-size: 13px; color: var(--mute);">{{k.label}}</div>
+<div style="margin-top: 4px; font-family: var(--mono); font-size: 24px; font-weight: 500;">{{k.value}}</div>
+</div>
+</sc-for>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+<div style="flex: 999 1 560px; min-width: 0; background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+<h2 style="margin: 0; font-size: 17px;">{{t.graph}}</h2>
+<span style="font-size: 13px; color: var(--mute);">{{t.legend}}</span>
+</div>
+<div class="only-desk"><div style="overflow-x: auto;">
+<div class="bench topo" style="position: relative; width: 760px; height: 500px; margin: 0 auto;"><i class="tpg mn"></i><i class="tpg mj"></i><svg class="tcmp" width="760" height="500" viewBox="0 0 760 500" style="position:absolute;left:0;top:0;pointer-events:none" aria-hidden="true"><g transform="translate(700 448)" style="fill:none;stroke:var(--ink);opacity:.55"><circle r="24"/><circle r="3"/><path d="M0 -24 L5 0 L0 24 L-5 0Z" style="fill:var(--ink);opacity:.4"/><path d="M-24 0 H24"/><text y="-30" text-anchor="middle" style="font:600 11px var(--mono);fill:var(--ink);stroke:none">N</text></g><g transform="translate(40 470)" style="stroke:var(--ink);opacity:.6;stroke-width:1.5;fill:none"><path d="M0 0 H120 M0 -5 V5 M60 -3 V3 M120 -5 V5"/><text x="0" y="-9" style="font:500 10px var(--mono);fill:var(--ink);stroke:none;letter-spacing:.12em">0 - 120 M</text></g></svg>
+<svg width="760" height="500" viewBox="0 0 760 500" style="position: absolute; left: 0; top: 0;" aria-hidden="true">
+<path d="M380 112 C380 150 105 150 105 190" style="fill: none; stroke: {{e1}}; stroke-width: 3; stroke-linecap: round;"/>
+<path d="M380 112 L380 190" style="fill: none; stroke: {{e2}}; stroke-width: 3; stroke-linecap: round;"/>
+<path d="M380 112 C380 150 660 150 660 190" style="fill: none; stroke: {{e3}}; stroke-width: 3; stroke-linecap: round;"/>
+<path d="M105 262 C105 300 380 292 380 330" style="fill: none; stroke: {{e4}}; stroke-width: 3; stroke-linecap: round;"/>
+<path d="M380 262 L380 330" style="fill: none; stroke: {{e5}}; stroke-width: 3; stroke-linecap: round;"/>
+<path d="M660 262 C660 300 380 292 380 330" style="fill: none; stroke: {{e6}}; stroke-width: 3; stroke-linecap: round;"/>
+<path d="M380 402 L380 440" style="fill: none; stroke: {{e7}}; stroke-width: 3; stroke-linecap: round;"/>
+<g class="pk" opacity="{{p1}}"><animateMotion dur="1.1s" repeatCount="indefinite" path="M380 112 C380 150 105 150 105 190"/><rect x="-8" y="-6" width="16" height="12" rx="2.500" style="fill: var(--surface); stroke: var(--accent);" stroke-width="2"/><path d="M-8 -6 L0 1 L8 -6" fill="none" style="stroke: var(--accent);" stroke-width="1.600"/></g>
+<g class="pk" opacity="{{p2}}"><animateMotion dur="1s" repeatCount="indefinite" path="M380 112 L380 190"/><rect x="-8" y="-6" width="16" height="12" rx="2.500" style="fill: var(--surface); stroke: var(--accent);" stroke-width="2"/><path d="M-8 -6 L0 1 L8 -6" fill="none" style="stroke: var(--accent);" stroke-width="1.600"/></g>
+<g class="pk" opacity="{{p3}}"><animateMotion dur="1.1s" repeatCount="indefinite" path="M380 112 C380 150 660 150 660 190"/><rect x="-8" y="-6" width="16" height="12" rx="2.500" style="fill: var(--surface); stroke: var(--accent);" stroke-width="2"/><path d="M-8 -6 L0 1 L8 -6" fill="none" style="stroke: var(--accent);" stroke-width="1.600"/></g>
+<g class="pk" opacity="{{p4}}"><animateMotion dur="1.2s" repeatCount="indefinite" path="M105 262 C105 300 380 292 380 330"/><rect x="-8" y="-6" width="16" height="12" rx="2.500" style="fill: var(--surface); stroke: var(--bad);" stroke-width="2"/><path d="M-8 -6 L0 1 L8 -6" fill="none" style="stroke: var(--bad);" stroke-width="1.600"/></g>
+<g class="pk" opacity="{{p5}}"><animateMotion dur="0.9s" repeatCount="indefinite" path="M380 262 L380 330"/><rect x="-8" y="-6" width="16" height="12" rx="2.500" style="fill: var(--surface); stroke: var(--bad);" stroke-width="2"/><path d="M-8 -6 L0 1 L8 -6" fill="none" style="stroke: var(--bad);" stroke-width="1.600"/></g>
+<g class="pk" opacity="{{p6}}"><animateMotion dur="1.2s" repeatCount="indefinite" path="M660 262 C660 300 380 292 380 330"/><rect x="-8" y="-6" width="16" height="12" rx="2.500" style="fill: var(--surface); stroke: var(--bad);" stroke-width="2"/><path d="M-8 -6 L0 1 L8 -6" fill="none" style="stroke: var(--bad);" stroke-width="1.600"/></g>
+<g class="pk" opacity="{{p7}}"><animateMotion dur="0.8s" repeatCount="indefinite" path="M380 402 L380 440"/><rect x="-8" y="-6" width="16" height="12" rx="2.500" style="fill: var(--ok); stroke: var(--ok);" stroke-width="2"/><path d="M-8 -6 L0 1 L8 -6" fill="none" stroke="#fff" stroke-width="1.600"/></g>
+</svg>
+<sc-for list="{{nodes}}" as="n" hint-placeholder-count="6">
+<div class="node" style="position: absolute; left: {{n.x}}px; top: {{n.y}}px; width: 190px; height: {{n.h}}px; box-sizing: border-box; border-radius: 14px; background: var(--surface); border: 2px solid {{n.border}}; box-shadow: {{n.shadow}}; display: flex; align-items: center; gap: 10px; padding: 0 12px;">
+<sc-if value="{{n.hasBubble}}" hint-placeholder-val="{{ false }}">
+<div class="bubble" style="position: absolute; left: 8px; bottom: 100%; margin-bottom: 8px; background: var(--surface); border: 1px solid var(--line2); border-radius: 14px; padding: 6px 10px; font-size: 12.5px; font-weight: 600; white-space: nowrap; color: var(--ink); z-index: 2;">{{n.bubble}}<span style="position: absolute; left: 22px; bottom: -6px; width: 10px; height: 10px; background: var(--surface); border-right: 1px solid var(--line2); border-bottom: 1px solid var(--line2); transform: rotate(45deg);"></span></div>
+</sc-if>
+<span class="pool {{n.poolc}}" style="--pc: {{n.col}}; --po: {{n.pool}};" aria-hidden="true"></span>
+<sc-if value="{{n.mascot}}" hint-placeholder-val="{{ true }}">
+<span style="position: relative; flex: none; width: 54px; height: 54px;">
+<span class="lvs {{n.live}} {{n.anim}}" style="width:62px;height:62px;margin:-4px" aria-hidden="true"><img src="{{n.sprite}}" alt="" style="animation-delay:{{n.phase}}"/></span>
+<sc-if value="{{n.sleepy}}" hint-placeholder-val="{{ false }}"><span class="zz" style="position: absolute; right: -8px; top: -6px; font-size: 13px; font-weight: 700; color: var(--mute);">z</span></sc-if>
+<sc-if value="{{n.sparkle}}" hint-placeholder-val="{{ false }}"><svg width="15" height="15" viewBox="0 0 24 24" style="position: absolute; right: -6px; top: -4px;" aria-hidden="true"><path d="M12 1l2.600 7.400L22 11l-7.400 2.600L12 21l-2.600-7.400L2 11l7.400-2.600z" fill="#F0B54A"/></svg></sc-if>
+<sc-if value="{{n.sweat}}" hint-placeholder-val="{{ false }}"><svg width="10" height="14" viewBox="0 0 10 14" style="position: absolute; right: -4px; top: 8px;" aria-hidden="true"><path d="M5 0C5 0 0 6 0 9a5 5 0 0 0 10 0C10 6 5 0 5 0z" fill="#6EC1FF"/></svg></sc-if>
+</span>
+</sc-if>
+<sc-if value="{{n.reportIcon}}" hint-placeholder-val="{{ false }}">
+<span style="flex: none; width: 30px; height: 30px; border-radius: 14px; background: var(--accent); color: var(--accentInk); display: flex; align-items: center; justify-content: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.500l5 5 9-10"/></svg></span>
+</sc-if>
+<span style="display: block; min-width: 0;">
+<span style="display: block; font-weight: 700; font-size: 15px;">{{n.name}}</span>
+<span style="display: block; margin-top: 1px; font-size: 12.5px; font-weight: 600; color: {{n.statusColor}};">{{n.status}}</span>
+</span>
+<sc-if value="{{n.spin}}" hint-placeholder-val="{{ false }}">
+<svg width="18" height="18" viewBox="0 0 34 34" style="margin-left: auto; animation: spin 0.9s linear infinite;" aria-hidden="true"><circle cx="17" cy="17" r="14" fill="none" stroke="#AEB4C7" stroke-width="5" opacity="0.5"/><path d="M17 3a14 14 0 0 1 14 14" fill="none" stroke="#7B6CF6" stroke-width="5" stroke-linecap="round"/></svg>
+</sc-if>
+</div>
+</sc-for>
+<sc-if value="{{finished}}" hint-placeholder-val="{{ true }}">
+<div class="stamp" style="position: absolute; left: 500px; top: 428px; border: 3px solid var(--ok); color: var(--ok); border-radius: 14px; padding: 6px 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.04em; background: var(--surface);">{{t.stamp}}</div>
+</sc-if>
+</div>
+</div></div>
+<div class="mob-block" aria-label="Agent timeline">
+<sc-for list="{{nodes}}" as="n" hint-placeholder-count="6">
+<div style="display:flex;align-items:center;gap:14px;margin-left:27px;padding:12px 0 12px 34px;border-left:2px solid var(--rule2);position:relative">
+<sc-if value="{{n.mascot}}" hint-placeholder-val="{{ true }}"><span style="flex:none;width:56px;height:56px;margin-left:-63px;background:var(--paper);border-radius:50%;border:2px solid {{n.border}}"><span class="lvs {{n.live}}" style="width:52px;height:52px;border-radius:50%" aria-hidden="true"><img src="{{n.sprite}}" alt="" style="animation-delay:{{n.phase}}"/></span></span></sc-if>
+<sc-if value="{{n.reportIcon}}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:36px;height:36px;margin-left:-53px;background:var(--accent);color:var(--accentInk);border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font:700 16px var(--mono)">¶</span></sc-if>
+<span><b style="display:block;font:600 17px var(--serif)">{{n.name}}</b><span style="font:500 13px var(--mono);color:{{n.statusColor}}">{{n.status}}</span></span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="flex: 1 1 340px; background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px; min-height: 560px; box-sizing: border-box;">
+<h2 style="margin: 0; font-size: 17px;">{{t.feed}}</h2>
+<div style="display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; flex: 1 1 auto;" aria-live="polite">
+<sc-for list="{{feed}}" as="e" hint-placeholder-count="8">
+<div class="ev" style="display: flex; gap: 10px; align-items: flex-start; background: {{e.bg}}; border-radius: 14px; padding: 9px 10px;">
+<span style="flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--medal); display: flex; align-items: center; justify-content: center;"><svg width="20" height="20" viewBox="0 0 64 64" aria-hidden="true"><use href="{{e.sym}}" width="64" height="64"/></svg></span>
+<span style="font-family: {{e.font}}; font-size: {{e.size}}; line-height: 1.45; color: {{e.ink}}; word-break: break-word;">{{e.text}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<!-- WHAT EACH AGENT DID -->
+<section style="background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px;">
+<div>
+<h2 style="margin: 0; font-family: var(--serif); font-weight: 300; letter-spacing: -0.03em; font-size: 28px; letter-spacing: -0.01em;">{{t.didTitle}}</h2>
+<p style="margin: 6px 0 0; font-size: 14.5px; color: var(--mute);">{{followText}}</p>
+</div>
+<sc-if value="{{pinned}}" hint-placeholder-val="{{ false }}"><button onClick="{{follow}}" style="border: 1px solid var(--line2); background: var(--surface); color: var(--ink); border-radius: 14px; padding: 0 14px; min-height: 40px; font-weight: 600; font-size: 13.5px; cursor: pointer;">{{t.followBtn}}</button></sc-if>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 8px;" role="tablist">
+<sc-for list="{{tabs}}" as="b" hint-placeholder-count="5">
+<button class="tabbtn" role="tab" aria-selected="{{b.on}}" onClick="{{b.pick}}" style="display: inline-flex; align-items: center; gap: 8px; border: 2px solid {{b.border}}; background: {{b.bg}}; color: var(--ink); border-radius: 14px; padding: 0 14px 0 8px; min-height: 52px; font-weight: 700; font-size: 14.5px; cursor: pointer;">
+<svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><use href="{{b.sym}}" width="64" height="64"/></svg>{{b.label}}
+<span style="width: 9px; height: 9px; border-radius: 50%; background: {{b.dot}};"></span>
+</button>
+</sc-for>
+</div>
+
+<!--wmh-start--><div class="ws-hand" aria-live="polite"><div class="ws-hand-h"><b>{{hand.who}} · {{hand.title}}</b><span>{{hand.sub}}</span></div><div class="ws-hand-g"><sc-for list="{{hand.rows}}" as="r" hint-placeholder-count="3"><div><small>{{r.k}}</small><b>{{r.v}}</b></div></sc-for></div></div><!--wmh-end-->
+<!-- Manager -->
+<sc-if value="{{tM}}" hint-placeholder-val="{{ false }}">
+<div class="fadein" style="display: flex; flex-wrap: wrap; gap: 20px;">
+<div style="flex: 1 1 340px; background: var(--surface2); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+<h3 style="margin: 0; font-size: 16px;">{{t.mPlan}}</h3>
+<sc-for list="{{plan}}" as="p" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 12px; font-size: 14.5px; color: {{p.ink}};">
+<span style="flex: none; width: 24px; height: 24px; border-radius: 50%; background: {{p.bg}}; color: {{p.fg}}; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;">{{p.mark}}</span>{{p.text}}
+</div>
+</sc-for>
+</div>
+<div style="flex: 1 1 380px; background: var(--surface2); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+<h3 style="margin: 0; font-size: 16px;">{{t.mRouter}}</h3>
+<p style="margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--mute);">{{t.mRouterNote}}</p>
+<sc-for list="{{router}}" as="r" hint-placeholder-count="3">
+<div>
+<div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 5px;"><span>{{r.label}}</span><span style="font-family: var(--mono);">{{r.pct}}%</span></div>
+<div style="height: 12px; border-radius: 6px; background: var(--line);"><div class="gbar" style="height: 12px; border-radius: 6px; width: {{r.pct}}%; background: {{r.color}};"></div></div>
+</div>
+</sc-for>
+<div style="font-size: 14px; line-height: 1.5; color: var(--ink2); background: var(--surface); border-radius: 14px; padding: 10px 12px;">{{t.mChosen}}</div>
+</div>
+</div>
+</sc-if>
+
+<!-- Vision -->
+<sc-if value="{{tV}}" hint-placeholder-val="{{ false }}">
+<div class="fadein" style="display: flex; flex-wrap: wrap; gap: 20px;">
+<div style="flex: 1 1 400px; background: var(--surface2); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;"><h3 style="margin: 0; font-size: 16px;">{{t.vPhoto}}</h3><span style="font-family: var(--mono); font-size: 12px; color: var(--mute);">ridership-chart-photo.jpg</span></div>
+<div style="overflow-x: auto;"><div role="img" aria-label="{{t.vPhotoAria}}" style="position: relative; width: 400px; height: 270px; border-radius: 14px; background: #3A3A44; overflow: hidden; margin: 0 auto;">
+<div style="position: absolute; left: 22px; top: 14px; width: 356px; height: 242px; border-radius: 6px; background: #F3ECDC; border: 1px solid #CFC4AA; transform: rotate(-2deg); box-sizing: border-box;">
+<div style="position: absolute; left: 18px; top: 10px; font-size: 12px; font-weight: 700; color: #3A3426; white-space: nowrap;">Seoul subway ridership growth (%), 2019–2025</div>
+<sc-if value="{{showBoxes}}" hint-placeholder-val="{{ true }}"><div style="position: absolute; left: 12px; top: 6px; width: 262px; height: 22px; border: 2px dashed #D97706; border-radius: 6px; box-sizing: border-box;"></div></sc-if>
+<div style="position: absolute; left: 22px; top: 38px; width: 0; height: 166px; border-left: 1.5px solid #7A705A;"></div>
+<div style="position: absolute; left: 22px; top: 204px; width: 318px; height: 0; border-top: 1.5px solid #7A705A;"></div>
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="8">
+<div>
+<div style="position: absolute; left: {{b.x}}px; top: {{b.top}}px; width: 26px; height: {{b.h}}px; border-radius: 6px 3px 0 0; background: #C98A3C;"></div>
+<div style="position: absolute; left: {{b.nx}}px; top: 208px; width: 38px; text-align: center; font-size: 7px; color: #3A3426;">{{b.name}}</div>
+<sc-if value="{{showBoxes}}" hint-placeholder-val="{{ true }}"><div style="position: absolute; left: {{b.bx}}px; top: {{b.by}}px; width: 34px; height: {{b.bh}}px; border: 2px dashed #7B6CF6; border-radius: 6px; box-sizing: border-box;"></div></sc-if>
+<sc-if value="{{showVals}}" hint-placeholder-val="{{ true }}"><div style="position: absolute; left: {{b.lx}}px; top: {{b.ly}}px; width: 30px; height: 14px; border-radius: 6px; background: #7B6CF6; color: #fff; font-family: var(--mono); font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{b.val}}</div></sc-if>
+</div>
+</sc-for>
+</div>
+</div></div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--mute);"><span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 14px; height: 0; border-top: 2px dashed #7B6CF6;"></span>{{t.vLegBar}}</span><span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 14px; height: 0; border-top: 2px dashed #D97706;"></span>{{t.vLegText}}</span></div>
+</div>
+<div style="flex: 1 1 400px; background: var(--surface2); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+<h3 style="margin: 0; font-size: 16px;">{{t.vRead}}</h3>
+<p style="margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--mute);">{{t.vNote}}</p>
+<sc-for list="{{ocr}}" as="o" hint-placeholder-count="8">
+<div class="fadein" style="display: flex; align-items: center; gap: 10px; background: var(--surface); border-radius: 14px; padding: 8px 10px; font-size: 13.5px;">
+<span style="flex: none; padding: 2px 8px; border-radius: 6px; background: {{o.srcBg}}; color: {{o.srcFg}}; font-size: 11.5px; font-weight: 700;">{{o.src}}</span>
+<span style="flex: 1 1 auto; min-width: 0; word-break: break-word;">{{o.text}}</span>
+<span style="flex: none; font-family: var(--mono); font-size: 12px; color: var(--mute);">{{o.conf}}</span>
+</div>
+</sc-for>
+<sc-if value="{{vEmpty}}" hint-placeholder-val="{{ false }}"><div style="font-size: 14px; color: var(--mute);">{{t.waiting}}</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<!-- Data -->
+<sc-if value="{{tD}}" hint-placeholder-val="{{ false }}">
+<div class="fadein" style="display: flex; flex-wrap: wrap; gap: 20px;">
+<div style="flex: 1 1 400px; min-width: 0; background: var(--code); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;"><span style="font-size: 13px; font-weight: 600; color: #C9D0F0;">{{t.dCode}}</span><span style="font-size: 12px; color: #A8B1D8;">{{t.sandbox}}</span></div>
+<sc-if value="{{showCode}}" hint-placeholder-val="{{ true }}">
+<pre style="margin: 0; font-family: var(--mono); font-size: 13px; line-height: 1.7; color: var(--codeInk); overflow-x: auto;">df = pd.read_csv("seoul-subway-ridership.csv")
+by = df.pivot_table(index="station",
+        columns="year", values="riders")
+growth = (by[2025] / by[2019] - 1) * 100
+top = growth.nlargest(6).round(1)</pre>
+</sc-if>
+<sc-if value="{{vEmptyD}}" hint-placeholder-val="{{ false }}"><div style="font-size: 14px; color: #A8B1D8;">{{t.waiting}}</div></sc-if>
+<sc-if value="{{showOut}}" hint-placeholder-val="{{ true }}">
+<div style="border-top: 1px solid #2E2B4A; padding-top: 10px; display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: var(--mono); font-size: 12px; color: #7FE3B5;"><span>3,640 rows</span><span>0.84 s</span><span>41 MB</span><span>network: blocked</span></div>
+</sc-if>
+</div>
+<div style="flex: 1 1 400px; min-width: 0; background: var(--surface2); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+<h3 style="margin: 0; font-size: 16px;">{{t.dTable}}</h3>
+<sc-if value="{{showOut}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; font-size: 12.5px; font-weight: 700; color: var(--mute); padding: 0 10px;"><span style="flex: 1.2 1 0;">{{t.dStation}}</span><span style="flex: 1 1 0; text-align: right;">2019</span><span style="flex: 1 1 0; text-align: right;">2025</span><span style="flex: 1.6 1 0; text-align: right;">{{t.dGrowth}}</span></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+<div class="fadein" style="display: flex; align-items: center; background: {{r.bg}}; border-radius: 14px; padding: 8px 10px; font-size: 14px;">
+<span style="flex: 1.2 1 0; font-weight: 700;">{{r.station}}</span>
+<span style="flex: 1 1 0; text-align: right; font-family: var(--mono); font-size: 13px;">{{r.a}}</span>
+<span style="flex: 1 1 0; text-align: right; font-family: var(--mono); font-size: 13px;">{{r.b}}</span>
+<span style="flex: 1.6 1 0; display: flex; align-items: center; justify-content: flex-end; gap: 8px;"><span style="display: inline-block; height: 10px; width: {{r.w}}px; border-radius: 6px; background: {{r.color}};"></span><span style="font-family: var(--mono); font-size: 13px; font-weight: 500; min-width: 44px; text-align: right;">+{{r.g}}%</span></span>
+</div>
+</sc-for>
+<div style="font-size: 12.5px; color: var(--mute);">{{t.dUnit}}</div>
+</sc-if>
+<sc-if value="{{vEmptyD2}}" hint-placeholder-val="{{ false }}"><div style="font-size: 14px; color: var(--mute);">{{t.waiting}}</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<!-- Retrieval -->
+<sc-if value="{{tR}}" hint-placeholder-val="{{ false }}">
+<div class="fadein" style="display: flex; flex-wrap: wrap; gap: 20px;">
+<div style="flex: 1 1 320px; background: var(--surface2); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+<h3 style="margin: 0; font-size: 16px;">{{t.rHow}}</h3>
+<div style="font-family: var(--mono); font-size: 13px; background: var(--surface); border-radius: 14px; padding: 10px 12px;">“ridership growth by station”</div>
+<sc-for list="{{rSteps}}" as="p" hint-placeholder-count="4">
+<div style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.45; color: {{p.ink}};">
+<span style="flex: none; width: 22px; height: 22px; border-radius: 50%; background: {{p.bg}}; color: {{p.fg}}; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 700;">{{p.mark}}</span>{{p.text}}
+</div>
+</sc-for>
+</div>
+<div style="flex: 2 1 460px; min-width: 0; background: var(--surface2); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+<h3 style="margin: 0; font-size: 16px;">{{t.rMatches}}</h3>
+<sc-if value="{{rWait}}" hint-placeholder-val="{{ false }}"><div style="font-size: 14px; color: var(--mute);">{{rWaitText}}</div></sc-if>
+<sc-for list="{{passages}}" as="p" hint-placeholder-count="3">
+<div class="fadein" style="background: var(--surface); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--mute);"><span style="font-family: var(--mono);">city-transport-report-2025.pdf · {{p.page}}</span><span style="font-weight: 700; color: {{p.tagColor}};">{{p.tag}}</span></div>
+<div style="font-size: 14.5px; line-height: 1.6;">{{p.pre}}<span style="background: var(--hl); border-radius: 6px; padding: 1px 3px; font-weight: 600;">{{p.hl}}</span>{{p.post}}</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px;">
+<div style="flex: 1 1 140px;"><div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--mute); margin-bottom: 3px;"><span>{{t.rKey}}</span><span style="font-family: var(--mono);">{{p.kw}}</span></div><div style="height: 8px; border-radius: 6px; background: var(--line);"><div class="gbar" style="height: 8px; border-radius: 6px; width: {{p.kwW}}%; background: #D97706;"></div></div></div>
+<div style="flex: 1 1 140px;"><div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--mute); margin-bottom: 3px;"><span>{{t.rSem}}</span><span style="font-family: var(--mono);">{{p.sem}}</span></div><div style="height: 8px; border-radius: 6px; background: var(--line);"><div class="gbar" style="height: 8px; border-radius: 6px; width: {{p.semW}}%; background: #2E9E6B;"></div></div></div>
+<div style="flex: 1 1 140px;"><div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 3px;"><span>{{t.rComb}}</span><span style="font-family: var(--mono);">{{p.comb}}</span></div><div style="height: 8px; border-radius: 6px; background: var(--line);"><div class="gbar" style="height: 8px; border-radius: 6px; width: {{p.combW}}%; background: var(--accent);"></div></div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<!-- Critic -->
+<sc-if value="{{tC}}" hint-placeholder-val="{{ false }}">
+<div class="fadein" style="display: flex; flex-direction: column; gap: 10px;">
+<p style="margin: 0; font-size: 14px; color: var(--mute); line-height: 1.5;">{{t.cNote}}</p>
+<sc-if value="{{cEmpty}}" hint-placeholder-val="{{ false }}"><div style="font-size: 14px; color: var(--mute);">{{t.waiting}}</div></sc-if>
+<sc-for list="{{claims}}" as="c" hint-placeholder-count="6">
+<div class="fadein" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; background: {{c.bg}}; border: 1px solid {{c.line}}; border-radius: 14px; padding: 12px 16px;">
+<span style="flex: none; width: 30px; height: 30px; border-radius: 50%; background: {{c.mark}}; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px;">{{c.sym}}</span>
+<span style="flex: 2 1 280px; min-width: 0;"><span style="display: block; font-weight: 700; font-size: 15px;">{{c.text}}</span><span style="display: block; margin-top: 2px; font-size: 13.5px; line-height: 1.45; color: {{c.reasonInk}};">{{c.reason}}</span></span>
+<span style="flex: 1 1 120px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end;">
+<sc-for list="{{c.ev}}" as="v" hint-placeholder-count="2"><span style="padding: 3px 9px; border-radius: 6px; background: var(--surface); border: 1px solid var(--line2); font-family: var(--mono); font-size: 12px; font-weight: 500;">{{v.code}}</span></sc-for>
+</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; gap: 14px; background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 18px 22px;">
+<div style="flex: 0 0 auto; font-weight: 700; font-size: 15px; align-self: center;">{{t.guard}}</div>
+<sc-for list="{{guards}}" as="g" hint-placeholder-count="4">
+<div style="flex: 1 1 170px; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 12.5px; color: var(--mute);">{{g.k}}</span><span style="font-family: var(--mono); font-size: 13.5px; font-weight: 500;">{{g.v}}</span></div>
+</sc-for>
+</section>
+<!--fxo-start--><section class="fx-sec" aria-labelledby="fx-oc">
+<div><h2 id="fx-oc">{{fx.s.oTitle}}</h2><p class="fx-sub" style="margin-top:6px">{{fx.s.oSub}}</p></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+<sc-for list="{{fx.outcomes}}" as="o" hint-placeholder-count="9">
+<div style="background:var(--card);border:1px solid var(--line);border-top:4px solid {{o.col}};border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="fx-pill" style="background:{{o.bg}};color:{{o.fg}}">{{o.label}}</span><span style="font:500 11.5px var(--mono);color:var(--mute)">{{o.count}}</span></div>
+<div style="font-size:18px;font-weight:600;line-height:1.3">{{o.head}}</div>
+<div style="font-size:14px;line-height:1.55;color:var(--ink2)">{{o.body}}</div>
+<sc-if value="{{o.hasChips}}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{o.chips}}" as="c" hint-placeholder-count="2"><span class="fx-btn" style="min-height:30px;font-size:12.5px">{{c}}</span></sc-for></div></sc-if>
+<sc-if value="{{o.hasBtn}}" hint-placeholder-val="{{ false }}"><div><button class="fx-btn pri" type="button">{{o.btn}}</button></div></sc-if>
+</div>
+</sc-for>
+</div>
+</section><!--fxo-end-->
+</sc-if>
+
+<p style="margin: 0; font-size: 12.5px; color: var(--mute);">{{t.demo}}</p>
+</main>
+<!--fx-start--><sc-if value="{{isAsk}}" hint-placeholder-val="{{ true }}"><div class="fxwrap" style="max-width:1200px;margin:0 auto;padding:8px 32px 0;display:flex;flex-direction:column;gap:24px;box-sizing:border-box"><section class="fx-sec" aria-labelledby="fx-st">
+<div><h2 id="fx-st">{{fx.s.stTitle}}</h2><p class="fx-sub" style="margin-top:6px">{{fx.s.stSub}}</p></div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px">
+<sc-for list="{{fx.agents}}" as="a" hint-placeholder-count="5">
+<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+<svg width="88" height="88" viewBox="0 0 88 88" aria-hidden="true">
+<g style="{{a.medStyle}}"><circle cx="44" cy="44" r="33" fill="var(--surface)"/><use href="{{a.sym}}" x="10" y="10" width="68" height="68"/></g>
+<circle class="{{a.ringCls}}" cx="44" cy="44" r="40" fill="none" stroke="{{a.ring}}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="{{a.dash}}"/>
+<sc-if value="{{a.badge}}" hint-placeholder-val="{{ true }}"><circle cx="72" cy="72" r="11" fill="{{a.badgeBg}}" stroke="var(--card)" stroke-width="2"/><text x="72" y="77" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" style="font-family:var(--sans)">{{a.badgeTxt}}</text></sc-if>
+</svg>
+<div style="font-weight:700;font-size:15px">{{a.name}}</div>
+<span class="fx-pill" style="background:{{a.pillBg}};color:{{a.pillFg}}">{{a.label}}</span>
+<div style="font-size:13px;line-height:1.45;color:var(--mute)">{{a.line}}</div>
+<sc-if value="{{a.retry}}" hint-placeholder-val="{{ false }}"><button class="fx-btn pri" type="button">{{fx.s.retry}}</button></sc-if>
+</div>
+</sc-for>
+</div>
+</section><section class="fx-sec" aria-labelledby="fx-up">
+<div><h2 id="fx-up">{{fx.s.upTitle}}</h2><p class="fx-sub" style="margin-top:6px">{{fx.s.upNote}}</p></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px">
+<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px"><div class="fx-lab" style="color:var(--ok)">{{fx.s.upOkL}}</div><div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{fx.upOk}}" as="x" hint-placeholder-count="4"><span class="fx-pill" style="background:var(--okBg);color:var(--ok);min-height:30px;font-size:13px">{{x}}</span></sc-for></div></div>
+<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px"><div class="fx-lab" style="color:var(--bad)">{{fx.s.upNoL}}</div><div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{fx.upNo}}" as="x" hint-placeholder-count="5"><span class="fx-pill" style="background:var(--badBg);color:var(--bad);min-height:30px;font-size:13px">{{x}}</span></sc-for></div></div>
+</div>
+</section></div></sc-if><!--fx-end-->
+<footer class="wrap foot"><span>Indesk · field notes for your files</span><span>{{t.demo}}</span></footer>
+<nav class="tabbar" aria-label="Main"><a href="Home.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/></svg><span>{{t.navHome}}</span></a><a href="Workspace.dc.html" class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.100 2.100 0 0 0-4-4L4 16z"/><path d="M13.500 6.500l4 4"/></svg><span>{{t.navWork}}</span></a><a href="People.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.700 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16.500 14.200c2.500.3 4.500 2.400 4.500 5"/></svg><span>{{t.navPeople}}</span></a><a href="MyPage.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg><span>{{t.navMine}}</span></a><a href="Plans.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.500" cy="8.500" r="1.200"/></svg><span>{{t.navPlans}}</span></a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    let dark = false;
+    try { dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { dark = false; }
+    this.state = { fxTpl: 'plain', fxFont: 'clean', fxSize: 'm', fxDl: '', fxFmt: 'pdf', fxPanel: '', fxShared: false, fxCopied: false, fxPanel: '', fxShared: false, fxCopied: false, lang: 'en', theme: dark ? 'dark' : 'light', stage: 'ask', mode: 'ask', mf: { check: [true, true], cmp: [true, true] }, ran: false, peek: false, shown: 0, running: false, on: [true, true, true], q: '', tab: null };
+    this.timer = null;
+  }
+  componentWillUnmount() { if (this.timer) clearInterval(this.timer); }
+  start() {
+    if (this.timer) clearInterval(this.timer);
+    this.setState({ stage: 'run', shown: 0, running: true, tab: null, ran: true, peek: false });
+    this.timer = setInterval(() => {
+      if (this.state.shown >= 14) {
+        clearInterval(this.timer);
+        this.timer = null;
+        this.setState({ running: false });
+        return;
+      }
+      this.setState({ shown: this.state.shown + 1 });
+    }, 800);
+  }
+  __fx(L) {
+    const st = this.state;
+    const set = (o) => this.setState(o);
+    const S = {
+      stTitle: L("How each agent can end", "각 에이전트가 끝나는 방식", "各エージェントの終わり方", "Как может закончить каждый агент", "Har bir agent qanday tugashi mumkin"),
+      stSub: L("Only the agents a question needs are woken. A failed agent is never hidden: it shows Failed and can be retried.", "질문에 필요한 에이전트만 깨웁니다. 실패한 에이전트는 숨기지 않고 “실패”로 표시하며 다시 시도할 수 있습니다.", "質問に必要なエージェントだけを起こします。失敗したエージェントは隠さず「失敗」と表示し、再試行できます。", "Включаются только нужные вопросу агенты. Сбой не скрывается: агент показывает «Сбой», его можно повторить.", "Savolga kerakli agentlargina uyg‘otiladi. Xato qilgan agent yashirilmaydi: “Xato” ko‘rsatiladi va qayta urinish mumkin."),
+      nOwl: L("Owl", "부엉이", "フクロウ", "Сова", "Boyqush"),
+      nCham: L("Chameleon", "카멜레온", "カメレオン", "Хамелеон", "Xameleon"),
+      nBea: L("Beaver", "비버", "ビーバー", "Бобёр", "Qunduz"),
+      nHou: L("Hound", "사냥개", "猟犬", "Гончая", "Ovchi it"),
+      nCat: L("Cat", "고양이", "ネコ", "Кот", "Mushuk"),
+      stDone: L("Done", "완료", "完了", "Готово", "Tayyor"),
+      stSkip: L("Skipped", "건너뜀", "スキップ", "Пропущен", "O‘tkazildi"),
+      stWork: L("Working", "작업 중", "作業中", "Работает", "Ishlamoqda"),
+      stFail: L("Failed", "실패", "失敗", "Сбой", "Xato"),
+      stWait: L("Waiting", "대기 중", "待機中", "Ждёт", "Kutmoqda"),
+      lnDone: L("Finished its part.", "맡은 일을 마쳤습니다.", "担当分を終えました。", "Свою часть закончил.", "O‘z qismini tugatdi."),
+      lnSkip: L("Not needed: no images in this file.", "필요 없음: 이 파일에 이미지가 없습니다.", "不要：このファイルに画像はありません。", "Не нужен: в файле нет изображений.", "Kerak emas: faylda rasm yo‘q."),
+      lnWork: L("Reading 41,200 rows…", "41,200행을 읽는 중…", "41,200行を読み込み中…", "Читает 41 200 строк…", "41 200 qator o‘qilmoqda…"),
+      lnFail: L("No answer after 45 s and one retry.", "45초 후 재시도에도 응답이 없습니다.", "45秒と1回の再試行でも応答がありません。", "Нет ответа за 45 с и после повтора.", "45 soniya va bir urinishdan keyin ham javob yo‘q."),
+      lnWait: L("Waits for the others.", "다른 에이전트를 기다립니다.", "他のエージェントを待っています。", "Ждёт остальных.", "Boshqalarni kutmoqda."),
+      retry: L("Retry", "다시 시도", "再試行", "Повторить", "Qayta urinish"),
+      oTitle: L("How a run can end", "실행이 끝나는 방식", "実行の終わり方", "Как может закончиться запуск", "Ishga tushirish qanday tugashi mumkin"),
+      oSub: L("Every run ends in exactly one of these outcomes. Nothing fails silently, and the model’s own memory is never used to fill a gap.", "모든 실행은 아래 결과 중 정확히 하나로 끝납니다. 조용히 실패하는 일은 없고, 모델의 기억으로 빈틈을 채우지 않습니다.", "すべての実行は次のいずれか1つで終わります。黙って失敗することはなく、モデルの記憶で穴を埋めることもありません。", "Каждый запуск заканчивается ровно одним из этих исходов. Тихих сбоев нет, а пробелы никогда не заполняются «памятью» модели.", "Har bir ishga tushirish aynan shu natijalardan biri bilan tugaydi. Jim xato yo‘q, bo‘shliqlar modelning xotirasi bilan to‘ldirilmaydi."),
+      o1l: L("Answered", "답변 완료", "回答済み", "Ответ получен", "Javob berildi"),
+      o1h: L("5 of 6 statements verified", "6개 진술 중 5개 검증", "6件中5件を検証", "Проверено 5 из 6 утверждений", "6 ta fikrdan 5 tasi tekshirildi"),
+      o1b: L("Every number links to the row or page it came from.", "모든 숫자는 출처 행이나 쪽으로 연결됩니다.", "すべての数字は元の行やページにリンクしています。", "Каждое число ведёт к строке или странице-источнику.", "Har bir raqam manba qatori yoki sahifasiga bog‘langan."),
+      o2l: L("Partial", "일부 완료", "一部完了", "Частично", "Qisman"),
+      o2h: L("Vision failed on page 3", "3쪽에서 비전 에이전트 실패", "3ページでビジョンが失敗", "Зрение не справилось на стр. 3", "3-sahifada Vision xato qildi"),
+      o2b: L("3 of 6 statements are verified. The ones that depend on page 3 are marked unverified.", "6개 중 3개만 검증되었습니다. 3쪽에 의존하는 진술은 “미검증”으로 표시됩니다.", "6件中3件を検証済み。3ページに依存する記述は「未検証」と表示されます。", "Проверено 3 из 6. Всё, что зависит от стр. 3, помечено как непроверенное.", "6 tadan 3 tasi tekshirildi. 3-sahifaga bog‘liq fikrlar “tekshirilmagan” deb belgilanadi."),
+      o2c: L("Retry Vision", "비전 다시 시도", "ビジョンを再試行", "Повторить Зрение", "Vision’ni qayta urinish"),
+      o3l: L("Not answerable", "답할 수 없음", "回答不可", "Ответа нет", "Javob topilmadi"),
+      o3h: L("The file does not cover 2015", "이 파일에는 2015년 내용이 없습니다", "このファイルは2015年を含みません", "В файле нет данных за 2015 год", "Fayl 2015-yilni qamramaydi"),
+      o3b: L("It holds ridership from 2019 to 2025 and nothing earlier. Here is what it does contain.", "2019~2025년 이용객 자료만 있고 그 이전 자료는 없습니다. 파일에 들어 있는 내용은 아래와 같습니다.", "2019〜2025年の利用者数のみで、それ以前のデータはありません。ファイルに含まれる内容は次のとおりです。", "В файле только пассажиропоток за 2019–2025 годы, более ранних данных нет. Вот что в нём есть.", "Faylda faqat 2019–2025-yillardagi yo‘lovchi oqimi bor, undan oldingisi yo‘q. Quyida nimalar borligi."),
+      o3c1: L("Ridership per year in this file?", "이 파일의 연도별 이용객은?", "このファイルの年別利用者数は？", "Пассажиропоток по годам в этом файле?", "Bu fayldagi yillar bo‘yicha yo‘lovchilar?"),
+      o3c2: L("Which station has the most riders?", "이용객이 가장 많은 역은?", "最も利用者が多い駅は？", "Какая станция самая загруженная?", "Qaysi bekatda yo‘lovchi eng ko‘p?"),
+      o4l: L("Needs better input", "더 나은 입력 필요", "入力の改善が必要", "Нужен файл получше", "Yaxshiroq fayl kerak"),
+      o4h: L("This photo is too blurry to read", "사진이 흐려서 읽을 수 없습니다", "写真がぼやけて読み取れません", "Фото слишком размыто", "Rasm o‘qish uchun juda xira"),
+      o4b: L("We could not find text we can trust. Try a sharper photo, or upload the original file.", "신뢰할 수 있는 글자를 찾지 못했습니다. 더 선명한 사진이나 원본 파일을 올려 주세요.", "信頼できる文字が見つかりませんでした。より鮮明な写真か元のファイルをアップロードしてください。", "Не нашли текста, которому можно доверять. Загрузите более чёткое фото или исходный файл.", "Ishonchli matn topilmadi. Aniqroq rasm yoki asl faylni yuklang."),
+      o4c: L("Upload again", "다시 올리기", "再アップロード", "Загрузить снова", "Qayta yuklash"),
+      o5l: L("Not accepted", "처리 불가", "受け付けられません", "Не принято", "Qabul qilinmadi"),
+      o5h: L("This file can’t be processed", "이 파일은 처리할 수 없습니다", "このファイルは処理できません", "Этот файл нельзя обработать", "Bu faylni qayta ishlab bo‘lmaydi"),
+      o5b: L("It was removed and not stored or read. See the upload rules.", "삭제되었으며 저장되거나 읽히지 않았습니다. 업로드 규칙을 확인하세요.", "削除され、保存も読み取りもされていません。アップロードのルールをご確認ください。", "Он удалён, не сохранён и не прочитан. См. правила загрузки.", "U o‘chirildi, saqlanmadi va o‘qilmadi. Yuklash qoidalariga qarang."),
+      o6l: L("Failed", "실패", "失敗", "Сбой", "Xato"),
+      o6h: L("Something broke on our side", "저희 쪽에서 문제가 생겼습니다", "当社側で問題が発生しました", "Что-то сломалось у нас", "Bizning tomonda nosozlik yuz berdi"),
+      o6b: L("Please try again. This run was not used up.", "다시 시도해 주세요. 이번 실행은 차감되지 않았습니다.", "もう一度お試しください。今回の実行は消費されていません。", "Попробуйте ещё раз. Этот запуск не списан.", "Qayta urinib ko‘ring. Bu ishga tushirish hisobga olinmadi."),
+      o6c: L("Try again", "다시 시도", "もう一度", "Ещё раз", "Qayta urinish"),
+      o7l: L("Checked, mismatches found", "확인 완료, 불일치 발견", "確認済み・不一致あり", "Проверено, есть расхождения", "Tekshirildi, nomuvofiqliklar bor"),
+      o7h: L("4 of 6 claims hold, 1 does not match", "6개 주장 중 4개 일치, 1개 불일치", "6件中4件が一致、1件が不一致", "4 из 6 утверждений верны, 1 не совпадает", "6 ta da’vodan 4 tasi to‘g‘ri, 1 tasi mos emas"),
+      o7b: L("The report shows the document’s figure next to the figure we computed, and marks the one it could not verify.", "보고서는 문서의 수치와 우리가 계산한 수치를 나란히 보여 주고, 검증하지 못한 항목도 표시합니다.", "レポートは文書の数値と計算した数値を並べて示し、検証できなかった項目も明記します。", "В отчёте цифра из документа стоит рядом с нашей, а непроверенное утверждение помечено.", "Hisobotda hujjatdagi raqam biz hisoblagan raqam yonida ko‘rsatiladi, tekshirib bo‘lmagani belgilanadi."),
+      o8l: L("Files cannot be compared", "파일을 비교할 수 없음", "ファイルを比較できません", "Файлы нельзя сравнить", "Fayllarni solishtirib bo‘lmaydi"),
+      o8h: L("These two files share no columns", "두 파일에 공통 열이 없습니다", "2つのファイルに共通の列がありません", "У этих файлов нет общих столбцов", "Bu ikki faylda umumiy ustun yo‘q"),
+      o8b: L("We say why and what to try instead, for example two months of the same table. This run is not used up.", "이유와 대안(예: 같은 표의 두 달 치)을 알려 드립니다. 이번 실행은 차감되지 않습니다.", "理由と代わりの方法（例：同じ表の2か月分）をお伝えします。今回の実行は消費されません。", "Мы объясним причину и предложим другой вариант, например два месяца одной таблицы. Запуск не списывается.", "Sababini va boshqa yo‘lni aytamiz, masalan bir jadvalning ikki oyi. Bu ishga tushirish hisobdan chiqmaydi."),
+      o9l: L("Nothing to check", "확인할 내용 없음", "確認対象なし", "Нечего проверять", "Tekshiradigan narsa yo‘q"),
+      o9h: L("The document has no checkable claims", "문서에 확인할 수 있는 주장이 없습니다", "文書に確認できる主張がありません", "В документе нет проверяемых утверждений", "Hujjatda tekshirib bo‘ladigan da’vo yo‘q"),
+      o9b: L("Opinions and general statements are listed as “not checked”. We never guess a number to fill the gap.", "의견과 일반적인 서술은 “확인하지 않음”으로 표시합니다. 빈틈을 메우려고 숫자를 추측하지 않습니다.", "意見や一般的な記述は「未確認」として一覧にします。空白を埋めるために数字を推測することはありません。", "Мнения и общие фразы помечены «не проверялось». Мы никогда не выдумываем цифру, чтобы закрыть пробел.", "Fikrlar va umumiy gaplar “tekshirilmadi” deb belgilanadi. Bo‘shliqni to‘ldirish uchun raqamni taxmin qilmaymiz."),
+      cnt1: L("Counts as a run", "실행 횟수에 포함", "実行回数に含む", "Считается запуском", "Ishga tushirish sifatida sanaladi"),
+      cnt0: L("Not counted", "횟수에 미포함", "回数に含まない", "Не считается", "Sanalmaydi"),
+      thTitle: L("Ask more about the same file", "같은 파일에 더 물어보기", "同じファイルについてさらに質問", "Ещё вопросы по тому же файлу", "Shu fayl haqida yana so‘rang"),
+      thSub: L("No re-upload. The file is prepared once, so follow-ups are faster and cheaper.", "다시 올릴 필요가 없습니다. 파일은 한 번만 준비하므로 후속 질문이 더 빠르고 저렴합니다.", "再アップロードは不要です。ファイルは一度だけ準備されるため、追加の質問はより速く低コストです。", "Повторная загрузка не нужна. Файл готовится один раз, поэтому следующие вопросы быстрее и дешевле.", "Qayta yuklash shart emas. Fayl bir marta tayyorlanadi, shuning uchun keyingi savollar tezroq va arzonroq."),
+      thFile: L("seoul-subway-ridership.csv · 3,640 rows", "seoul-subway-ridership.csv · 3,640행", "seoul-subway-ridership.csv · 3,640行", "seoul-subway-ridership.csv · 3 640 строк", "seoul-subway-ridership.csv · 3 640 qator"),
+      thKept: L("File kept for 23 h", "파일 보관 23시간 남음", "ファイル保存 残り23時間", "Файл хранится ещё 23 ч", "Fayl yana 23 soat saqlanadi"),
+      thUsed: L("3 of 10 questions used", "질문 10개 중 3개 사용", "10問中3問を使用", "Использовано 3 из 10 вопросов", "10 ta savoldan 3 tasi ishlatildi"),
+      thQ: L("Which stations grew fastest since 2019?", "2019년 이후 가장 빨리 성장한 역은?", "2019年以降に最も伸びた駅は？", "Какие станции росли быстрее всего с 2019 года?", "2019-yildan beri qaysi bekatlar eng tez o‘sdi?"),
+      thA: L("Hapjeong (+18.2%), Seongsu (+16.9%) and Magok (+14.1%) grew the most.", "합정(+18.2%), 성수(+16.9%), 마곡(+14.1%)이 가장 많이 성장했습니다.", "合井（+18.2%）、聖水（+16.9%）、馬谷（+14.1%）が最も伸びました。", "Больше всего выросли Хапчжон (+18,2%), Соннсу (+16,9%) и Магок (+14,1%).", "Eng ko‘p o‘sganlar: Hapjeong (+18,2%), Seongsu (+16,9%) va Magok (+14,1%)."),
+      thStamp: L("VERIFIED 4/4", "검증 4/4", "検証済み 4/4", "ПРОВЕРЕНО 4/4", "TEKSHIRILDI 4/4"),
+      thC1: L("Show as a table", "표로 보기", "表で見る", "Показать таблицей", "Jadval ko‘rinishida"),
+      thC2: L("Why was claim 3 flagged?", "3번 진술이 표시된 이유는?", "記述3が指摘された理由は？", "Почему отмечено утверждение 3?", "3-fikr nega belgilandi?"),
+      thC3: L("Ask a new question", "새 질문하기", "新しい質問", "Новый вопрос", "Yangi savol"),
+      thFree: L("Free", "무료", "無料", "Бесплатно", "Bepul"),
+      thCost: L("Uses 1 question", "질문 1개 사용", "1問を使用", "Тратит 1 вопрос", "1 ta savol ishlatadi"),
+      thIn: L("Ask about this file…", "이 파일에 대해 질문…", "このファイルについて質問…", "Спросите об этом файле…", "Shu fayl haqida so‘rang…"),
+      thSend: L("Ask", "질문", "質問", "Спросить", "So‘rash"),
+      thHint: L("Tables and explanations are free. A new question uses 1 of your 10 per file.", "표 변환과 설명은 무료입니다. 새 질문은 파일당 10개 중 1개를 사용합니다.", "表への変換と説明は無料です。新しい質問はファイルごとの10問のうち1問を使います。", "Таблицы и пояснения бесплатны. Новый вопрос тратит 1 из 10 на файл.", "Jadval va tushuntirishlar bepul. Yangi savol har fayl uchun 10 tadan 1 tasini ishlatadi."),
+      thExp: L("File expired. Your reports stay here; upload the file again to ask more.", "파일이 만료되었습니다. 보고서는 그대로 남아 있으며, 더 질문하려면 파일을 다시 올려 주세요.", "ファイルの保存期限が切れました。レポートは残ります。続けて質問するにはファイルを再アップロードしてください。", "Срок хранения файла истёк. Отчёты остаются; чтобы спросить ещё, загрузите файл снова.", "Fayl muddati tugadi. Hisobotlar qoladi; yana so‘rash uchun faylni qayta yuklang."),
+      exTitle: L("Report style and download", "보고서 스타일과 다운로드", "レポートのスタイルとダウンロード", "Стиль отчёта и скачивание", "Hisobot uslubi va yuklab olish"),
+      exSub: L("Pick a template and a typeface. Styling is applied after the analysis, never by the AI, so a re-format can never change a number or hide a warning.", "템플릿과 서체를 고르세요. 스타일은 분석이 끝난 뒤 적용되며 AI가 만지지 않으므로, 형식을 바꿔도 숫자가 바뀌거나 경고가 사라지지 않습니다.", "テンプレートと書体を選びます。スタイルは分析後に適用され、AIは関与しないため、形式を変えても数字が変わったり警告が消えたりしません。", "Выберите шаблон и шрифт. Стиль применяется после анализа и без участия ИИ, поэтому смена формата не изменит число и не спрячет предупреждение.", "Shablon va shriftni tanlang. Uslub tahlildan keyin qo‘llanadi va sun’iy intellektsiz bajariladi, shuning uchun format o‘zgarishi raqamni o‘zgartirmaydi va ogohlantirishni yashirmaydi."),
+      lbTpl: L("Template", "템플릿", "テンプレート", "Шаблон", "Shablon"),
+      lbFont: L("Typeface", "서체", "書体", "Шрифт", "Shrift"),
+      lbSize: L("Text size", "글자 크기", "文字サイズ", "Размер текста", "Matn o‘lchami"),
+      tPlain: L("Plain", "기본", "シンプル", "Простой", "Oddiy"),
+      tClassic: L("Classic", "클래식", "クラシック", "Классика", "Klassik"),
+      tCompact: L("Compact table", "컴팩트 표", "コンパクト表", "Компактная таблица", "Ixcham jadval"),
+      tSummary: L("Summary", "요약형", "要約", "Резюме", "Xulosa"),
+      fClean: L("Clean", "깔끔", "クリーン", "Чистый", "Toza"),
+      fSerif: L("Serif", "세리프", "セリフ", "С засечками", "Serif"),
+      fTech: L("Technical", "테크니컬", "テクニカル", "Технический", "Texnik"),
+      pvQ: L("Which stations grew fastest since 2019?", "2019년 이후 가장 빨리 성장한 역은?", "2019年以降に最も伸びた駅は？", "Какие станции росли быстрее всего с 2019 года?", "2019-yildan beri qaysi bekatlar eng tez o‘sdi?"),
+      cClaim: L("Claim", "진술", "記述", "Утверждение", "Fikr"),
+      cValue: L("Value", "값", "値", "Значение", "Qiymat"),
+      cSrc: L("Source", "출처", "出典", "Источник", "Manba"),
+      cStat: L("Status", "상태", "状態", "Статус", "Holat"),
+      r1c: L("Fastest-growing station", "가장 빨리 성장한 역", "最も伸びた駅", "Быстрее всего выросла станция", "Eng tez o‘sgan bekat"),
+      r1v: L("Hapjeong +18.2%", "합정 +18.2%", "合井 +18.2%", "Хапчжон +18,2%", "Hapjeong +18,2%"),
+      r1s: L("rows 1–3,640", "1–3,640행", "1–3,640行", "строки 1–3 640", "1–3 640-qatorlar"),
+      r2c: L("Second place", "2위", "2位", "Второе место", "Ikkinchi o‘rin"),
+      r2v: L("Seongsu +16.9%", "성수 +16.9%", "聖水 +16.9%", "Соннсу +16,9%", "Seongsu +16,9%"),
+      r2s: L("rows 1–3,640", "1–3,640행", "1–3,640行", "строки 1–3 640", "1–3 640-qatorlar"),
+      r3c: L("New line caused the growth", "새 노선이 성장의 원인", "新線が成長の原因", "Причина роста — новая линия", "O‘sishga yangi liniya sabab"),
+      r3v: L("not confirmed", "확인 안 됨", "未確認", "не подтверждено", "tasdiqlanmadi"),
+      r3s: L("not in the files", "파일에 없음", "ファイルに記載なし", "нет в файлах", "fayllarda yo‘q"),
+      okS: L("Verified", "검증됨", "検証済み", "Проверено", "Tekshirildi"),
+      badS: L("Flagged", "표시됨", "要確認", "Отмечено", "Belgilandi"),
+      smHead: L("Hapjeong, +18.2%", "합정, +18.2%", "合井、+18.2%", "Хапчжон, +18,2%", "Hapjeong, +18,2%"),
+      smSub: L("grew fastest since 2019 according to your file (rows 1–3,640).", "(파일 1–3,640행 기준) 2019년 이후 가장 빨리 성장한 역입니다.", "あなたのファイル（1–3,640行）では、2019年以降で最も伸びた駅です。", "быстрее всего выросла с 2019 года по вашему файлу (строки 1–3 640).", "faylingizga ko‘ra (1–3 640-qatorlar) 2019-yildan beri eng tez o‘sgan."),
+      stampV: L("VERIFIED 2/3", "검증 2/3", "検証済み 2/3", "ПРОВЕРЕНО 2/3", "TEKSHIRILDI 2/3"),
+      exPdf: L("PDF", "PDF", "PDF", "PDF", "PDF"),
+      exWord: L("Word", "Word", "Word", "Word", "Word"),
+      exXls: L("Excel", "Excel", "Excel", "Excel", "Excel"),
+      exCsv: L("CSV", "CSV", "CSV", "CSV", "CSV"),
+      exTop: L("Style & download", "스타일과 다운로드", "スタイルとダウンロード", "Стиль и скачивание", "Uslub va yuklab olish"),
+      exFmt: L("Format", "형식", "形式", "Формат", "Format"),
+      exDl: L("Download", "다운로드", "ダウンロード", "Скачать", "Yuklab olish"),
+      exReady: L("Ready:", "준비됨:", "準備完了：", "Готово:", "Tayyor:"),
+      exNote: L("Free on every plan. CSV holds the data only, with no styling.", "모든 요금제에서 무료입니다. CSV에는 스타일 없이 데이터만 담깁니다.", "すべてのプランで無料です。CSVにはスタイルなしでデータのみが入ります。", "Бесплатно на всех тарифах. CSV содержит только данные, без стилей.", "Barcha tariflarda bepul. CSV faqat ma’lumotni saqlaydi, uslubsiz."),
+      upTitle: L("What you can upload", "업로드할 수 있는 것", "アップロードできるもの", "Что можно загрузить", "Nimalarni yuklash mumkin"),
+      upOkL: L("Works with", "지원", "対応", "Поддерживается", "Qo‘llab-quvvatlanadi"),
+      upNoL: L("Not supported", "지원 안 함", "非対応", "Не поддерживается", "Qo‘llab-quvvatlanmaydi"),
+      ok1: L("CSV tables", "CSV 표", "CSV表", "CSV-таблицы", "CSV jadvallar"),
+      ok2: L("PDFs with text", "텍스트가 있는 PDF", "テキスト入りPDF", "PDF с текстом", "Matnli PDF"),
+      ok3: L("Photos and scans", "사진과 스캔본", "写真とスキャン", "Фото и сканы", "Rasm va skanerlar"),
+      ok4: L("Pasted text, up to 200 KB", "붙여넣은 텍스트 (최대 200KB)", "貼り付けたテキスト（最大200KB）", "Вставленный текст до 200 КБ", "Joylangan matn, 200 KB gacha"),
+      no1: L("Video or audio", "동영상·오디오", "動画・音声", "Видео и аудио", "Video va audio"),
+      no2: L("Word or PowerPoint (later)", "Word·PowerPoint (추후)", "Word・PowerPoint（今後）", "Word и PowerPoint (позже)", "Word va PowerPoint (keyin)"),
+      no3: L("Password-protected PDFs", "암호 걸린 PDF", "パスワード付きPDF", "PDF с паролем", "Parolli PDF"),
+      no4: L("ZIP archives", "ZIP 압축 파일", "ZIPアーカイブ", "ZIP-архивы", "ZIP arxivlar"),
+      no5: L("Live databases or web links", "실시간 DB·웹 링크", "ライブDB・Webリンク", "Живые БД и веб-ссылки", "Jonli ma’lumotlar bazasi va havolalar"),
+      upNote: L("Large files are fine: the numbers are computed over the whole file, and the model only reads column names, a sample and the results.", "큰 파일도 괜찮습니다. 숫자는 파일 전체에서 계산하고, 모델은 열 이름·샘플·결과만 읽습니다.", "大きなファイルも問題ありません。数値はファイル全体で計算され、モデルは列名・サンプル・結果だけを読みます。", "Большие файлы — не проблема: числа считаются по всему файлу, а модель читает только названия столбцов, образец и результаты.", "Katta fayllar muammo emas: raqamlar butun fayl bo‘yicha hisoblanadi, model faqat ustun nomlari, namuna va natijalarni o‘qiydi."),
+      btnShare: L("Share", "공유", "共有", "Поделиться", "Ulashish"),
+      btnShared: L("Shared", "공유 중", "共有中", "Общий доступ", "Ulashilgan"),
+      shTitle: L("Share this report", "이 보고서 공유하기", "このレポートを共有", "Поделиться отчётом", "Hisobotni ulashish"),
+      shPrivate: L("Private right now. Only you can open this report. Nobody else can see it unless you create a link.", "지금은 비공개입니다. 나만 열 수 있고, 링크를 만들기 전까지 아무도 볼 수 없습니다.", "現在は非公開です。リンクを作成しない限り、あなた以外は見られません。", "Сейчас отчёт приватный. Его видите только вы, пока не создадите ссылку.", "Hozir shaxsiy. Havola yaratmaguningizcha faqat siz ochasiz."),
+      shCreate: L("Create a read-only link", "읽기 전용 링크 만들기", "閲覧専用リンクを作成", "Создать ссылку для чтения", "Faqat o‘qish uchun havola yaratish"),
+      shOn: L("Shared. Anyone with this link can read the report. They cannot see your files or change anything.", "공유 중입니다. 링크가 있는 사람은 보고서를 읽을 수 있지만, 파일을 보거나 수정할 수는 없습니다.", "共有中です。リンクを知っている人はレポートを読めますが、ファイルの閲覧や変更はできません。", "Отчёт открыт по ссылке. Любой с ссылкой может его читать, но не увидит ваши файлы и ничего не изменит.", "Ulashilgan. Havolasi borlar hisobotni o‘qiy oladi, ammo fayllaringizni ko‘ra olmaydi va hech narsani o‘zgartira olmaydi."),
+      shCopy: L("Copy link", "링크 복사", "リンクをコピー", "Копировать ссылку", "Havolani nusxalash"),
+      shCopied: L("Copied", "복사됨", "コピーしました", "Скопировано", "Nusxalandi"),
+      shUnshare: L("Unshare", "공유 중지", "共有を停止", "Закрыть доступ", "Ulashishni to‘xtatish"),
+      shExp: L("The link stops working in 6 days, or the moment you press Unshare.", "링크는 6일 뒤 또는 공유 중지를 누르는 즉시 작동하지 않습니다.", "リンクは6日後、または共有停止を押した瞬間に無効になります。", "Ссылка перестанет работать через 6 дней или сразу после «Закрыть доступ».", "Havola 6 kundan keyin yoki “To‘xtatish” bosilgan zahoti ishlamay qoladi."),
+      shPrev: L("See what viewers will see", "보는 사람에게 보이는 화면 미리보기", "閲覧者に見える画面を確認", "Посмотреть, что увидят читатели", "Ko‘ruvchilar nimani ko‘rishini ko‘rish"),
+      evLegend: L("Every claim shows where it comes from", "모든 주장은 출처를 함께 보여줍니다", "すべての主張に出典を表示します", "У каждого утверждения указан источник", "Har bir da’vo manbasini ko‘rsatadi"),
+      evT: L("Table rows", "표의 행", "表の行", "Строки таблицы", "Jadval qatorlari"),
+      evI: L("Photo", "사진", "写真", "Фото", "Rasm"),
+      evD: L("PDF page", "PDF 쪽", "PDFのページ", "Страница PDF", "PDF sahifasi"),
+      evN: L("No source found", "출처 없음", "出典なし", "Источник не найден", "Manba topilmadi")
+    };
+    const A = [
+      ['owl', S.nOwl, 'done', S.stDone, S.lnDone], ['cham', S.nCham, 'skip', S.stSkip, S.lnSkip], ['bea', S.nBea, 'work', S.stWork, S.lnWork],
+      ['hou', S.nHou, 'fail', S.stFail, S.lnFail], ['cat', S.nCat, 'wait', S.stWait, S.lnWait]];
+    const V = {
+      done: { ring: 'var(--ok)', dash: '252 0', cls: '', med: '', bg: 'var(--okBg)', fg: 'var(--ok)', badge: '\u2713', bb: 'var(--ok)' },
+      skip: { ring: 'var(--rule2)', dash: '3 8', cls: '', med: 'opacity:.4;filter:grayscale(1)', bg: 'var(--medal)', fg: 'var(--mute)', badge: '\u2013', bb: 'var(--mute)' },
+      work: { ring: 'var(--accent)', dash: '70 182', cls: 'fx-spin', med: '', bg: 'var(--accentSoft)', fg: 'var(--accentText)', badge: '', bb: '' },
+      fail: { ring: 'var(--bad)', dash: '86 12 58 10 72 14', cls: '', med: 'filter:grayscale(1)', bg: 'var(--badBg)', fg: 'var(--bad)', badge: '!', bb: 'var(--bad)' },
+      wait: { ring: 'var(--rule2)', dash: '2 6', cls: '', med: 'opacity:.6;filter:grayscale(.7)', bg: 'var(--medal)', fg: 'var(--mute)', badge: '', bb: '' } };
+    const agents = A.map(a => { const v = V[a[2]]; return { sym: '#h-' + a[0], name: a[1], label: a[3], line: a[4], ring: v.ring, dash: v.dash, ringCls: v.cls, medStyle: v.med, pillBg: v.bg, pillFg: v.fg, badge: !!v.badge, badgeTxt: v.badge, badgeBg: v.bb, retry: a[2] === 'fail' }; });
+    const O = [
+      ['o1', 'var(--ok)', 'var(--okBg)', 'var(--ok)', 1, null, []], ['o2', 'var(--warn)', 'var(--warnBg)', 'var(--warn)', 1, S.o2c, []],
+      ['o3', 'var(--accent)', 'var(--accentSoft)', 'var(--accentText)', 0, null, [S.o3c1, S.o3c2]], ['o4', 'var(--warn)', 'var(--warnBg)', 'var(--warn)', 0, S.o4c, []],
+      ['o5', 'var(--bad)', 'var(--badBg)', 'var(--bad)', 0, null, []], ['o6', 'var(--mute)', 'var(--medal)', 'var(--ink2)', 0, S.o6c, []],
+      ['o7', 'var(--warn)', 'var(--warnBg)', 'var(--warn)', 1, null, []], ['o8', 'var(--accent)', 'var(--accentSoft)', 'var(--accentText)', 0, null, []], ['o9', 'var(--mute)', 'var(--medal)', 'var(--ink2)', 0, null, []]];
+    const outcomes = O.map(o => ({ col: o[1], bg: o[2], fg: o[3], label: S[o[0] + 'l'], head: S[o[0] + 'h'], body: S[o[0] + 'b'], count: o[4] ? S.cnt1 : S.cnt0, hasBtn: !!o[5], btn: o[5] || '', hasChips: o[6].length > 0, chips: o[6] }));
+    const chips = [{ label: S.thC1, cost: S.thFree, col: 'var(--ok)' }, { label: S.thC2, cost: S.thFree, col: 'var(--ok)' }, { label: S.thC3, cost: S.thCost, col: 'var(--warn)' }];
+    const mk = (list, key, cur, name) => list.map(x => ({ label: x[1], on: cur === x[0], pick: () => set({ [key]: x[0] }) }));
+    const tpls = mk([['plain', S.tPlain], ['classic', S.tClassic], ['compact', S.tCompact], ['summary', S.tSummary]], 'fxTpl', st.fxTpl);
+    const fonts = mk([['clean', S.fClean], ['serif', S.fSerif], ['tech', S.fTech]], 'fxFont', st.fxFont);
+    const sizes = mk([['s', 'S'], ['m', 'M'], ['l', 'L']], 'fxSize', st.fxSize);
+    const FONT = { clean: "var(--sans)", serif: "Georgia, 'Noto Serif KR', 'Times New Roman', serif", tech: "var(--mono)" };
+    const SIZE = { s: 13, m: 15, l: 17 };
+    const rows = [
+      { n: 1, claim: S.r1c, value: S.r1v, src: S.r1s, ok: true }, { n: 2, claim: S.r2c, value: S.r2v, src: S.r2s, ok: true }, { n: 3, claim: S.r3c, value: S.r3v, src: S.r3s, ok: false }
+    ].map((r, i) => ({ n: r.n, claim: r.claim, value: r.value, src: r.src, col: r.ok ? '#0B7F54' : '#C2331E', mark: r.ok ? '\u2713' : '\u26A0', stat: r.ok ? S.okS : S.badS, zebra: i % 2 ? '#f1f2f7' : '#ffffff' }));
+    const focusPanel = () => setTimeout(() => { try { const e = document.getElementById('fx-pan'); if (e && e.scrollIntoView) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (x) {} }, 60);
+    const ext = { pdf: 'pdf', word: 'docx', xls: 'xlsx', csv: 'csv' };
+    const exports = [['pdf', S.exPdf], ['word', S.exWord], ['xls', S.exXls], ['csv', S.exCsv]].map(e => ({ label: e[1], on: st.fxFmt === e[0], bg: st.fxFmt === e[0] ? 'var(--accent)' : 'var(--card)', fg: st.fxFmt === e[0] ? 'var(--accentInk)' : 'var(--ink)', bd: st.fxFmt === e[0] ? 'var(--accent)' : 'var(--rule2)', go: () => set({ fxFmt: e[0], fxDl: '' }) }));
+    const doDownload = () => { set({ fxDl: ext[st.fxFmt] }); if (this._fxT) clearTimeout(this._fxT); this._fxT = setTimeout(() => set({ fxDl: '' }), 2600); };
+    const goLabel = S.exDl + ' .' + ext[st.fxFmt];
+    return {
+      s: S, agents, outcomes, chips, tpls, fonts, sizes, rows, exports, doDownload, goLabel,
+      panelDl: st.fxPanel === 'dl', panelShare: st.fxPanel === 'share', panelAny: !!st.fxPanel,
+      togDl: () => { set({ fxPanel: st.fxPanel === 'dl' ? '' : 'dl' }); focusPanel(); },
+      togShare: () => { set({ fxPanel: st.fxPanel === 'share' ? '' : 'share' }); focusPanel(); },
+      shared: !!st.fxShared, notShared: !st.fxShared,
+      btnShareLabel: st.fxShared ? S.btnShared : S.btnShare,
+      createLink: () => set({ fxShared: true }),
+      unshare: () => set({ fxShared: false, fxCopied: false }),
+      copyLink: () => { set({ fxCopied: true }); if (this._fxC) clearTimeout(this._fxC); this._fxC = setTimeout(() => set({ fxCopied: false }), 1800); },
+      copyLabel: st.fxCopied ? S.shCopied : S.shCopy,
+      pv: { font: FONT[st.fxFont], size: SIZE[st.fxSize] },
+      isPlain: st.fxTpl === 'plain', isClassic: st.fxTpl === 'classic', isCompact: st.fxTpl === 'compact', isSummary: st.fxTpl === 'summary',
+      dlMsg: st.fxDl ? S.exReady + ' seoul_report.' + st.fxDl : '',
+      upOk: [S.ok1, S.ok2, S.ok3, S.ok4], upNo: [S.no1, S.no2, S.no3, S.no4, S.no5]
+    };
+  }
+  __ws(L) {
+    const st = this.state;
+    const S = {
+      tabsLabel: L('Workspace views', '워크스페이스 보기', 'ワークスペースの表示', 'Разделы рабочей области', 'Ish maydoni ko‘rinishlari'),
+      tabAsk: L('Ask a question', '질문하기', '質問する', 'Задать вопрос', 'Savol berish'),
+      tabRun: L('Agents at work', '에이전트 작업 화면', 'エージェントの作業', 'Агенты за работой', 'Agentlar ishda'),
+      peekTitle: L('No run yet', '아직 실행한 작업이 없습니다', 'まだ実行がありません', 'Запусков пока нет', 'Hali ishga tushirilmagan'),
+      peekSub: L('Ask a question and the team starts here. You can switch between the two tabs at any time.', '질문하면 팀이 여기서 일을 시작합니다. 두 탭은 언제든지 오갈 수 있습니다.', '質問するとチームがここで作業を始めます。2つのタブはいつでも切り替えられます。', 'Задайте вопрос, и команда начнёт работать здесь. Вкладки можно переключать в любой момент.', 'Savol bering, jamoa shu yerda ishni boshlaydi. Ikki varaqni istalgan payt almashtirishingiz mumkin.'),
+      peekBtn: L('Go to Ask', '질문하러 가기', '質問へ', 'К вопросу', 'Savolga o‘tish')
+    };
+    const tabs = [
+      { n: '1', label: S.tabAsk, on: st.stage === 'ask', live: false, pick: () => this.setState({ stage: 'ask', peek: false }) },
+      { n: '2', label: S.tabRun, on: st.stage === 'run', live: !!st.running, pick: () => { if (st.ran) this.setState({ stage: 'run', peek: false }); else this.setState({ stage: 'run', peek: true, shown: 0, running: false }); } }
+    ];
+    return { s: S, tabs, peek: !!st.peek && st.stage === 'run', goAsk: () => this.setState({ stage: 'ask', peek: false }) };
+  }
+  __wm(L, files, chips, cantAsk) {
+    const st = this.state;
+    const mode = st.mode || 'ask';
+    const mf = st.mf || { check: [true, true], cmp: [true, true] };
+    const modes = [['ask', L("Ask a question", "질문하기", "質問する", "Задать вопрос", "Savol berish")], ['check', L("Check a document", "문서 검증", "文書を検証", "Проверить документ", "Hujjatni tekshirish")], ['cmp', L("Compare", "비교하기", "比較する", "Сравнить", "Solishtirish")]].map((m) => ({ label: m[1], on: mode === m[0], pick: () => this.setState({ mode: m[0] }) }));
+    const mk = (kind, color, name, meta, on, tog) => ({ kind, color, name, meta, on, bg: on ? 'var(--accentSoft)' : 'var(--surface)', border: on ? 'var(--accent)' : 'var(--line2)', dotBg: on ? 'var(--accent)' : 'transparent', toggle: tog });
+    const flip = (key, i) => () => { const c = Object.assign({}, mf); c[key] = mf[key].slice(); c[key][i] = !c[key][i]; this.setState({ mf: c }); };
+    const none = () => {};
+    const S = { modeLabel: L("What do you want to do?", "무엇을 하시겠어요?", "何をしますか？", "Что вы хотите сделать?", "Nima qilmoqchisiz?") };
+    const base = { s: S, modes, isAsk: mode === 'ask', isCheck: mode === 'check', isCmp: mode === 'cmp', notAsk: mode !== 'ask' };
+    const go = (ok) => () => { if (ok) this.start(); };
+    const bg = (ok) => ok ? 'var(--accent)' : 'var(--disabled)';
+    const fg = (ok) => ok ? 'var(--accentInk)' : 'var(--mute)';
+    if (mode === 'check') {
+      const ok = mf.check[0] || mf.check[1];
+      return Object.assign(base, {
+        intro: L("Upload a document and the data behind it. We find every checkable claim and test it.", "문서와 그 근거 데이터를 올리면, 확인 가능한 주장을 모두 찾아 검증합니다.", "文書とその根拠データをアップロード。確認できる主張をすべて見つけて検証します。", "Загрузите документ и данные, на которых он основан. Мы найдём каждое проверяемое утверждение и проверим его.", "Hujjat va uning ma’lumotlarini yuklang. Tekshirsa bo‘ladigan har bir da’voni topib tekshiramiz."), step1: L("1. The document, and the data to check it against", "1. 문서와 검증에 쓸 데이터", "1. 文書と、照合するデータ", "1. Документ и данные для проверки", "1. Hujjat va tekshirish uchun ma’lumotlar"), step2: L("2. What happens next", "2. 다음 진행 과정", "2. このあとの流れ", "2. Что будет дальше", "2. Keyingi qadamlar"), hasText: false,
+        files: [mk('PDF', '#C0392B', 'ridership-brief-demo.pdf', L("Document to check · 4 pages · demo document", "검증할 문서 · 4쪽 · 데모 문서", "検証する文書・4ページ・デモ文書", "Документ для проверки · 4 страницы · демо-документ", "Tekshiriladigan hujjat · 4 bet · demo hujjat"), true, none), mk('CSV', '#0E9F7E', 'seoul-subway-ridership.csv', L("Source data · 1.4 MB · 3,640 rows", "근거 데이터 · 1.4MB · 3,640행", "根拠データ・1.4MB・3,640行", "Исходные данные · 1,4 МБ · 3 640 строк", "Manba ma’lumot · 1,4 MB · 3 640 qator"), mf.check[0], flip('check', 0)), mk('JPG', '#D97706', 'ridership-chart-photo.jpg', L("Source data · 860 KB · photo of a chart", "근거 데이터 · 860KB · 차트 사진", "根拠データ・860KB・グラフの写真", "Исходные данные · 860 КБ · фото графика", "Manba ma’lumot · 860 KB · diagramma surati"), mf.check[1], flip('check', 1))],
+        steps: [{ n: '1', text: L("Owl lists every number, ranking and quote the document claims (up to 10 on Free).", "올빼미가 문서의 모든 수치·순위·인용을 찾아 목록으로 만듭니다(무료는 최대 10개).", "フクロウが文書内の数字・順位・引用をすべて洗い出します（無料は最大10件）。", "Сова выписывает все числа, рейтинги и цитаты документа (на Free — до 10).", "Boyqush hujjatdagi har bir raqam, reyting va iqtibosni ro‘yxatga oladi (Free’da 10 tagacha).") }, { n: '2', text: L("Beaver, Hound and Chameleon test each claim against your data.", "비버, 사냥개, 카멜레온이 각 주장을 데이터와 대조합니다.", "ビーバー・猟犬・カメレオンが各主張をデータと照合します。", "Бобр, Гончая и Хамелеон проверяют каждое утверждение по вашим данным.", "Qunduz, Ovchi it va Xameleon har bir da’voni ma’lumotlaringiz bilan solishtiradi.") }, { n: '3', text: L("Cat marks each one: matches, does not match, or cannot be verified.", "고양이가 각 항목을 ‘일치’, ‘불일치’, ‘검증 불가’로 표시합니다.", "ネコが各項目を「一致」「不一致」「検証不可」に分類します。", "Кот помечает каждое: совпадает, не совпадает или не проверить.", "Mushuk har birini belgilaydi: mos, mos emas yoki tekshirib bo‘lmaydi.") }],
+        chips: [], btn: L("Check the document", "문서 검증하기", "文書を検証する", "Проверить документ", "Hujjatni tekshirish"), hint: ok ? L("Takes about 20 seconds. Uses 1 of your 2 free runs. Free plan checks up to 10 claims.", "약 20초 걸립니다. 무료 2회 중 1회를 사용하며, 무료 플랜은 최대 10개 주장을 확인합니다.", "約20秒。無料2回のうち1回を使用。無料プランは最大10件の主張を確認します。", "Около 20 секунд. Расходуется 1 из 2 бесплатных запусков. На Free проверяется до 10 утверждений.", "Taxminan 20 soniya. 2 ta bepul ishga tushirishdan 1 tasi sarflanadi. Free’da 10 tagacha da’vo tekshiriladi.") : L("Select at least one source file to check against.", "검증에 쓸 근거 파일을 하나 이상 선택하세요.", "照合に使う根拠ファイルを1つ以上選んでください。", "Выберите хотя бы один файл с данными.", "Tekshirish uchun kamida bitta manba faylni tanlang."), go: go(ok), cant: !ok, goBg: bg(ok), goFg: fg(ok),
+        runTitle: L("Check ridership-brief-demo.pdf against your data", "ridership-brief-demo.pdf를 데이터와 대조 검증", "ridership-brief-demo.pdf をデータと照合", "Проверить ridership-brief-demo.pdf по вашим данным", "ridership-brief-demo.pdf ni ma’lumotlar bilan tekshirish"), reportHref: 'ReportCheck.dc.html'
+      });
+    }
+    if (mode === 'cmp') {
+      const ok = mf.cmp[0] && mf.cmp[1];
+      return Object.assign(base, {
+        intro: L("Two files of the same kind. We show what changed, with proof.", "같은 종류의 파일 두 개를 비교해 무엇이 바뀌었는지 근거와 함께 보여 줍니다.", "同じ種類の2つのファイル。何が変わったかを根拠つきで示します。", "Два файла одного вида. Мы покажем, что изменилось, с доказательствами.", "Bir xil turdagi ikki fayl. Nima o‘zgargani dalillar bilan ko‘rsatiladi."), step1: L("1. Choose the two files", "1. 파일 두 개 고르기", "1. 2つのファイルを選ぶ", "1. Выберите два файла", "1. Ikkita faylni tanlang"), step2: L("2. What should we focus on? (optional)", "2. 무엇에 집중할까요? (선택)", "2. 注目する点は？（任意）", "2. На чём сосредоточиться? (необязательно)", "2. Nimaga e’tibor qaratamiz? (ixtiyoriy)"), hasText: true, ph: L("For example: which stations changed the most?", "예: 어느 역이 가장 많이 바뀌었나요?", "例：最も変化した駅は？", "Например: какие станции изменились сильнее всего?", "Masalan: qaysi bekatlar eng ko‘p o‘zgardi?"), steps: [],
+        files: [mk('CSV', '#0E9F7E', 'seoul-subway-ridership-2024-09.csv', L("File A · September 2024 · 1.3 MB · 3,520 rows", "파일 A · 2024년 9월 · 1.3MB · 3,520행", "ファイルA・2024年9月・1.3MB・3,520行", "Файл A · сентябрь 2024 · 1,3 МБ · 3 520 строк", "A fayl · 2024-yil sentyabr · 1,3 MB · 3 520 qator"), mf.cmp[0], flip('cmp', 0)), mk('CSV', '#0E9F7E', 'seoul-subway-ridership-2025-09.csv', L("File B · September 2025 · 1.4 MB · 3,640 rows", "파일 B · 2025년 9월 · 1.4MB · 3,640행", "ファイルB・2025年9月・1.4MB・3,640行", "Файл B · сентябрь 2025 · 1,4 МБ · 3 640 строк", "B fayl · 2025-yil sentyabr · 1,4 MB · 3 640 qator"), mf.cmp[1], flip('cmp', 1))],
+        chips: [{ text: L("Which stations changed the most?", "어느 역이 가장 많이 바뀌었나요?", "最も変化した駅は？", "Какие станции изменились сильнее всего?", "Qaysi bekatlar eng ko‘p o‘zgardi?"), pick: () => this.setState({ q: L("Which stations changed the most?", "어느 역이 가장 많이 바뀌었나요?", "最も変化した駅は？", "Какие станции изменились сильнее всего?", "Qaysi bekatlar eng ko‘p o‘zgardi?") }) }, { text: L("Did any station lose riders?", "이용객이 줄어든 역이 있나요?", "利用者が減った駅はある？", "Были ли станции с падением пассажиропотока?", "Yo‘lovchisi kamaygan bekat bormi?"), pick: () => this.setState({ q: L("Did any station lose riders?", "이용객이 줄어든 역이 있나요?", "利用者が減った駅はある？", "Были ли станции с падением пассажиропотока?", "Yo‘lovchisi kamaygan bekat bormi?") }) }],
+        btn: L("Compare the files", "파일 비교하기", "ファイルを比較する", "Сравнить файлы", "Fayllarni solishtirish"), hint: ok ? L("Takes about 15 seconds. Uses 1 of your 2 free runs.", "약 15초 걸립니다. 무료 2회 중 1회를 사용합니다.", "約15秒。無料2回のうち1回を使います。", "Около 15 секунд. Расходуется 1 из 2 бесплатных запусков.", "Taxminan 15 soniya. 2 ta bepul ishga tushirishdan 1 tasi sarflanadi.") : L("Select both files to compare.", "비교할 파일 두 개를 모두 선택하세요.", "比較する2つのファイルを両方選んでください。", "Выберите оба файла для сравнения.", "Solishtirish uchun ikkala faylni tanlang."), go: go(ok), cant: !ok, goBg: bg(ok), goFg: fg(ok),
+        runTitle: L("Compare September 2024 with September 2025", "2024년 9월과 2025년 9월 비교", "2024年9月と2025年9月を比較", "Сравнить сентябрь 2024 и сентябрь 2025", "2024-yil sentyabr va 2025-yil sentyabrni solishtirish"), reportHref: 'ReportCompare.dc.html'
+      });
+    }
+    return Object.assign(base, {
+      intro: L("Ask anything your files can answer. Every claim comes with its proof.", "파일이 답할 수 있는 것은 무엇이든 물어보세요. 모든 주장에 근거가 붙습니다.", "ファイルで答えられることなら何でも。すべての主張に根拠が付きます。", "Спрашивайте всё, на что могут ответить ваши файлы. У каждого утверждения есть доказательство.", "Fayllaringiz javob bera oladigan hamma narsani so‘rang. Har bir da’vo dalil bilan keladi."), step1: L("1. Choose your files", "1. 파일 고르기", "1. ファイルを選ぶ", "1. Выберите файлы", "1. Fayllarni tanlang"), step2: L("2. Ask your question", "2. 질문하기", "2. 質問する", "2. Задайте вопрос", "2. Savol bering"), hasText: true, ph: L("Type a question about your files…", "파일에 대해 질문을 입력하세요…", "ファイルについての質問を入力…", "Введите вопрос о ваших файлах…", "Fayllaringiz haqida savol yozing…"), steps: [], files, chips,
+      btn: L("Ask the team", "팀에게 물어보기", "チームに聞く", "Спросить команду", "Jamoadan so‘rash"), hint: cantAsk ? L("Select at least one file to continue.", "계속하려면 파일을 하나 이상 선택하세요.", "続けるにはファイルを1つ以上選んでください。", "Выберите хотя бы один файл.", "Davom etish uchun kamida bitta fayl tanlang.") : L("Takes about 10 seconds. Uses 1 of your 2 free runs.", "약 10초 걸립니다. 무료 2회 중 1회를 사용합니다.", "約10秒。無料2回のうち1回を使います。", "Около 10 секунд. Расходуется 1 из 2 бесплатных запусков.", "Taxminan 10 soniya. 2 ta bepul ishga tushirishdan 1 tasi sarflanadi."), go: go(!cantAsk), cant: cantAsk, goBg: bg(!cantAsk), goFg: fg(!cantAsk),
+      runTitle: '', reportHref: 'Report.dc.html'
+    });
+  }
+  renderVals() {
+    const codes = ['en', 'ko', 'ja', 'ru', 'uz'];
+    const labels = ['EN', '한국어', '日本語', 'RU', 'UZ'];
+    const I = codes.indexOf(this.state.lang);
+    const L = (...a) => a[I];
+    const s = this.state;
+    const n = s.stage === 'run' ? Math.min(s.shown, 14) : 0;
+    const finished = s.stage === 'run' && n >= 14 && !s.running;
+
+    const qDefault = L('Which stations grew fastest since 2019, and does the chart agree?', '2019년 이후 가장 빠르게 성장한 역은 어디이며, 차트와 일치하나요?', '2019年以降に最も伸びた駅はどこで、グラフと一致していますか？', 'Какие станции росли быстрее всего с 2019 года, и совпадает ли это с графиком?', '2019-yildan beri qaysi bekatlar eng tez o‘sdi va grafik bunga mos keladimi?');
+    const q = s.q || qDefault;
+
+    const A = {
+      m: { sym: '#h-owl', color: '#7B6CF6', name: L('Owl · Manager', '부엉이 · 매니저', 'フクロウ・マネージャー', 'Сова · Менеджер', 'Boyqush · Menejer'), short: L('Owl', '부엉이', 'フクロウ', 'Сова', 'Boyqush'), role: L('Manager', '매니저', 'マネージャー', 'Менеджер', 'Menejer') },
+      v: { sym: '#h-cham', color: '#2E9E6B', name: L('Chameleon · Vision', '카멜레온 · 비전', 'カメレオン・ビジョン', 'Хамелеон · Зрение', 'Xameleon · Ko‘rish'), short: L('Chameleon', '카멜레온', 'カメレオン', 'Хамелеон', 'Xameleon'), role: L('Vision', '비전', 'ビジョン', 'Зрение', 'Ko‘rish') },
+      d: { sym: '#h-bea', color: '#B8743A', name: L('Beaver · Data', '비버 · 데이터', 'ビーバー・データ', 'Бобр · Данные', 'Qunduz · Ma’lumot'), short: L('Beaver', '비버', 'ビーバー', 'Бобр', 'Qunduz'), role: L('Data', '데이터', 'データ', 'Данные', 'Ma’lumot') },
+      r: { sym: '#h-hou', color: '#D9A25B', name: L('Hound · Retrieval', '사냥개 · 검색', '猟犬・検索', 'Гончая · Поиск', 'Ovchi it · Qidiruv'), short: L('Hound', '사냥개', '猟犬', 'Гончая', 'Ovchi it'), role: L('Retrieval', '검색', '検索', 'Поиск', 'Qidiruv') },
+      c: { sym: '#h-cat', color: '#C2417A', name: L('Cat · Critic', '고양이 · 비평가', 'ネコ・批評家', 'Кот · Критик', 'Mushuk · Tanqidchi'), short: L('Cat', '고양이', 'ネコ', 'Кот', 'Mushuk'), role: L('Critic', '비평가', '批評家', 'Критик', 'Tanqidchi') }
+    };
+
+    const fileDefs = [
+      { kind: 'CSV', color: '#0E9F7E', name: 'seoul-subway-ridership.csv', meta: L('1.4 MB · 3,640 rows', '1.4MB · 3,640행', '1.4MB・3,640行', '1,4 МБ · 3 640 строк', '1,4 MB · 3 640 qator') },
+      { kind: 'JPG', color: '#D97706', name: 'ridership-chart-photo.jpg', meta: L('860 KB · photo of a chart', '860KB · 차트 사진', '860KB・グラフの写真', '860 КБ · фото графика', '860 KB · diagramma surati') },
+      { kind: 'PDF', color: '#C0392B', name: 'city-transport-report-2025.pdf', meta: L('1.1 MB · 18 pages', '1.1MB · 18쪽', '1.1MB・18ページ', '1,1 МБ · 18 страниц', '1,1 MB · 18 sahifa') }
+    ];
+    const files = fileDefs.map((f, i) => ({
+      ...f, on: s.on[i],
+      bg: s.on[i] ? 'var(--accentSoft)' : 'var(--surface)',
+      border: s.on[i] ? 'var(--accent)' : 'var(--line2)',
+      dotBg: s.on[i] ? 'var(--accent)' : 'transparent',
+      toggle: () => { const on = s.on.slice(); on[i] = !on[i]; this.setState({ on }); }
+    }));
+    const anyFile = s.on.some((x) => x);
+    const chips = [
+      { text: L('Which stations grew fastest?', '가장 빨리 성장한 역은?', '最も伸びた駅は？', 'Какие станции росли быстрее всего?', 'Qaysi bekatlar eng tez o‘sdi?'), full: qDefault },
+      { text: L('Does the chart match the data?', '차트가 데이터와 일치하나요?', 'グラフはデータと一致している？', 'График совпадает с данными?', 'Grafik ma’lumotga mosmi?'), full: L('Does the chart in the photo match the numbers in the CSV?', '사진 속 차트가 CSV의 숫자와 일치하나요?', '写真のグラフはCSVの数値と一致していますか？', 'Совпадает ли график на фото с числами в CSV?', 'Suratdagi grafik CSV dagi raqamlarga mosmi?') },
+      { text: L('What does the report say about growth?', '보고서는 성장에 대해 뭐라고 하나요?', 'レポートは成長について何と言っている？', 'Что отчёт говорит о росте?', 'Hisobot o‘sish haqida nima deydi?'), full: L('What does the PDF report say about ridership growth?', 'PDF 보고서는 이용객 증가에 대해 무엇이라고 하나요?', 'PDFレポートは利用者数の増加について何と言っていますか？', 'Что говорит PDF-отчёт о росте пассажиропотока?', 'PDF hisobot yo‘lovchilar o‘sishi haqida nima deydi?') }
+    ].map((c) => ({ text: c.text, pick: () => this.setState({ q: c.full }) }));
+    const cantAsk = !anyFile;
+    const ready = ['m', 'v', 'd', 'r', 'c'].map((k) => ({ sym: A[k].sym, name: A[k].short }));
+
+    // ---- run stage ----
+    const events = [
+      { a: 'm', k: 'say', tok: 1240, text: L('Plan: read the chart, compute growth from the CSV, find context in the report.', '계획: 차트 읽기, CSV로 성장률 계산, 보고서에서 맥락 찾기.', '計画：グラフを読み、CSVから成長率を計算し、レポートで背景を探す。', 'План: прочитать график, посчитать рост по CSV, найти контекст в отчёте.', 'Reja: diagrammani o‘qish, CSV dan o‘sishni hisoblash, hisobotdan kontekst topish.') },
+      { a: 'm', k: 'say', tok: 380, text: L('Dispatching vision, data and retrieval agents in parallel.', '비전, 데이터, 검색 에이전트에 병렬로 작업을 전달합니다.', 'ビジョン、データ、検索エージェントを並行して起動します。', 'Параллельно запускаю агентов зрения, данных и поиска.', 'Ko‘rish, ma’lumot va qidiruv agentlarini parallel ishga tushiryapman.') },
+      { a: 'v', k: 'tool', tok: 910, text: 'ocr_chart("ridership-chart-photo.jpg") → ' + L('8 bars found', '막대 8개 발견', '棒8本を検出', 'найдено 8 столбцов', '8 ta ustun topildi') },
+      { a: 'd', k: 'tool', tok: 560, text: 'pandas.read_csv("seoul-subway-ridership.csv") → 3,640 ' + L('rows', '행', '行', 'строк', 'qator') },
+      { a: 'r', k: 'tool', tok: 780, text: 'search("ridership growth by station", k=5) → 5 ' + L('passages', '구절', '箇所', 'фрагментов', 'parcha') },
+      { a: 'd', k: 'tool', tok: 1850, text: 'run_python(sandbox) → ' + L('growth by station, 2019 to 2025', '역별 성장률, 2019~2025', '駅別の成長率、2019〜2025年', 'рост по станциям, 2019–2025', 'bekatlar bo‘yicha o‘sish, 2019–2025') },
+      { a: 'v', k: 'say', tok: 980, text: L('Chart values read: Hapjeong 18, Seongsu 17, Magok 14 …', '차트 값 읽음: 합정 18, 성수 17, 마곡 14 …', 'グラフの値を読み取り：Hapjeong 18、Seongsu 17、Magok 14 …', 'Значения графика: Hapjeong 18, Seongsu 17, Magok 14 …', 'Diagramma qiymatlari: Hapjeong 18, Seongsu 17, Magok 14 …') },
+      { a: 'r', k: 'say', tok: 1420, text: L('Best passage: city-transport-report-2025.pdf, p. 12', '가장 관련 있는 구절: city-transport-report-2025.pdf, 12쪽', '最も関連する箇所：city-transport-report-2025.pdf、12ページ', 'Лучший фрагмент: city-transport-report-2025.pdf, стр. 12', 'Eng mos parcha: city-transport-report-2025.pdf, 12-sahifa') },
+      { a: 'd', k: 'say', tok: 1130, text: L('Top 3 growth: Hapjeong +18.2%, Seongsu +16.9%, Magok +14.1%', '성장률 상위 3개: 합정 +18.2%, 성수 +16.9%, 마곡 +14.1%', '成長率トップ3：Hapjeong +18.2%、Seongsu +16.9%、Magok +14.1%', 'Топ-3 по росту: Hapjeong +18,2%, Seongsu +16,9%, Magok +14,1%', 'Eng yuqori 3 o‘sish: Hapjeong +18,2%, Seongsu +16,9%, Magok +14,1%') },
+      { a: 'm', k: 'say', tok: 1360, text: L('Merging results and drafting 6 claims.', '결과를 합치고 주장 6개를 작성합니다.', '結果をまとめ、主張を6件作成します。', 'Объединяю результаты и формулирую 6 утверждений.', 'Natijalarni birlashtirib, 6 ta da’vo yozyapman.') },
+      { a: 'c', k: 'tool', tok: 2100, text: 'verify(claim 1) → ' + L('+18.2% matches the data', '+18.2%가 데이터와 일치', '+18.2%がデータと一致', '+18,2% совпадает с данными', '+18,2% ma’lumotga mos') },
+      { a: 'c', k: 'flag', tok: 1900, text: 'verify(claim 4) → ' + L('no source supports "caused by the new line"', '"신규 노선 때문"을 뒷받침하는 출처 없음', '「新路線が原因」を裏づける出典なし', 'нет источника для «из-за новой линии»', '«yangi liniya sababli» ni tasdiqlovchi manba yo‘q') },
+      { a: 'c', k: 'say', tok: 940, text: L('5 of 6 claims verified, 1 flagged.', '주장 6개 중 5개 검증, 1개 표시.', '6件中5件を検証、1件に警告。', 'Проверено 5 из 6 утверждений, 1 помечено.', '6 tadan 5 ta da’vo tasdiqlandi, 1 tasi belgilandi.') },
+      { a: 'm', k: 'say', tok: 620, text: L('Report ready. 1 claim marked as unverified.', '보고서 완료. 주장 1개는 미검증으로 표시했습니다.', 'レポート完成。1件を未検証としてマークしました。', 'Отчёт готов. 1 утверждение помечено как непроверенное.', 'Hisobot tayyor. 1 ta da’vo tasdiqlanmagan deb belgilandi.') }
+    ];
+    const span = { m: [0, 13], v: [2, 6], d: [3, 8], r: [4, 7], c: [10, 12] };
+    const st = (a) => {
+      const sp = span[a];
+      if (n <= sp[0]) return 'idle';
+      if (n > sp[1]) return a === 'c' ? 'flag' : 'done';
+      return 'run';
+    };
+    const bubbles = {
+      m: n === 1 || n === 2 ? L('Splitting the question…', '질문을 나누는 중…', '質問を振り分け中…', 'Делю вопрос…', 'Savolni bo‘lyapman…') : n === 10 ? L('Merging the results…', '결과를 합치는 중…', '結果をまとめ中…', 'Объединяю результаты…', 'Natijalarni birlashtiryapman…') : '',
+      v: L('Reading the chart…', '차트를 읽는 중…', 'グラフを読み取り中…', 'Читаю график…', 'Diagrammani o‘qiyapman…'),
+      d: L('Crunching the numbers…', '숫자를 계산하는 중…', '数値を計算中…', 'Считаю числа…', 'Raqamlarni hisoblayapman…'),
+      r: L('Sniffing the report…', '보고서를 킁킁 찾는 중…', 'レポートを嗅ぎ分け中…', 'Нюхаю отчёт…', 'Hisobotni hidlayapman…'),
+      c: L('Checking every claim…', '모든 주장을 확인하는 중…', 'すべての主張を確認中…', 'Проверяю каждое утверждение…', 'Har bir da’voni tekshiryapman…')
+    };
+    const SPR = {'m': '/_blob/48c30e861d64ed67e09ff07c4baa16ed', 'v': '/_blob/0914efd1971bca573eb721cdd057d022', 'd': '/_blob/1822f47d405dce170df93232db2473e5', 'r': '/_blob/b97288b0d3a8789936cc01a93b96a1e8', 'c': '/_blob/305d3cc2623fdee912f4957bce320078'};
+    const COL = { m: 'var(--c-owl)', v: 'var(--c-cham)', d: 'var(--c-bea)', r: 'var(--c-hou)', c: 'var(--c-cat)' };
+    const pos = { m: [285, 40, 72], v: [10, 190, 72], d: [285, 190, 72], r: [565, 190, 72], c: [285, 330, 72] };
+    const nodes = Object.keys(pos).map((a) => {
+      const z = st(a);
+      const bubble = z === 'run' ? bubbles[a] : '';
+      const active = a === 'm' ? !!bubble : z === 'run';
+      const label = { idle: L('Waiting', '대기', '待機中', 'Ожидание', 'Kutmoqda'), run: L('Working', '작업 중', '作業中', 'Работает', 'Ishlayapti'), done: L('Done', '완료', '完了', 'Готово', 'Tayyor'), flag: L('1 flagged', '1건 표시', '1件警告', '1 помечено', '1 ta belgilandi') }[z];
+      return {
+        x: pos[a][0], y: pos[a][1], h: pos[a][2], mascot: true, reportIcon: false,
+        col: z === 'flag' ? 'var(--bad)' : COL[a], pool: (z === 'run' ? 1 : z === 'flag' ? 0.7 : z === 'done' ? 0.4 : 0), poolc: z === 'run' ? 'run' : '', sprite: SPR[a], live: (z === 'run' ? 'on' : z === 'idle' ? 'dim' : ''), phase: '-' + (Object.keys(pos).indexOf(a) * 0.45).toFixed(2) + 's',
+        sym: A[a].sym, name: A[a].name, status: label,
+        statusColor: z === 'idle' ? 'var(--mute)' : z === 'run' ? 'var(--accentText)' : z === 'flag' ? 'var(--bad)' : 'var(--ok)',
+        border: z === 'idle' ? 'var(--line)' : z === 'run' ? 'var(--accent)' : z === 'flag' ? 'var(--bad)' : 'var(--ok)',
+        shadow: z === 'run' ? '0 0 0 4px var(--accentSoft)' : 'none',
+        spin: z === 'run' && a !== 'm',
+        eye: z === 'idle' ? 0.9 : 6, pupil: z === 'idle' ? 0 : 1, brow: z === 'flag' ? 1 : 0,
+        blink: z === 'idle' ? '' : 'blinky',
+        anim: z === 'flag' ? 'shake' : active ? 'bob' : '',
+        sparkle: z === 'done', sweat: z === 'flag', sleepy: z === 'idle',
+        bubble, hasBubble: !!bubble
+      };
+    });
+    const reportDone = n >= 14;
+    nodes.push({
+      x: 285, y: 440, h: 52, mascot: false, reportIcon: true, name: L('Report', '보고서', 'レポート', 'Отчёт', 'Hisobot'),
+      status: reportDone ? L('Ready', '완료', '完成', 'Готов', 'Tayyor') : L('Waiting', '대기', '待機中', 'Ожидание', 'Kutmoqda'),
+      statusColor: reportDone ? 'var(--ok)' : 'var(--mute)',
+      border: reportDone ? 'var(--ok)' : 'var(--line)', shadow: 'none', spin: false,
+      sym: '', col: 'var(--ok)', pool: 0, poolc: '', sprite: '', live: '', phase: '0s', eye: 6, pupil: 0, brow: 0, blink: '', anim: '', sparkle: false, sweat: false, sleepy: false, bubble: '', hasBubble: false
+    });
+    const ACT = 'var(--accent)', IDLE = 'var(--line2)';
+    const run = (a) => st(a) === 'run';
+    const feed = events.slice(0, n).slice(-8).map((e) => ({
+      sym: A[e.a].sym, color: 'var(--medal)', text: e.text,
+      bg: e.k === 'flag' ? 'var(--badBg)' : 'var(--surface2)',
+      ink: e.k === 'flag' ? 'var(--bad)' : 'var(--ink)',
+      font: e.k === 'tool' || e.k === 'flag' ? "'JetBrains Mono', monospace" : "'Schibsted Grotesk', 'Noto Sans KR', 'Noto Sans JP', sans-serif",
+      size: e.k === 'tool' || e.k === 'flag' ? '12px' : '13.5px'
+    }));
+    let tokens = 0;
+    events.slice(0, n).forEach((e) => { tokens += e.tok; });
+    const tools = events.slice(0, n).filter((e) => e.k !== 'say').length;
+    const tiles = [
+      { label: L('Time', '시간', '時間', 'Время', 'Vaqt'), value: (n * 0.85).toFixed(1) + 's' },
+      { label: L('Tokens', '토큰', 'トークン', 'Токены', 'Tokenlar'), value: tokens.toLocaleString('en-US') },
+      { label: L('Cost', '비용', 'コスト', 'Стоимость', 'Narx'), value: '$' + ((tokens / 1000) * 0.0007).toFixed(3) },
+      { label: L('Tool calls', '도구 호출', 'ツール呼び出し', 'Вызовы инструментов', 'Asbob chaqiruvlari'), value: tools + ' / 12' }
+    ];
+
+    // ---- tabs ----
+    const keys = ['m', 'v', 'd', 'r', 'c'];
+    const auto = finished ? 'c' : n > 0 ? events[n - 1].a : 'm';
+    const cur = s.tab || auto;
+    const tabs = keys.map((k) => {
+      const z = st(k);
+      return {
+        sym: A[k].sym, label: A[k].name, on: cur === k,
+        border: cur === k ? 'var(--accent)' : 'var(--line)',
+        bg: cur === k ? 'var(--accentSoft)' : 'var(--surface)',
+        dot: z === 'idle' ? 'var(--line2)' : z === 'run' ? 'var(--accent)' : z === 'flag' ? 'var(--bad)' : 'var(--ok)',
+        pick: () => this.setState({ tab: k })
+      };
+    });
+
+    const HD = {
+      m: { t: L("Owl", "Owl", "Owl", "Owl", "Owl"), r: [[L("Question type", "질문 유형", "質問の種類", "Тип вопроса", "Savol turi"), L("table + chart", "표 + 차트", "表＋グラフ", "таблица + график", "jadval + diagramma")], [L("Agents woken", "깨운 에이전트", "起動したエージェント", "Запущено агентов", "Ishga tushgan agentlar"), L("3 of 4", "4명 중 3명", "4体中3体", "3 из 4", "4 tadan 3 tasi")], [L("Claims drafted", "작성한 주장", "作成した主張", "Составлено утверждений", "Yozilgan da’volar"), "6"]] },
+      v: { t: L("Chameleon", "Chameleon", "Chameleon", "Chameleon", "Chameleon"), r: [[L("Values read", "읽은 값", "読み取った値", "Считано значений", "O‘qilgan qiymatlar"), L("8 bars", "막대 8개", "棒8本", "8 столбцов", "8 ta ustun")], [L("Read confidence", "읽기 신뢰도", "読み取りの確信度", "Уверенность", "Ishonch darajasi"), "94%"], [L("Boxes drawn", "표시한 상자", "描いた枠", "Рамок нарисовано", "Chizilgan ramkalar"), "8"]] },
+      d: { t: L("Beaver", "Beaver", "Beaver", "Beaver", "Beaver"), r: [[L("Numbers computed", "계산한 숫자", "計算した数値", "Вычислено чисел", "Hisoblangan raqamlar"), "3"], [L("Rows read", "읽은 행", "読んだ行", "Прочитано строк", "O‘qilgan qatorlar"), "3,640"], [L("Method", "방법", "方法", "Метод", "Usul"), "pandas · % change"]] },
+      r: { t: L("Hound", "Hound", "Hound", "Hound", "Hound"), r: [[L("Passages matched", "일치한 구절", "一致した箇所", "Найдено фрагментов", "Topilgan parchalar"), "2"], [L("Best match", "가장 잘 맞는 곳", "最良の一致", "Лучшее совпадение", "Eng yaxshi moslik"), "p. 12 · 0.91"], [L("Pages searched", "검색한 쪽", "検索したページ", "Просмотрено страниц", "Qidirilgan betlar"), "18"]] },
+      c: { t: L("Cat", "Cat", "Cat", "Cat", "Cat"), r: [[L("Verified", "검증됨", "検証済み", "Проверено", "Tekshirilgan"), "5"], [L("Flagged", "표시됨", "指摘", "Отмечено", "Belgilangan"), "1"], [L("Shown with a warning", "경고와 함께 표시", "警告つきで表示", "Показано с предупреждением", "Ogohlantirish bilan ko‘rsatiladi"), L("yes", "예", "はい", "да", "ha")]] }
+    };
+    const hand = { title: L("Hands over to the report", "보고서로 넘기는 것", "レポートに渡すもの", "Передаёт отчёту", "Hisobotga topshiradi"), sub: L("Structured results, never free text. The app draws every table and chart from these.", "구조화된 결과이며 자유 서술이 아닙니다. 모든 표와 차트는 이 값으로 앱이 그립니다.", "構造化された結果で、自由文ではありません。表とグラフはこの値からアプリが描きます。", "Структурированные результаты, не свободный текст. Все таблицы и графики рисует приложение.", "Tuzilgan natijalar, erkin matn emas. Barcha jadval va diagrammalarni ilova shundan chizadi."), rows: HD[cur].r.map((x) => ({ k: x[0], v: x[1] })), who: HD[cur].t };
+
+    // manager
+    const planText = [
+      L('Read the question', '질문 읽기', '質問を読む', 'Прочитать вопрос', 'Savolni o‘qish'),
+      L('Classify the question type', '질문 유형 분류', '質問の種類を分類', 'Определить тип вопроса', 'Savol turini aniqlash'),
+      L('Send work to Chameleon, Beaver and Hound', '카멜레온, 비버, 사냥개에게 작업 전달', 'カメレオン・ビーバー・猟犬に作業を依頼', 'Поручить работу Хамелеону, Бобру и Гончей', 'Ishni Xameleon, Qunduz va Ovchi itga topshirish'),
+      L('Merge results and draft 6 claims', '결과 병합 및 주장 6개 작성', '結果をまとめ、主張を6件作成', 'Объединить результаты и составить 6 утверждений', 'Natijalarni birlashtirib 6 da’vo yozish'),
+      L('Hand the claims to Cat for checking', '검토를 위해 고양이에게 전달', '確認のため主張をネコに渡す', 'Передать утверждения Коту на проверку', 'Da’volarni tekshirish uchun Mushukka berish')
+    ];
+    const planAt = [1, 1, 2, 10, 11];
+    const plan = planText.map((text, i) => {
+      const done = n >= planAt[i] && n > 0;
+      return { text, bg: done ? 'var(--ok)' : 'var(--line2)', fg: '#fff', mark: done ? '✓' : String(i + 1), ink: done ? 'var(--ink)' : 'var(--mute)' };
+    });
+    const router = n >= 1 ? [
+      { label: L('Compare sources', '출처 비교', '情報源の比較', 'Сравнение источников', 'Manbalarni solishtirish'), pct: 81, color: 'var(--accent)' },
+      { label: L('Look up one fact', '사실 하나 찾기', '事実を1つ調べる', 'Найти один факт', 'Bitta faktni topish'), pct: 12, color: 'var(--line2)' },
+      { label: L('Trend over time', '시간에 따른 추세', '時間による推移', 'Динамика во времени', 'Vaqt bo‘yicha tendensiya'), pct: 7, color: 'var(--line2)' }
+    ] : [];
+
+    // vision
+    const names = ['Hapjeong', 'Seongsu', 'Magok', 'Gangnam', 'Jamsil', 'Itaewon', 'Sinchon', 'Yongsan'];
+    const vals = [18, 17, 14, 7, 6.6, 2.7, 2, 1.5];
+    const bars = vals.map((v, i) => {
+      const h = Math.round(v * 8), x = 32 + i * 38, top = 204 - h;
+      return { x, top, h, name: names[i], nx: x - 6, bx: x - 4, by: top - 18, bh: h + 18, lx: x - 2, ly: top - 17, val: v.toFixed(1) };
+    });
+    const rawOcr = [
+      { src: 'OCR', text: 'Seoul subway ridership growth (%), 2019–2025', conf: '0.98' },
+      { src: 'OCR', text: 'Hapjeong · Seongsu · Magok', conf: '0.96' },
+      { src: 'OCR', text: L('Axis label: Growth %', '축 이름: 성장률 %', '軸ラベル：成長率 %', 'Подпись оси: рост, %', 'O‘q yorlig‘i: o‘sish %'), conf: '0.94' },
+      { src: L('Vision', '비전', 'ビジョン', 'Зрение', 'Ko‘rish'), text: L('Bar 1 height → 18.0', '막대 1 높이 → 18.0', '棒1の高さ → 18.0', 'Высота столбца 1 → 18,0', '1-ustun balandligi → 18,0'), conf: '0.93' },
+      { src: L('Vision', '비전', 'ビジョン', 'Зрение', 'Ko‘rish'), text: L('Bar 2 height → 17.0', '막대 2 높이 → 17.0', '棒2の高さ → 17.0', 'Высота столбца 2 → 17,0', '2-ustun balandligi → 17,0'), conf: '0.92' },
+      { src: L('Vision', '비전', 'ビジョン', 'Зрение', 'Ko‘rish'), text: L('Bar 3 height → 14.0 (no label, estimated)', '막대 3 높이 → 14.0 (라벨 없음, 추정)', '棒3の高さ → 14.0（ラベルなし・推定）', 'Высота столбца 3 → 14,0 (без подписи, оценка)', '3-ustun balandligi → 14,0 (yorliqsiz, taxminiy)'), conf: '0.88' },
+      { src: L('Vision', '비전', 'ビジョン', 'Зрение', 'Ko‘rish'), text: L('Remaining 5 bars: all lower than 8', '나머지 막대 5개: 모두 8 미만', '残り5本：すべて8未満', 'Остальные 5 столбцов: все ниже 8', 'Qolgan 5 ta ustun: hammasi 8 dan past'), conf: '0.90' }
+    ];
+    const rv = n >= 7 ? 7 : n >= 3 ? 3 : 0;
+    const ocr = rawOcr.slice(0, rv).map((o) => {
+      const isOcr = o.src === 'OCR';
+      return { ...o, srcBg: isOcr ? 'var(--warm)' : 'var(--accentSoft)', srcFg: isOcr ? 'var(--ink)' : 'var(--accentText)' };
+    });
+
+    // data
+    const rowsRaw = [
+      ['Hapjeong', '52,100', '61,600', 18.2], ['Seongsu', '48,300', '56,460', 16.9], ['Magok', '30,200', '34,460', 14.1],
+      ['Gangnam', '98,400', '105,300', 7.0], ['Jamsil', '71,500', '76,200', 6.6], ['Itaewon', '40,800', '41,900', 2.7]
+    ];
+    const rows = rowsRaw.map((r, i) => ({
+      station: r[0], a: r[1], b: r[2], g: r[3].toFixed(1), w: Math.round(r[3] * 5),
+      bg: i < 3 ? 'var(--okBg)' : 'var(--surface)', color: i < 3 ? 'var(--ok)' : 'var(--line2)'
+    }));
+
+    // retrieval
+    const rStepsRaw = [
+      L('Split the PDF into 214 small chunks', 'PDF를 작은 조각 214개로 나눔', 'PDFを214個の小さな断片に分割', 'PDF разбит на 214 небольших фрагментов', 'PDF 214 ta kichik bo‘lakka bo‘lindi'),
+      L('Keyword search (exact words) → top 20', '키워드 검색(정확한 단어) → 상위 20개', 'キーワード検索（完全一致）→ 上位20件', 'Поиск по словам (точные слова) → топ-20', 'Kalit so‘z qidiruvi (aniq so‘zlar) → eng yaxshi 20 ta'),
+      L('Meaning search (embeddings) → top 20', '의미 검색(임베딩) → 상위 20개', '意味検索（埋め込み）→ 上位20件', 'Смысловой поиск (эмбеддинги) → топ-20', 'Ma’no qidiruvi (embeddings) → eng yaxshi 20 ta'),
+      L('Merge both lists → keep the best 3', '두 목록을 합쳐 상위 3개 유지', '2つのリストを統合 → 上位3件を保持', 'Объединить списки → оставить 3 лучших', 'Ikkala ro‘yxatni birlashtirish → eng yaxshi 3 tasi')
+    ];
+    const rAt = [5, 5, 6, 8];
+    const rSteps = rStepsRaw.map((text, i) => {
+      const done = n >= rAt[i] + (i === 3 ? 0 : 1) - (i === 0 ? 0 : 0);
+      return { text, bg: done ? 'var(--ok)' : 'var(--line2)', fg: '#fff', mark: done ? '✓' : String(i + 1), ink: done ? 'var(--ink)' : 'var(--mute)' };
+    });
+    const passRaw = [
+      { page: 'p. 12', tag: L('Best match', '최고 일치', '最良の一致', 'Лучшее совпадение', 'Eng yaxshi moslik'), tagColor: 'var(--ok)', pre: 'Between 2019 and 2025, average weekday boardings at ', hl: 'Hapjeong, Seongsu and Magok stations grew faster than any other station', post: ' on the network, led by new office and studio openings nearby.', kw: 0.62, sem: 0.81, comb: 0.74 },
+      { page: 'p. 9', tag: L('Related', '관련', '関連', 'Связано', 'Aloqador'), tagColor: 'var(--mute)', pre: 'Line extensions opened in 2022 serve the western corridor, but ', hl: 'the report does not attribute station-level changes to any single project', post: '.', kw: 0.41, sem: 0.70, comb: 0.58 },
+      { page: 'p. 14', tag: L('Context', '배경', '背景', 'Контекст', 'Kontekst'), tagColor: 'var(--mute)', pre: 'Table 3 lists ', hl: 'ridership by station', post: ' for the 20 busiest stops.', kw: 0.55, sem: 0.52, comb: 0.53 }
+    ];
+    const passages = n >= 8 ? passRaw.map((p) => ({ ...p, kw: p.kw.toFixed(2), sem: p.sem.toFixed(2), comb: p.comb.toFixed(2), kwW: Math.round(p.kw * 100), semW: Math.round(p.sem * 100), combW: Math.round(p.comb * 100) })) : [];
+    const rWait = n < 8;
+    const rWaitText = n >= 5 ? L('Searching 214 chunks…', '조각 214개를 검색하는 중…', '214個の断片を検索中…', 'Поиск по 214 фрагментам…', '214 ta bo‘lak qidirilmoqda…') : L('Waiting', '대기', '待機中', 'Ожидание', 'Kutmoqda');
+
+    // critic
+    const claimRaw = [
+      { text: L('Hapjeong grew 18.2% from 2019 to 2025.', '합정은 2019년부터 2025년까지 18.2% 성장했습니다.', 'Hapjeongは2019〜2025年に18.2%伸びた。', 'Hapjeong вырос на 18,2% с 2019 по 2025 год.', 'Hapjeong 2019–2025 yillarda 18,2% o‘sdi.'), reason: L('Matches the table row.', '표의 해당 행과 일치합니다.', '表の該当行と一致。', 'Совпадает со строкой таблицы.', 'Jadval qatoriga mos.'), ev: ['D1'], ok: true, at: 11 },
+      { text: L('Seongsu grew 16.9%.', '성수는 16.9% 성장했습니다.', 'Seongsuは16.9%伸びた。', 'Seongsu вырос на 16,9%.', 'Seongsu 16,9% o‘sdi.'), reason: L('Matches the table row.', '표의 해당 행과 일치합니다.', '表の該当行と一致。', 'Совпадает со строкой таблицы.', 'Jadval qatoriga mos.'), ev: ['D1'], ok: true, at: 11 },
+      { text: L('Magok grew 14.1%.', '마곡은 14.1% 성장했습니다.', 'Magokは14.1%伸びた。', 'Magok вырос на 14,1%.', 'Magok 14,1% o‘sdi.'), reason: L('Matches the table row.', '표의 해당 행과 일치합니다.', '表の該当行と一致。', 'Совпадает со строкой таблицы.', 'Jadval qatoriga mos.'), ev: ['D1'], ok: true, at: 11 },
+      { text: L('The new line caused the growth.', '신규 노선이 성장의 원인이었습니다.', '新路線が成長の原因だった。', 'Рост вызвала новая линия.', 'O‘sishga yangi liniya sabab bo‘lgan.'), reason: L('Not supported. Report p. 9 says it does not attribute changes to one project. Marked unverified.', '근거 부족. 보고서 9쪽은 변화를 단일 사업 탓으로 돌리지 않습니다. 미검증으로 표시했습니다.', '裏づけなし。レポート9ページは変化を単一の事業に帰していません。未検証としてマーク。', 'Не подтверждено. На стр. 9 отчёт не связывает изменения с одним проектом. Помечено как непроверенное.', 'Tasdiqlanmadi. Hisobotning 9-sahifasi o‘zgarishlarni bitta loyihaga bog‘lamaydi. Tasdiqlanmagan deb belgilandi.'), ev: ['R2'], ok: false, at: 12 },
+      { text: L('The chart photo shows the same top three stations.', '차트 사진도 같은 상위 3개 역을 보여줍니다.', 'グラフの写真も同じ上位3駅を示している。', 'Фото графика показывает те же три станции.', 'Diagramma surati ham xuddi shu uchta bekatni ko‘rsatadi.'), reason: L('Chart values 18, 17, 14 match (within rounding).', '차트 값 18, 17, 14가 일치합니다(반올림 범위).', 'グラフの値18・17・14が一致（丸め誤差内）。', 'Значения графика 18, 17, 14 совпадают (с учётом округления).', 'Grafik qiymatlari 18, 17, 14 mos keladi (yaxlitlash doirasida).'), ev: ['C1', 'D1'], ok: true, at: 12 },
+      { text: L('The transport report names these stations as top growth areas.', '교통 보고서도 이 역들을 주요 성장 지역으로 꼽습니다.', '交通レポートもこれらの駅を主な成長地域として挙げている。', 'Транспортный отчёт называет эти станции главными зонами роста.', 'Transport hisoboti bu bekatlarni asosiy o‘sish hududlari deb ataydi.'), reason: L('Report p. 12 names all three.', '보고서 12쪽에 세 곳 모두 언급됩니다.', 'レポート12ページに3駅すべてが記載。', 'На стр. 12 названы все три.', '12-sahifada uchalasi ham tilga olingan.'), ev: ['R1'], ok: true, at: 12 }
+    ];
+    const claims = claimRaw.filter((c) => n >= c.at).map((c, i) => ({
+      text: c.text, reason: c.reason, ev: c.ev.map((code) => ({ code })),
+      bg: c.ok ? 'var(--surface2)' : 'var(--badBg)', line: c.ok ? 'var(--line)' : 'var(--bad)',
+      mark: c.ok ? '#0E9F7E' : '#D8316E', sym: c.ok ? '✓' : '!', reasonInk: c.ok ? 'var(--mute)' : 'var(--bad)'
+    }));
+
+    const t = {
+      navHome: L('Home', '홈', 'ホーム', 'Главная', 'Bosh sahifa'),
+      navPeople: L('People', '사람 찾기', 'ユーザーを探す', 'Люди', 'Odamlar'),
+      navWork: L('Workspace', '워크스페이스', 'ワークスペース', 'Рабочая область', 'Ish maydoni'),
+      navMine: L('My reports', '내 보고서', 'マイレポート', 'Мои отчёты', 'Hisobotlarim'),
+      navPlans: L('Plans', '요금제', 'プラン', 'Тарифы', 'Tariflar'),
+      login: L('Log in', '로그인', 'ログイン', 'Войти', 'Kirish'),
+      signup: L('Sign up', '가입하기', '新規登録', 'Регистрация', 'Ro‘yxatdan o‘tish'),
+      themeLabel: L('Switch light or dark mode', '라이트/다크 모드 전환', 'ライト/ダークモードを切り替え', 'Переключить светлую или тёмную тему', 'Yorug‘ yoki qorong‘i rejimni almashtirish'),
+
+      navWork: L('Workspace', '워크스페이스', 'ワークスペース', 'Рабочая область', 'Ish maydoni'),
+      navMine: L('My reports', '내 보고서', 'マイレポート', 'Мои отчёты', 'Hisobotlarim'),
+      navPlans: L('Plans', '요금제', 'プラン', 'Тарифы', 'Tariflar'),
+      themeLabel: L('Switch light or dark mode', '라이트/다크 모드 전환', 'ライト/ダークモードを切り替え', 'Переключить светлую или тёмную тему', 'Yorug‘ yoki qorong‘i rejimni almashtirish'),
+      askTitle: L('What would you like to know?', '무엇이 궁금하세요?', '何を知りたいですか？', 'Что вы хотите узнать?', 'Nimani bilmoqchisiz?'),
+      askSub: L('Pick the files, ask in your own words, and watch the team work.', '파일을 고르고, 편한 말로 질문하고, 팀이 일하는 모습을 지켜보세요.', 'ファイルを選び、ふだんの言葉で質問して、チームの作業を見守りましょう。', 'Выберите файлы, задайте вопрос своими словами и наблюдайте за работой команды.', 'Fayllarni tanlang, o‘z so‘zlaringiz bilan so‘rang va jamoaning ishini kuzating.'),
+      usagePill: L('Free plan · 1 of 2 runs left', '무료 플랜 · 2회 중 1회 남음', '無料プラン・残り1/2回', 'Бесплатный тариф · остался 1 из 2 запусков', 'Bepul reja · 2 tadan 1 ta qoldi'),
+      step1: L('1. Choose your files', '1. 파일 고르기', '1. ファイルを選ぶ', '1. Выберите файлы', '1. Fayllarni tanlang'),
+      step2: L('2. Ask your question', '2. 질문하기', '2. 質問する', '2. Задайте вопрос', '2. Savol bering'),
+      drop: L('Or drop your own files here. Free plan: up to 2 MB each, CSV up to 5,000 rows, PDF up to 10 pages.', '내 파일을 여기에 놓아도 됩니다. 무료 플랜: 파일당 최대 2MB, CSV 5,000행, PDF 10쪽.', '自分のファイルをここにドロップ。無料プラン：1ファイル2MBまで、CSVは5,000行、PDFは10ページまで。', 'Или перетащите свои файлы сюда. Бесплатный тариф: до 2 МБ, CSV до 5 000 строк, PDF до 10 страниц.', 'Yoki o‘z fayllaringizni shu yerga tashlang. Bepul reja: har biri 2 MB gacha, CSV 5 000 qator, PDF 10 sahifa.'),
+      qPlaceholder: L('Type a question about your files…', '파일에 대해 질문을 입력하세요…', 'ファイルについての質問を入力…', 'Введите вопрос о ваших файлах…', 'Fayllaringiz haqida savol yozing…'),
+      askBtn: L('Ask the team', '팀에게 물어보기', 'チームに聞く', 'Спросить команду', 'Jamoadan so‘rash'),
+      ready: L('Your team is ready', '팀이 준비되었습니다', 'チームの準備ができました', 'Ваша команда готова', 'Jamoangiz tayyor'),
+      question: L('Question', '질문', '質問', 'Вопрос', 'Savol'),
+      change: L('Change question', '질문 바꾸기', '質問を変更', 'Изменить вопрос', 'Savolni o‘zgartirish'),
+      replayBtn: L('Replay run', '다시 실행', 'もう一度実行', 'Повторить запуск', 'Qayta ishga tushirish'),
+      viewReport: L('View report', '보고서 보기', 'レポートを見る', 'Открыть отчёт', 'Hisobotni ko‘rish'),
+      graph: L('The team', '에이전트 팀', 'エージェントチーム', 'Команда', 'Jamoa'),
+      legend: L('Envelopes show work being handed over', '봉투는 작업이 전달되는 모습입니다', '封筒は作業の受け渡しを表します', 'Конверты показывают передачу работы', 'Konvertlar ishning uzatilishini ko‘rsatadi'),
+      feed: L('Live trace', '실시간 추적', 'リアルタイムの記録', 'Трассировка в реальном времени', 'Jonli kuzatuv'),
+      stamp: L('VERIFIED 5/6', '검증 5/6', '検証済み 5/6', 'ПРОВЕРЕНО 5/6', 'TEKSHIRILDI 5/6'),
+      didTitle: L('What each agent actually did', '각 에이전트가 실제로 한 일', '各エージェントが実際に行ったこと', 'Что на самом деле сделал каждый агент', 'Har bir agent aslida nima qildi'),
+      followBtn: L('Follow the active agent', '활성 에이전트 따라가기', '作業中のエージェントを追う', 'Следить за активным агентом', 'Faol agentni kuzatish'),
+      waiting: L('Waiting for this agent to start…', '이 에이전트가 시작하기를 기다리는 중…', 'このエージェントの開始を待っています…', 'Ждём, пока этот агент начнёт…', 'Bu agent boshlashini kutmoqda…'),
+      mPlan: L('The plan', '계획', '計画', 'План', 'Reja'),
+      mRouter: L('Question router', '질문 분류기', '質問ルーター', 'Маршрутизатор вопросов', 'Savol yo‘naltirgich'),
+      mRouterNote: L('A small transformer model, fine-tuned to sort questions into types. It decides which agents to call.', '질문을 유형별로 분류하도록 미세 조정한 작은 트랜스포머 모델입니다. 어떤 에이전트를 부를지 결정합니다.', '質問を種類別に分けるよう微調整した小型トランスフォーマー。呼び出すエージェントを決めます。', 'Небольшая модель-трансформер, дообученная сортировать вопросы по типам. Она решает, каких агентов вызвать.', 'Savollarni turlarga ajratish uchun sozlangan kichik transformer model. U qaysi agentlarni chaqirishni hal qiladi.'),
+      mChosen: L('Chosen: “Compare sources”, so Chameleon, Beaver and Hound all start.', '선택됨: “출처 비교” → 카멜레온, 비버, 사냥개가 모두 시작합니다.', '選択：「情報源の比較」→ カメレオン、ビーバー、猟犬がすべて出動します。', 'Выбрано: «Сравнение источников», поэтому стартуют Хамелеон, Бобр и Гончая.', 'Tanlandi: “Manbalarni solishtirish”, shuning uchun Xameleon, Qunduz va Ovchi it ishga tushadi.'),
+      vPhoto: L('The photo, as Chameleon saw it', '카멜레온이 본 사진', 'カメレオンが見た写真', 'Фото глазами Хамелеона', 'Xameleon ko‘rgan surat'),
+      vPhotoAria: L('A photo of a bar chart with detected bars and text outlined', '감지된 막대와 글자에 윤곽이 표시된 막대그래프 사진', '検出された棒と文字に枠が付いた棒グラフの写真', 'Фото столбчатой диаграммы с выделенными столбцами и текстом', 'Aniqlangan ustunlar va matn belgilangan ustunli diagramma surati'),
+      vLegBar: L('Detected bar', '감지한 막대', '検出した棒', 'Найденный столбец', 'Aniqlangan ustun'),
+      vLegText: L('Detected text', '감지한 글자', '検出した文字', 'Найденный текст', 'Aniqlangan matn'),
+      vRead: L('What it read', '읽어낸 내용', '読み取った内容', 'Что удалось прочитать', 'Nimani o‘qidi'),
+      vNote: L('OCR reads printed text. A vision model estimates bar heights when a label is missing. Low-confidence reads are flagged.', 'OCR은 인쇄된 글자를 읽고, 비전 모델은 라벨이 없을 때 막대 높이를 추정합니다. 신뢰도가 낮은 값은 표시됩니다.', 'OCRが印刷された文字を読み、ラベルがない棒の高さはビジョンモデルが推定します。信頼度が低いものは警告されます。', 'OCR читает печатный текст, а модель зрения оценивает высоту столбцов без подписи. Данные с низкой уверенностью помечаются.', 'OCR bosilgan matnni o‘qiydi, yorliqsiz ustunlar balandligini esa ko‘rish modeli baholaydi. Ishonchi past qiymatlar belgilanadi.'),
+      dCode: L('Code written by Beaver', '비버가 작성한 코드', 'ビーバーが書いたコード', 'Код, написанный Бобром', 'Qunduz yozgan kod'),
+      sandbox: L('Sandbox: no network, 5 s CPU limit', '샌드박스: 네트워크 없음, CPU 5초 제한', 'サンドボックス：ネットワークなし、CPU 5秒制限', 'Песочница: без сети, лимит CPU 5 с', 'Sandbox: tarmoqsiz, CPU 5 s chegarasi'),
+      dTable: L('The table it produced', '생성된 표', '出力された表', 'Полученная таблица', 'Hosil qilingan jadval'),
+      dStation: L('Station', '역', '駅', 'Станция', 'Bekat'),
+      dGrowth: L('Growth', '성장률', '成長率', 'Рост', 'O‘sish'),
+      dUnit: L('Riders per day. Top three highlighted.', '일일 이용객 수. 상위 3개 강조.', '1日の利用者数。上位3件を強調。', 'Пассажиров в день. Три лучших выделены.', 'Kuniga yo‘lovchilar. Eng yaxshi uchtasi ajratilgan.'),
+      rHow: L('How Hound searched', '사냥개가 찾은 방법', '猟犬の探し方', 'Как искала Гончая', 'Ovchi it qanday qidirdi'),
+      rMatches: L('Passages it found', '찾아낸 구절', '見つけた箇所', 'Найденные фрагменты', 'Topilgan parchalar'),
+      rKey: L('Keywords', '키워드', 'キーワード', 'Ключевые слова', 'Kalit so‘zlar'),
+      rSem: L('Meaning', '의미', '意味', 'Смысл', 'Ma’no'),
+      rComb: L('Combined', '종합', '総合', 'Итог', 'Umumiy'),
+      cNote: L('Cat checks each claim against the evidence from the other agents. A claim with no support is flagged, not hidden.', '고양이는 다른 에이전트가 가져온 근거와 각 주장을 대조합니다. 근거가 없는 주장은 숨기지 않고 표시합니다.', 'ネコは各主張を他のエージェントが集めた根拠と照合します。裏づけのない主張は隠さず警告します。', 'Кот сверяет каждое утверждение с доказательствами других агентов. Утверждение без подтверждения помечается, а не скрывается.', 'Mushuk har bir da’voni boshqa agentlar keltirgan dalillar bilan solishtiradi. Dalilsiz da’vo yashirilmaydi, belgilanadi.'),
+      guard: L('Guardrails in this run', '이번 실행의 안전장치', '今回の実行の安全対策', 'Защиты в этом запуске', 'Ushbu ishga tushirishdagi himoyalar'),
+      demo: L('Demo data. This is a clickable design mockup, not a running system.', '데모 데이터입니다. 실제 시스템이 아닌 클릭 가능한 디자인 목업입니다.', 'デモデータです。実際のシステムではなく、クリックできるデザインモックアップです。', 'Демо-данные. Это кликабельный макет, а не работающая система.', 'Demo ma’lumotlar. Bu ishlayotgan tizim emas, bosib ko‘riladigan dizayn maketi.')
+    };
+    const guards = [
+      { k: L('Tool-call limit', '도구 호출 제한', 'ツール呼び出し上限', 'Лимит вызовов инструментов', 'Asbob chaqiruvlari chegarasi'), v: '12' },
+      { k: L('Budget cap per run', '실행당 예산 한도', '1回あたりの予算上限', 'Лимит бюджета на запуск', 'Har bir ishga tushirish byudjet chegarasi'), v: '$0.05' },
+      { k: L('Network for code', '코드 네트워크 접근', 'コードのネットワーク接続', 'Сеть для кода', 'Kod uchun tarmoq'), v: L('none', '없음', 'なし', 'нет', 'yo‘q') },
+      { k: L('Your files', '내 파일', 'あなたのファイル', 'Ваши файлы', 'Fayllaringiz'), v: L('deleted in 24 h', '24시간 후 삭제', '24時間後に削除', 'удалятся через 24 ч', '24 soatda o‘chiriladi') }
+    ];
+    const langs = codes.map((c, i) => ({
+      label: labels[i], on: c === s.lang,
+      bg: c === s.lang ? 'var(--ink)' : 'transparent',
+      fg: c === s.lang ? 'var(--bg)' : 'var(--mute)',
+      pick: () => this.setState({ lang: c })
+    }));
+    const pinned = !!s.tab;
+    return {
+      fx: this.__fx(L),
+      ws: this.__ws(L),
+      wm: this.__wm(L, files, chips, cantAsk),
+      hand,
+      langCode: this.state.lang, pickSel: (e) => this.setState({ lang: e.target.value }),
+      t, nodes, feed, tiles, guards, langs, finished, q, files, chips, cantAsk, ready, readyTeam: ready,
+      theme: s.theme, isDark: s.theme === 'dark', isLight: s.theme !== 'dark',
+      toggleTheme: () => this.setState({ theme: s.theme === 'dark' ? 'light' : 'dark' }),
+      isAsk: s.stage === 'ask', isRun: s.stage === 'run',
+      onQ: (e) => this.setState({ q: e.target.value }),
+      askBg: cantAsk ? 'var(--disabled)' : 'var(--accent)', askFg: cantAsk ? 'var(--mute)' : 'var(--accentInk)',
+      askHint: cantAsk ? L('Select at least one file to continue.', '계속하려면 파일을 하나 이상 선택하세요.', '続けるにはファイルを1つ以上選んでください。', 'Выберите хотя бы один файл.', 'Davom etish uchun kamida bitta fayl tanlang.') : L('Takes about 10 seconds. Uses 1 of your 2 free runs.', '약 10초 걸립니다. 무료 2회 중 1회를 사용합니다.', '約10秒かかります。無料2回のうち1回を使います。', 'Займёт около 10 секунд. Использует 1 из 2 бесплатных запусков.', 'Taxminan 10 soniya. 2 ta bepul ishga tushirishdan 1 tasini ishlatadi.'),
+      ask: () => { if (anyFile) this.start(); },
+      backToAsk: () => { if (this.timer) { clearInterval(this.timer); this.timer = null; } this.setState({ stage: 'ask', shown: 0, running: false, tab: null, ran: false, peek: false }); },
+      running: s.running, replayOp: s.running ? 0.5 : 1, replay: () => this.start(),
+      e1: st('v') === 'idle' ? IDLE : ACT, e2: st('d') === 'idle' ? IDLE : ACT, e3: st('r') === 'idle' ? IDLE : ACT,
+      e4: st('v') === 'done' ? ACT : IDLE, e5: st('d') === 'done' ? ACT : IDLE, e6: st('r') === 'done' ? ACT : IDLE, e7: reportDone ? ACT : IDLE,
+      p1: run('v') ? 1 : 0, p2: run('d') ? 1 : 0, p3: run('r') ? 1 : 0,
+      p4: run('c') ? 1 : 0, p5: run('c') ? 1 : 0, p6: run('c') ? 1 : 0, p7: n === 13 ? 1 : 0,
+      tabs, pinned, follow: () => this.setState({ tab: null }),
+      followText: pinned ? L('You are looking at one agent. Press the button to follow whoever is working.', '한 에이전트를 보고 있습니다. 버튼을 누르면 작업 중인 에이전트를 따라갑니다.', '1つのエージェントを表示中。ボタンで作業中のエージェントに追従します。', 'Вы смотрите на одного агента. Нажмите кнопку, чтобы следить за тем, кто работает.', 'Siz bitta agentni ko‘ryapsiz. Ishlayotgan agentni kuzatish uchun tugmani bosing.') : L('Following the active agent. Click any tab to look closer at one agent.', '활성 에이전트를 따라가는 중입니다. 탭을 눌러 한 에이전트를 자세히 볼 수 있습니다.', '作業中のエージェントを追従中。タブを押すと1つのエージェントを詳しく見られます。', 'Показываем активного агента. Нажмите на вкладку, чтобы рассмотреть одного агента.', 'Faol agent kuzatilmoqda. Bitta agentni yaqindan ko‘rish uchun yorliqni bosing.'),
+      tM: cur === 'm', tV: cur === 'v', tD: cur === 'd', tR: cur === 'r', tC: cur === 'c',
+      plan, router,
+      bars, showBoxes: n >= 3, showVals: n >= 7, ocr, vEmpty: n < 3,
+      showCode: n > 5, showOut: n > 8, vEmptyD: n <= 5, vEmptyD2: n <= 8, rows,
+      rSteps, passages, rWait, rWaitText,
+      claims, cEmpty: n < 11
+    };
+  }
+}
+</script>
+</body>
+</html>

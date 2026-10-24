@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indesk · People</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EDEFF5}
+.dd{--paper:#EDEFF5;--paper2:#E3E6EF;--card:#F8F9FC;--rule:#D5D9E5;--rule2:#AEB4C7;--ink:#0A0D18;--ink2:#2A2F42;--mute:#636A80;--accent:#5B49F0;--accentInk:#FFFFFF;--accentSoft:#E6E3FF;--accentText:#4033C4;--green:#0B7F54;--greenBg:#D8F2E4;--hl:#DAD6FF;--hlInk:#0A0D18;--medal:#E3E6EF;--warn:#8A5A00;--warnBg:#FFF0C9;--grid:rgba(10,13,24,.07);--glow:rgba(91,73,240,.25);--shadow:0 18px 40px -26px rgba(20,24,60,.35);
+--c-owl:#C98A12;--c-cham:#0E9F7E;--c-bea:#D4601F;--c-hou:#6C4CF0;--c-cat:#D8316E;
+--bg:var(--paper);--feedFlag:var(--badBg);--feedFlagInk:var(--bad);--mgr:var(--c-owl);--surface:var(--card);--surface2:var(--paper2);--line:var(--rule);--line2:var(--rule2);--ok:var(--green);--okBg:var(--greenBg);--bad:#D93A22;--badBg:#FFE6E1;--badLine:#F2A598;--scene:var(--paper2);--warm:#FFF0C9;--track:#D5D9E5;--disabled:#CBD0DD;--code:#0B0E18;--codeInk:#E8EAF4;--quoteBg:#E3EEFF;--quoteInk:#1B4C8F;--dot:rgba(10,13,24,.28);
+--serif:'Onest','Noto Sans KR','Noto Sans JP',system-ui,sans-serif;--sans:'Onest','Noto Sans KR','Noto Sans JP',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+position:relative;isolation:isolate;min-height:100%;box-sizing:border-box;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.dd[data-theme="dark"]{--paper:#0D1024;--paper2:#12163A;--card:#171C42;--rule:#232A5A;--rule2:#38417C;--ink:#ECEEFF;--ink2:#C5CAEC;--mute:#8F97C9;--accent:#A596FF;--accentInk:#0B0A2A;--accentSoft:#272470;--accentText:#C6BDFF;--green:#5CE5AA;--greenBg:#103A33;--hl:#332F85;--hlInk:#ECE9FF;--medal:#1E2452;--bad:#FF8A7C;--badBg:#3D1C2E;--badLine:#8A3A4E;--warm:#3A2E1A;--warn:#FFCB62;--warnBg:#3A2E1A;--track:#262D63;--disabled:#2B3270;--code:#090B1F;--codeInk:#E6E8FA;--quoteBg:#14305A;--quoteInk:#A9D6FF;--grid:rgba(165,175,255,.08);--glow:rgba(165,150,255,.38);--shadow:0 24px 60px -30px rgba(3,5,30,.95);--dot:rgba(190,198,255,.35);--c-owl:#F4BE55;--c-cham:#52E0B8;--c-bea:#F58E52;--c-hou:#B49DFF;--c-cat:#FF80B2}
+.dd .dk{--paper:#06080F;--paper2:#0B0E18;--card:#0F1320;--rule:#1A2030;--rule2:#2E3650;--ink:#EEF0FA;--ink2:#BFC4D8;--mute:#848CA6;--accent:#9B8CFF;--accentInk:#0A0A1E;--accentSoft:#1C1A45;--accentText:#B7ADFF;--green:#5BE0A0;--greenBg:#0F2A1D;--hl:#2C2A63;--hlInk:#E6E3FF;--medal:#131828;--bad:#FF7A6B;--badBg:#331713;--badLine:#7A3027;--warm:#2E2406;--warn:#FFC857;--warnBg:#2E2406;--track:#1E2538;--disabled:#2A3144;--code:#05060B;--codeInk:#E4E6F2;--quoteBg:#10223A;--quoteInk:#9FD2FF;--grid:rgba(255,255,255,.05);--glow:rgba(155,140,255,.3);--shadow:0 20px 50px -28px rgba(0,0,0,.9);--dot:rgba(255,255,255,.3);--c-owl:#F0B54A;--c-cham:#4FD9B0;--c-bea:#F0884A;--c-hou:#A28BFF;--c-cat:#FF77A9;color:var(--ink)}
+.dd *{box-sizing:border-box}
+.dd a{color:inherit;text-decoration:none}
+.dd button,.dd input,.dd select,.dd textarea{font-family:inherit}
+.dd a:focus-visible,.dd button:focus-visible,.dd input:focus-visible,.dd select:focus-visible,.dd textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;padding:0;border:0;background:none;font:700 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.eyebrow i{display:block;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:blinksq 2s ease-in-out infinite}
+.display{font-family:var(--serif);font-weight:300;letter-spacing:-.04em;line-height:1;margin:0}
+.h2{font-family:var(--serif);font-weight:300;letter-spacing:-.03em;line-height:1.08;margin:0;font-size:46px}
+.h3{font-family:var(--serif);font-weight:500;letter-spacing:-.015em;margin:0;font-size:22px;line-height:1.2}
+.lede{font-size:18px;line-height:1.65;color:var(--ink2);margin:0}
+.sub{font-size:17px;line-height:1.55;color:var(--mute);margin:0}
+.fine{font-size:13.5px;color:var(--mute)}
+.mono{font-family:var(--mono)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border:1px solid var(--rule2);border-radius:12px;background:color-mix(in srgb,var(--card) 55%,transparent);backdrop-filter:blur(10px);color:var(--ink);font:500 15px var(--sans);cursor:pointer;transition:transform .2s,box-shadow .25s,border-color .2s,background .2s;text-align:center}
+.btn:hover{border-color:var(--ink);transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.btn-ink{background:var(--ink);color:var(--paper);border-color:var(--ink);backdrop-filter:none}
+.btn-red{background:linear-gradient(135deg,#B3A6FF,#6FE3E8);border-color:transparent;color:#07081A;font-weight:600;backdrop-filter:none}
+.btn-red:hover{border-color:transparent;box-shadow:0 0 0 5px var(--glow),0 12px 30px -10px rgba(111,227,232,.55)}
+.btn-lg{min-height:54px;padding:0 28px;font-size:16.5px}
+.btn-sm{min-height:38px;padding:0 15px;font-size:14px}
+.icon-btn{width:40px;height:40px;border:1px solid var(--rule2);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s}
+.icon-btn:hover{border-color:var(--ink)}
+.rule{border:0;border-top:1px solid var(--rule2);margin:0}
+.mast{background:color-mix(in srgb,var(--paper) 62%,transparent);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:30}
+.mast-in{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:70px}
+.brand{display:inline-flex;align-items:center;gap:10px}
+@media (max-width:760px){.brand-n{display:none}.mast-r{gap:6px}.nl{padding:0 8px}.btn-sm{padding:0 11px}}
+.brand-n{font-family:var(--sans,Onest,sans-serif);font-weight:400;font-size:25px;letter-spacing:-.045em}
+.nav{display:flex;gap:2px}
+.nl{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;font-size:14.5px;font-weight:500;color:var(--mute);border-radius:8px;position:relative}
+.nl:hover{color:var(--ink)}
+.nl.on{color:var(--ink)}
+.nl.on::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.mast-r{display:flex;align-items:center;gap:10px}
+.langs{display:flex;gap:0;margin-right:6px;border:1px solid var(--rule2);border-radius:12px;padding:2px;background:transparent}
+.lg{border:0;border-radius:9px;background:transparent;color:var(--mute);font:500 12.5px var(--sans);min-height:30px;padding:0 9px;cursor:pointer}
+.lg[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.lang-sel{min-height:40px;border:1px solid var(--rule2);border-radius:12px;background:var(--card);color:var(--ink);font:500 14px var(--sans);padding:0 8px}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#B3A6FF,#6FE3E8);color:#07081A;display:inline-flex;align-items:center;justify-content:center;font:600 16px var(--serif)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;padding-top:22px;padding-bottom:28px;margin-top:48px;border-top:1px solid var(--rule);font:400 12px var(--mono);color:var(--mute)}
+.tabbar{display:none}
+.only-mob{display:none !important}
+.med{position:relative;display:inline-block;flex:none}
+.med svg{display:block;width:100%;height:100%}
+.med.idle svg{filter:grayscale(1);opacity:.5}
+.med.run svg{animation:tilt 1.2s ease-in-out infinite}
+.med.flag svg{animation:shk .45s ease-in-out 3}
+.med .badge{position:absolute;right:-4px;top:-4px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 12px var(--mono);color:#fff;border:2px solid var(--paper)}
+.med .zz{position:absolute;right:-6px;top:-8px;font:500 14px var(--serif);color:var(--mute);animation:zz 1.8s ease-in-out infinite}
+@keyframes tilt{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-2px)}}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes zz{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes stampin{0%{opacity:0;transform:scale(2.2) rotate(-12deg)}70%{opacity:1;transform:scale(.95) rotate(-7deg)}100%{opacity:1;transform:scale(1) rotate(-7deg)}}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 60%,transparent)}100%{box-shadow:0 0 0 9px transparent}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes blinkeye{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+@keyframes orb{to{transform:rotate(360deg)}}
+@keyframes blinksq{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes kb{from{transform:scale(1.04) translate(0,0)}to{transform:scale(1.16) translate(-2.5%,2%)}}
+@keyframes hpkb{from{background-size:112% auto;background-position:30% 40%}to{background-size:128% auto;background-position:62% 55%}}
+@keyframes sweepx{from{transform:translateX(0)}to{transform:translateX(1200px)}}
+@keyframes dotdrift{from{background-position:0 0}to{background-position:18px 18px}}
+@keyframes ringrot{to{transform:rotate(360deg)}}
+@keyframes gridmove{from{background-position:0 0,0 0}to{background-position:0 72px,72px 0}}
+@keyframes scanmove{from{transform:translateY(-240px)}to{transform:translateY(1500px)}}
+@keyframes breathe{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+.fadein,.ev{animation:rise .35s ease-out}
+.gbar{transform-origin:left center;animation:grow .7s ease-out both}
+.stampbox{display:inline-block;border:2px solid var(--green);border-radius:6px;color:var(--green);padding:5px 12px;font:600 14px var(--mono);letter-spacing:.1em;background:transparent;animation:stampin .5s cubic-bezier(.2,.8,.3,1) both}
+.mqwrap{overflow:hidden;white-space:nowrap;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);color:var(--mute);margin-top:28px}
+.mq{display:inline-flex;animation:mq 40s linear infinite}
+.mq span{padding:12px 0;font:500 12.5px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.bg{position:absolute;left:0;top:0;width:100%;height:100%;z-index:-1;overflow:hidden;pointer-events:none;background:var(--paper)}
+.bgimg{position:absolute;left:0;top:0;width:100%;height:100%;background:url(/_blob/b45d51cb071fad7fdc5ba72970c497ed) top center/max(100%,1200px) auto repeat-y;opacity:.55}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--paper) 70%,transparent) 0,transparent 260px)}
+.dd[data-theme="light"] .bgimg{filter:invert(1) hue-rotate(180deg) saturate(1.3);mix-blend-mode:multiply;opacity:.42}
+.bgn{position:absolute;left:0;top:0;width:100%;height:100%;opacity:.05}
+.dd[data-theme="dark"] .bgn{opacity:.07}
+.heropanel{position:relative;border-radius:28px;overflow:hidden;border:1px solid var(--rule2);background:#05070d;box-shadow:0 50px 100px -50px rgba(0,0,0,.8);isolation:isolate}
+.heropanel::before{content:"";position:absolute;inset:-8%;z-index:0;background:url(/_blob/73abdf69737f0c0955a8f754bd003587) center/cover no-repeat;animation:hpz 36s ease-in-out infinite alternate}
+.heropanel>*{position:relative;z-index:1}.heropanel>.hgrain{position:absolute}
+@keyframes hpz{from{transform:scale(1) translate(-2%,-1%)}to{transform:scale(1.1) translate(2%,2%)}}
+.sidepanel{border-radius:24px;overflow:hidden;border:1px solid var(--rule2);background:#05070d url(/_blob/480df26e41df353bdd9757217d65797f) center/cover no-repeat;position:relative}
+.bandpanel{border-radius:24px;overflow:hidden;border:1px solid var(--rule2);background:#05070d url(/_blob/6e666e4abd79b9aa021cd1d827de5657) center/cover no-repeat}
+.hgrain{position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 80% at 15% 30%,rgba(5,7,13,.75),transparent 70%)}
+.dd [style*="background: var(--surface);"]{background:color-mix(in srgb,var(--card) 68%,transparent) !important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow)}
+.ey{transform-box:fill-box;transform-origin:center;animation:blinkeye 5.4s infinite}
+.ey2{animation-duration:6.3s;animation-delay:-1.2s}.ey3{animation-duration:4.9s;animation-delay:-2.6s}.ey4{animation-duration:7.1s;animation-delay:-3.3s}
+.led{animation:blinksq 2s ease-in-out infinite;border-radius:50%;box-shadow:0 0 8px currentColor}
+.lift{transition:transform .35s cubic-bezier(.2,.8,.3,1),border-color .3s,box-shadow .35s}
+.lift:hover{transform:translateY(-6px);border-color:var(--accent) !important;box-shadow:0 26px 60px -30px var(--glow) !important}
+.lift svg{animation:floaty 6s ease-in-out infinite}
+.lift:nth-child(2n) svg{animation-duration:7.2s;animation-delay:-1.3s}
+.lift:nth-child(3n) svg{animation-duration:5.4s;animation-delay:-2.1s}
+.brand svg{transition:transform .5s}.brand:hover svg{transform:rotate(-8deg)}
+.orbit{position:absolute;left:50%;top:50%;width:780px;height:780px;margin:-390px 0 0 -390px;z-index:-1;pointer-events:none}
+.orbit .o{transform-origin:50% 50%;transform-box:view-box}
+.o1{animation:orb 80s linear infinite}.o2{animation:orb 120s linear infinite reverse}.o3{animation:orb 170s linear infinite}
+@media (max-width:760px){
+.bgimg{background-size:max(100%,1100px) auto}
+.wrap{padding:0 20px}
+.only-desk{display:none !important}
+.only-mob{display:inline-flex !important}
+.mast-in{min-height:60px}
+.brand-n{font-size:23px}
+.h2{font-size:32px}
+.lede{font-size:16.5px}
+.orbit{display:none}
+.dd{overflow-x:clip}
+.tabbar{display:grid !important;grid-auto-flow:column;grid-auto-columns:1fr;position:sticky;bottom:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--rule2);margin-top:40px}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px 10px;font:500 11.5px var(--sans);color:var(--mute)}
+.tabbar a.on{color:var(--ink);box-shadow:inset 0 2px 0 var(--accent)}
+.foot{margin-top:28px}
+.mqwrap,.dd [class^="fcap"]{display:none !important}
+}
+@media (prefers-reduced-motion: reduce){.med.run svg,.med.flag svg,.med .zz,.fadein,.ev,.gbar,.stampbox,.mq,.eyebrow i,.ey,.lift svg,.led,.bgimg,.heropanel,.heropanel::before,.o1,.o2,.o3{animation:none !important}}
+
+.mob-block{display:none}
+.dd h1,.dd h2{font-family:var(--serif)}.dd h1,.dd h2{font-weight:300;letter-spacing:-.03em}.dd h3{font-weight:500}
+@media (max-width:760px){
+.dd{overflow-x:clip}
+.side{order:-1;flex-basis:100% !important}
+.dd main,.dd section{padding-left:20px !important;padding-right:20px !important}
+.dd main{padding-top:22px !important}
+.dd [style*="grid-template-columns"]{grid-template-columns:1fr !important}
+.dd h1{font-size:40px !important;line-height:1.05 !important}
+.dd [style*="padding: 40px 44px"]{padding:28px 22px !important}
+.dd [style*="font-size: 38px"]{font-size:30px !important}
+.dd [style*="white-space: nowrap"]{white-space:normal !important}
+.mob-block{display:block !important}
+.dd table{display:block;overflow-x:auto}
+}
+/*dkv2-start*/
+.dd[data-theme="dark"]{color-scheme:dark}
+.dd[data-theme="dark"] .bg{background:radial-gradient(900px 620px at 8% -8%,rgba(122,92,255,.30),transparent 62%),radial-gradient(760px 520px at 100% 4%,rgba(42,205,225,.16),transparent 60%),radial-gradient(820px 560px at 52% 105%,rgba(255,110,170,.12),transparent 62%),var(--paper)}
+.dd[data-theme="dark"] .bgimg{opacity:.14;mix-blend-mode:screen;filter:hue-rotate(20deg) saturate(1.2)}
+.dd[data-theme="dark"] [style*="var(--surface)"],.dd[data-theme="dark"] [style*="var(--card)"],.dd[data-theme="dark"] .fx-sec{box-shadow:inset 0 1px 0 rgba(200,208,255,.09),0 22px 46px -30px rgba(3,5,32,.95)}
+.dd[data-theme="dark"] .display,.dd[data-theme="dark"] main h1{background:linear-gradient(180deg,#FFFFFF 12%,#BFB7FF 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.dd[data-theme="dark"] .btn-red,.dd[data-theme="dark"] .avatar{box-shadow:0 0 0 1px rgba(255,255,255,.18) inset,0 10px 30px -12px rgba(120,100,255,.7)}
+.dd[data-theme="dark"] ::selection{background:rgba(165,150,255,.4)}
+.dd[data-theme="dark"] *{scrollbar-color:#38417C transparent}
+/*dkv2-end*/
+</style>
+</helmet>
+<div class="dd" data-theme="{{theme}}">
+<div class="bg" aria-hidden="true"><i class="bgimg"></i>
+<svg class="bgn" aria-hidden="true"><filter id="nz"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0"/></filter><rect width="100%" height="100%" filter="url(#nz)"/></svg></div>
+<header class="mast"><div class="wrap mast-in">
+<a class="brand" href="Home.dc.html" aria-label="Indesk"><svg width="40" height="40" viewBox="0 0 48 48" role="img" aria-label="Indesk" style="display:block;flex:none;color:var(--ink,currentColor)"><g transform="translate(0 -2)" fill="currentColor"><circle cx="6.2" cy="26.5" r="3.6"/><circle cx="13.1" cy="17.4" r="3.6"/><circle cx="24" cy="14" r="3.6"/><circle cx="34.9" cy="17.4" r="3.6"/><circle cx="41.8" cy="26.5" r="3.6"/><path d="M17 24 H27.5 L32 28.5 V40 C32 41.1 31.1 42 30 42 H18 C16.9 42 16 41.1 16 40 V25 C16 24.4 16.4 24 17 24 Z"/></g></svg><span class="brand-n">indesk</span></a>
+<nav class="nav only-desk" aria-label="Main"><a class="nl" href="Home.dc.html">{{t.navHome}}</a><a class="nl" href="Workspace.dc.html">{{t.navWork}}</a><a class="nl on" href="People.dc.html">{{t.navPeople}}</a><a class="nl" href="MyPage.dc.html">{{t.navMine}}</a><a class="nl" href="Plans.dc.html">{{t.navPlans}}</a></nav>
+<div class="mast-r">
+<div class="langs only-desk" role="group" aria-label="Language"><sc-for list="{{langs}}" as="g" hint-placeholder-count="5"><button class="lg" aria-pressed="{{g.on}}" onClick="{{g.pick}}">{{g.label}}</button></sc-for></div>
+<select class="lang-sel only-mob" aria-label="Language" value="{{langCode}}" onChange="{{pickSel}}"><option value="en">EN</option><option value="ko">한국어</option><option value="ja">日本語</option><option value="ru">RU</option><option value="uz">UZ</option></select>
+<button class="icon-btn" onClick="{{toggleTheme}}" aria-label="{{t.themeLabel}}"><sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></sc-if><sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></sc-if></button>
+<a class="avatar" href="MyPage.dc.html" aria-label="{{t.navMine}}">K</a>
+</div></div></header>
+
+<main class="wrap" style="padding-top: 44px; padding-bottom: 28px; display: flex; flex-direction: column; gap: 30px;">
+<div style="display: flex; flex-direction: column; gap: 14px; max-width: 720px;">
+<span class="eyebrow"><i></i>{{t.eyebrow}}</span>
+<h1 class="display" style="font-size: 58px;">{{t.h1}}</h1>
+<p class="lede">{{t.sub}}</p>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start;">
+
+<section style="flex: 1.7 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 18px;" aria-label="{{t.h1}}">
+<div style="display: flex; flex-direction: column; gap: 12px; background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 14px;">
+<label for="pq" class="vh">{{t.searchLabel}}</label>
+<div style="display: flex; align-items: center; gap: 12px; min-height: 52px; border: 1px solid var(--rule2); border-radius: 14px; padding: 0 16px; background: color-mix(in srgb, var(--paper) 60%, transparent);">
+<span style="color: var(--mute); display: flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg></span>
+<input id="pq" type="search" value="{{q}}" onInput="{{onQ}}" placeholder="{{t.placeholder}}" autocomplete="off" style="flex: 1 1 auto; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 17px; min-height: 48px;">
+</div>
+<div role="group" aria-label="{{t.filters}}" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
+<button aria-pressed="{{f.on}}" onClick="{{f.pick}}" style="min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid {{f.line}}; background: {{f.bg}}; color: {{f.fg}}; font: 500 14px var(--sans); cursor: pointer;">{{f.label}}</button>
+</sc-for>
+<span class="fine mono" style="margin-left: auto;">{{countText}}</span>
+</div>
+</div>
+
+<sc-if value="{{needMore}}" hint-placeholder-val="{{ false }}">
+<div class="fine" style="padding: 0 4px;">{{t.needMore}}</div>
+</sc-if>
+
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div style="border: 1px dashed var(--rule2); border-radius: 14px; padding: 36px 24px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center;">
+<b style="font: 500 20px var(--serif);">{{t.emptyH}}</b>
+<span class="fine" style="max-width: 420px;">{{t.emptyP}}</span>
+</div>
+</sc-if>
+
+<div style="display: flex; flex-direction: column; gap: 12px;">
+<sc-for list="{{people}}" as="p" hint-placeholder-count="5">
+<article style="background: var(--surface); border: 1px solid {{p.line}}; border-radius: 14px; overflow: hidden;">
+<div style="display: flex; align-items: center; gap: 16px; padding: 16px 18px; flex-wrap: wrap;">
+<span aria-hidden="true" style="flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font: 500 20px var(--sans); color: #fff; background: {{p.col}}; box-shadow: 0 0 0 3px color-mix(in srgb, {{p.col}} 28%, transparent);">{{p.ini}}</span>
+<div style="flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 3px;">
+<b style="font: 500 18px var(--sans);">{{p.name}}</b>
+<span class="mono fine">{{p.handle}} · {{p.langs}}</span>
+<span class="fine">{{p.reportsText}}</span>
+</div>
+<button onClick="{{p.toggle}}" aria-expanded="{{p.open}}" style="min-height: 44px; padding: 0 18px; border-radius: 14px; border: 1px solid var(--rule2); background: transparent; color: var(--ink); font: 500 14px var(--sans); cursor: pointer;">{{p.btn}}</button>
+</div>
+<sc-if value="{{p.open}}" hint-placeholder-val="{{ false }}">
+<div class="fadein" style="border-top: 1px solid var(--rule2); padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px;">
+<span class="mono" style="font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute);">{{t.sharedH}}</span>
+<sc-if value="{{p.none}}" hint-placeholder-val="{{ false }}"><span class="fine">{{t.noShared}}</span></sc-if>
+<sc-for list="{{p.reports}}" as="r" hint-placeholder-count="2">
+<a href="Shared.dc.html" style="display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 14px; border: 1px solid var(--rule2); border-radius: 14px;">
+<span style="min-width: 0;">{{r.title}}</span>
+<span class="mono" style="flex: none; font-size: 12.5px; color: {{r.col}};">✓ {{r.ok}}/{{r.total}}</span>
+</a>
+</sc-for>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+<button disabled style="min-height: 44px; padding: 0 18px; border-radius: 14px; border: 1px solid var(--rule2); background: var(--paper2); color: var(--mute); font: 500 14px var(--sans); cursor: not-allowed;">{{t.invite}}</button>
+<span class="mono fine">{{t.soon}}</span>
+</div>
+</div>
+</sc-if>
+</article>
+</sc-for>
+</div>
+</section>
+
+<aside style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 18px;">
+<div style="background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+<b style="font: 500 18px var(--serif);">{{t.visH}}</b>
+<button role="switch" aria-checked="{{visible}}" aria-label="{{t.visH}}" onClick="{{toggleVis}}" style="flex: none; width: 54px; height: 32px; border-radius: 999px; border: 1px solid var(--rule2); background: {{switchBg}}; padding: 3px; cursor: pointer; display: flex; justify-content: {{switchJust}};"><span style="width: 24px; height: 24px; border-radius: 50%; background: {{switchKnob}}; display: block;"></span></button>
+</div>
+<p class="fine" style="margin: 0;">{{visText}}</p>
+<div style="display: flex; align-items: center; gap: 14px; padding: 14px; border: 1px dashed var(--rule2); border-radius: 14px; opacity: {{previewOp}};">
+<span aria-hidden="true" style="flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 500 17px var(--sans); background: var(--accent); color: var(--accentInk);">K</span>
+<div style="display: flex; flex-direction: column; min-width: 0;"><b style="font: 500 16px var(--sans);">{{t.you}}</b><span class="mono fine">@kim.demo · 2 {{t.sharedWord}}</span></div>
+</div>
+</div>
+
+<div style="background: var(--surface); border: 1px solid var(--rule2); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 12px;">
+<b style="font: 500 18px var(--serif);">{{t.ruleH}}</b>
+<ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; color: var(--ink2); font-size: 14.5px; line-height: 1.55;">
+<li>{{t.r1}}</li><li>{{t.r2}}</li><li>{{t.r3}}</li><li>{{t.r4}}</li>
+</ul>
+</div>
+<div class="fine mono" style="padding: 0 4px;">{{t.demoNote}}</div>
+</aside>
+</div>
+</main>
+
+<footer class="wrap foot"><span>Indesk · field notes for your files</span><span>{{t.demo}}</span></footer>
+<nav class="tabbar" aria-label="Main"><a href="Home.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/></svg><span>{{t.navHome}}</span></a><a href="Workspace.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.100 2.100 0 0 0-4-4L4 16z"/><path d="M13.500 6.500l4 4"/></svg><span>{{t.navWork}}</span></a><a href="People.dc.html" class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.700 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16.500 14.200c2.500.3 4.500 2.400 4.500 5"/></svg><span>{{t.navPeople}}</span></a><a href="MyPage.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg><span>{{t.navMine}}</span></a><a href="Plans.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.500" cy="8.500" r="1.200"/></svg><span>{{t.navPlans}}</span></a></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    let dark = false;
+    try { dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { dark = false; }
+    this.state = { lang: 'en', theme: dark ? 'dark' : 'light', q: '', f: 'all', sel: null, visible: true };
+  }
+  renderVals() {
+    const codes = ['en', 'ko', 'ja', 'ru', 'uz'];
+    const labels = ['EN', '한국어', '日本語', 'RU', 'UZ'];
+    const I = codes.indexOf(this.state.lang);
+    const L = (...a) => a[I];
+    const s = this.state;
+    const cols = ['var(--c-owl)', 'var(--c-cham)', 'var(--c-bea)', 'var(--c-hou)', 'var(--c-cat)'];
+    const pool = [
+      { t: 'Station growth since 2019', ok: 5, n: 6 }, { t: '지역별 기부금 비교', ok: 8, n: 8 }, { t: '設備投資の推移', ok: 6, n: 7 },
+      { t: 'Опрос: что изменилось после запуска', ok: 4, n: 5 }, { t: 'Savdo hajmi: choraklik tahlil', ok: 7, n: 9 }, { t: 'Churn by plan, Q3', ok: 3, n: 4 }
+    ];
+    const dir = [
+      { n: 'Min-jun Park', h: '@minjun.p', lg: ['KO', 'EN'], r: [0, 1, 5], recent: true },
+      { n: 'Aiko Tanaka', h: '@aiko_t', lg: ['JA'], r: [2, 5], recent: false },
+      { n: 'Dilnoza Karimova', h: '@dilnoza.k', lg: ['UZ', 'RU', 'EN'], r: [4, 3, 0], recent: true },
+      { n: 'Sergey Volkov', h: '@svolkov', lg: ['RU'], r: [3], recent: false },
+      { n: 'Hannah Lee', h: '@hannahlee', lg: ['EN', 'KO'], r: [5, 0], recent: false },
+      { n: 'Jisoo Han', h: '@jisoo.han', lg: ['KO'], r: [], recent: false },
+      { n: 'Bekzod Aliyev', h: '@bekzod', lg: ['UZ'], r: [4], recent: false },
+      { n: 'Yuki Mori', h: '@yukimori', lg: ['JA', 'EN'], r: [2, 1, 5], recent: true },
+      { n: 'Olga Petrova', h: '@olga.p', lg: ['RU'], r: [], recent: false },
+      { n: 'Daniel Cho', h: '@danielcho', lg: ['EN'], r: [5, 0, 1, 2], recent: false }
+    ];
+    const q = s.q.trim().toLowerCase().replace(/^@/, '');
+    const needMore = q.length === 1;
+    const mine = L('EN', 'KO', 'JA', 'RU', 'UZ');
+    let list = dir.map((d, i) => ({ d, i }));
+    if (q.length >= 2) list = list.filter(x => x.d.n.toLowerCase().indexOf(q) >= 0 || x.d.h.toLowerCase().indexOf(q) >= 0);
+    else list = list.filter(x => x.d.recent);
+    if (s.f === 'shared') list = list.filter(x => x.d.r.length > 0);
+    if (s.f === 'lang') list = list.filter(x => x.d.lg.indexOf(mine) >= 0);
+    if (needMore) list = [];
+    list = list.slice(0, 20);
+    const people = list.map(({ d, i }) => {
+      const open = s.sel === i;
+      return {
+        name: d.n, handle: d.h, langs: d.lg.join(' · '), ini: d.n.charAt(0), col: cols[i % 5],
+        line: open ? 'var(--accent)' : 'var(--rule2)', open,
+        none: d.r.length === 0,
+        reportsText: d.r.length === 0 ? L('No shared reports yet', '공유한 보고서 없음', '共有レポートはまだありません', 'Пока нет общих отчётов', 'Hali ulashilgan hisobot yo‘q') : L(d.r.length + ' shared reports', '공유 보고서 ' + d.r.length + '개', '共有レポート' + d.r.length + '件', 'Общих отчётов: ' + d.r.length, d.r.length + ' ta ulashilgan hisobot'),
+        btn: open ? L('Hide', '접기', '閉じる', 'Скрыть', 'Yopish') : L('View profile', '프로필 보기', 'プロフィールを見る', 'Открыть профиль', 'Profilni ko‘rish'),
+        reports: d.r.map(k => ({ title: pool[k].t, ok: pool[k].ok, total: pool[k].n, col: pool[k].ok === pool[k].n ? 'var(--green)' : 'var(--warn)' })),
+        toggle: () => this.setState({ sel: open ? null : i })
+      };
+    });
+    const fdef = [['all', L('All', '전체', 'すべて', 'Все', 'Hammasi')], ['shared', L('Has shared reports', '공유 보고서 있음', '共有レポートあり', 'Есть общие отчёты', 'Hisobot ulashgan')], ['lang', L('Same language', '같은 언어', '同じ言語', 'Тот же язык', 'Bir xil til')]];
+    const filters = fdef.map(([k, label]) => ({ label, on: s.f === k, line: s.f === k ? 'var(--accent)' : 'var(--rule2)', bg: s.f === k ? 'var(--accentSoft)' : 'transparent', fg: s.f === k ? 'var(--accentText)' : 'var(--ink2)', pick: () => this.setState({ f: k, sel: null }) }));
+    const t = {
+      eyebrow: L('People', '사람 찾기', 'ユーザー', 'Люди', 'Odamlar'),
+      h1: L('Find people', '사람 찾기', 'ユーザーを探す', 'Найти людей', 'Odamlarni qidirish'),
+      sub: L('Look someone up by name or @handle to see the reports they chose to share. You will invite them to your own reports here once collaboration opens.', '이름이나 @아이디로 검색해 상대가 공유하기로 한 보고서를 볼 수 있어요. 공동 작업이 열리면 여기서 내 보고서에 초대할 수 있습니다.', '名前または@ハンドルで検索すると、相手が共有したレポートを見られます。共同作業が始まったら、ここから自分のレポートに招待できます。', 'Найдите человека по имени или @нику и посмотрите отчёты, которыми он поделился. Когда откроется совместная работа, здесь можно будет приглашать людей в свои отчёты.', 'Ism yoki @nik bo‘yicha qidiring va u ulashgan hisobotlarni ko‘ring. Hamkorlik ochilganda, shu yerdan o‘z hisobotlaringizga taklif qilasiz.'),
+      searchLabel: L('Search people', '사람 검색', 'ユーザーを検索', 'Поиск людей', 'Odam qidirish'),
+      placeholder: L('Name or @handle', '이름 또는 @아이디', '名前または@ハンドル', 'Имя или @ник', 'Ism yoki @nik'),
+      filters: L('Filters', '필터', 'フィルター', 'Фильтры', 'Filtrlar'),
+      needMore: L('Type at least 2 characters to search.', '2글자 이상 입력해 주세요.', '2文字以上入力してください。', 'Введите минимум 2 символа.', 'Kamida 2 ta belgi kiriting.'),
+      emptyH: L('Nobody found', '결과가 없어요', '見つかりませんでした', 'Никого не нашли', 'Hech kim topilmadi'),
+      emptyP: L('Check the spelling, or ask them for their @handle. People who switched off “Let others find me” never appear here.', '철자를 확인하거나 상대에게 @아이디를 물어보세요. “다른 사람이 나를 찾을 수 있게 하기”를 끈 사람은 표시되지 않습니다.', 'つづりを確認するか、相手に@ハンドルを聞いてください。「他の人が自分を見つけられるようにする」をオフにしている人は表示されません。', 'Проверьте написание или спросите у человека его @ник. Те, кто отключил «Разрешить находить меня», здесь не появляются.', 'Imlosini tekshiring yoki @nikni so‘rang. “Meni topishga ruxsat”ni o‘chirganlar bu yerda ko‘rinmaydi.'),
+      sharedH: L('Shared reports', '공유한 보고서', '共有レポート', 'Общие отчёты', 'Ulashilgan hisobotlar'),
+      noShared: L('This person has not shared any reports.', '공유한 보고서가 없습니다.', '共有されたレポートはありません。', 'Этот человек пока ничем не делился.', 'Bu odam hali hisobot ulashmagan.'),
+      invite: L('Invite to my report', '내 보고서에 초대', '自分のレポートに招待', 'Пригласить в мой отчёт', 'Hisobotimga taklif qilish'),
+      soon: L('Opens with collaboration', '공동 작업과 함께 열려요', '共同作業と同時に開始', 'Появится вместе с совместной работой', 'Hamkorlik bilan ochiladi'),
+      visH: L('Let others find me', '다른 사람이 나를 찾을 수 있게 하기', '他の人が自分を見つけられるようにする', 'Разрешить находить меня', 'Meni topishga ruxsat'),
+      you: L('You', '나', 'あなた', 'Вы', 'Siz'),
+      sharedWord: L('shared reports', '공유 보고서', '共有レポート', 'общих отчёта', 'ta ulashilgan hisobot'),
+      ruleH: L('What search shows', '검색에 보이는 정보', '検索に表示される情報', 'Что видно в поиске', 'Qidiruvda nima ko‘rinadi'),
+      r1: L('Display name, @handle and languages.', '표시 이름, @아이디, 언어.', '表示名、@ハンドル、言語。', 'Имя, @ник и языки.', 'Ism, @nik va tillar.'),
+      r2: L('Only reports the owner has shared with a link.', '소유자가 링크로 공유한 보고서만.', '所有者がリンクで共有したレポートのみ。', 'Только отчёты, которыми владелец поделился по ссылке.', 'Faqat egasi havola orqali ulashgan hisobotlar.'),
+      r3: L('Never email, files, questions or private reports.', '이메일, 파일, 질문, 비공개 보고서는 절대 보이지 않습니다.', 'メール、ファイル、質問、非公開レポートは表示されません。', 'Никогда не показываются почта, файлы, вопросы и личные отчёты.', 'Email, fayllar, savollar va shaxsiy hisobotlar hech qachon ko‘rsatilmaydi.'),
+      r4: L('Search needs 2+ characters and returns at most 20 people.', '검색은 2글자 이상, 결과는 최대 20명입니다.', '検索は2文字以上、最大20人まで表示します。', 'Поиск от 2 символов, не больше 20 человек.', 'Qidiruv kamida 2 belgi, ko‘pi bilan 20 odam.'),
+      demoNote: L('Demo: sample people, no real accounts.', '데모: 가상의 사용자이며 실제 계정이 아닙니다.', 'デモ：架空のユーザーで、実在のアカウントではありません。', 'Демо: вымышленные люди, не настоящие аккаунты.', 'Demo: xayoliy foydalanuvchilar, haqiqiy akkaunt emas.')
+    };
+    Object.assign(t, {
+      navHome: L('Home', '홈', 'ホーム', 'Главная', 'Bosh sahifa'),
+      navPeople: L('People', '사람 찾기', 'ユーザーを探す', 'Люди', 'Odamlar'),
+      navWork: L('Workspace', '워크스페이스', 'ワークスペース', 'Рабочая область', 'Ish maydoni'),
+      navMine: L('My reports', '내 보고서', 'マイレポート', 'Мои отчёты', 'Hisobotlarim'),
+      navPlans: L('Plans', '요금제', 'プラン', 'Тарифы', 'Tariflar'),
+      login: L('Log in', '로그인', 'ログイン', 'Войти', 'Kirish'),
+      signup: L('Sign up', '가입하기', '新規登録', 'Регистрация', 'Ro‘yxatdan o‘tish'),
+      themeLabel: L('Switch light or dark mode', '라이트/다크 모드 전환', 'ライト/ダークモードを切り替え', 'Переключить светлую или тёмную тему', 'Yorug‘ yoki qorong‘i rejimni almashtirish'),
+      demo: L('Demo project. Test mode only.', '데모 프로젝트. 테스트 모드 전용.', 'デモプロジェクト。テストモードのみ。', 'Демо-проект. Только тестовый режим.', 'Demo loyiha. Faqat test rejimi.')
+    });
+    const langs = codes.map((c, k) => ({
+      label: labels[k], on: c === s.lang, pick: () => this.setState({ lang: c })
+    }));
+    const vis = s.visible;
+    return {
+      langCode: s.lang, pickSel: (e) => this.setState({ lang: e.target.value }),
+      t, langs, filters, people,
+      theme: s.theme, isDark: s.theme === 'dark', isLight: s.theme !== 'dark',
+      toggleTheme: () => this.setState({ theme: s.theme === 'dark' ? 'light' : 'dark' }),
+      q: s.q, onQ: (e) => this.setState({ q: e.target.value, sel: null }),
+      needMore, empty: !needMore && people.length === 0,
+      countText: L(people.length + ' shown', people.length + '명 표시', people.length + '人を表示', 'Показано: ' + people.length, people.length + ' ta ko‘rsatildi'),
+      visible: vis, toggleVis: () => this.setState({ visible: !vis }),
+      switchBg: vis ? 'var(--accent)' : 'var(--paper2)', switchJust: vis ? 'flex-end' : 'flex-start', switchKnob: vis ? 'var(--accentInk)' : 'var(--mute)',
+      previewOp: vis ? 1 : .4,
+      visText: vis ? L('On. People can find you by name or @handle and see reports you shared with a link.', '켜짐. 이름이나 @아이디로 나를 찾고, 링크로 공유한 보고서를 볼 수 있습니다.', 'オン。名前や@ハンドルで検索され、リンクで共有したレポートが表示されます。', 'Включено. Вас можно найти по имени или @нику и увидеть отчёты, которыми вы поделились по ссылке.', 'Yoqilgan. Sizni ism yoki @nik bilan topib, havola orqali ulashgan hisobotlaringizni ko‘rishadi.') : L('Off. You do not appear in search at all. Your shared links still work for people who have them.', '꺼짐. 검색에 전혀 나타나지 않습니다. 이미 링크를 가진 사람은 계속 볼 수 있습니다.', 'オフ。検索には一切表示されません。リンクを持つ人は引き続き閲覧できます。', 'Выключено. Вас нет в поиске. Ссылки, которые вы уже отправили, продолжают работать.', 'O‘chiq. Qidiruvda umuman ko‘rinmaysiz. Havolasi borlar ko‘rishda davom etadi.')
+    };
+  }
+}
+</script>
+</body>
+</html>

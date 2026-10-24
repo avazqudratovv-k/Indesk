@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+CLAUDE.local.md
+node_modules/
+.next/
+__pycache__/
+.venv/
+.DS_Store
+*.zip

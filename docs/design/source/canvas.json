@@ -1,0 +1,293 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-19T05:30:00Z"
+ },
+ "title": "FINAL DESIGN PROJECT 2",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Home.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 2500,
+   "title": "0. Home",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Login.dc.html": {
+   "x": 1360,
+   "y": 0,
+   "w": 1280,
+   "h": 900,
+   "title": "1. Log in",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Signup.dc.html": {
+   "x": 2720,
+   "y": 0,
+   "w": 1280,
+   "h": 980,
+   "title": "2. Sign up",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Workspace.dc.html": {
+   "x": 4080,
+   "y": 0,
+   "w": 1280,
+   "h": 2700,
+   "title": "3. Workspace: ask, check, compare, agents at work",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "People.dc.html": {
+   "x": 5440,
+   "y": 0,
+   "w": 1280,
+   "h": 1300,
+   "title": "3b. People (signed in only)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Report.dc.html": {
+   "x": 6800,
+   "y": 0,
+   "w": 1280,
+   "h": 3750,
+   "title": "4. Report",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Shared.dc.html": {
+   "x": 8160,
+   "y": 0,
+   "w": 1280,
+   "h": 1500,
+   "title": "5. Shared report (public, read-only)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "MyPage.dc.html": {
+   "x": 9520,
+   "y": 0,
+   "w": 1280,
+   "h": 1200,
+   "title": "6. My page",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Plans.dc.html": {
+   "x": 10880,
+   "y": 0,
+   "w": 1280,
+   "h": 2500,
+   "title": "7. Plans and usage",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "HomeM.dc.html": {
+   "x": 0,
+   "y": 3000,
+   "w": 390,
+   "h": 3300,
+   "title": "Mobile · 0. Home",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "LoginM.dc.html": {
+   "x": 470,
+   "y": 3000,
+   "w": 390,
+   "h": 1200,
+   "title": "Mobile · 1. Log in",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "SignupM.dc.html": {
+   "x": 940,
+   "y": 3000,
+   "w": 390,
+   "h": 1300,
+   "title": "Mobile · 2. Sign up",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "WorkspaceM.dc.html": {
+   "x": 1410,
+   "y": 3000,
+   "w": 390,
+   "h": 5000,
+   "title": "Mobile · 3. Workspace: ask, agents at work, what each did",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "PeopleM.dc.html": {
+   "x": 1880,
+   "y": 3000,
+   "w": 390,
+   "h": 2600,
+   "title": "Mobile · 3b. People (signed in only)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ReportM.dc.html": {
+   "x": 2350,
+   "y": 3000,
+   "w": 390,
+   "h": 6500,
+   "title": "Mobile · 4. Report",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "SharedM.dc.html": {
+   "x": 2820,
+   "y": 3000,
+   "w": 390,
+   "h": 2400,
+   "title": "Mobile · 5. Shared report (public, read-only)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "MyPageM.dc.html": {
+   "x": 3290,
+   "y": 3000,
+   "w": 390,
+   "h": 2200,
+   "title": "Mobile · 6. My page",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "PlansM.dc.html": {
+   "x": 3760,
+   "y": 3000,
+   "w": 390,
+   "h": 4600,
+   "title": "Mobile · 7. Plans and usage",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "States.dc.html": {
+   "x": 12240,
+   "y": 0,
+   "w": 1280,
+   "h": 2950,
+   "title": "8. States and rules: agents, outcomes, follow-ups, styles and exports",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Moments.dc.html": {
+   "x": 13600,
+   "y": 0,
+   "w": 1280,
+   "h": 1800,
+   "title": "9. Moments: sign-up, payment, run results, failures",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "StatesM.dc.html": {
+   "x": 4240,
+   "y": 3000,
+   "w": 390,
+   "h": 5900,
+   "title": "Mobile · 8. States and rules",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "MomentsM.dc.html": {
+   "x": 4710,
+   "y": 3000,
+   "w": 390,
+   "h": 4200,
+   "title": "Mobile · 9. Moments",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ReportCheck.dc.html": {
+   "x": 16000,
+   "y": 0,
+   "w": 1280,
+   "h": 2400,
+   "title": "4b. Report: check a document",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ReportCompare.dc.html": {
+   "x": 17380,
+   "y": 0,
+   "w": 1280,
+   "h": 1900,
+   "title": "4c. Report: compare two files",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ReportCheckM.dc.html": {
+   "x": 5180,
+   "y": 3000,
+   "w": 390,
+   "h": 3400,
+   "title": "Mobile · 4b. Report: check a document",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ReportCompareM.dc.html": {
+   "x": 5650,
+   "y": 3000,
+   "w": 390,
+   "h": 3000,
+   "title": "Mobile · 4c. Report: compare two files",
+   "expand": "fill",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Home.dc.html",
+  "Login.dc.html",
+  "Signup.dc.html",
+  "Workspace.dc.html",
+  "People.dc.html",
+  "Report.dc.html",
+  "Shared.dc.html",
+  "MyPage.dc.html",
+  "Plans.dc.html",
+  "HomeM.dc.html",
+  "LoginM.dc.html",
+  "SignupM.dc.html",
+  "WorkspaceM.dc.html",
+  "PeopleM.dc.html",
+  "ReportM.dc.html",
+  "SharedM.dc.html",
+  "MyPageM.dc.html",
+  "PlansM.dc.html",
+  "States.dc.html",
+  "Moments.dc.html",
+  "StatesM.dc.html",
+  "MomentsM.dc.html",
+  "ReportCheck.dc.html",
+  "ReportCompare.dc.html",
+  "ReportCheckM.dc.html",
+  "ReportCompareM.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "FINAL DESIGN PROJECT 2 · Indesk (Nocturne light, Midnight dark)",
+   "kind": "title1",
+   "maxW": 19000
+  },
+  "t2": {
+   "x": 0,
+   "y": 2780,
+   "text": "Mobile (390 px)",
+   "kind": "title1",
+   "maxW": 3800
+  }
+ },
+ "designSystems": []
+}
