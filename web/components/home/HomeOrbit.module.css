@@ -1,0 +1,41 @@
+/* Positioned against the shell (the page), centred on it, behind the content. Hidden on phones, as on the board. */
+.orbit {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 780px;
+  height: 780px;
+  margin: -390px 0 0 -390px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.o {
+  transform-origin: 50% 50%;
+  transform-box: view-box;
+}
+
+.o1 {
+  animation: orb 80s linear infinite;
+}
+
+.o2 {
+  animation: orb 120s linear infinite reverse;
+}
+
+.o3 {
+  animation: orb 170s linear infinite;
+}
+
+@keyframes orb {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 761px) {
+  .orbit {
+    display: block;
+  }
+}

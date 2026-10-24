@@ -9,7 +9,7 @@ export default function HomeHero({ verified, total }: { verified: number; total:
   const t = useTranslations("home.hero");
   return (
     <section className={styles.hero} aria-labelledby="hero-title">
-      <div className={styles.panel}>
+      <div className={`dk ${styles.panel}`}>
         <div className={styles.copy}>
           <Eyebrow>{t("eyebrow")}</Eyebrow>
           <h1 id="hero-title" className={styles.title}>

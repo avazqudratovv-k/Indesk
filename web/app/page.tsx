@@ -1,5 +1,6 @@
 import HomeClosing from "@/components/home/HomeClosing";
 import HomeHero from "@/components/home/HomeHero";
+import HomeOrbit from "@/components/home/HomeOrbit";
 import HomeModes from "@/components/home/HomeModes";
 import HomeTeam from "@/components/home/HomeTeam";
 import { getMockReport } from "@/mocks";
@@ -10,6 +11,7 @@ export default function Page() {
   if (!report) throw new Error("mock report rep_01 is missing");
   return (
     <main>
+      <HomeOrbit />
       <HomeHero verified={report.verified_count} total={report.total_claims} />
       <HomeModes />
       <HomeTeam />
