@@ -1,0 +1,16 @@
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--warnBg);
+  color: var(--warn);
+  font: 500 13.5px/1.45 var(--sans);
+}
+
+.icon {
+  flex: none;
+  margin-top: 1px;
+}

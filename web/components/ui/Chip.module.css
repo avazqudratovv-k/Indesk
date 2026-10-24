@@ -1,0 +1,52 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: 1px solid var(--rule2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink2);
+  font: 500 13.5px var(--sans);
+  text-decoration: none;
+}
+
+.accent {
+  border-color: transparent;
+  background: var(--accentSoft);
+  color: var(--accentText);
+}
+
+.ok {
+  border-color: transparent;
+  background: var(--greenBg);
+  color: var(--green);
+}
+
+.bad {
+  border-color: var(--badLine);
+  background: var(--badBg);
+  color: var(--bad);
+}
+
+.warn {
+  border-color: transparent;
+  background: var(--warnBg);
+  color: var(--warn);
+}
+
+/* An interactive chip (suggested questions) is a real button with a 44 px touch target on mobile. */
+button.chip {
+  cursor: pointer;
+}
+
+button.chip:hover {
+  border-color: var(--ink);
+}
+
+@media (max-width: 759.98px) {
+  button.chip {
+    min-height: 44px;
+    padding: 0 16px;
+  }
+}

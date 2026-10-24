@@ -1,0 +1,8 @@
+{
+  "_note": "r_01 is the example record from docs/ai/DATA.md section 4. r_02 (Check) and r_03 (Compare) are INVENTED PLACEHOLDERS, including questions, costs and times.",
+  "records": [
+    {"id":"r_01","user_id":"u_01","question":"Which stations grew fastest since 2019?","mode":"ask","question_type":"new","status":"finished","outcome":"answered","outcome_reason":null,"counted":true,"lang":"en","tokens_in":18200,"tokens_out":2100,"tool_calls":7,"cost_usd":0.041,"started_at":"2026-10-25T09:05:00Z","finished_at":"2026-10-25T09:05:12Z","error":null},
+    {"id":"r_02","user_id":"u_01","question":"Check this brief against the data.","mode":"check","question_type":null,"status":"finished","outcome":"answered","outcome_reason":null,"counted":true,"lang":"en","tokens_in":24100,"tokens_out":3000,"tool_calls":9,"cost_usd":0.092,"started_at":"2026-10-25T09:25:00Z","finished_at":"2026-10-25T09:25:20Z","error":null},
+    {"id":"r_03","user_id":"u_01","question":"What changed between August and September?","mode":"compare","question_type":null,"status":"finished","outcome":"answered","outcome_reason":null,"counted":true,"lang":"en","tokens_in":15800,"tokens_out":1900,"tool_calls":6,"cost_usd":0.058,"started_at":"2026-10-25T09:45:00Z","finished_at":"2026-10-25T09:45:15Z","error":null}
+  ]
+}

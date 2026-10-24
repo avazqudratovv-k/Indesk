@@ -1,0 +1,73 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid var(--rule2);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card) 55%, transparent);
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  font: 500 15px var(--sans);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.25s, border-color 0.2s, background 0.2s;
+}
+
+.btn:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: none;
+}
+
+.btn[aria-disabled="true"],
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ink {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+  backdrop-filter: none;
+}
+
+.primary {
+  background: var(--btn-grad);
+  border-color: transparent;
+  color: var(--btn-grad-ink);
+  font-weight: 600;
+  backdrop-filter: none;
+}
+
+.primary:hover {
+  border-color: transparent;
+  box-shadow: 0 0 0 5px var(--glow);
+}
+
+.lg {
+  min-height: 54px;
+  padding: 0 28px;
+  font-size: 16.5px;
+}
+
+/* The design's 38 px small button grows to 44 px on mobile (DECISIONS #53). */
+.sm {
+  min-height: 44px;
+  padding: 0 15px;
+  font-size: 14px;
+}
+
+@media (min-width: 760px) {
+  .sm {
+    min-height: 38px;
+  }
+}

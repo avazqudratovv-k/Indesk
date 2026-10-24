@@ -1,4 +1,3 @@
-import ThemeToggle from "@/components/ThemeToggle";
 import { colorGroups, reportPaperTokens } from "./tokens-data";
 import styles from "./page.module.css";
 
@@ -36,7 +35,6 @@ export default function TokensPage() {
     <main className={styles.page}>
       <h1 className={styles.h1}>Design tokens</h1>
       <p className={styles.lede}>Every color from DESIGN.md in Nocturne (light), Midnight (dark) and the always-dark panel.</p>
-      <ThemeToggle />
       <div className={styles.panels}>
         <Palette title="Nocturne (light)" theme="light" />
         <Palette title="Midnight (dark)" theme="dark" />

@@ -1,0 +1,22 @@
+{
+  "_note": "cl_01 (rep_01) and cl_05 (rep_02, the mismatch) are the example records from docs/ai/DATA.md section 4. All other claims are INVENTED PLACEHOLDERS. DATA.md gives cl_01 to rep_01 and cl_05 to rep_02, so the two reports share the cl_0x range: rep_01 uses cl_01 to cl_04, cl_06, cl_07; rep_02 uses cl_05 and cl_11 to cl_15; rep_03 uses cl_21 to cl_23.",
+  "records": [
+    {"id":"cl_01","report_id":"rep_01","n":1,"text":"Hapjeong grew 18%","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"+18%","evidence_refs":["D1"]},
+    {"id":"cl_02","report_id":"rep_01","n":2,"text":"Seongsu grew 16%","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"+16%","evidence_refs":["D1"]},
+    {"id":"cl_03","report_id":"rep_01","n":3,"text":"Magok grew 14.1%","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"+14.1%","evidence_refs":["D1"]},
+    {"id":"cl_04","report_id":"rep_01","n":4,"text":"Each of the three stations grew faster than the network average","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"network average +6.3%","evidence_refs":["D1"]},
+    {"id":"cl_06","report_id":"rep_01","n":5,"text":"The growth is driven by new housing nearby","status":"flagged","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":null,"evidence_refs":[]},
+    {"id":"cl_07","report_id":"rep_01","n":6,"text":"The ranking is the same for weekday boardings only","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"same top 3","evidence_refs":["D1"]},
+
+    {"id":"cl_11","report_id":"rep_02","n":1,"text":"Hapjeong grew 18%","status":"verified","origin":"document","doc_quote":"Hapjeong grew 18% since 2019.","doc_location":"page 1","doc_value":"18%","computed_value":"+18%","evidence_refs":["D1","U1"]},
+    {"id":"cl_12","report_id":"rep_02","n":2,"text":"Seongsu grew 16%","status":"verified","origin":"document","doc_quote":"Seongsu rose 16%.","doc_location":"page 1","doc_value":"16%","computed_value":"+16%","evidence_refs":["D1","U1"]},
+    {"id":"cl_13","report_id":"rep_02","n":3,"text":"The network average grew 6.3%","status":"verified","origin":"document","doc_quote":"The whole network grew 6.3%.","doc_location":"page 2","doc_value":"6.3%","computed_value":"+6.3%","evidence_refs":["D1","U1"]},
+    {"id":"cl_14","report_id":"rep_02","n":4,"text":"Gangnam fell 2.1%","status":"verified","origin":"document","doc_quote":"Gangnam fell 2.1%.","doc_location":"page 2","doc_value":"2.1%","computed_value":"-2.1%","evidence_refs":["D1","U1"]},
+    {"id":"cl_05","report_id":"rep_02","n":5,"text":"Magok grew 21%","status":"mismatch","origin":"document","doc_quote":"Magok grew 21% over the period.","doc_location":"page 2","doc_value":"21%","computed_value":"14.1%","evidence_refs":["D1","U1"]},
+    {"id":"cl_15","report_id":"rep_02","n":6,"text":"Commuters prefer line 2","status":"unverified","origin":"document","doc_quote":"Commuters prefer line 2.","doc_location":"page 3","doc_value":null,"computed_value":null,"evidence_refs":["U1"]},
+
+    {"id":"cl_21","report_id":"rep_03","n":1,"text":"Total boardings rose 6.3%","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"+6.3%","evidence_refs":["D1","D2"]},
+    {"id":"cl_22","report_id":"rep_03","n":2,"text":"Seongsu rose 14.2%","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"+14.2%","evidence_refs":["D1","D2"]},
+    {"id":"cl_23","report_id":"rep_03","n":3,"text":"Gangnam fell 2.1%","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"-2.1%","evidence_refs":["D1","D2"]}
+  ]
+}

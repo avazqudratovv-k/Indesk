@@ -1,0 +1,10 @@
+{
+  "_note": "r_01 row is from docs/ai/DATA.md section 4. The rest are INVENTED PLACEHOLDERS (Check: data is the subject, the brief is the source; Compare: a and b).",
+  "records": [
+    {"run_id":"r_01","upload_id":"up_01","role":"subject"},
+    {"run_id":"r_02","upload_id":"up_01","role":"subject"},
+    {"run_id":"r_02","upload_id":"up_02","role":"source"},
+    {"run_id":"r_03","upload_id":"up_03","role":"a"},
+    {"run_id":"r_03","upload_id":"up_04","role":"b"}
+  ]
+}

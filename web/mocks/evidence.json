@@ -1,0 +1,10 @@
+{
+  "_note": "ev_01 is the example record from docs/ai/DATA.md section 4. The rest are INVENTED PLACEHOLDERS (run, step and payload values) so Check and Compare reports can show evidence chips.",
+  "records": [
+    {"id":"ev_01","run_id":"r_01","step_id":"st_01","ref":"D1","type":"table","file_name":"seoul-subway-ridership.csv","location":"rows 1–4800","payload":{"columns":["station","year","boardings"],"rows_used":4800}},
+    {"id":"ev_02","run_id":"r_02","step_id":"st_02","ref":"D1","type":"table","file_name":"seoul-subway-ridership.csv","location":"rows 1–4800","payload":{"columns":["station","year","boardings"],"rows_used":4800}},
+    {"id":"ev_03","run_id":"r_02","step_id":"st_03","ref":"U1","type":"passage","file_name":"ridership-brief.pdf","location":"page 2","payload":{"text":"Magok grew 21% over the period."}},
+    {"id":"ev_04","run_id":"r_03","step_id":"st_04","ref":"D1","type":"table","file_name":"boardings-2026-08.csv","location":"rows 1–2400","payload":{"columns":["station","boardings"],"rows_used":2400}},
+    {"id":"ev_05","run_id":"r_03","step_id":"st_04","ref":"D2","type":"table","file_name":"boardings-2026-09.csv","location":"rows 1–2400","payload":{"columns":["station","boardings"],"rows_used":2400}}
+  ]
+}

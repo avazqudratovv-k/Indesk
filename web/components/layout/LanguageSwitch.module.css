@@ -1,0 +1,43 @@
+.buttons {
+  display: none;
+  margin-right: 6px;
+  padding: 2px;
+  border: 1px solid var(--rule2);
+  border-radius: 12px;
+}
+
+.lg {
+  min-height: 30px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--mute);
+  font: 500 12.5px var(--sans);
+  cursor: pointer;
+}
+
+.lg[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.select {
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid var(--rule2);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  font: 500 14px var(--sans);
+}
+
+@media (min-width: 760px) {
+  .buttons {
+    display: flex;
+  }
+
+  .select {
+    display: none;
+  }
+}

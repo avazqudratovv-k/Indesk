@@ -1,0 +1,23 @@
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 28px auto 0;
+  padding: 22px 20px 28px;
+  border-top: 1px solid var(--rule);
+}
+
+.tagline {
+  margin: 0;
+  font: 400 12px var(--mono);
+  color: var(--mute);
+}
+
+@media (min-width: 760px) {
+  .foot {
+    margin-top: 48px;
+    padding: 22px 40px 28px;
+  }
+}

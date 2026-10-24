@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "brand": "Indesk",
+    "main": "메인",
+    "home": "홈",
+    "workspace": "워크스페이스",
+    "people": "사람",
+    "myReports": "내 보고서",
+    "plans": "요금제",
+    "login": "로그인",
+    "signup": "회원가입",
+    "account": "계정: {name}"
+  },
+  "tabBar": {
+    "label": "메인",
+    "home": "홈",
+    "workspace": "워크스페이스",
+    "my": "내 페이지",
+    "plans": "요금제"
+  },
+  "language": {
+    "label": "언어"
+  },
+  "theme": {
+    "dark": "다크 테마"
+  },
+  "footer": {
+    "tagline": "Indesk · 내 파일을 위한 필드 노트"
+  },
+  "demoNotice": {
+    "text": "Indesk는 데모입니다. 개인 정보나 민감한 파일은 업로드하지 마세요."
+  },
+  "ui": {
+    "button": {
+      "default": "기본",
+      "ink": "잉크",
+      "primary": "예시로 해보기",
+      "link": "링크 버튼",
+      "disabled": "비활성"
+    },
+    "iconButton": {
+      "star": "즐겨찾기에 추가",
+      "close": "닫기"
+    },
+    "eyebrow": {
+      "example": "과정을 보여 주는 AI 에이전트 팀"
+    },
+    "card": {
+      "title": "질문하기",
+      "body": "평소 말투로 물어보세요. 팀이 계산하고, 읽고, 검증한 뒤 출처가 달린 보고서를 드립니다."
+    },
+    "chip": {
+      "neutral": "어느 역이 가장 빨리 성장했나요?",
+      "accent": "하운드",
+      "ok": "✓ 확인됨",
+      "bad": "✗ 다름",
+      "warn": "! 증명 안 됨"
+    }
+  },
+  "dev": {
+    "components": {
+      "title": "기본 컴포넌트",
+      "lede": "모든 변형과 크기입니다. 760px 미만으로 줄여 44px 터치 영역을 확인하세요.",
+      "pageTheme": "페이지 테마: {theme}",
+      "light": "라이트",
+      "dark": "다크",
+      "buttons": "버튼",
+      "sizes": "크기",
+      "iconButtons": "아이콘 버튼",
+      "eyebrow": "아이브로",
+      "card": "카드",
+      "chips": "칩",
+      "demoNotice": "데모 안내",
+      "themes": "두 테마 나란히 보기"
+    },
+    "mock": {
+      "title": "목업 데이터",
+      "lede": "web/mocks의 데이터를 타입이 있는 함수로 읽습니다.",
+      "report": "보고서 rep_01 (질문)",
+      "check": "보고서 rep_02 (문서 확인)",
+      "session": "세션 (dev_session 쿠키)",
+      "signedIn": "로그인됨",
+      "signedOut": "로그아웃됨",
+      "switchLabel": "개발용 세션",
+      "switchTo": "{state}(으)로 전환",
+      "claims": "주장",
+      "shareLinks": "공유 링크",
+      "uploads": "업로드",
+      "people": "검색 가능한 사람",
+      "notFound": "찾을 수 없음"
+    }
+  }
+}

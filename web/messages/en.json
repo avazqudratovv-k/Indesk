@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "brand": "Indesk",
+    "main": "Main",
+    "home": "Home",
+    "workspace": "Workspace",
+    "people": "People",
+    "myReports": "My reports",
+    "plans": "Plans",
+    "login": "Log in",
+    "signup": "Sign up",
+    "account": "Account: {name}"
+  },
+  "tabBar": {
+    "label": "Main",
+    "home": "Home",
+    "workspace": "Workspace",
+    "my": "My",
+    "plans": "Plans"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "theme": {
+    "dark": "Dark theme"
+  },
+  "footer": {
+    "tagline": "Indesk · field notes for your files"
+  },
+  "demoNotice": {
+    "text": "Indesk is a demo. Do not upload private or sensitive files."
+  },
+  "ui": {
+    "button": {
+      "default": "Default",
+      "ink": "Ink",
+      "primary": "Try with an example",
+      "link": "Link button",
+      "disabled": "Disabled"
+    },
+    "iconButton": {
+      "star": "Mark as favourite",
+      "close": "Close"
+    },
+    "eyebrow": {
+      "example": "A team of AI agents that shows its work"
+    },
+    "card": {
+      "title": "Ask a question",
+      "body": "Ask in your own words. The team computes, reads and checks, then hands you a cited report."
+    },
+    "chip": {
+      "neutral": "Which stations grew fastest?",
+      "accent": "Hound",
+      "ok": "✓ verified",
+      "bad": "✗ differs",
+      "warn": "! not proven"
+    }
+  },
+  "dev": {
+    "components": {
+      "title": "Base components",
+      "lede": "Every variant and size. Resize below 760 px to check 44 px touch targets.",
+      "pageTheme": "Page theme: {theme}",
+      "light": "light",
+      "dark": "dark",
+      "buttons": "Button",
+      "sizes": "Sizes",
+      "iconButtons": "Icon button",
+      "eyebrow": "Eyebrow",
+      "card": "Card",
+      "chips": "Chip",
+      "demoNotice": "Demo notice",
+      "themes": "Both themes side by side"
+    },
+    "mock": {
+      "title": "Mock data",
+      "lede": "Read from web/mocks through typed functions.",
+      "report": "Report rep_01 (Ask)",
+      "check": "Report rep_02 (Check)",
+      "session": "Session (dev_session cookie)",
+      "signedIn": "signed in",
+      "signedOut": "signed out",
+      "switchLabel": "Dev session",
+      "switchTo": "Switch to {state}",
+      "claims": "Claims",
+      "shareLinks": "Share links",
+      "uploads": "Uploads",
+      "people": "Discoverable people",
+      "notFound": "Not found"
+    }
+  }
+}
