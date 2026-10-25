@@ -3,9 +3,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI
 
+from app.core.bodylimit import MULTIPART_OVERHEAD, BodyLimitMiddleware
 from app.core.config import get_settings
 from app.core.errors import register_error_handlers
-from app.routers import auth, health, me
+from app.routers import auth, health, me, uploads
 from app.routers.deps import check_write_request
 
 
@@ -25,6 +26,13 @@ app = FastAPI(
     dependencies=[Depends(check_write_request)],
 )
 register_error_handlers(app)
+app.add_middleware(
+    BodyLimitMiddleware,
+    method="POST",
+    path="/api/uploads",
+    limit=lambda: get_settings().limits.max_file_bytes + MULTIPART_OVERHEAD,
+)
 app.include_router(health.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(me.router, prefix="/api")
+app.include_router(uploads.router, prefix="/api")

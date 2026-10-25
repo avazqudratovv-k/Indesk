@@ -1,11 +1,41 @@
 import ipaddress
+import tomllib
 from functools import lru_cache
+from pathlib import Path
 from typing import Annotated, Literal
 
-from pydantic import SecretStr, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PositiveInt,
+    SecretStr,
+    field_validator,
+    model_validator,
+)
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 AUTH_SECRET_MIN_LENGTH = 32
+LIMITS_FILE = Path(__file__).resolve().parents[2] / "config" / "limits.toml"
+
+
+class Limits(BaseModel):
+    """Product limits from config/limits.toml, where each number names its source doc."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    max_file_bytes: PositiveInt
+    max_rows: PositiveInt
+    max_columns: PositiveInt | None = None  # unset until the owner decides (no doc gives a number)
+    max_filename_chars: PositiveInt
+    upload_ttl_hours: PositiveInt
+    sweep_interval_seconds: PositiveInt
+    files_per_slot: dict[str, PositiveInt]
+
+
+def load_limits(path: Path = LIMITS_FILE) -> Limits:
+    with path.open("rb") as handle:
+        return Limits.model_validate(tomllib.load(handle))
 
 
 def _split_commas(value: object) -> object:
@@ -29,6 +59,9 @@ class Settings(BaseSettings):
     allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:3000"]
     # Comma-separated IPs or CIDRs of reverse proxies whose X-Forwarded-For is believed.
     trusted_proxies: Annotated[list[str], NoDecode] = []
+    # Where uploaded files live. A named volume shared by the api and the worker.
+    storage_dir: Path = Path("/data/uploads")
+    limits: Limits = Field(default_factory=load_limits)
 
     @property
     def auth_ready(self) -> bool:

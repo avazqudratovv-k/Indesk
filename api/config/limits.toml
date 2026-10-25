@@ -1,0 +1,29 @@
+# Product limits: the one place the server reads them from (ROADMAP 3.6). Every number names the doc it came from.
+# web/lib/workspace/validate.ts and web/mocks/plans.json still hold their own copies of some of these.
+
+# Largest upload in bytes, Free plan: 5 MB. DECISIONS #79 (replaces the 2 MB in the old DATA.md); DATA.md uploads.size.
+max_file_bytes = 5242880
+
+# Most data rows (header not counted) in a CSV, Free plan. DATA.md uploads.row_count.
+max_rows = 5000
+
+# max_columns is NOT SET on purpose: no doc gives a number (open question in the P4 report).
+# While it is unset the column count is not limited. Add `max_columns = <n>` once the owner decides.
+
+# Longest display filename in characters. DATA.md uploads.filename "max 255 (rec)", accepted by DECISIONS #25.
+max_filename_chars = 255
+
+# Hours an upload lives before the sweep deletes it. DATA.md uploads.expires_at "created_at + 24 h"; DECISIONS #15.
+upload_ttl_hours = 24
+
+# Seconds between expiry sweeps. ROADMAP 3.16 "hourly and daily sweeps".
+sweep_interval_seconds = 3600
+
+# Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
+# the run endpoint will read these.
+[files_per_slot]
+files = 5
+document = 1
+sources = 4
+fileA = 1
+fileB = 1
