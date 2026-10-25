@@ -1,12 +1,16 @@
 .card {
+  composes: surface from "../plans/surface.module.css";
   display: flex;
   flex-direction: column;
   gap: 16px;
   box-sizing: border-box;
   padding: 24px 26px;
   border: 1px solid var(--accent);
-  border-radius: 14px;
-  background: var(--card);
+  box-shadow: 0 0 0 1px var(--accent), 0 24px 60px -34px var(--glow);
+}
+
+/* Board inline box-shadow beats the theme shadow in both themes. */
+:global([data-theme="dark"]) .card {
   box-shadow: 0 0 0 1px var(--accent), 0 24px 60px -34px var(--glow);
 }
 
@@ -49,6 +53,6 @@
 
 @media (max-width: 760px) {
   .card {
-    padding: 20px;
+    padding: 24px 20px;
   }
 }

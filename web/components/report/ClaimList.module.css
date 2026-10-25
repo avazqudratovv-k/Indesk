@@ -43,7 +43,12 @@
   list-style: none;
 }
 
+/* Board quirk kept: `.dd main section{padding-inline:20px}` also hits this wrapper, so rows sit 20 px further in on phones. */
 @media (max-width: 760px) {
+  .section {
+    padding: 0 20px;
+  }
+
   .check {
     min-height: 44px;
   }

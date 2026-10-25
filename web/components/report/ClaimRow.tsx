@@ -36,9 +36,15 @@ export default function ClaimRow({ claim, evidence, selectedRef, open, onPick }:
         <span className={styles.number}>{padNumber(claim.n)}</span>
         <span className={styles.text}>{claim.text}</span>
         <span className={`${styles.badge} ${proven ? styles.ok : styles.bad}`}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            {proven ? <path d="M2.5 7.5 5.5 10.5 11.5 3.5" /> : <path d="M7 3v5M7 11v.01" />}
-          </svg>
+          {proven ? (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M5 12.5l5 5 9-10" />
+            </svg>
+          ) : (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" aria-hidden="true">
+              <path d="M12 5v9M12 19v.5" />
+            </svg>
+          )}
           {t(proven ? "detailed.verified" : "detailed.unverified")}
         </span>
       </div>

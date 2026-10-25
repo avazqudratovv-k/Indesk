@@ -31,7 +31,7 @@ export default function EvidencePanel({ view, variant }: { view: EvidenceView | 
   const source = view.location ? t("source", { file: view.fileName, location: view.location }) : t("sourceFile", { file: view.fileName });
   const { table } = view;
   return (
-    <aside className={root} aria-label={t("title")}>
+    <aside key={view.ref} className={root} aria-label={t("title")}>
       <div className={styles.eyebrow}>{t("title")}</div>
       <div>
         <span className={styles.kind} style={{ "--kind": kindColor[view.type] ?? "var(--accent)" } as React.CSSProperties}>

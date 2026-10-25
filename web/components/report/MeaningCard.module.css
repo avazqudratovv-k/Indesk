@@ -1,12 +1,9 @@
 .card {
+  composes: surface from "../plans/surface.module.css";
   display: flex;
   flex-direction: column;
   min-width: 0;
   box-sizing: border-box;
-  border: 1px solid var(--rule2);
-  border-radius: 14px;
-  background: var(--card);
-  color: var(--ink);
   gap: 10px;
   padding: 22px 24px;
 }
@@ -27,6 +24,6 @@
 
 @media (max-width: 760px) {
   .card {
-    padding: 20px;
+    padding: 22px 20px;
   }
 }

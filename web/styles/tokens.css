@@ -143,4 +143,5 @@
   --report-ok: #0E7A4F;
   --report-bad: #B3261E;
   --report-mute: #6B7088;
+  --report-shadow: rgba(20, 20, 60, 0.45);
 }

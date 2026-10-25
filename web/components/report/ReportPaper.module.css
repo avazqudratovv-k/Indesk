@@ -8,7 +8,7 @@
   border-top: 8px solid var(--accent);
   border-radius: 6px;
   background: var(--report-paper);
-  box-shadow: 0 30px 60px -30px color-mix(in srgb, var(--report-ink) 45%, transparent);
+  box-shadow: 0 30px 60px -30px var(--report-shadow);
   color: var(--report-ink);
 }
 
@@ -105,7 +105,7 @@
   text-transform: uppercase;
 }
 
-/* Board: paper breakpoint is 700 px; 760 here like the rest of the app (DESIGN.md). The stamp leaves the corner and sits in the flow. */
+/* Board: paper breakpoint is 700 px; 760 here like the rest of the app (DESIGN.md). The stamp leaves the corner, sits in the flow and tilts -4deg. */
 @media (max-width: 760px) {
   .paper {
     padding: 26px 20px;
@@ -115,10 +115,12 @@
     position: static;
     display: inline-block;
     margin: 6px 0 20px;
+    transform: rotate(-4deg);
   }
 
+  /* Board: the board's own 30 px loses to `.dd h1{font-size:40px!important}`, so phones show 40 px. */
   .title {
-    font-size: 30px;
+    font-size: 40px;
   }
 
   .row {

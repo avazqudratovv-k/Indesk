@@ -4,22 +4,25 @@
   flex-direction: column;
   min-width: 0;
   box-sizing: border-box;
-  border: 1px solid var(--rule2);
-  border-radius: 14px;
-  background: var(--card);
   color: var(--ink);
   gap: 14px;
   padding: 22px;
+  /* Board `.ev`: the panel rises in when a chip is picked (keyed on the evidence in the component). */
+  animation: rise 0.35s ease-out;
 }
 
 /* Board: right-hand panel, 340 px or more beside the article. */
 .aside {
+  composes: surface from "../plans/surface.module.css";
   flex: 1 1 340px;
 }
 
 /* Phones: the panel opens under the claim instead (the aside is hidden). */
 .inline {
   display: none;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: var(--card);
 }
 
 @media (max-width: 760px) {
@@ -31,6 +34,25 @@
     display: flex;
     padding: 18px;
     background: var(--paper2);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aside,
+  .inline {
+    animation: none;
   }
 }
 
