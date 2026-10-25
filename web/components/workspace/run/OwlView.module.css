@@ -15,6 +15,7 @@
 .h3 {
   margin: 0;
   font-size: 16px;
+  font-weight: 500;
 }
 
 .note {
@@ -31,7 +32,12 @@
   margin: 0;
   padding: 10px 12px;
   border-radius: 14px;
-  background: var(--card);
+  /* Board: a card on a pane is the card colour at 68%, blurred behind, with the shadow token. */
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  /* The prefixed line must come first: the CSS build drops the standard one when it comes before it. */
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
   font-size: 14px;
   line-height: 1.5;
 }

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="270" viewBox="0 0 400 270" role="img" aria-label="Photo of a bar chart">
+<!-- Static drawing of the chart photo from the Workspace board. Its own colours on purpose: it stands for a photo, not UI. Outlines and value tags are drawn over it in React (ChameleonView). -->
+<defs><clipPath id="c"><rect width="400" height="270" rx="14"/></clipPath></defs>
+<g clip-path="url(#c)"><rect width="400" height="270" fill="#3A3A44"/>
+<g transform="rotate(-2 200 135)"><rect x="22.5" y="14.5" width="355" height="241" rx="6" fill="#F3ECDC" stroke="#CFC4AA"/>
+<text x="40" y="35" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#3A3426">Seoul subway ridership growth (%), 2019–2025</text>
+<rect x="44" y="52" width="1.5" height="166" fill="#7A705A"/>
+<rect x="44" y="218" width="318" height="1.5" fill="#7A705A"/>
+<path d="M54 218V80Q54 74 60 74H77Q80 74 80 77V218Z" fill="#C98A3C"/>
+<text x="67" y="228" font-family="Helvetica, Arial, sans-serif" font-size="7" text-anchor="middle" fill="#3A3426">Hapjeong</text>
+<path d="M92 218V88Q92 82 98 82H115Q118 82 118 85V218Z" fill="#C98A3C"/>
+<text x="105" y="228" font-family="Helvetica, Arial, sans-serif" font-size="7" text-anchor="middle" fill="#3A3426">Seongsu</text>
+<path d="M130 218V112Q130 106 136 106H153Q156 106 156 109V218Z" fill="#C98A3C"/>
+<text x="143" y="228" font-family="Helvetica, Arial, sans-serif" font-size="7" text-anchor="middle" fill="#3A3426">Magok</text>
+<path d="M168 218V168Q168 162 174 162H191Q194 162 194 165V218Z" fill="#C98A3C"/>
+<text x="181" y="228" font-family="Helvetica, Arial, sans-serif" font-size="7" text-anchor="middle" fill="#3A3426">Gangnam</text>
+<path d="M206 218V171Q206 165 212 165H229Q232 165 232 168V218Z" fill="#C98A3C"/>
+<text x="219" y="228" font-family="Helvetica, Arial, sans-serif" font-size="7" text-anchor="middle" fill="#3A3426">Jamsil</text>
+<path d="M244 218V202Q244 196 250 196H267Q270 196 270 199V218Z" fill="#C98A3C"/>
+<text x="257" y="228" font-family="Helvetica, Arial, sans-serif" font-size="7" text-anchor="middle" fill="#3A3426">Itaewon</text>
+<path d="M282 218V208Q282 202 288 202H305Q308 202 308 205V218Z" fill="#C98A3C"/>
+<text x="295" y="228" font-family="Helvetica, Arial, sans-serif" font-size="7" text-anchor="middle" fill="#3A3426">Sinchon</text>
+<path d="M320 218V212Q320 206 326 206H343Q346 206 346 209V218Z" fill="#C98A3C"/>
+<text x="333" y="228" font-family="Helvetica, Arial, sans-serif" font-size="7" text-anchor="middle" fill="#3A3426">Yongsan</text>
+</g></g></svg>

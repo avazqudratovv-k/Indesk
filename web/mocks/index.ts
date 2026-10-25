@@ -1,5 +1,5 @@
 // Typed read functions over web/mocks/*.json (ROADMAP 1.7). Screens call these until the API exists (section 4 swaps them).
-import type { ArtifactRecord } from "@/lib/run/artifacts";
+import type { ArtifactDetail, ArtifactRecord } from "@/lib/run/artifacts";
 import type { RunEvent, RunScenario } from "@/lib/run/mock-run";
 import type { Claim, CustomPlanOffer, PlanOffer, Evidence, PersonResult, Report, ShareLink, ShareLinkState, Upload, User } from "@/lib/types";
 import claimsFile from "./claims.json";
@@ -96,4 +96,9 @@ export function getMockRunScript(scenario: RunScenario): RunEvent[] {
 // What each agent produced in that scripted run (ROADMAP 2.6b). Also invented, also not from the user's files.
 export function getMockRunArtifacts(scenario: RunScenario): ArtifactRecord {
   return (runArtifactsFile.records as unknown as Record<RunScenario, ArtifactRecord>)[scenario];
+}
+
+// The same run's per-agent detail (photo, code, table, passages), shared by all three scenarios.
+export function getMockRunDetail(): ArtifactDetail {
+  return (runArtifactsFile as unknown as { detail: ArtifactDetail }).detail;
 }

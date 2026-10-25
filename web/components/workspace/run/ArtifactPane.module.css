@@ -22,3 +22,19 @@
   color: var(--ink2);
   transform: rotate(-3deg);
 }
+
+/* Beaver's code pane: --code / --codeInk are the board's tokens. The four extra colours are the board's own light
+   code-pane colours (header, muted line, output, divider); there are no tokens for them, so they live here once. */
+.code {
+  --codeHead: #c9d0f0;
+  --codeMute: #a8b1d8;
+  --codeOk: #7fe3b5;
+  --codeRule: #2e2b4a;
+  background: var(--code);
+  color: var(--codeInk);
+}
+
+.code .stamp {
+  border-color: var(--codeMute);
+  color: var(--codeMute);
+}

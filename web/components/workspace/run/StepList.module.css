@@ -12,6 +12,7 @@
   align-items: center;
   gap: 12px;
   font-size: 14.5px;
+  line-height: 1.45;
   color: var(--ink2);
 }
 
@@ -44,12 +45,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   box-sizing: border-box;
   border: 2px solid var(--rule2);
   border-radius: 50%;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
 }
 

@@ -5,8 +5,11 @@ import { useTranslations } from "next-intl";
 import { deriveArtifacts } from "@/lib/run/artifacts";
 import { RUN_AGENTS, type AgentView, type RunAgent, type RunEvent, type RunScenario } from "@/lib/run/mock-run";
 import AgentTabs, { panelId, tabId } from "./AgentTabs";
+import BeaverView from "./BeaverView";
 import CatView from "./CatView";
+import ChameleonView from "./ChameleonView";
 import HandoverCard from "./HandoverCard";
+import HoundView from "./HoundView";
 import OwlView from "./OwlView";
 import { tabStatus } from "./agent-status";
 import styles from "./AgentWork.module.css";
@@ -30,7 +33,6 @@ function autoAgent(events: RunEvent[], step: number, finished: boolean, agents: 
 // the section follows the active agent. RunLive keys this component by run round, so Replay and Retry reset it.
 export default function AgentWork({ agents, events, step, scenario, finished }: Props) {
   const t = useTranslations("workspace");
-  const home = useTranslations("home.team");
   const prefix = useId();
   const [pinned, setPinned] = useState<RunAgent | null>(null);
   const selected = pinned ?? autoAgent(events, step, finished, agents, scenario);
@@ -66,9 +68,12 @@ export default function AgentWork({ agents, events, step, scenario, finished }: 
           <OwlView artifacts={artifacts} finished={finished} />
         ) : selected === "cat" ? (
           <CatView artifacts={artifacts} />
+        ) : selected === "chameleon" ? (
+          <ChameleonView artifacts={artifacts} />
+        ) : selected === "beaver" ? (
+          <BeaverView artifacts={artifacts} />
         ) : (
-          // TODO 2.6b-2: Chameleon, Beaver and Hound views. Temporary, English only, so tabs and handover can be tested.
-          <p className={styles.todo}>TODO 2.6b-2: the {home(`${selected}.name`)} view is not built yet. Temporary placeholder.</p>
+          <HoundView artifacts={artifacts} finished={finished} />
         )}
       </div>
     </section>

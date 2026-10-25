@@ -673,7 +673,7 @@
         "partial": {
           "label": "Partial",
           "head": "Hound found no passages",
-          "body": "4 of 6 statements are verified. The 2 that need passages from the report are marked unverified."
+          "body": "4 of 6 statements are verified. The 2 that need passages from the PDF are marked unverified."
         },
         "notAnswerable": {
           "label": "Not answerable",
@@ -804,6 +804,59 @@
         "percent": "{value, number, percent}",
         "pageScore": "p. {page} · {score}",
         "yes": "yes"
+      },
+      "chameleon": {
+        "photoTitle": "The photo, as Chameleon saw it",
+        "photoAria": "A photo of a bar chart with detected bars and text outlined",
+        "photoScroll": "Chart photo, scrolls sideways on a narrow screen",
+        "legendBar": "Detected bar",
+        "legendText": "Detected text",
+        "readTitle": "What it read",
+        "note": "OCR reads printed text. A vision model estimates bar heights when a label is missing. Low-confidence reads are flagged.",
+        "sourceOcr": "OCR",
+        "sourceVision": "Vision",
+        "confidence": "Confidence",
+        "rows": {
+          "axisLabel": "Axis label: Growth %",
+          "barHeight": "Bar {n, number} height → {value}",
+          "barHeightEstimated": "Bar {n, number} height → {value} (no label, estimated)",
+          "restLower": "Remaining {count, number} bars: all lower than {max, number}"
+        }
+      },
+      "beaver": {
+        "codeTitle": "Code written by Beaver",
+        "codeScroll": "Python code, scrolls sideways on a narrow screen",
+        "sandbox": "Sandbox: no network, 5 s CPU limit",
+        "tableTitle": "The table it produced",
+        "colStation": "Station",
+        "colGrowth": "Growth",
+        "unit": "Riders per day. Top three highlighted.",
+        "outRows": "{count, number} rows",
+        "outSeconds": "{value} s",
+        "outMemory": "{value} MB",
+        "outNetwork": "network: blocked"
+      },
+      "hound": {
+        "howTitle": "How Hound searched",
+        "queryLabel": "Search query",
+        "matchesTitle": "Passages it found",
+        "topOf": "Top {shown, number} of {total, number}",
+        "searching": "Searching 214 chunks…",
+        "pageOf": "{file} · p. {page, number}",
+        "keywords": "Keywords",
+        "meaning": "Meaning",
+        "combined": "Combined",
+        "tags": {
+          "best": "Best match",
+          "related": "Related",
+          "context": "Context"
+        },
+        "steps": {
+          "split": "Split the PDF into 214 small chunks",
+          "keyword": "Keyword search (exact words) → top 20",
+          "meaning": "Meaning search (embeddings) → top 20",
+          "merge": "Merge both lists → keep the best 3"
+        }
       }
     }
   }

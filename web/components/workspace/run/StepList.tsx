@@ -5,8 +5,8 @@ export type StepState = "done" | "todo" | "notReached";
 export type StepItem = { id: string; text: string; state: StepState };
 
 // A numbered checklist: a step shows a check once it is done, its number until then. A step still open when the run
-// has ended can never run, so it reads "Not reached" (text and a dashed dash mark, not colour alone). Owl's plan uses
-// it now and Hound's retrieval steps will (2.6b-2). The state is also written for assistive tech, not only drawn.
+// has ended can never run, so it reads "Not reached" (text and a dashed dash mark, not colour alone). Owl's plan and
+// Hound's retrieval steps use it. The state is also written for assistive tech, not only drawn.
 export default function StepList({ items }: { items: StepItem[] }) {
   const t = useTranslations("workspace");
   return (

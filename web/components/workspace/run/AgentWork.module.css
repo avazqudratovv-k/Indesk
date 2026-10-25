@@ -81,16 +81,6 @@
   background: var(--badBg);
 }
 
-.todo {
-  margin: 0;
-  padding: 16px 18px;
-  border: 2px dashed var(--warn);
-  border-radius: 14px;
-  background: var(--warnBg);
-  font: 600 13.5px var(--mono);
-  color: var(--ink);
-}
-
 @keyframes rise {
   from {
     opacity: 0;

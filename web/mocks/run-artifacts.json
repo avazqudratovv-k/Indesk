@@ -212,7 +212,7 @@
           {
             "label": "passagesMatched",
             "value": {
-              "number": 2
+              "number": 5
             },
             "after": "bestPassage"
           },
@@ -600,7 +600,7 @@
           {
             "label": "passagesMatched",
             "value": {
-              "number": 2
+              "number": 5
             },
             "after": "bestPassage"
           },
@@ -638,6 +638,237 @@
           }
         ]
       }
+    }
+  },
+  "_detail_note": "`detail` is shared by all three scenarios (what an agent shows does not depend on the scenario, only on which events happened). `after` is an event key or a list of keys (any one reveals it): failed runs use other keys for Beaver's event, so Hound's early steps list both. Hound: search(k=5) returned 5 passages, the pane shows the best 3 (same 5 as handover 'Passages matched' and the trace line). The 0.84 s / 41 MB / 3,640 rows are invented and sit under the Example stamp. Doc content (passage text, file names, query) is not translated.",
+  "detail": {
+    "chameleon": {
+      "file": "ridership-chart-photo.jpg",
+      "textBox": {
+        "left": 12,
+        "top": 6,
+        "width": 262,
+        "height": 22,
+        "after": "ocr"
+      },
+      "bars": [
+        {
+          "name": "Hapjeong",
+          "value": 18
+        },
+        {
+          "name": "Seongsu",
+          "value": 17
+        },
+        {
+          "name": "Magok",
+          "value": 14
+        },
+        {
+          "name": "Gangnam",
+          "value": 7
+        },
+        {
+          "name": "Jamsil",
+          "value": 6.6
+        },
+        {
+          "name": "Itaewon",
+          "value": 2.7
+        },
+        {
+          "name": "Sinchon",
+          "value": 2
+        },
+        {
+          "name": "Yongsan",
+          "value": 1.5
+        }
+      ],
+      "barBoxesAfter": "ocr",
+      "valueTagsAfter": "chartValues",
+      "rows": [
+        {
+          "source": "ocr",
+          "text": "Seoul subway ridership growth (%), 2019–2025",
+          "conf": "0.98",
+          "after": "ocr"
+        },
+        {
+          "source": "ocr",
+          "text": "Hapjeong · Seongsu · Magok",
+          "conf": "0.96",
+          "after": "ocr"
+        },
+        {
+          "source": "ocr",
+          "msg": "axisLabel",
+          "conf": "0.94",
+          "after": "ocr"
+        },
+        {
+          "source": "vision",
+          "msg": "barHeight",
+          "args": {
+            "n": 1,
+            "value": "18.0"
+          },
+          "conf": "0.93",
+          "after": "chartValues"
+        },
+        {
+          "source": "vision",
+          "msg": "barHeight",
+          "args": {
+            "n": 2,
+            "value": "17.0"
+          },
+          "conf": "0.92",
+          "after": "chartValues"
+        },
+        {
+          "source": "vision",
+          "msg": "barHeightEstimated",
+          "args": {
+            "n": 3,
+            "value": "14.0"
+          },
+          "conf": "0.88",
+          "after": "chartValues"
+        },
+        {
+          "source": "vision",
+          "msg": "restLower",
+          "args": {
+            "count": 5,
+            "max": 8
+          },
+          "conf": "0.90",
+          "after": "chartValues"
+        }
+      ]
+    },
+    "beaver": {
+      "code": [
+        "df = pd.read_csv(\"seoul-subway-ridership.csv\")",
+        "by = df.pivot_table(index=\"station\",",
+        "        columns=\"year\", values=\"riders\")",
+        "growth = (by[2025] / by[2019] - 1) * 100",
+        "top = growth.nlargest(6).round(1)"
+      ],
+      "codeAfter": "runPython",
+      "tableAfter": "top3",
+      "output": {
+        "rows": 3640,
+        "seconds": "0.84",
+        "mb": 41
+      },
+      "rows": [
+        {
+          "station": "Hapjeong",
+          "a": "52,100",
+          "b": "61,600",
+          "growth": 18.2
+        },
+        {
+          "station": "Seongsu",
+          "a": "48,300",
+          "b": "56,460",
+          "growth": 16.9
+        },
+        {
+          "station": "Magok",
+          "a": "30,200",
+          "b": "34,460",
+          "growth": 14.1
+        },
+        {
+          "station": "Gangnam",
+          "a": "98,400",
+          "b": "105,300",
+          "growth": 7.0
+        },
+        {
+          "station": "Jamsil",
+          "a": "71,500",
+          "b": "76,200",
+          "growth": 6.6
+        },
+        {
+          "station": "Itaewon",
+          "a": "40,800",
+          "b": "41,900",
+          "growth": 2.7
+        }
+      ],
+      "highlight": 3
+    },
+    "hound": {
+      "query": "ridership growth by station",
+      "file": "city-transport-report-2025.pdf",
+      "matched": 5,
+      "steps": [
+        {
+          "id": "split",
+          "after": [
+            "runPython",
+            "runPythonFailed"
+          ]
+        },
+        {
+          "id": "keyword",
+          "after": [
+            "runPython",
+            "runPythonFailed"
+          ]
+        },
+        {
+          "id": "meaning",
+          "after": [
+            "chartValues"
+          ]
+        },
+        {
+          "id": "merge",
+          "after": [
+            "bestPassage"
+          ]
+        }
+      ],
+      "searchingAfter": "search",
+      "passagesAfter": "bestPassage",
+      "passages": [
+        {
+          "page": 12,
+          "tag": "best",
+          "pre": "Between 2019 and 2025, average weekday boardings at ",
+          "hl": "Hapjeong, Seongsu and Magok stations grew faster than any other station",
+          "post": " on the network, led by new office and studio openings nearby.",
+          "keyword": 0.62,
+          "meaning": 0.81,
+          "combined": 0.74
+        },
+        {
+          "page": 9,
+          "tag": "related",
+          "pre": "Line extensions opened in 2022 serve the western corridor, but ",
+          "hl": "the report does not attribute station-level changes to any single project",
+          "post": ".",
+          "keyword": 0.41,
+          "meaning": 0.7,
+          "combined": 0.58
+        },
+        {
+          "page": 14,
+          "tag": "context",
+          "pre": "Table 3 lists ",
+          "hl": "ridership by station",
+          "post": " for the 20 busiest stops.",
+          "keyword": 0.55,
+          "meaning": 0.52,
+          "combined": 0.53
+        }
+      ]
     }
   }
 }

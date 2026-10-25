@@ -673,7 +673,7 @@
         "partial": {
           "label": "일부 완료",
           "head": "Hound가 구절을 찾지 못함",
-          "body": "6개 중 4개가 검증되었습니다. 보고서의 구절이 필요한 2개 진술은 “미검증”으로 표시됩니다."
+          "body": "6개 중 4개가 검증되었습니다. PDF의 구절이 필요한 2개 진술은 “미검증”으로 표시됩니다."
         },
         "notAnswerable": {
           "label": "답할 수 없음",
@@ -804,6 +804,59 @@
         "percent": "{value, number, percent}",
         "pageScore": "{page}쪽 · {score}",
         "yes": "예"
+      },
+      "chameleon": {
+        "photoTitle": "카멜레온이 본 사진",
+        "photoAria": "감지된 막대와 글자에 윤곽이 표시된 막대그래프 사진",
+        "photoScroll": "차트 사진, 좁은 화면에서는 옆으로 스크롤됩니다",
+        "legendBar": "감지한 막대",
+        "legendText": "감지한 글자",
+        "readTitle": "읽어낸 내용",
+        "note": "OCR은 인쇄된 글자를 읽고, 비전 모델은 라벨이 없을 때 막대 높이를 추정합니다. 신뢰도가 낮은 값은 표시됩니다.",
+        "sourceOcr": "OCR",
+        "sourceVision": "비전",
+        "confidence": "신뢰도",
+        "rows": {
+          "axisLabel": "축 이름: 성장률 %",
+          "barHeight": "막대 {n, number} 높이 → {value}",
+          "barHeightEstimated": "막대 {n, number} 높이 → {value} (라벨 없음, 추정)",
+          "restLower": "나머지 막대 {count, number}개: 모두 {max, number} 미만"
+        }
+      },
+      "beaver": {
+        "codeTitle": "비버가 작성한 코드",
+        "codeScroll": "파이썬 코드, 좁은 화면에서는 옆으로 스크롤됩니다",
+        "sandbox": "샌드박스: 네트워크 없음, CPU 5초 제한",
+        "tableTitle": "생성된 표",
+        "colStation": "역",
+        "colGrowth": "성장률",
+        "unit": "일일 이용객 수. 상위 3개 강조.",
+        "outRows": "{count, number}행",
+        "outSeconds": "{value}초",
+        "outMemory": "{value} MB",
+        "outNetwork": "네트워크: 차단됨"
+      },
+      "hound": {
+        "howTitle": "사냥개가 찾은 방법",
+        "queryLabel": "검색어",
+        "matchesTitle": "찾아낸 구절",
+        "topOf": "{total, number}개 중 상위 {shown, number}개",
+        "searching": "조각 214개를 검색하는 중…",
+        "pageOf": "{file} · {page, number}쪽",
+        "keywords": "키워드",
+        "meaning": "의미",
+        "combined": "종합",
+        "tags": {
+          "best": "최고 일치",
+          "related": "관련",
+          "context": "배경"
+        },
+        "steps": {
+          "split": "PDF를 작은 조각 214개로 나눔",
+          "keyword": "키워드 검색(정확한 단어) → 상위 20개",
+          "meaning": "의미 검색(임베딩) → 상위 20개",
+          "merge": "두 목록을 합쳐 상위 3개 유지"
+        }
       }
     }
   }
