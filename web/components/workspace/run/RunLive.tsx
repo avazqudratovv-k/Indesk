@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { countAgentsDone, RUN_AGENTS, sumTokens, type RunScenario } from "@/lib/run/mock-run";
 import type { RunSummary } from "../AskPanel";
 import AgentTimeline from "./AgentTimeline";
+import AgentWork from "./AgentWork";
 import FailureBar from "./FailureBar";
 import GuardrailsPanel from "./GuardrailsPanel";
 import LiveTrace from "./LiveTrace";
@@ -61,7 +62,7 @@ export default function RunLive({ run, scenario: initial, onBack, onRunningChang
             <span className={styles.note}>{t("live.stageNote")}</span>
           </div>
           <TeamStage agents={mock.agents} events={mock.events} step={mock.step} reportReady={reportReady} scenario={mock.scenario} finished={mock.finished} />
-          <AgentTimeline agents={mock.agents} reportReady={reportReady} />
+          <AgentTimeline agents={mock.agents} reportReady={reportReady} finished={mock.finished} />
         </div>
         <LiveTrace events={mock.events} step={mock.step} />
       </section>
@@ -69,6 +70,7 @@ export default function RunLive({ run, scenario: initial, onBack, onRunningChang
         {announcement}
       </p>
       <GuardrailsPanel />
+      <AgentWork key={`work-${mock.round}`} agents={mock.agents} events={mock.events} step={mock.step} scenario={mock.scenario} finished={mock.finished} />
       <OutcomeCards />
     </div>
   );

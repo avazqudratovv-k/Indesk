@@ -597,7 +597,8 @@
         "done": "Done",
         "skipped": "Skipped",
         "failed": "Failed",
-        "flagged": "{count, number} flagged"
+        "flagged": "{count, number} flagged",
+        "didNotRun": "Did not run"
       },
       "feedTitle": "Live trace",
       "feedEmpty": "The team is starting…",
@@ -642,10 +643,10 @@
         "runPythonFailed": "run_python(sandbox) → no answer after 35 s and one retry",
         "searchFailed": "search(\"ridership growth by station\", k=5) → no answer after 35 s and one retry",
         "stopped": "Run stopped: the data step failed. Nothing is shown as verified.",
-        "mergePartial": "Merging what is available. Claims that need the report stay unverified.",
-        "flagPartial": "verify(claim 4) → depends on the report, marked unverified",
-        "verdictPartial": "3 of 6 claims verified, 3 marked unverified.",
-        "readyPartial": "Partial report ready. 3 claims marked as unverified."
+        "mergePartial": "Merging what is available. Claims that need Hound's passages stay unverified.",
+        "flagPartial": "verify(claims 4, 6) → need passages from Hound, marked unverified",
+        "verdictPartial": "4 of 6 claims verified, 2 marked unverified.",
+        "readyPartial": "Partial report ready. 2 claims marked as unverified."
       },
       "ends": {
         "title": "How each agent can end",
@@ -671,8 +672,8 @@
         },
         "partial": {
           "label": "Partial",
-          "head": "Vision failed on page 3",
-          "body": "3 of 6 statements are verified. The ones that depend on page 3 are marked unverified."
+          "head": "Hound found no passages",
+          "body": "4 of 6 statements are verified. The 2 that need passages from the report are marked unverified."
         },
         "notAnswerable": {
           "label": "Not answerable",
@@ -709,17 +710,100 @@
       },
       "stamp": {
         "answered": "EXAMPLE 5/6",
-        "partial": "EXAMPLE 3/6"
+        "partial": "EXAMPLE 4/6"
       },
       "reportNode": {
         "name": "Report",
         "waiting": "Waiting",
-        "ready": "Ready"
+        "ready": "Ready",
+        "notReached": "Not reached"
       },
       "traceNote": "Example data: station names, figures and file details in this trace are placeholders.",
       "tilesTag": {
         "playback": "Demo playback",
         "example": "Example"
+      }
+    },
+    "artifacts": {
+      "title": "What each agent actually did",
+      "followActive": "Following the active agent. Click any tab to look closer at one agent.",
+      "followPinned": "You are looking at one agent. Press the button to follow whoever is working.",
+      "followBtn": "Follow the active agent",
+      "tabsLabel": "Agents",
+      "status": {
+        "working": "Working",
+        "done": "Done",
+        "flagged": "Flagged",
+        "waiting": "Waiting",
+        "failed": "Failed",
+        "didNotRun": "Did not run"
+      },
+      "states": {
+        "waiting": "Waiting for this agent to start…",
+        "failed": "No answer after 35 s and one retry.",
+        "didNotRun": "This agent did not run, because the run ended before its turn."
+      },
+      "handover": {
+        "title": "Hands over to the report",
+        "sub": "Structured results, never free text. The app draws every table and chart from these.",
+        "labels": {
+          "questionType": "Question type",
+          "agentsWoken": "Agents woken",
+          "claimsDrafted": "Claims drafted",
+          "valuesRead": "Values read",
+          "readConfidence": "Read confidence",
+          "boxesDrawn": "Boxes drawn",
+          "numbersComputed": "Numbers computed",
+          "rowsRead": "Rows read",
+          "method": "Method",
+          "passagesMatched": "Passages matched",
+          "bestMatch": "Best match",
+          "pagesSearched": "Pages searched",
+          "verified": "Verified",
+          "flagged": "Flagged",
+          "shownWithWarning": "Shown with a warning"
+        },
+        "none": "Not produced"
+      },
+      "owl": {
+        "planTitle": "The plan",
+        "steps": {
+          "read": "Read the question",
+          "classify": "Classify the question type",
+          "send": "Send work to Chameleon, Beaver and Hound",
+          "merge": "Merge results and draft {count, number} claims",
+          "handToCat": "Hand the claims to Cat for checking"
+        },
+        "done": "done",
+        "todo": "not done yet",
+        "typeTitle": "Question type",
+        "typeNote": "Owl sorts the question into a type with fixed rules and chooses which agents to call.",
+        "typeLabel": "Chosen type",
+        "notReached": "Not reached"
+      },
+      "types": {
+        "compareSources": "Compare sources"
+      },
+      "cat": {
+        "note": "Cat checks each claim against the evidence from the other agents. A claim with no support is flagged, not hidden.",
+        "listLabel": "Claims",
+        "evidenceLabel": "Evidence",
+        "ok": "Verified",
+        "unsupported": "Marked unverified"
+      },
+      "reasons": {
+        "matchesRow": "Matches the table row.",
+        "noSupportPage": "Not supported. The PDF on page {page} does not attribute changes to one project. Marked unverified.",
+        "chartMatches": "Chart values {values} match (within rounding).",
+        "namesAll": "The PDF names all three on page {page}.",
+        "needsHound": "Needs passages from Hound, who gave no answer. Marked unverified."
+      },
+      "values": {
+        "bars": "{count, plural, one {# bar} other {# bars}}",
+        "agentsOf": "{x, number} of {y, number}",
+        "percent": "{value, number, percent}",
+        "pageScore": "p. {page} · {score}",
+        "yes": "yes"
       }
     }
   }

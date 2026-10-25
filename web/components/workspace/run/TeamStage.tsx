@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { agentColor } from "@/components/home/agents";
 import { deriveFlow, owlBubble, type AgentView, type RunAgent, type RunEvent, type RunScenario } from "@/lib/run/mock-run";
 import AgentSprite from "./AgentSprite";
-import { statusKey } from "./agent-status";
+import { endedKey } from "./agent-status";
 import styles from "./TeamStage.module.css";
 
 type Vars = CSSProperties & Record<`--${string}`, string | number>;
@@ -82,17 +82,18 @@ export default function TeamStage({ agents, events, step, reportReady, scenario,
 
         {ORDER.map((id, index) => {
           const view = agents[id];
-          const key = statusKey(view);
+          const key = endedKey(view, finished);
           const [x, y, h] = POS[id];
           const bubble = id === "owl" ? (bubbleOwl ? t(`live.bubbles.${bubbleOwl}`) : "") : view.state === "working" ? t(`live.bubbles.${id}`) : "";
           const bad = key === "flagged" || key === "failed";
+          const idle = key === "didNotRun" ? "waiting" : key;
           const pool = view.state === "working" ? 1 : bad ? 0.7 : view.state === "done" ? 0.4 : 0;
           const live = view.state === "working" ? "on" : view.state === "waiting" ? "dim" : "";
           const bob = id === "owl" ? !!bubble : view.state === "working";
           const motion = bad ? styles.shake : bob ? styles.bob : "";
           const vars = { left: x, top: y, height: h, "--pc": bad ? "var(--bad)" : agentColor[id], "--po": pool } as Vars;
           return (
-            <div key={id} className={`${styles.node} ${styles[`s_${key}`]}`} style={vars}>
+            <div key={id} className={`${styles.node} ${styles[`s_${idle}`]}`} style={vars}>
               {bubble ? (
                 <div className={styles.bubble}>
                   {bubble}
@@ -102,7 +103,7 @@ export default function TeamStage({ agents, events, step, reportReady, scenario,
               <span className={`${styles.pool} ${view.state === "working" ? styles.poolRun : ""}`} />
               <span className={styles.mascot}>
                 <AgentSprite agent={id} live={live} size={62} phase={index} className={`${styles.sprite} ${motion}`} />
-                {view.state === "waiting" ? <span className={styles.zz}>z</span> : null}
+                {view.state === "waiting" && !finished ? <span className={styles.zz}>z</span> : null}
                 {view.state === "done" ? (
                   <svg className={styles.sparkle} width="15" height="15" viewBox="0 0 24 24">
                     <path d={SPARKLE} />
@@ -138,7 +139,7 @@ export default function TeamStage({ agents, events, step, reportReady, scenario,
           </span>
           <span className={styles.label}>
             <span className={styles.name}>{t("live.reportNode.name")}</span>
-            <span className={styles.status}>{t(reportReady ? "live.reportNode.ready" : "live.reportNode.waiting")}</span>
+            <span className={styles.status}>{t(reportReady ? "live.reportNode.ready" : finished ? "live.reportNode.notReached" : "live.reportNode.waiting")}</span>
           </span>
         </div>
 
