@@ -22,22 +22,8 @@
   color: var(--paper);
 }
 
-.select {
-  min-height: 44px;
-  padding: 0 8px;
-  border: 1px solid var(--rule2);
-  border-radius: 12px;
-  background: var(--card);
-  color: var(--ink);
-  font: 500 14px var(--sans);
-}
-
-@media (min-width: 760px) {
+@media (min-width: 761px) {
   .buttons {
     display: flex;
-  }
-
-  .select {
-    display: none;
   }
 }

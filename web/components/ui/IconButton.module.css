@@ -20,7 +20,7 @@
 }
 
 /* 40 px on desktop, 44 px touch target on mobile (DECISIONS #53). */
-@media (max-width: 759.98px) {
+@media (max-width: 760px) {
   .iconBtn {
     width: 44px;
     height: 44px;

@@ -11,6 +11,12 @@ export const localeLabels: Record<Locale, string> = {
   ko: "한국어",
 };
 
+// Full names for the mobile language menu, also in their own language.
+export const localeNames: Record<Locale, string> = {
+  en: "English",
+  ko: "한국어",
+};
+
 export function isLocale(value: string | undefined): value is Locale {
   return locales.some((locale) => locale === value);
 }

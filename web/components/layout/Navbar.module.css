@@ -23,6 +23,10 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  /* The 40 px mark sits in a 44 px touch target on phones. */
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
   color: var(--ink);
   text-decoration: none;
 }
@@ -76,6 +80,10 @@
   min-width: 0;
 }
 
+.right > a {
+  white-space: nowrap;
+}
+
 .avatar {
   display: inline-flex;
   align-items: center;
@@ -94,7 +102,7 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset, 0 10px 30px -12px var(--glow);
 }
 
-@media (min-width: 760px) {
+@media (min-width: 761px) {
   .inner {
     min-height: 70px;
     gap: 20px;
