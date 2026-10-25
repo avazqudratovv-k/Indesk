@@ -1,4 +1,5 @@
 import logging
+from enum import StrEnum
 from http import HTTPStatus
 
 from fastapi import FastAPI, Request
@@ -8,14 +9,46 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger("indesk.errors")
 
+
+class ErrorCode(StrEnum):
+    """Every code the API can return. The browser translates the code, never a raw message."""
+
+    # Framework-level.
+    VALIDATION_ERROR = "VALIDATION_ERROR"
+    NOT_FOUND = "NOT_FOUND"
+    METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED"
+    NOT_READY = "NOT_READY"
+    INTERNAL = "INTERNAL"
+    # Auth.
+    EMAIL_TAKEN = "EMAIL_TAKEN"
+    INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
+    RATE_LIMITED = "RATE_LIMITED"
+    UNAUTHENTICATED = "UNAUTHENTICATED"
+    # Uploads.
+    CONSENT_REQUIRED = "CONSENT_REQUIRED"
+    FILE_TOO_LARGE = "FILE_TOO_LARGE"
+    UNSUPPORTED_TYPE = "UNSUPPORTED_TYPE"
+    TYPE_MISMATCH = "TYPE_MISMATCH"
+    TOO_MANY_ROWS = "TOO_MANY_ROWS"
+    EMPTY_FILE = "EMPTY_FILE"
+    BAD_CSV = "BAD_CSV"
+    # Runs.
+    MODE_NOT_AVAILABLE = "MODE_NOT_AVAILABLE"
+    DAILY_CAP_USER = "DAILY_CAP_USER"
+    DAILY_CAP_GLOBAL = "DAILY_CAP_GLOBAL"
+    QUOTA_EXHAUSTED = "QUOTA_EXHAUSTED"
+    NOT_RETRYABLE = "NOT_RETRYABLE"
+    MODEL_UNAVAILABLE = "MODEL_UNAVAILABLE"
+
+
 _CODES = {
-    HTTPStatus.NOT_FOUND: "NOT_FOUND",
-    HTTPStatus.METHOD_NOT_ALLOWED: "METHOD_NOT_ALLOWED",
+    HTTPStatus.NOT_FOUND: ErrorCode.NOT_FOUND,
+    HTTPStatus.METHOD_NOT_ALLOWED: ErrorCode.METHOD_NOT_ALLOWED,
 }
 
 
-def error_response(status: int, code: str) -> JSONResponse:
-    return JSONResponse(status_code=status, content={"error": {"code": code}})
+def error_response(status: int, code: ErrorCode | str) -> JSONResponse:
+    return JSONResponse(status_code=status, content={"error": {"code": str(code)}})
 
 
 async def _http_error(_: Request, exc: Exception) -> JSONResponse:
@@ -26,13 +59,13 @@ async def _http_error(_: Request, exc: Exception) -> JSONResponse:
 
 async def _validation_error(_: Request, __: Exception) -> JSONResponse:
     # Never echo the input back: it can hold file contents or a question.
-    return error_response(422, "VALIDATION_ERROR")
+    return error_response(422, ErrorCode.VALIDATION_ERROR)
 
 
 async def _unhandled_error(request: Request, exc: Exception) -> JSONResponse:
     # Type name and route only: exception text can carry secrets or request data.
     logger.error("unhandled %s on %s %s", type(exc).__name__, request.method, request.url.path)
-    return error_response(500, "INTERNAL")
+    return error_response(500, ErrorCode.INTERNAL)
 
 
 def register_error_handlers(app: FastAPI) -> None:

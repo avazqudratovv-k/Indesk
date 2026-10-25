@@ -10,6 +10,8 @@ Run these from the repo root:
 - Check: `curl localhost:8000/api/health` and `curl localhost:8000/api/ready`
 - Test: `docker compose run --rm --build api pytest`
 - Lint and types: `docker compose run --rm --build api ruff check .` and `docker compose run --rm --build api mypy .`
+- Migrations: `docker compose exec api alembic upgrade head` (dev database), `alembic downgrade base` to undo. A new migration: `docker compose run --rm --build -v "$PWD/api/alembic/versions:/app/alembic/versions" api alembic revision --autogenerate -m "what changed"`, then read it before keeping it.
+- Tests build their own databases (`indesk_test`, `indesk_test_migrations`) and never touch the dev one. Contract fixtures in `tests/fixtures/` are copies of `web/mocks/`; see the README there.
 - Logs: `docker compose logs -f api worker`
 - Stop (keeps the database volume): `docker compose down`
 

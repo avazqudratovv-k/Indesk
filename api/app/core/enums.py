@@ -1,0 +1,184 @@
+"""Closed vocabularies shared by the database (CHECK constraints) and the API schemas.
+
+One definition per list, so a value can never exist in one layer and not the other.
+Values follow docs/ai/DATA.md. Agent keys in the database: manager, vision, data, retrieval, critic.
+"""
+
+from enum import StrEnum
+
+
+class Plan(StrEnum):
+    FREE = "free"
+    PRO = "pro"
+    PAYG = "payg"
+    CUSTOM = "custom"
+
+
+class Lang(StrEnum):
+    EN = "en"
+    KO = "ko"
+    JA = "ja"
+    RU = "ru"
+    UZ = "uz"
+
+
+class Theme(StrEnum):
+    LIGHT = "light"
+    DARK = "dark"
+
+
+class DefaultView(StrEnum):
+    SIMPLE = "simple"
+    DETAILED = "detailed"
+
+
+class UploadStatus(StrEnum):
+    UPLOADED = "uploaded"
+    READY = "ready"
+    DELETED = "deleted"
+
+
+class Moderation(StrEnum):
+    PENDING = "pending"
+    PASSED = "passed"
+    BLOCKED = "blocked"
+
+
+class UploadMime(StrEnum):
+    CSV = "text/csv"
+    PDF = "application/pdf"
+    JPEG = "image/jpeg"
+    PNG = "image/png"
+    TXT = "text/plain"
+
+
+class RunMode(StrEnum):
+    ASK = "ask"
+    CHECK = "check"
+    COMPARE = "compare"
+
+
+class QuestionType(StrEnum):
+    NEW = "new"
+    EXPLAIN = "explain"
+    REFORMAT = "reformat"
+
+
+class RunStatus(StrEnum):
+    QUEUED = "queued"
+    RUNNING = "running"
+    FINISHED = "finished"
+
+
+class RunOutcome(StrEnum):
+    ANSWERED = "answered"
+    PARTIAL = "partial"
+    NOT_ANSWERABLE = "not_answerable"
+    NEEDS_BETTER_INPUT = "needs_better_input"
+    REJECTED = "rejected"
+    FAILED = "failed"
+
+
+class FileRole(StrEnum):
+    SUBJECT = "subject"
+    SOURCE = "source"
+    A = "a"
+    B = "b"
+
+
+class AgentKey(StrEnum):
+    MANAGER = "manager"
+    VISION = "vision"
+    DATA = "data"
+    RETRIEVAL = "retrieval"
+    CRITIC = "critic"
+
+
+class StepState(StrEnum):
+    QUEUED = "queued"
+    RUNNING = "running"
+    DONE = "done"
+    SKIPPED = "skipped"
+    FAILED = "failed"
+    TIMED_OUT = "timed_out"
+
+
+class StepKind(StrEnum):
+    SAY = "say"
+    TOOL = "tool"
+    FLAG = "flag"
+
+
+class Bubble(StrEnum):
+    OWL_SPLIT = "owlSplit"
+    OWL_MERGE = "owlMerge"
+
+
+class EvidenceType(StrEnum):
+    TABLE = "table"
+    CHART = "chart"
+    CODE = "code"
+    IMAGE_BOXES = "image_boxes"
+    PASSAGE = "passage"
+    DIFF = "diff"
+    CRITIC_NOTE = "critic_note"
+
+
+class Confidence(StrEnum):
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+
+class ReportTemplate(StrEnum):
+    PLAIN = "plain"
+    CLASSIC = "classic"
+    COMPACT = "compact"
+    SUMMARY = "summary"
+
+
+class ReportTypeface(StrEnum):
+    CLEAN = "clean"
+    SERIF = "serif"
+    TECHNICAL = "technical"
+
+
+class TextSize(StrEnum):
+    S = "s"
+    M = "m"
+    L = "l"
+
+
+class ClaimStatus(StrEnum):
+    VERIFIED = "verified"
+    FLAGGED = "flagged"
+    UNVERIFIED = "unverified"
+    MISMATCH = "mismatch"
+
+
+class ClaimOrigin(StrEnum):
+    ANSWER = "answer"
+    DOCUMENT = "document"
+
+
+class AiPurpose(StrEnum):
+    ROUTE = "route"
+    PLAN = "plan"
+    PICK = "pick"
+    COMPUTE = "compute"
+    VISION = "vision"
+    CRITIC = "critic"
+    EXTRACT_CLAIMS = "extract_claims"
+    EMBED = "embed"
+
+
+class AiCallStatus(StrEnum):
+    OK = "ok"
+    RATE_LIMITED = "rate_limited"
+    TIMEOUT = "timeout"
+    ERROR = "error"
+
+
+class UsageKind(StrEnum):
+    RUN = "run"
+    CREDIT_PURCHASE = "credit_purchase"

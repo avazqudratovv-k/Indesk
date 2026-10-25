@@ -1,0 +1,10 @@
+{
+  "_note": "up_01 is the example record from docs/ai/DATA.md section 4 (sha256 shortened as in DATA.md). up_02 to up_05 are INVENTED PLACEHOLDERS: up_02 the PDF brief for the Check report, up_03 and up_04 the two months for Compare, up_05 a deleted upload (name, type and size stay; storage_key removed).",
+  "records": [
+    {"id":"up_01","user_id":"u_01","filename":"seoul-subway-ridership.csv","mime":"text/csv","size":1843200,"sha256":"9f2c…","storage_key":"uploads/u_01/up_01","page_count":null,"row_count":4800,"status":"ready","moderation":"passed","created_at":"2026-10-25T09:00:00Z","expires_at":"2026-10-26T09:00:00Z","deleted_at":null},
+    {"id":"up_02","user_id":"u_01","filename":"ridership-brief.pdf","mime":"application/pdf","size":412000,"sha256":"3b71…","storage_key":"uploads/u_01/up_02","page_count":6,"row_count":null,"status":"ready","moderation":"passed","created_at":"2026-10-25T09:20:00Z","expires_at":"2026-10-26T09:20:00Z","deleted_at":null},
+    {"id":"up_03","user_id":"u_01","filename":"boardings-2026-08.csv","mime":"text/csv","size":920000,"sha256":"c4d9…","storage_key":"uploads/u_01/up_03","page_count":null,"row_count":2400,"status":"ready","moderation":"passed","created_at":"2026-10-25T09:40:00Z","expires_at":"2026-10-26T09:40:00Z","deleted_at":null},
+    {"id":"up_04","user_id":"u_01","filename":"boardings-2026-09.csv","mime":"text/csv","size":944000,"sha256":"e0a5…","storage_key":"uploads/u_01/up_04","page_count":null,"row_count":2400,"status":"ready","moderation":"passed","created_at":"2026-10-25T09:41:00Z","expires_at":"2026-10-26T09:41:00Z","deleted_at":null},
+    {"id":"up_05","user_id":"u_01","filename":"old-ridership-2019.csv","mime":"text/csv","size":1200000,"sha256":"71aa…","storage_key":null,"page_count":null,"row_count":3100,"status":"deleted","moderation":"passed","created_at":"2026-10-23T09:00:00Z","expires_at":"2026-10-24T09:00:00Z","deleted_at":"2026-10-24T09:00:00Z"}
+  ]
+}

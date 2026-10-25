@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from redis import Redis
 
 from app.core.config import Settings, get_settings
-from app.core.errors import error_response
+from app.core.errors import ErrorCode, error_response
 from app.db.session import database_answers
 
 logger = logging.getLogger("indesk.health")
@@ -34,5 +34,5 @@ def ready(settings: Annotated[Settings, Depends(get_settings)]) -> dict[str, str
         failed.append("redis")
     if failed:
         logger.warning("not ready: %s", ",".join(failed))
-        return error_response(503, "NOT_READY")
+        return error_response(503, ErrorCode.NOT_READY)
     return {"status": "ready"}

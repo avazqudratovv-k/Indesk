@@ -5,8 +5,13 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "S"]
 
+[tool.ruff.lint.isort]
+# api/alembic/ is a folder of ours; the import below is the installed package.
+known-third-party = ["alembic"]
+
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"]
+"tests/**" = ["S101", "S105", "S106"]  # fake hashes and keys in test data
+"alembic/versions/*" = ["E501"]  # generated column lists
 
 [tool.mypy]
 python_version = "3.12"
