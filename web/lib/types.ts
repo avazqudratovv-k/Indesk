@@ -209,6 +209,19 @@ export type ReportSummary = {
 
 export type ReportMode = "ask" | "check" | "compare";
 
+// Prose of a report in another site language (additive, ROADMAP 2.7b). Numbers, units and station names are the same as in
+// the original; top_rows and in_short items pair with the original by position, their value and status stay as they are.
+export type ReportTranslation = {
+  title: string;
+  summary_json: {
+    answer?: string;
+    top_rows?: { label: string; value: string }[];
+    in_short?: { text: string }[];
+    meaning?: string;
+    next_steps?: string[];
+  };
+};
+
 export type Report = {
   id: string;
   mode: ReportMode;
@@ -227,6 +240,7 @@ export type Report = {
   expires_at: string;
   deleted_at: string | null;
   purge_at: string | null;
+  translations?: { ko?: ReportTranslation };
 };
 
 export type ClaimStatus = "verified" | "flagged" | "unverified" | "mismatch";
@@ -243,6 +257,8 @@ export type Claim = {
   doc_value: string | null;
   computed_value: string | null;
   evidence_refs: string[];
+  // Claim text in Korean; doc_quote stays in the language of the file.
+  ko?: { text: string };
 };
 
 export type ShareLink = {
