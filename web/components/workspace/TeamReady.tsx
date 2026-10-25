@@ -12,7 +12,7 @@ export default function TeamReady() {
       <ul className={styles.team}>
         {agentIds.map((id) => (
           <li key={id} className={styles.agent}>
-            <Image src={`/workspace/agent-${id}.png`} alt="" width={40} height={40} />
+            <Image src={`/workspace/agent-${id}.png`} alt="" width={48} height={48} />
             {home(`${id}.name`)}
           </li>
         ))}
