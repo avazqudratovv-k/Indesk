@@ -285,7 +285,7 @@
     "freeTitle": "Included for free",
     "free": [
       "2 analysis runs",
-      "Files up to 2 MB each",
+      "Files up to 5 MB each",
       "CSV up to 5,000 rows",
       "PDF up to 10 pages",
       "Reports kept for 30 days"
@@ -425,6 +425,149 @@
         "expiryPast": "This expiry date has passed.",
         "cvcShort": "Enter the 3 or 4 digit CVC."
       }
+    }
+  },
+  "workspace": {
+    "title": "What would you like to know?",
+    "sub": "Pick the files, ask in your own words, and watch the team work.",
+    "tabsLabel": "Workspace steps",
+    "tabAsk": "Ask a question",
+    "tabRun": "Agents at work",
+    "usage": {
+      "free": "Free plan · {runs, number} free runs",
+      "pro": "Pro plan · {runs, number} runs a month",
+      "payg": "Pay as you go · {runs, number} runs",
+      "custom": "Custom plan"
+    },
+    "modes": {
+      "label": "What do you want to do?",
+      "ask": "Ask a question",
+      "check": "Check a document",
+      "compare": "Compare",
+      "intro": {
+        "ask": "Ask anything your files can answer. Every claim comes with its proof.",
+        "check": "Upload a document and the data behind it. We find every checkable claim and test it.",
+        "compare": "Two files of the same kind. We show what changed, with proof."
+      }
+    },
+    "steps": {
+      "askFiles": "1. Choose your files",
+      "askQuestion": "2. Ask your question",
+      "checkFiles": "1. The document, and the data to check it against",
+      "checkNext": "2. What happens next",
+      "compareFiles": "1. Choose the two files",
+      "compareFocus": "2. What should we focus on? (optional)"
+    },
+    "slots": {
+      "document": "Document to check",
+      "sources": "Source data",
+      "fileA": "File A",
+      "fileB": "File B"
+    },
+    "upload": {
+      "dropMany": "Drop files here or choose files",
+      "dropOne": "Drop a file here or choose a file",
+      "choose": "Choose",
+      "help": "CSV, PDF, JPG or PNG, up to {mb, number} MB each.",
+      "helpDocument": "A PDF, up to {mb, number} MB.",
+      "listLabel": "Added files",
+      "empty": "No files added yet.",
+      "remove": "Remove {name}",
+      "count": "{count, plural, one {# file} other {# files}} added",
+      "announceRemoved": "Removed {name}.",
+      "announceRejected": "{count, plural, one {# file was not added.} other {# files were not added.}}",
+      "announceAddedOne": "Added {name}.",
+      "announceAddedMany": "Added {count, number} files."
+    },
+    "errors": {
+      "type": "{name}: only CSV, PDF, JPG and PNG files work.",
+      "empty": "{name}: the file is empty.",
+      "tooBig": "{name}: larger than {mb, number} MB.",
+      "nameTooLong": "{name}: the file name is too long (255 characters at most).",
+      "duplicate": "{name}: a file with this name is already added.",
+      "slotFull": "{name}: no room left here. You can add {max, plural, one {# file} other {# files}}.",
+      "documentMustBePdf": "{name}: the document to check must be a PDF.",
+      "sameKind": "{name}: both files must be the same kind (CSV, PDF or image)."
+    },
+    "question": {
+      "label": "Your question",
+      "placeholder": "Type a question about your files…",
+      "focusPlaceholder": "For example: which stations changed the most?",
+      "counter": "{count, number} / {max, number}",
+      "tooLong": "Your question is {over, number} characters over the limit of {max, number}.",
+      "chipsLabel": "Example questions",
+      "chips": [
+        {
+          "text": "Which stations grew fastest?",
+          "full": "Which stations grew fastest since 2019, and does the chart agree?"
+        },
+        {
+          "text": "Does the chart match the data?",
+          "full": "Does the chart in the photo match the numbers in the CSV?"
+        },
+        {
+          "text": "What does the report say about growth?",
+          "full": "What does the PDF report say about ridership growth?"
+        }
+      ]
+    },
+    "checkSteps": [
+      "Owl lists every number, ranking and quote the document claims (up to 10 on Free).",
+      "Beaver, Hound and Chameleon test each claim against your data.",
+      "Cat marks each one: matches, does not match, or cannot be verified."
+    ],
+    "consent": "I have the right to use these files and they hold no private or sensitive data. I understand this is my responsibility.",
+    "run": {
+      "ask": "Ask the team",
+      "check": "Check the document",
+      "compare": "Compare the files",
+      "usesFree": "Uses 1 of your {runs, number} free runs.",
+      "usesOther": "Uses 1 run.",
+      "need": {
+        "files": "Select at least one file to continue.",
+        "document": "Add the document to check.",
+        "sources": "Select at least one source file to check against.",
+        "both": "Select both files to compare.",
+        "question": "Type a question to continue.",
+        "tooLong": "Shorten your question to continue.",
+        "consent": "Tick the box above to continue."
+      }
+    },
+    "ready": "Your team is ready",
+    "info": {
+      "title": "What you can upload",
+      "note": "The numbers are computed over the whole file, and the model only reads column names, a sample and the results.",
+      "ok": "Works with",
+      "no": "Not supported",
+      "okItems": [
+        "CSV tables",
+        "PDFs with text",
+        "Photos (JPG, PNG)"
+      ],
+      "noItems": [
+        "Video or audio",
+        "Word or PowerPoint (later)",
+        "Password-protected PDFs",
+        "ZIP archives",
+        "Live databases or web links"
+      ]
+    },
+    "signedOut": {
+      "title": "Log in to ask",
+      "body": "Log in to add files and ask the team. Sign-up gives you 2 free runs, no card needed.",
+      "login": "Log in",
+      "signup": "Sign up"
+    },
+    "runTab": {
+      "peekTitle": "No run yet",
+      "peekSub": "Ask a question and the team starts here. You can switch between the two tabs at any time.",
+      "goAsk": "Go to Ask",
+      "readyTitle": "Your run is set up",
+      "readyBody": "The live agent view comes in a later build step. Nothing was uploaded or sent.",
+      "summaryMode": "Mode",
+      "summaryFiles": "{count, plural, one {# file} other {# files}}",
+      "summaryQuestion": "Question",
+      "change": "Change question"
     }
   }
 }

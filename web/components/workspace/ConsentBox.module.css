@@ -1,0 +1,28 @@
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink2);
+  cursor: pointer;
+}
+
+.box {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin: 10px 0 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.box:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.consent span {
+  padding: 10px 0;
+}

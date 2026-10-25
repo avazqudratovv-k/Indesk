@@ -1,0 +1,47 @@
+/* Board "No run yet" card (.ws-peek). */
+.peek {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--warm);
+}
+
+.peekTitle {
+  font-size: 17px;
+}
+
+.peekSub {
+  margin: 4px 0 0;
+  max-width: 640px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 14px;
+  margin: 14px 0 0;
+  font-size: 14.5px;
+}
+
+.summary dt {
+  color: var(--ink2);
+}
+
+.summary dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.question {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+

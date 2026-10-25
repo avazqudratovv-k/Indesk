@@ -1,0 +1,197 @@
+.slot {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Board file row: 2 px accent border on a soft accent fill, 44 px kind badge. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 10px 10px 10px 14px;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  background: var(--accentSoft);
+  color: var(--ink);
+  box-sizing: border-box;
+}
+
+.kind {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  /* Dark mode agent colours are light, so the badge text follows the page ink on those. */
+  color: var(--paper);
+  font: 500 12px var(--mono);
+}
+
+.info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.name {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--ink2);
+}
+
+.remove {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.remove:hover {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+}
+
+.remove:focus-visible,
+.drop:has(.input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Board dashed drop box, made interactive: a label around a visually hidden file input. */
+.drop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px 14px;
+  border: 2px dashed var(--rule2);
+  border-radius: 14px;
+  text-align: center;
+  line-height: 1.5;
+  color: var(--mute);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.drop:hover,
+.drop[data-dragging] {
+  border-color: var(--accent);
+  background: var(--accentSoft);
+  color: var(--ink2);
+}
+
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+
+.dropIcon {
+  color: var(--accentText);
+}
+
+.dropTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.help {
+  font-size: 13.5px;
+}
+
+.choose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0 20px;
+  border: 1px solid var(--rule2);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.errors {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.errors:empty {
+  display: none;
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--badLine);
+  border-radius: 12px;
+  background: var(--badBg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.errorIcon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--bad);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop,
+  .remove {
+    transition: none;
+  }
+}

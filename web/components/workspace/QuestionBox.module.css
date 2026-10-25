@@ -1,0 +1,104 @@
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.area {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid var(--rule2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: var(--paper2);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 112px;
+}
+
+.area::placeholder {
+  color: var(--mute);
+}
+
+.area[aria-invalid="true"] {
+  border-color: var(--bad);
+}
+
+.under {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.under:not(:has(*:not(:empty))) {
+  display: none;
+}
+
+.error {
+  flex: 1;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.error:not(:empty)::before {
+  content: "! ";
+  font-weight: 800;
+  color: var(--bad);
+}
+
+.counter {
+  margin-left: auto;
+  font: 500 13px var(--mono);
+  color: var(--ink2);
+}
+
+.counter[data-over] {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--rule2);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink2);
+  font: 600 13.5px var(--sans);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.chip:hover {
+  border-color: var(--ink);
+}
+
+.chip:focus-visible,
+.area:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: none;
+  }
+}

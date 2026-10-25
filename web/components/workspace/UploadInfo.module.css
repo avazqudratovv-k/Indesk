@@ -1,0 +1,96 @@
+.sec {
+  composes: surface from "../plans/surface.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 1136px;
+  margin-inline: auto;
+  padding: 26px;
+  box-sizing: border-box;
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 6px 0 0;
+  max-width: 760px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.box {
+  padding: 18px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.label {
+  margin-bottom: 6px;
+  font: 700 12px var(--sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.okLabel {
+  color: var(--ok);
+}
+
+.noLabel {
+  color: var(--bad);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.okPill {
+  background: var(--okBg);
+  color: var(--ok);
+}
+
+.noPill {
+  background: var(--badBg);
+  color: var(--bad);
+}
+
+@media (max-width: 760px) {
+  .sec {
+    width: auto;
+    /* Board: the info block sits in a 32 px wrapper, 12 px further in than the page's 20 px. */
+    margin-inline: 12px;
+    padding: 22px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
