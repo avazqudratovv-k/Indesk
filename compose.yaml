@@ -1,0 +1,71 @@
+# Dev stack. Only the API is published on the host (127.0.0.1:8000); db and redis stay inside the network.
+# POSTGRES_PASSWORD below is a dev-only default. Real secrets go in api/.env (ignored by git), never here.
+name: indesk
+
+x-api-env: &api-env
+  APP_ENV: development
+  DATABASE_URL: postgresql+psycopg://indesk:${POSTGRES_PASSWORD:-indesk_dev_password}@db:5432/indesk
+  REDIS_URL: redis://redis:6379/0
+
+services:
+  api:
+    build: ./api
+    env_file:
+      - path: ./api/.env
+        required: false
+    environment: *api-env
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  worker:
+    build: ./api
+    command: ["python", "-m", "app.jobs.worker"]
+    env_file:
+      - path: ./api/.env
+        required: false
+    environment: *api-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.jobs.healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: indesk
+      POSTGRES_DB: indesk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-indesk_dev_password}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U indesk -d indesk"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7.4-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
