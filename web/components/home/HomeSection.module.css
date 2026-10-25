@@ -1,37 +1,38 @@
+/* Board section: 1240 px column, 56 / 32 / 8 padding (20 px sides on phones). */
 .section {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 56px 20px 0;
+  padding: 56px 32px 8px;
   word-break: keep-all;
   overflow-wrap: break-word;
 }
 
+.tight {
+  padding-top: 40px;
+}
+
 .title {
   margin: 0;
-  font: 300 32px/1.12 var(--sans);
-  letter-spacing: -0.03em;
+  font: 300 38px/1.2 var(--sans);
+  letter-spacing: -0.02em;
 }
 
 .sub {
-  max-width: 640px;
-  margin: 12px 0 28px;
-  color: var(--mute);
-  font-size: 16.5px;
+  max-width: 720px;
+  margin: 10px 0 0;
+  /* Board uses --mute; it measured 3.6:1 over the contour art, so it is darkened a little (lightened in Midnight). */
+  color: color-mix(in srgb, var(--mute) 65%, var(--ink));
+  font-size: 17px;
   line-height: 1.55;
 }
 
-@media (min-width: 760px) {
+@media (max-width: 760px) {
   .section {
-    padding: 72px 40px 0;
+    padding-left: 20px;
+    padding-right: 20px;
   }
 
   .title {
-    font-size: 46px;
-    line-height: 1.08;
-  }
-
-  .sub {
-    font-size: 17px;
-    margin-bottom: 32px;
+    font-size: 30px;
   }
 }

@@ -34,33 +34,54 @@
     "hero": {
       "eyebrow": "A team of AI agents that shows its work",
       "title": "Answers from your files, with proof.",
-      "lede": "Upload a file, ask a question and watch five agents check every claim.",
-      "tryExample": "Try with an example",
-      "workspace": "Go to Workspace"
+      "lede": "Upload a spreadsheet, a photo of a chart or a PDF. Five animal agents read, calculate and search, and a critic checks every claim before you see the report.",
+      "tryDemo": "Try the demo",
+      "signUp": "Sign up free",
+      "note": "2 free runs · no card needed"
     },
-    "demo": {
+    "film": {
       "label": "Demo of an Indesk run",
-      "description": "Silent animation. A question is typed: “Which stations grew fastest since 2019?”. Owl plans the work, Beaver reads the large file, Hound quotes a passage and Cat checks every claim. The answer paper is then stamped “Verified {verified} of {total}” and one claim is flagged as not proven.",
-      "pause": "Pause demo",
-      "play": "Play demo",
-      "questionLabel": "Your question",
+      "description": "A 10-second loop: files arrive, a question is asked, five animal agents work, and a verified report appears.",
+      "pause": "Pause animation",
+      "play": "Play animation",
+      "duration": "10 s",
+      "live": "LIVE",
+      "caseLabel": "CASE №{no}",
       "question": "Which stations grew fastest since 2019?",
-      "status": {
-        "waiting": "Waiting",
-        "done": "Done",
-        "skipped": "Not needed"
+      "agents": {
+        "owl": "Manager",
+        "chameleon": "Vision",
+        "beaver": "Data",
+        "hound": "Retrieval",
+        "cat": "Critic"
       },
-      "working": {
-        "owl": "Plans the work",
-        "beaver": "Reads the large file",
-        "hound": "Quotes a passage",
-        "cat": "Checks every claim"
+      "placeholderClaims": {
+        "a": "Seongsu +51%",
+        "b": "5 above 30%",
+        "c": "Busan fastest"
       },
-      "paper": {
-        "title": "Hapjeong leads station growth since 2019",
-        "stamp": "Verified {verified} of {total}",
-        "flagged": "The growth is driven by new housing nearby",
-        "flaggedMark": "! not proven"
+      "report": {
+        "title": "Report",
+        "meta": "№{no} · {agents} agents",
+        "stamp": "VERIFIED {verified}/{total}",
+        "download": "Download PDF"
+      },
+      "steps": {
+        "upload": "Upload files",
+        "ask": "Ask a question",
+        "work": "Agents work",
+        "check": "Critic checks",
+        "report": "Cited report"
+      },
+      "trace": {
+        "head": "trace · case {no}",
+        "live": "live",
+        "owl": "owl",
+        "chameleon": "vision",
+        "beaver": "data",
+        "hound": "search",
+        "cat": "critic",
+        "flagged": "flagged"
       }
     },
     "team": {
@@ -79,7 +100,7 @@
         "name": "Chameleon",
         "role": "Vision",
         "desc": "Reads photos, charts and scanned pages.",
-        "tag": "OCR · vision model",
+        "tag": "OCR + vision model",
         "see": "The photo with every detected bar and the text it read."
       },
       "beaver": {
@@ -93,21 +114,20 @@
         "name": "Hound",
         "role": "Retrieval",
         "desc": "Sniffs out the right passages in long PDFs.",
-        "tag": "embeddings · keywords",
+        "tag": "embeddings + keywords",
         "see": "Matched passages with page numbers and scores."
       },
       "cat": {
         "name": "Cat",
         "role": "Critic",
         "desc": "Checks every claim against the evidence, and flags the weak ones.",
-        "tag": "checks · LLM judge",
+        "tag": "checks + LLM judge",
         "see": "Each claim with its evidence and a verdict."
       }
     },
     "modes": {
       "title": "Three ways to work with your files",
       "sub": "Tables are computed over every row, never pasted into a chat. Each answer shows where it came from.",
-      "open": "Open in Workspace",
       "ask": {
         "title": "Ask a question",
         "body": "Ask in your own words. The team computes, reads and checks, then hands you a cited report.",
@@ -122,12 +142,41 @@
         "title": "Compare",
         "body": "Two months, two versions, two sources. We show what changed and prove it.",
         "example": "Example: Total boardings rose 6.3%"
+      },
+      "try": "Try with an example"
+    },
+    "who": {
+      "title": "Who it’s for",
+      "items": {
+        "publish": {
+          "title": "Data journalists",
+          "text": "Check a city’s open data against an official PDF before publishing."
+        },
+        "paper": {
+          "title": "Students and researchers",
+          "text": "Ask one question across a paper’s tables and figures, with page references."
+        },
+        "weekly": {
+          "title": "Small-team analysts",
+          "text": "Turn last month’s export and a screenshot into a cited summary for the weekly meeting."
+        },
+        "board": {
+          "title": "Nonprofit staff",
+          "text": "Read a funder’s PDF report and a donations sheet together to answer a board question."
+        }
       }
     },
+    "trust": {
+      "files": "Your files are deleted after 24 hours.",
+      "sandbox": "Code runs in a sandbox with no internet.",
+      "evidence": "Every claim links to its evidence.",
+      "instructions": "Text inside uploads is never treated as instructions."
+    },
     "closing": {
-      "title": "See a full run in one click",
-      "body": "The example is a prepared Seoul subway run. It opens instantly and costs no AI calls.",
-      "tryExample": "Try with an example"
+      "title": "Start free. Pay only for bigger jobs.",
+      "body": "Two free runs on every account, with clear limits on file size.",
+      "tryDemo": "Try the demo",
+      "seePlans": "See plans"
     }
   },
   "ui": {

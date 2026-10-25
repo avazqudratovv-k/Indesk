@@ -1,6 +1,6 @@
 import styles from "./HomeOrbit.module.css";
 
-// Home-only background: dotted rings with the five agent colours orbiting the page centre (board `.orbit`).
+// Hero-only background: dotted rings with the five agent colours orbiting the film (board `.orbit`).
 export default function HomeOrbit() {
   return (
     <svg className={styles.orbit} viewBox="0 0 780 780" fill="none" aria-hidden="true" focusable="false">

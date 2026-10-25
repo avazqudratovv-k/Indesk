@@ -1,0 +1,941 @@
+/* Demo film, ported from docs/design/source/Home.dc.html (the board is the source of truth).
+   One 10 s loop driven only by CSS keyframes: the percentages below are copied from the board, so the
+   steps (files in, question typed, agents appear, critic checks, report stamped) stay in sync with no JS.
+   Sizes use cqw, a share of the stage width, so the whole scene scales like a video. */
+
+.loop {
+  min-width: 0;
+  margin: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.film {
+  --card: #121418;
+  --ink: #ecebe6;
+  --ink2: #c4c3bc;
+  --mute: #858a92;
+  --paper: #0a0b0d;
+  --paper2: #101216;
+  --rule: #1e2127;
+  --rule2: #2f343c;
+  --track: #1e2229;
+  --code: #07080a;
+  --codeInk: #e4e3dc;
+  --green: #6fd6a0;
+  --greenBg: #12281d;
+  --bad: #ff7a66;
+  --badBg: #2e1612;
+  --badLine: #6a2e24;
+  --hl: #4a3b14;
+  --accent: #9b8cff;
+  container-type: inline-size;
+  position: relative;
+  aspect-ratio: 8 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 20px;
+  box-shadow: 0 40px 80px -34px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  background-color: #0a0b0d;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 2.5cqw 2.5cqw;
+  color: #ecebe6;
+}
+
+/* Same as the board: the grid size above is in cqw on the film itself, which resolves against the viewport. */
+.film::before {
+  content: "";
+  position: absolute;
+  width: 55%;
+  height: 90%;
+  left: -10%;
+  top: -25%;
+  background: radial-gradient(circle, rgba(110, 123, 255, 0.16), transparent 62%);
+  animation: filmdrift 14s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.film::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 14%;
+  background: linear-gradient(180deg, transparent, rgba(110, 123, 255, 0.07), transparent);
+  animation: filmscan 5s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes filmdrift {
+  to {
+    transform: translate(80%, 45%);
+  }
+}
+
+@keyframes filmscan {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(780%);
+  }
+}
+
+/* The loop keyframes, verbatim from the board (one broken "%%" in fshake fixed). */
+@keyframes ff0{0%{opacity:0;transform:translate(-14px,-24px) rotate(-10deg)}1%{opacity:0;transform:translate(-14px,-24px) rotate(-10deg)}4%{opacity:1;transform:rotate(-3deg)}77%{opacity:1;transform:rotate(-3deg)}80%{opacity:.3;transform:rotate(-3deg)}96%{opacity:.3}99%{opacity:0}100%{opacity:0}}
+.ff0{animation:ff0 10s ease-out infinite;opacity:0}
+@keyframes fh0{0%,46.99%{box-shadow:0 0 0 0 transparent}47%,57%{box-shadow:0 0 0 0.312cqw var(--c-bea)}57.01%,100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ff1{0%{opacity:0;transform:translate(-14px,-24px) rotate(-10deg)}3.5%{opacity:0;transform:translate(-14px,-24px) rotate(-10deg)}6.5%{opacity:1;transform:rotate(2deg)}77%{opacity:1;transform:rotate(2deg)}80%{opacity:.3;transform:rotate(2deg)}96%{opacity:.3}99%{opacity:0}100%{opacity:0}}
+.ff1{animation:ff1 10s ease-out infinite;opacity:0}
+@keyframes fh1{0%,56.99%{box-shadow:0 0 0 0 transparent}57%,66%{box-shadow:0 0 0 0.312cqw var(--c-hou)}66.01%,100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ff2{0%{opacity:0;transform:translate(-14px,-24px) rotate(-10deg)}6%{opacity:0;transform:translate(-14px,-24px) rotate(-10deg)}9%{opacity:1;transform:rotate(-1deg)}77%{opacity:1;transform:rotate(-1deg)}80%{opacity:.3;transform:rotate(-1deg)}96%{opacity:.3}99%{opacity:0}100%{opacity:0}}
+.ff2{animation:ff2 10s ease-out infinite;opacity:0}
+@keyframes fh2{0%,35.99%{box-shadow:0 0 0 0 transparent}36%,47%{box-shadow:0 0 0 0.312cqw var(--c-cham)}47.01%,100%{box-shadow:0 0 0 0 transparent}}
+@keyframes fcase{0%{opacity:0;transform:translateY(-6px)}10.6%{opacity:0;transform:translateY(-6px)}12%{opacity:1;transform:none}96%{opacity:1;transform:none}97.4%{opacity:0;transform:none}100%{opacity:0}}
+.fcase{animation:fcase 10s ease-out infinite;opacity:0}
+@keyframes fq{0%{opacity:0;transform:translateY(-10px)}12.6%{opacity:0;transform:translateY(-10px)}14%{opacity:1;transform:none}96%{opacity:1;transform:none}97.4%{opacity:0;transform:none}100%{opacity:0}}
+.fq{animation:fq 10s ease-out infinite;opacity:0}
+@keyframes ftype{0%{width:0}16%{width:0}27%{width:100%}100%{width:100%}}
+.ftype{animation:ftype 10s steps(34,end) infinite;opacity:0}
+@keyframes fcaret{0%{opacity:1}50%{opacity:0}100%{opacity:1}}
+.fcaret{animation:fcaret 10s steps(1,end) infinite;opacity:0}
+@keyframes fth0{0%{stroke-dashoffset:100;opacity:0}28.99%{stroke-dashoffset:100;opacity:0}29%{stroke-dashoffset:100;opacity:1}33%{stroke-dashoffset:0;opacity:1}93%{stroke-dashoffset:0;opacity:.5}96%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:0;opacity:0}}
+.fth0{animation:fth0 10s ease-out infinite;opacity:0}
+@keyframes fth1{0%{stroke-dashoffset:100;opacity:0}34.99%{stroke-dashoffset:100;opacity:0}35%{stroke-dashoffset:100;opacity:1}39%{stroke-dashoffset:0;opacity:1}93%{stroke-dashoffset:0;opacity:.5}96%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:0;opacity:0}}
+.fth1{animation:fth1 10s ease-out infinite;opacity:0}
+@keyframes fth2{0%{stroke-dashoffset:100;opacity:0}44.99%{stroke-dashoffset:100;opacity:0}45%{stroke-dashoffset:100;opacity:1}49%{stroke-dashoffset:0;opacity:1}93%{stroke-dashoffset:0;opacity:.5}96%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:0;opacity:0}}
+.fth2{animation:fth2 10s ease-out infinite;opacity:0}
+@keyframes fth3{0%{stroke-dashoffset:100;opacity:0}54.99%{stroke-dashoffset:100;opacity:0}55%{stroke-dashoffset:100;opacity:1}59%{stroke-dashoffset:0;opacity:1}93%{stroke-dashoffset:0;opacity:.5}96%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:0;opacity:0}}
+.fth3{animation:fth3 10s ease-out infinite;opacity:0}
+@keyframes fth4{0%{stroke-dashoffset:100;opacity:0}64.99%{stroke-dashoffset:100;opacity:0}65%{stroke-dashoffset:100;opacity:1}69%{stroke-dashoffset:0;opacity:1}93%{stroke-dashoffset:0;opacity:.5}96%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:0;opacity:0}}
+.fth4{animation:fth4 10s ease-out infinite;opacity:0}
+@keyframes fconf{0%{width:0}31%{width:0}36%{width:96%}100%{width:96%}}
+.fconf{animation:fconf 10s ease-out infinite;opacity:0}
+@keyframes fc0k{0%{opacity:0;transform:scale(.82) translateY(10px)}28.5%{opacity:0;transform:scale(.82) translateY(10px)}30%{opacity:1;transform:none}96%{opacity:1;transform:none}97.5%{opacity:0;transform:none}100%{opacity:0}}
+.fc0k{animation:fc0k 10s ease-out infinite;opacity:0}
+@keyframes fc1k{0%{opacity:0;transform:scale(.82) translateY(10px)}35.5%{opacity:0;transform:scale(.82) translateY(10px)}37%{opacity:1;transform:none}96%{opacity:1;transform:none}97.5%{opacity:0;transform:none}100%{opacity:0}}
+.fc1k{animation:fc1k 10s ease-out infinite;opacity:0}
+@keyframes fb0{0%{transform:scaleY(0)}49%{transform:scaleY(0)}52%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+.fb0{animation:fb0 10s ease-out infinite;opacity:0}
+@keyframes fb1{0%{transform:scaleY(0)}50.5%{transform:scaleY(0)}53.5%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+.fb1{animation:fb1 10s ease-out infinite;opacity:0}
+@keyframes fb2{0%{transform:scaleY(0)}52%{transform:scaleY(0)}55%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+.fb2{animation:fb2 10s ease-out infinite;opacity:0}
+@keyframes fc2k{0%{opacity:0;transform:scale(.82) translateY(10px)}45.5%{opacity:0;transform:scale(.82) translateY(10px)}47%{opacity:1;transform:none}96%{opacity:1;transform:none}97.5%{opacity:0;transform:none}100%{opacity:0}}
+.fc2k{animation:fc2k 10s ease-out infinite;opacity:0}
+@keyframes fc3k{0%{opacity:0;transform:scale(.82) translateY(10px)}55.5%{opacity:0;transform:scale(.82) translateY(10px)}57%{opacity:1;transform:none}96%{opacity:1;transform:none}97.5%{opacity:0;transform:none}100%{opacity:0}}
+.fc3k{animation:fc3k 10s ease-out infinite;opacity:0}
+@keyframes fshake{0%,70%{transform:none}72%{transform:translateX(-3px)}74%{transform:translateX(3px)}76%{transform:translateX(-2px)}78%,100%{transform:none}}
+@keyframes fc4k{0%{opacity:0;transform:scale(.82) translateY(10px)}64.5%{opacity:0;transform:scale(.82) translateY(10px)}66%{opacity:1;transform:none}96%{opacity:1;transform:none}97.5%{opacity:0;transform:none}100%{opacity:0}}
+.fc4k{animation:fc4k 10s ease-out infinite;opacity:0}
+@keyframes fm0{0%{opacity:0;transform:scale(.5) translateY(12px)}24.4%{opacity:0;transform:scale(.5) translateY(12px)}26%{opacity:1;transform:none}96%{opacity:1;transform:none}97.6%{opacity:0;transform:none}100%{opacity:0}}
+.fm0{animation:fm0 10s ease-out infinite;opacity:0}
+@keyframes fr0{0%{opacity:0;transform:scale(.85)}29%{opacity:0;transform:scale(.85)}30%{opacity:1;transform:none}36%{opacity:1;transform:none}37%{opacity:0;transform:none}100%{opacity:0}}
+.fr0{animation:fr0 10s ease-out infinite;opacity:0}
+@keyframes fm1{0%{opacity:0;transform:scale(.5) translateY(12px)}25.6%{opacity:0;transform:scale(.5) translateY(12px)}27.2%{opacity:1;transform:none}96%{opacity:1;transform:none}97.6%{opacity:0;transform:none}100%{opacity:0}}
+.fm1{animation:fm1 10s ease-out infinite;opacity:0}
+@keyframes fr1{0%{opacity:0;transform:scale(.85)}36%{opacity:0;transform:scale(.85)}37%{opacity:1;transform:none}47%{opacity:1;transform:none}48%{opacity:0;transform:none}100%{opacity:0}}
+.fr1{animation:fr1 10s ease-out infinite;opacity:0}
+@keyframes fm2{0%{opacity:0;transform:scale(.5) translateY(12px)}26.8%{opacity:0;transform:scale(.5) translateY(12px)}28.4%{opacity:1;transform:none}96%{opacity:1;transform:none}97.6%{opacity:0;transform:none}100%{opacity:0}}
+.fm2{animation:fm2 10s ease-out infinite;opacity:0}
+@keyframes fr2{0%{opacity:0;transform:scale(.85)}46%{opacity:0;transform:scale(.85)}47%{opacity:1;transform:none}57%{opacity:1;transform:none}58%{opacity:0;transform:none}100%{opacity:0}}
+.fr2{animation:fr2 10s ease-out infinite;opacity:0}
+@keyframes fm3{0%{opacity:0;transform:scale(.5) translateY(12px)}28%{opacity:0;transform:scale(.5) translateY(12px)}29.6%{opacity:1;transform:none}96%{opacity:1;transform:none}97.6%{opacity:0;transform:none}100%{opacity:0}}
+.fm3{animation:fm3 10s ease-out infinite;opacity:0}
+@keyframes fr3{0%{opacity:0;transform:scale(.85)}56%{opacity:0;transform:scale(.85)}57%{opacity:1;transform:none}66%{opacity:1;transform:none}67%{opacity:0;transform:none}100%{opacity:0}}
+.fr3{animation:fr3 10s ease-out infinite;opacity:0}
+@keyframes fm4{0%{opacity:0;transform:scale(.5) translateY(12px)}29.2%{opacity:0;transform:scale(.5) translateY(12px)}30.8%{opacity:1;transform:none}96%{opacity:1;transform:none}97.6%{opacity:0;transform:none}100%{opacity:0}}
+.fm4{animation:fm4 10s ease-out infinite;opacity:0}
+@keyframes fr4{0%{opacity:0;transform:scale(.85)}65%{opacity:0;transform:scale(.85)}66%{opacity:1;transform:none}77%{opacity:1;transform:none}78%{opacity:0;transform:none}100%{opacity:0}}
+.fr4{animation:fr4 10s ease-out infinite;opacity:0}
+@keyframes fdim{0%{opacity:0;transform:translateY(8px)}77%{opacity:0;transform:translateY(8px)}79%{opacity:1;transform:none}96%{opacity:1;transform:none}98%{opacity:0;transform:none}100%{opacity:0}}
+.fdim{animation:fdim 10s ease-out infinite;opacity:0}
+@keyframes frep{0%{opacity:0;transform:translateY(30px) rotate(2deg)}78.4%{opacity:0;transform:translateY(30px) rotate(2deg)}80%{opacity:1;transform:none}96%{opacity:1;transform:none}97.6%{opacity:0;transform:none}100%{opacity:0}}
+.frep{animation:frep 10s ease-out infinite;opacity:0}
+@keyframes fcirc{0%{stroke-dashoffset:100}82%{stroke-dashoffset:100}86%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+.fcirc{animation:fcirc 10s ease-out infinite;opacity:0}
+@keyframes fstamp{0%{opacity:0;transform:scale(2.4) rotate(-14deg)}87%{opacity:0;transform:scale(2.4) rotate(-14deg)}90%{opacity:1;transform:scale(.94) rotate(-7deg)}91.5%{opacity:1;transform:scale(1) rotate(-7deg)}96%{opacity:1;transform:scale(1) rotate(-7deg)}98%{opacity:0}100%{opacity:0}}
+.fstamp{animation:fstamp 10s ease-out infinite;opacity:0}
+@keyframes fdl{0%{opacity:0;transform:translateY(8px)}91%{opacity:0;transform:translateY(8px)}93%{opacity:1;transform:none}96%{opacity:1;transform:none}98%{opacity:0}100%{opacity:0}}
+.fdl{animation:fdl 10s ease-out infinite;opacity:0}
+@keyframes fcap0{0%{opacity:1;background:var(--hl);color:var(--hlInk)}15.99%{opacity:1;background:var(--hl);color:var(--hlInk)}16%{opacity:.5;background:transparent;color:var(--mute)}100%{opacity:.5;background:transparent;color:var(--mute)}}
+.fcap0{animation:fcap0 10s linear infinite}
+@keyframes fcap1{0%{opacity:.5;background:transparent;color:var(--mute)}15.99%{opacity:.5;background:transparent;color:var(--mute)}16%{opacity:1;background:var(--hl);color:var(--hlInk)}29.99%{opacity:1;background:var(--hl);color:var(--hlInk)}30%{opacity:.5;background:transparent;color:var(--mute)}100%{opacity:.5;background:transparent;color:var(--mute)}}
+.fcap1{animation:fcap1 10s linear infinite}
+@keyframes fcap2{0%{opacity:.5;background:transparent;color:var(--mute)}29.99%{opacity:.5;background:transparent;color:var(--mute)}30%{opacity:1;background:var(--hl);color:var(--hlInk)}61.99%{opacity:1;background:var(--hl);color:var(--hlInk)}62%{opacity:.5;background:transparent;color:var(--mute)}100%{opacity:.5;background:transparent;color:var(--mute)}}
+.fcap2{animation:fcap2 10s linear infinite}
+@keyframes fcap3{0%{opacity:.5;background:transparent;color:var(--mute)}61.99%{opacity:.5;background:transparent;color:var(--mute)}62%{opacity:1;background:var(--hl);color:var(--hlInk)}77.99%{opacity:1;background:var(--hl);color:var(--hlInk)}78%{opacity:.5;background:transparent;color:var(--mute)}100%{opacity:.5;background:transparent;color:var(--mute)}}
+.fcap3{animation:fcap3 10s linear infinite}
+@keyframes fcap4{0%{opacity:.5;background:transparent;color:var(--mute)}77.99%{opacity:.5;background:transparent;color:var(--mute)}78%{opacity:1;background:var(--hl);color:var(--hlInk)}99.99%{opacity:1;background:var(--hl);color:var(--hlInk)}100%{opacity:.5;background:transparent;color:var(--mute)}100%{opacity:.5;background:transparent;color:var(--mute)}}
+.fcap4{animation:fcap4 10s linear infinite}
+@keyframes tl0{0%{opacity:0;transform:translateX(-8px)}28.8%{opacity:0;transform:translateX(-8px)}30%{opacity:1;transform:none}96%{opacity:1;transform:none}97.2%{opacity:0;transform:none}100%{opacity:0}}
+.tl0{animation:tl0 10s ease-out infinite;opacity:0}
+@keyframes tl1{0%{opacity:0;transform:translateX(-8px)}35.8%{opacity:0;transform:translateX(-8px)}37%{opacity:1;transform:none}96%{opacity:1;transform:none}97.2%{opacity:0;transform:none}100%{opacity:0}}
+.tl1{animation:tl1 10s ease-out infinite;opacity:0}
+@keyframes tl2{0%{opacity:0;transform:translateX(-8px)}45.8%{opacity:0;transform:translateX(-8px)}47%{opacity:1;transform:none}96%{opacity:1;transform:none}97.2%{opacity:0;transform:none}100%{opacity:0}}
+.tl2{animation:tl2 10s ease-out infinite;opacity:0}
+@keyframes tl3{0%{opacity:0;transform:translateX(-8px)}55.8%{opacity:0;transform:translateX(-8px)}57%{opacity:1;transform:none}96%{opacity:1;transform:none}97.2%{opacity:0;transform:none}100%{opacity:0}}
+.tl3{animation:tl3 10s ease-out infinite;opacity:0}
+@keyframes tl4{0%{opacity:0;transform:translateX(-8px)}64.8%{opacity:0;transform:translateX(-8px)}66%{opacity:1;transform:none}96%{opacity:1;transform:none}97.2%{opacity:0;transform:none}100%{opacity:0}}
+.tl4{animation:tl4 10s ease-out infinite;opacity:0}
+
+/* Board rules that forced these to be visible/animated even though their base class starts at opacity 0. */
+.film .ftype,
+.film .fcaret,
+.film .fconf,
+.film .fb0,
+.film .fb1,
+.film .fb2,
+.film .fth0,
+.film .fth1,
+.film .fth2,
+.film .fth3,
+.film .fth4 {
+  opacity: 1;
+}
+
+/* Inline animations on the board (named keyframes cannot be inline in CSS Modules). */
+.hl0 { animation: fh0 10s linear infinite; }
+.hl1 { animation: fh1 10s linear infinite; }
+.hl2 { animation: fh2 10s linear infinite; }
+.shake { animation: fshake 10s linear infinite; }
+.circ { animation: fcirc 10s ease-out infinite; }
+
+.abs {
+  position: absolute;
+}
+
+/* Files */
+.file {
+  left: 2.188cqw;
+  top: calc(10.312cqw + var(--i) * 10cqw);
+  width: 13.75cqw;
+  height: 8.75cqw;
+}
+
+.fileCard {
+  overflow: hidden;
+  border: 1.5px solid var(--ink);
+  border-radius: 0.781cqw;
+  background: var(--card);
+}
+
+.fileTab {
+  padding: 0.312cqw 0.781cqw;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--agent);
+  font: 500 max(7px, 1.25cqw) var(--mono);
+  letter-spacing: 0.1em;
+}
+
+.fileLines {
+  display: grid;
+  gap: 0.469cqw;
+  padding: 0.781cqw;
+}
+
+.fileLines i {
+  display: block;
+  height: 0.391cqw;
+  background: var(--rule);
+}
+
+.fileLines i:first-child {
+  background: var(--rule2);
+}
+
+.fileLines i:nth-child(2) {
+  width: 70%;
+}
+
+.fileLines i:nth-child(3) {
+  width: 85%;
+}
+
+.pin {
+  position: absolute;
+  top: -0.781cqw;
+  left: 50%;
+  width: 1.562cqw;
+  height: 1.562cqw;
+  margin-left: -0.781cqw;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Header labels */
+.live {
+  left: 81.25cqw;
+  top: 0.312cqw;
+  width: 17.188cqw;
+  height: 1.875cqw;
+  color: var(--mute);
+  font: 500 max(7px, 1.094cqw) var(--mono);
+  letter-spacing: 0.14em;
+  text-align: right;
+}
+
+.liveDot {
+  display: inline-block;
+  width: 0.625cqw;
+  height: 0.625cqw;
+  margin-right: 0.469cqw;
+  border-radius: 50%;
+  background: #ff6a55;
+}
+
+.case {
+  left: 20.312cqw;
+  top: 0.312cqw;
+  width: 23.438cqw;
+  height: 1.875cqw;
+  color: var(--accent);
+  font: 700 max(7px, 1.094cqw) var(--mono);
+  letter-spacing: 0.14em;
+}
+
+/* Question box */
+.question {
+  left: 20.312cqw;
+  top: 2.5cqw;
+  display: flex;
+  align-items: center;
+  gap: 1.094cqw;
+  width: 65.625cqw;
+  height: 5.625cqw;
+  padding: 0 1.562cqw;
+  border: 1.5px solid var(--ink);
+  border-radius: 0.938cqw;
+  background: var(--card);
+  box-shadow: 0 0 0 0.391cqw rgba(110, 123, 255, 0.18);
+}
+
+.qMark {
+  color: var(--accent);
+  font: 800 max(7px, 2.031cqw) var(--mono);
+}
+
+.qClip {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ftype {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font: 700 max(7px, 1.953cqw) var(--sans);
+  white-space: nowrap;
+}
+
+.caret {
+  display: block;
+  flex: none;
+  width: 0.25cqw;
+  height: 2.188cqw;
+  background: var(--accent);
+}
+
+.threads {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.thread {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+/* Work cards */
+.workCard {
+  left: calc(17.5cqw + var(--i) * 16.5625cqw);
+  top: 21.562cqw;
+  width: 15.625cqw;
+  height: 18.438cqw;
+  overflow: hidden;
+  border: 1.5px solid var(--ink);
+  border-radius: 0.781cqw;
+  background: var(--card);
+  transform-origin: 50% 0;
+}
+
+.cardHead {
+  padding: 0.391cqw 0.781cqw;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--agent);
+  font: 500 max(7px, 1.172cqw) var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cardMono {
+  padding: 0.781cqw;
+  color: var(--mute);
+  font: 500 max(7px, 1.172cqw) var(--mono);
+}
+
+.cardBig {
+  padding: 0 0.781cqw;
+  color: var(--ink);
+  font: 800 max(7px, 1.406cqw) var(--mono);
+  line-height: 1.25;
+}
+
+.cardNote {
+  padding: 0 0.781cqw;
+  color: var(--mute);
+  font: 500 max(7px, 1.172cqw) var(--mono);
+}
+
+.good {
+  color: var(--green);
+}
+
+.meter {
+  height: 0.625cqw;
+  margin: 0.938cqw 0.781cqw;
+  background: var(--track);
+}
+
+.fconf {
+  height: 100%;
+  background: var(--c-owl);
+}
+
+.shot {
+  position: relative;
+  height: 7.188cqw;
+  margin: 0.781cqw;
+  overflow: hidden;
+  border: 1px solid var(--rule2);
+  /* Photo-of-a-chart mock: colours come from the board, they are the "paper" in the picture. */
+  background: linear-gradient(#cfc3a8, #b9ac8c);
+}
+
+.shot i {
+  position: absolute;
+  bottom: 0;
+  width: 1.719cqw;
+  left: var(--x);
+  height: var(--h);
+  background: var(--c);
+}
+
+.shot b {
+  position: absolute;
+  border: 1.5px dashed #e5533d;
+}
+
+.quotes {
+  padding: 0 0.781cqw;
+  color: var(--ink2);
+  font: 500 max(7px, 1.172cqw) var(--mono);
+  line-height: 1.6;
+}
+
+.code {
+  margin: 0.781cqw;
+  padding: 0.625cqw;
+  overflow: hidden;
+  background: var(--code);
+  color: var(--codeInk);
+  font: 500 max(7px, 1.172cqw) var(--mono);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.str {
+  color: #f2d27a;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 5.312cqw;
+  margin: 0 0.781cqw;
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.bars i {
+  display: block;
+  width: 2.5cqw;
+  transform-origin: bottom;
+}
+
+.snippet {
+  display: grid;
+  gap: 0.625cqw;
+  padding: 0.781cqw;
+}
+
+.snippet i {
+  display: block;
+  height: 0.469cqw;
+  background: var(--rule2);
+}
+
+.snippet i.mark {
+  background: var(--hl);
+}
+
+.checks {
+  display: grid;
+  gap: 0.625cqw;
+  padding: 0.781cqw;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.469cqw;
+  padding: 0.469cqw 0.625cqw;
+  border: 1px solid var(--rule);
+}
+
+.check b {
+  color: var(--green);
+  font: 800 max(7px, 1.406cqw) var(--mono);
+}
+
+.check span {
+  font: 600 max(7px, 1.172cqw) var(--sans);
+}
+
+.checkBad {
+  border-color: var(--badLine);
+  background: var(--badBg);
+}
+
+.checkBad b {
+  color: var(--bad);
+}
+
+/* Animals: sprite sheet of 24 frames, one frame shown, stepped. */
+.animal {
+  left: calc(19.062cqw + var(--i) * 16.5625cqw);
+  top: 41cqw;
+  width: 12.5cqw;
+  height: 12.5cqw;
+  border-radius: 50%;
+  background: radial-gradient(closest-side at 50% 64%, color-mix(in srgb, var(--agent) 34%, transparent), transparent 86%);
+  transform-origin: center;
+}
+
+.hvs {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.hvs img {
+  display: block;
+  width: 2400%;
+  max-width: none;
+  height: 100%;
+  filter: drop-shadow(0 0.7cqw 1cqw rgba(0, 0, 0, 0.5));
+  animation: hvstep 2.4s steps(24, jump-end) infinite;
+  animation-delay: var(--d);
+}
+
+@keyframes hvstep {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.ring {
+  left: calc(18.212cqw + var(--i) * 16.5625cqw);
+  top: 40.15cqw;
+  width: 14.2cqw;
+  height: 14.2cqw;
+  border: 0.375cqw solid var(--agent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0.25cqw rgba(255, 255, 255, 0.12);
+}
+
+.animalLabel {
+  left: calc(19.062cqw + var(--i) * 16.5625cqw);
+  top: 55.7cqw;
+  width: 12.5cqw;
+  height: 1.875cqw;
+  color: var(--agent);
+  font: 700 max(7px, 1.094cqw) var(--mono);
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Report */
+.dim {
+  inset: 0;
+  z-index: 2;
+  background: rgba(8, 14, 17, 0.74);
+}
+
+.report {
+  left: 21.875cqw;
+  top: 9.688cqw;
+  z-index: 3;
+  width: 56.25cqw;
+  height: 40.938cqw;
+  padding: 2.5cqw 3.125cqw;
+  border: 2px solid var(--ink);
+  border-radius: 1.094cqw;
+  background: var(--card);
+  box-shadow: 0.625cqw 0.625cqw 0 var(--accent);
+}
+
+.reportHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 1.25cqw;
+  border-bottom: 2px solid var(--ink);
+}
+
+.reportTitle {
+  font: 800 max(7px, 2.5cqw) var(--sans);
+}
+
+.reportMeta {
+  color: var(--mute);
+  font: 500 max(7px, 1.172cqw) var(--mono);
+}
+
+.rows {
+  display: grid;
+  gap: 1.719cqw;
+  margin-top: 2.188cqw;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.25cqw;
+}
+
+.row b {
+  flex: none;
+  width: 1.406cqw;
+  height: 1.406cqw;
+  border-radius: 50%;
+  background: var(--c);
+}
+
+.row i {
+  display: block;
+  height: 0.781cqw;
+  width: var(--w);
+  background: var(--rule2);
+}
+
+.row span {
+  color: var(--mute);
+  font: 500 max(7px, 1.172cqw) var(--mono);
+}
+
+.rowBad {
+  padding: 1.094cqw 1.562cqw;
+  border: 1px solid var(--badLine);
+  border-radius: 0.625cqw;
+  background: var(--badBg);
+}
+
+.rowBad b {
+  background: var(--bad);
+}
+
+.rowBad i {
+  background: var(--badLine);
+}
+
+.rowBad span {
+  color: var(--bad);
+}
+
+.scribble {
+  position: absolute;
+  left: -2%;
+  top: -30%;
+  width: 104%;
+  height: 160%;
+  overflow: visible;
+}
+
+.scribble path {
+  fill: none;
+  stroke: var(--bad);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.stamp {
+  right: 3.125cqw;
+  bottom: 2.812cqw;
+  padding: 0.781cqw 1.875cqw;
+  border: 3px double var(--green);
+  background: var(--card);
+  color: var(--green);
+  font: 800 max(7px, 2.188cqw) var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.download {
+  left: 3.125cqw;
+  bottom: 2.812cqw;
+  padding: 1.25cqw 2.188cqw;
+  border: 1.5px solid var(--ink);
+  border-radius: 0.781cqw;
+  background: var(--accent);
+  box-shadow: 0.312cqw 0.312cqw 0 var(--ink);
+  color: #16202a;
+  font: 800 max(7px, 1.875cqw) var(--sans);
+}
+
+/* Controls under the film */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.pauseBtn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--rule2);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.pauseBtn:hover {
+  border-color: var(--ink);
+}
+
+.track {
+  flex: 1 1 auto;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--track);
+}
+
+.fprog {
+  height: 100%;
+  background: var(--accent);
+  animation: progbar 10s linear infinite;
+}
+
+@keyframes progbar {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.fine {
+  color: var(--mute);
+  font: 400 13.5px var(--mono);
+}
+
+.captions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.captions li {
+  flex: 1 1 90px;
+  padding: 7px 10px;
+  border: 1px solid var(--rule2);
+  border-radius: 10px;
+  font: 600 12.5px var(--sans);
+}
+
+.captions li span {
+  font-family: var(--mono);
+  opacity: 0.7;
+}
+
+/* Trace log, desktop only */
+.trace {
+  margin-top: 20px;
+  padding: 12px 16px 10px;
+  border: 1px solid var(--rule2);
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  font-family: var(--mono);
+}
+
+.traceHead {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--mute);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.traceBody {
+  min-height: 150px;
+  padding-top: 6px;
+  color: var(--ink2);
+  font-size: 12.5px;
+  line-height: 1.95;
+}
+
+.led {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--agent);
+  box-shadow: 0 0 8px var(--agent);
+  animation: blinksq 2s ease-in-out infinite;
+}
+
+@keyframes blinksq {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.traceTime {
+  color: var(--mute);
+}
+
+.traceWho {
+  display: inline-block;
+  min-width: 9ch;
+  margin-left: 1ch;
+}
+
+.bad {
+  color: var(--bad);
+}
+
+@media (max-width: 760px) {
+  .captions,
+  .trace {
+    display: none;
+  }
+}
+
+/* Reduced motion: the board's static frame. All agents, cards and the typed question show; the report stays hidden. */
+@media (prefers-reduced-motion: reduce) {
+  .loop *,
+  .loop *::before,
+  .loop *::after {
+    animation: none !important;
+  }
+
+  .ff0,
+  .ff1,
+  .ff2,
+  .fq,
+  .fcase,
+  .fm0,
+  .fm1,
+  .fm2,
+  .fm3,
+  .fm4,
+  .fc0k,
+  .fc1k,
+  .fc2k,
+  .fc3k,
+  .fc4k,
+  .tl0,
+  .tl1,
+  .tl2,
+  .tl3,
+  .tl4 {
+    opacity: 1 !important;
+  }
+
+  .ftype {
+    width: 100% !important;
+  }
+
+  .fth0,
+  .fth1,
+  .fth2,
+  .fth3,
+  .fth4 {
+    stroke-dashoffset: 0 !important;
+  }
+
+  .fprog {
+    width: 100%;
+  }
+
+  .fr0,
+  .fr1,
+  .fr2,
+  .fr3,
+  .fr4 {
+    opacity: 0;
+  }
+
+  /* Nothing moves, so the pause button has nothing to do. It keeps its space so nothing shifts. */
+  .pauseBtn {
+    visibility: hidden;
+  }
+}
+
+/* Pause button: freeze every animation inside the loop. */
+.paused,
+.paused *,
+.paused *::before,
+.paused *::after {
+  animation-play-state: paused !important;
+}

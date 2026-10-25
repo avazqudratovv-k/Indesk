@@ -1,4 +1,4 @@
-/* Positioned against the shell (the page), centred on it, behind the content. Hidden on phones, as on the board. */
+/* Positioned against the hero's right column, centred on it, behind the film; the hero panel clips it. Hidden on phones, as on the board. */
 .orbit {
   display: none;
   position: absolute;

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import Card from "@/components/ui/Card";
 import HomeSection from "./HomeSection";
-import { workspaceHref } from "./agents";
+import { exampleReportHref } from "./agents";
 import styles from "./HomeModes.module.css";
 
 const modes = ["ask", "check", "compare"] as const;
@@ -10,7 +10,7 @@ const modes = ["ask", "check", "compare"] as const;
 function ModeIcon({ mode }: { mode: (typeof modes)[number] }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" } as const;
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}>
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}>
       {mode === "ask" ? (
         <>
           <rect x="3" y="4" width="18" height="16" rx="2" />
@@ -45,9 +45,8 @@ export default function HomeModes() {
             <h3 className={styles.name}>{t(`${mode}.title`)}</h3>
             <p className={styles.body}>{t(`${mode}.body`)}</p>
             <p className={styles.example}>{t(`${mode}.example`)}</p>
-            {/* The Workspace may read ?mode later; nothing reads it yet. */}
-            <Link className={styles.link} href={`${workspaceHref}?mode=${mode}`}>
-              {t("open")} <span aria-hidden="true">→</span>
+            <Link className={styles.link} href={exampleReportHref[mode]}>
+              {t("try")} <span aria-hidden="true">→</span>
             </Link>
           </Card>
         ))}

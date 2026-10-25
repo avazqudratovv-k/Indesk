@@ -1,0 +1,37 @@
+.wrap {
+  margin-top: 28px;
+  overflow: hidden;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--mute);
+  white-space: nowrap;
+}
+
+.track {
+  display: inline-flex;
+  animation: mq 40s linear infinite;
+}
+
+.track span {
+  padding: 12px 0;
+  font: 500 12.5px var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: pre;
+}
+
+@keyframes mq {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 760px) {
+  .wrap {
+    display: none;
+  }
+}

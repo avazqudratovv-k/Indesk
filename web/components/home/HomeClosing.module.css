@@ -1,51 +1,65 @@
+/* Board CTA band: always-dark photo panel, 64 / 52 padding on every width. */
 .wrap {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 56px 20px 48px;
+  padding-top: 40px;
+  padding-bottom: 56px;
 }
 
 .band {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 24px;
-  padding: 28px 22px;
+  padding: 64px 52px;
+  overflow: hidden;
   border: 1px solid var(--rule2);
   border-radius: 24px;
-  /* Board `.bandpanel`: always-dark panel with the band art. */
   background: #05070d url("/bg/home-band.jpg") center / cover no-repeat;
-  overflow: hidden;
-  word-break: keep-all;
-  overflow-wrap: break-word;
 }
 
 .text {
-  display: grid;
-  gap: 14px;
+  max-width: 640px;
+  min-width: 0;
 }
 
 .title {
   margin: 0;
-  font: 300 32px/1.1 var(--sans);
-  letter-spacing: -0.03em;
+  font: 300 34px/1.15 var(--sans);
+  letter-spacing: -0.015em;
 }
 
 .body {
-  margin: 0;
-  color: var(--ink2);
+  margin: 8px 0 0;
+  font-size: 16px;
+  opacity: 0.9;
 }
 
-@media (min-width: 760px) {
-  .wrap {
-    padding: 72px 40px 64px;
-  }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
 
-  .band {
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 40px;
-    padding: 40px 44px;
-  }
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 52px;
+  border-radius: 14px;
+  font-size: 16px;
+  text-decoration: none;
+}
 
-  .title {
-    font-size: 40px;
-  }
+.primary {
+  padding: 0 24px;
+  background: var(--btn-grad);
+  color: var(--btn-grad-ink);
+  font-weight: 600;
+}
+
+.secondary {
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  font-weight: 700;
 }
