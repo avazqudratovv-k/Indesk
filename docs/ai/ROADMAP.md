@@ -1,6 +1,6 @@
 # ROADMAP.md — Indesk v1
 
-Lives at: `docs/ai/ROADMAP.md`. Last updated 2026-10-25. HEAD e771b11.
+Lives at: `docs/ai/ROADMAP.md`. Last updated 2026-10-25. HEAD e9f7d1e.
 UI-first. Order: 1) skeleton, tokens, layout; 2) each screen on mock data (shapes from `DATA.md`); 3) backend features matching `DATA.md`; 4) swap mock for real, one screen at a time; 5) deploy.
 Each item is sized for 1 to 2 work sessions. Check a box only when the item's "done when" is true.
 
@@ -8,7 +8,10 @@ Each item is sized for 1 to 2 work sessions. Check a box only when the item's "d
 - **[A]** core, planned for about Nov 1: the core backend (foundation, first working run, manager and critic, PDF and retrieval), Check, Compare, the full UI, the Gemini gateway and the cached example.
 - **[B]** product layer: build as time allows; until built, those screens stay on mock data.
 - **[C]** Vision (images, scanned PDFs, OCR test): after Nov 1.
-**Order change (owner-approved 2026-10-25, a deliberate change to the cut line).** Work now runs: docs batch, then 2.7 Report (Ask), then a backend slice (3.1 Compose/CI, 3.2 state contract, 3.4 DB, 3.5 auth, 3.6 uploads CSV only, 3.7 sandbox, 3.8 Gemini gateway with the fake client first, 3.9 first real run with 3.3 SSE absorbed, 3.11 critic and report API), then 4.1 to 4.4 swap mock to real, then 3.10 gates and outcomes, then 5.6 basic deploy and 5.7 README and demo video (5.1 Seoul demo data needs the owner's check), and last the remaining UI 2.8 to 2.16 on mock data. Reason: one real CSV-to-cited-report run on a public URL is worth more to the portfolio than five more mock screens.
+**Order (final, owner-approved 2026-10-25; replaces the earlier order-change note).** Hard date: Nov 1. A clean, full backend comes first; the frontend may lag.
+- Before Nov 1: 2.7 Report (Ask) -> backend slice (3.1 Compose/CI, 3.2 state contract, 3.4 DB, 3.5 auth as small as is clean, 3.6 uploads CSV only, 3.7 sandbox, 3.8 Gemini gateway with the fake client first, 3.9 first real run with 3.3 SSE absorbed, 3.11 critic and report API, 3.10 failure gates with Owl, Beaver and Cat as the working agents) -> 4.1 to 4.4 swap mock to real -> failure cards from 2.15 (failed, not answerable, busy today) -> 5.1 Seoul demo data (the owner checks data.seoul.go.kr) -> 5.6 deploy with HTTPS -> 5.7 README and demo video.
+- After Nov 1, the same URL grows: PDF and Hound (3.12), Check, Compare, then the Tier B screens 2.8, 2.9, 2.12, 2.13, 2.14, 2.16; also Vision (3.20), exports, plans and quotas, email verification.
+- If a day slips, drop first: auth beyond the minimum, then 2.15 polish. The backend core is not dropped.
 
 If time runs out, cut from the bottom: [C] first, then [B] items from the bottom up. Never cut the cached example.
 
@@ -30,7 +33,8 @@ How to work: for each item, Claude writes a prompt, you paste it into a fresh Cl
 - [x] **2.4 [A] Plans.** Cards and the custom plan calculator (price rule in `DECISIONS.md` #18, prices in KRW per #74), demo checkout screen.
 - [x] **2.5 [A] Workspace: Ask tab.** Tabs, mode switch, upload list, consent box with the demo notice, question box, chips, info blocks. (Commit 52b8a70; additions in DECISIONS #80, #81.)
 - [x] **2.6 [A] Workspace: run tab.** Agent cards with expandable artifacts, handover card, trace driven by a timer on mock events, guardrails, "No run yet" state. Built in four parts: 2.6a run tab and demo run (d89399d), 2.6b-1 agent tabs, handover, Owl and Cat views (1edb207), 2.6b-2 Chameleon, Beaver and Hound views (41cb257), follow-up fix (e771b11). Decisions #82 to #84.
-- [ ] **2.7 [A] Report (Ask).** Stamped final answer, Simple/Detailed, claims with evidence chips, confidence bar, follow-up thread.
+- [x] **2.7 [A] Report (Ask).** Stamped final answer, Simple/Detailed, claims with evidence chips, confidence bar. Built in 339a5b2, fixed in e9f7d1e. Decisions #85 to #97. The follow-up thread, Share and Style & download are not built (#87).
+- [x] **2.7b [A] Korean prose for mock reports.** `translations.ko` on rep_01 and rep_04, `ko` on their claims and evidence; number check script `web/scripts/check-report-numbers.mjs`. Built in e0dd7f6. Decision #98.
 - [ ] **2.8 [A] Style & download panel.** Template, typeface, size, format, Download button (shows a message).
 - [ ] **2.9 [A] Share panel.** Private/shared states, copy link, expiry text, unshare.
 - [ ] **2.10 [A] Report (Check).** Document-vs-computed rows, mismatch styling, "not checked" list.
@@ -68,7 +72,7 @@ How to work: for each item, Claude writes a prompt, you paste it into a fresh Cl
 - [ ] **3.8 [A] Gemini gateway.** One server-side module for every model call: model IDs from a config file (confirm them in Google AI Studio first), the two fallback chains from `DECISIONS.md` #27 and #28, 35 s budget per request, retry on 429 and timeouts by moving to the next model, every call logged to `ai_calls`, per-user and global daily caps from `usage_daily`. Key from `api/.env` only. Done when: tests with a fake client prove the chain order, the time budget and both caps.
 - [ ] **3.9 [A] First real run (free tier, demo data only).** Owl picks a tool, Beaver runs it in the sandbox, steps stream to the UI, cost recorded.
 - [ ] **3.10 [A] Gates and outcomes.** Answerability and quality gates, the six outcomes, skipped/failed/retry states, step cap, budget cap, refusal on a daily cap.
-- [ ] **3.11 [A] Critic and report.** Claims with evidence refs, Cat's verdicts, "VERIFIED x/y", report API.
+- [ ] **3.11 [A] Critic and report.** Claims with evidence refs, Cat's verdicts, "VERIFIED x/y", report API. PLANNED, not built (#98): translate action for real reports (one Gemini call on prose fields only, stored under `translations.<locale>`, number check rejects changed numbers); also compute `confidence` (thresholds high/medium/low are not defined yet).
 - [ ] **3.12 [A] PDF and Hound.** Text extraction, chunking, Gemini embeddings (confirm the model and vector size first), keyword + semantic search, cited passages.
 - [ ] **3.13 [A] Check a document.** Claim extraction, per-claim verdicts, "not checked" list.
 - [ ] **3.14 [A] Compare.** Column alignment, differences, could-not-compare notes.
@@ -84,7 +88,7 @@ Do in this order. For each: replace mock reads with API calls, keep the mock as 
 - [ ] **4.1 [A] Log in and Sign up.**
 - [ ] **4.2 [A] Workspace Ask tab (real upload and run start).**
 - [ ] **4.3 [A] Run tab (real SSE).**
-- [ ] **4.4 [A] Report (Ask).**
+- [ ] **4.4 [A] Report (Ask).** PLANNED, not built (#98): "Translate to <other language>" button, result labelled "AI translation", shown when the report language differs from the site language.
 - [ ] **4.5 [A] Check report.**
 - [ ] **4.6 [A] Compare report.**
 - [ ] **4.7 [A] Home "Try with an example"** (cached real result).

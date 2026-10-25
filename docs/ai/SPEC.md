@@ -87,7 +87,7 @@ There is **no admin role** in v1. Operate through the database and logs.
 | CSV and text PDF | A | Data and retrieval skills |
 | Five agents with live trace and expandable artifacts (Chameleon appears only when images exist, from Tier C) | A | The main demo |
 | Verified/flagged claims, evidence chips | A | The trust promise |
-| Full UI, all screens, light/dark, desktop and mobile | A | Final design; screens without a real backend stay on mock data. "Full UI" for Tier A now relies on the "[B] screens stay on mock" rule (ROADMAP order change of 2026-10-25: the remaining UI 2.8 to 2.16 comes after the first real run) |
+| Full UI, all screens, light/dark, desktop and mobile | A | Final design; screens without a real backend stay on mock data. "Full UI" for Tier A now relies on the "[B] screens stay on mock" rule (ROADMAP "Order (final)" of 2026-10-25: the backend slice and the swap to real come before Nov 1; the Tier B screens 2.8, 2.9, 2.12, 2.13, 2.14, 2.16 come after Nov 1) |
 | Gemini gateway: fallback chain, 35 s time budget, per-user and global daily caps | A | Reliability and cost control |
 | Cached "Try with an example" | A | Never fails in front of recruiters |
 | Share (7-day link), My page, delete with undo | B | Decided privacy rules |
@@ -135,7 +135,7 @@ Every sentence on a public page that promises something must be backed by a buil
 - "Sign-ups are limited per hour" (rate limit, ROADMAP 3.5).
 - Plan option groups (file size, data size, retention, parallel runs) are advertised only when the backend enforces them (DECISIONS #75).
 - "Sandbox: no network, 5 s CPU limit" (Beaver) must be true by deploy (ROADMAP section 3, sandbox runner).
-- "Images work" must be true by deploy.
+- "Images work" must be true by deploy. **IN CONFLICT (2026-10-25):** the Report shows photo-of-chart claims as Example, and Vision (ROADMAP 3.20) is after Nov 1. To be decided at the deploy checklist: change the copy or change the line. Not decided here.
 - "Every number links to the row or page it came from" must be true or be removed.
 - "This run was not used up" must be true or be removed.
 

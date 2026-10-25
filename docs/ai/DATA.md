@@ -1,6 +1,6 @@
 # DATA.md — Indesk
 
-Lives at: `docs/ai/DATA.md`. Last updated 2026-10-25.
+Lives at: `docs/ai/DATA.md`. Last updated 2026-10-25 (report contract as built in ROADMAP 2.7).
 
 Database: PostgreSQL + pgvector. Entities, relationships, API operations and one mock record each.
 Field types and limits: the `(rec)` limits are accepted (decided Oct 25). All AI calls go to Google Gemini; model IDs live in a config file (see `DECISIONS.md`).
@@ -87,13 +87,13 @@ run_id; upload_id; role (subject, source, a, b).
 id; run_id R; agent R (manager, vision, data, retrieval, critic); seq int R; status R (queued, running, done, skipped, failed, timed_out); attempt int (1 or 2); kind R (plan, tool, result, flag); payload jsonb (structured result: claim, value, method, evidence, confidence, caveats); started_at; finished_at; cost_usd; model text (the Gemini model that finally answered). The model request budget is 35 s including fallbacks; one retry of the step after a failure.
 
 ### evidence
-id; run_id R; step_id R; ref text R (D1, R1, U1…); type R (table, chart, code, image_boxes, passage, diff); file_name R; location text (rows, page, bars); payload jsonb (snapshot, so the report works after the file is deleted).
+id; run_id R; step_id R; ref text R (D1, R1, U1…); type R (table, chart, code, image_boxes, passage, diff, critic_note); file_name R; location text (rows, page, bars); payload jsonb (snapshot, so the report works after the file is deleted). `critic_note` holds Cat's "why" for a flagged claim. The growth chart rides on the payload of the D1 table evidence as `chart` {title, unit, series[{label, value, photo_value}]}; the numbers are computed in code.
 
 ### reports
-id; run_id R; owner_id R; title R; summary_json R; confidence text; verified_count int; total_claims int; pdf_key text; template (plain, classic, compact, summary); typeface (clean, serif, technical); text_size (s, m, l); created_at R; expires_at R (Free 30 d, Pro 90, Pay-as-you-go 60, Custom 90/180/365); deleted_at; purge_at (deleted_at + 7 days).
+id; run_id R; owner_id R; mode R (ask, check, compare; copied from the run); title R; summary_json R (shape per mode, see the end of this file); confidence text (high, medium, low; null when the critic did not run); verified_count int; total_claims int; pdf_key text; template (plain, classic, compact, summary); typeface (clean, serif, technical); text_size (s, m, l); created_at R; expires_at R (Free 30 d, Pro 90, Pay-as-you-go 60, Custom 90/180/365); deleted_at; purge_at (deleted_at + 7 days).
 
 ### claims
-id; report_id R; n int R; text R; status R (verified, flagged, unverified, mismatch); origin R (answer, document); doc_quote; doc_location; doc_value; computed_value; evidence_refs text[].
+id; report_id R; n int R; text R; status R (verified, flagged, unverified, mismatch); origin R (answer, document); doc_quote; doc_location; doc_value; computed_value; evidence_refs text[] (the `ref` values of the evidence that backs the claim; empty for an unverified claim with no passage found).
 
 ### share_links
 id; report_id R; token_hash R (random token, shown once); created_at R; expires_at R (created_at + 7 days); revoked_at. A report has no link until created.
@@ -214,15 +214,19 @@ Use these shapes for the UI-first mock data. The Seoul figures are placeholders 
 ```
 ```json
 // evidence
-{"id":"ev_01","run_id":"r_01","step_id":"st_01","ref":"D1","type":"table","file_name":"seoul-subway-ridership.csv","location":"rows 1–4800","payload":{"columns":["station","year","boardings"],"rows_used":4800}}
+{"id":"ev_01","run_id":"r_01","step_id":"st_01","ref":"D1","type":"table","file_name":"seoul-subway-ridership.csv","location":"rows 1–4800","payload":{"columns":["station","year","boardings"],"rows_used":4800,"title":"Growth by station, 2019 to 2025","body":"Computed in the sandbox from the uploaded CSV, over the whole file.","tool":"run_python","table":{"headers":["Station","Growth"],"rows":[["Hapjeong","+18.2%"],["Seongsu","+16.9%"],["Magok","+14.1%"]]},"chart":{"title":"Growth since 2019, top 8 stations","unit":"%","series":[{"label":"Hapjeong","value":18.2,"photo_value":18},{"label":"Seongsu","value":16.9,"photo_value":17}]}}}
+```
+```json
+// evidence (critic_note, why a claim is flagged)
+{"id":"ev_09","run_id":"r_01","step_id":"st_05","ref":"U1","type":"critic_note","file_name":"seoul-subway-ridership.csv","location":"columns checked","payload":{"title":"Why claim 4 was flagged","body":"The Critic searched the passages and the CSV columns. None link the growth to a line opening, and the data has no opening-date column. The claim is kept only as a hypothesis."}}
 ```
 ```json
 // reports
-{"id":"rep_01","run_id":"r_01","owner_id":"u_01","title":"Hapjeong leads station growth since 2019","summary_json":{"answer":"Ridership grew fastest at Hapjeong, Seongsu and Magok."},"confidence":"high","verified_count":5,"total_claims":6,"pdf_key":null,"template":"plain","typeface":"clean","text_size":"m","created_at":"2026-10-25T09:05:12Z","expires_at":"2026-11-24T09:05:12Z","deleted_at":null,"purge_at":null}
+{"id":"rep_01","run_id":"r_01","owner_id":"u_01","mode":"ask","title":"Hapjeong leads station growth since 2019","summary_json":{"answer":"Ridership grew fastest at Hapjeong, Seongsu and Magok. The chart photo matches the data. The report explains Hapjeong's growth, but nothing proves the new-line explanation, so it is marked.","top_rows":[{"label":"Hapjeong growth","value":"+18%","status":"verified"},{"label":"Seongsu growth","value":"+17%","status":"verified"},{"label":"Magok growth","value":"+14%","status":"verified"},{"label":"New line caused the growth","value":"?","status":"flagged"}],"in_short":[{"status":"verified","text":"Three stations grew the most: Hapjeong (+18%), Seongsu (+17%) and Magok (+14%)."},{"status":"verified","text":"The photo of the chart matches what we calculated from the data."},{"status":"flagged","text":"One idea could not be proven: that the new line caused the growth."}],"meaning":"Ridership is growing fastest in business and creative districts, not evenly across the city. You can safely quote the top-3 numbers. Avoid saying the new line is the cause until you have the opening dates.","next_steps":["Quote the top-3 numbers in your article or slide.","Ask the city for line opening dates to test the new-line idea.","Run the same question on another year to see if the pattern holds."]},"confidence":"high","verified_count":5,"total_claims":6,"pdf_key":null,"template":"plain","typeface":"clean","text_size":"m","created_at":"2026-10-25T09:05:12Z","expires_at":"2026-11-24T09:05:12Z","deleted_at":null,"purge_at":null}
 ```
 ```json
 // claims
-{"id":"cl_01","report_id":"rep_01","n":1,"text":"Hapjeong grew 18%","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"+18%","evidence_refs":["D1"]}
+{"id":"cl_01","report_id":"rep_01","n":1,"text":"Hapjeong grew fastest: +18.2% in average daily riders from 2019 to 2025.","status":"verified","origin":"answer","doc_quote":null,"doc_location":null,"doc_value":null,"computed_value":"+18.2%","evidence_refs":["D1"]}
 ```
 ```json
 // claims (Check mode, mismatch)
@@ -257,11 +261,23 @@ Display-only demo values; prices are whole KRW (DECISIONS #74). Not a database t
 - The sign-up form limits (DECISIONS #73): display name 1 to 60, email max 254, password 10 to 128.
 - Cost fields (`runs.cost_usd`, `agent_steps.cost_usd`, `ai_calls.est_cost_usd`, `usage_daily.est_cost_usd`) are internal, in USD, and never shown to users.
 
-## summary_json shapes (mock, to confirm at 3.13 and 3.14)
+## summary_json shapes (as built for the Ask report in ROADMAP 2.7; Check and Compare still to confirm at 3.13 and 3.14)
 Taken from `web/mocks/reports.json`. Every shape has `answer`.
-- Ask: `{ "answer": string }`
+- Ask: `{ "answer": string, "top_rows": [{ "label", "value", "status" }], "in_short": [{ "status", "text" }], "meaning": string, "next_steps": string[] }`. `status` is a claim status (verified, flagged, unverified, mismatch).
 - Check: `{ "answer": string, "not_checked": string[] }`
 - Compare: `{ "answer": string, "totals": [{ "label", "a", "b", "change" }], "movers": [{ "label", "change_pct" }], "could_not_compare": string[] }`
+
+Rules for the Ask report:
+- The model writes only `answer`, `in_short`, `meaning` and `next_steps`. Every number comes from code (pandas on the whole file) and is placed by the app; the chart series (`value`, `photo_value`) and the evidence tables are code-computed too.
+- The stamp ("VERIFIED x/y") and the confidence level are computed from `verified_count`, `total_claims` and the claim statuses, never read from text. Only a claim with status `verified` counts. With no claims (the critic did not run) there is no stamp and no confidence. The mock stores `confidence` as a literal field; the backend (ROADMAP 3.11) must compute it, and the thresholds are not defined yet.
+- `report.mode` is copied from the run.
+- Claims point to evidence through `evidence_refs`; a flagged or unverified claim may point to a `critic_note` evidence record that explains why.
+
+Translations (as built for the mock reports rep_01 and rep_04, ROADMAP 2.7b, #98; types in `web/lib/types.ts`):
+- `reports.translations.ko`: `{ "title": string, "summary_json": { "answer", "top_rows": [{ "label", "value" }], "in_short": [{ "text" }], "meaning", "next_steps": string[] } }`. Arrays pair with the English record by position; `status` and the real values stay in the English record.
+- `claims.ko`: `{ "text": string }`. `doc_quote` stays in the language of the file.
+- `evidence.payload.ko`: `{ "title", "body", "table": { "headers", "rows" }, "chart": { "title", "series": [{ "label" }] } }`, each key only where the English payload has it. Numbers, units, station names, quotes, file names, tool names and code are not translated.
+- For real reports, translations are generated and stored (PLANNED for 3.11, not built), never edited by hand. Each must pass the same number check as the mocks (`web/scripts/check-report-numbers.mjs`).
 
 Example claim IDs overlap across reports because they are examples; real IDs are uuids.
 
