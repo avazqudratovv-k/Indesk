@@ -12,3 +12,4 @@ paths:
 - Check against `docs/design/source/` and `docs/design/png/` before calling a screen done.
 - Loading, empty and error states for every data view. Errors show a plain reason from an error code, never a raw message.
 - The browser never holds a secret and never calls Google; it talks only to our API.
+- Write `-webkit-backdrop-filter` BEFORE `backdrop-filter`; otherwise the CSS build drops the standard line.
