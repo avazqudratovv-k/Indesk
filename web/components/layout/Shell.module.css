@@ -11,3 +11,10 @@
   flex: 1;
   min-width: 0;
 }
+
+/* Room for the floating tab bar on phones: 56 px pill + 10 px margin + breathing space + safe area. */
+@media (max-width: 760px) {
+  .shell {
+    padding-bottom: calc(56px + 10px + 16px + env(safe-area-inset-bottom));
+  }
+}

@@ -15,6 +15,8 @@ export default function Navbar() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const session = useSession();
+  const onAuthPage = pathname === "/login" || pathname === "/signup";
+  const authHidden = onAuthPage ? styles.authPageHidden : "";
 
   return (
     <header className={styles.mast}>
@@ -46,10 +48,10 @@ export default function Navbar() {
             </Link>
           ) : (
             <>
-              <Link href="/login" className={`${styles.link} ${styles.login}`}>
+              <Link href="/login" className={`${styles.link} ${styles.login} ${authHidden}`}>
                 {t("login")}
               </Link>
-              <Button href="/signup" variant="primary" size="sm">
+              <Button href="/signup" variant="primary" size="sm" className={authHidden}>
                 {t("signup")}
               </Button>
             </>

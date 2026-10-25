@@ -1,6 +1,5 @@
 .mast {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 30;
   border-bottom: 1px solid var(--rule);
   background: color-mix(in srgb, var(--paper) 62%, transparent);
@@ -102,7 +101,19 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset, 0 10px 30px -12px var(--glow);
 }
 
+@media (max-width: 760px) {
+  /* Log in / Sign up are already on the page itself (tabs and switch link). */
+  .authPageHidden {
+    display: none;
+  }
+}
+
 @media (min-width: 761px) {
+  .mast {
+    position: sticky;
+    top: 0;
+  }
+
   .inner {
     min-height: 70px;
     gap: 20px;

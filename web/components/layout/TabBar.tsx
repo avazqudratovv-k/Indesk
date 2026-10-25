@@ -17,6 +17,7 @@ const tabs: Tab[] = [
   { key: "plans", href: "/plans", signedInOnly: false, icon: <PlansIcon /> },
 ];
 
+// Floating pill: the active tab is a chip with icon and label, the others show the icon only.
 // Signed in: Home, Workspace, My, Plans. Signed out: Home, Workspace, Plans (DECISIONS #62).
 export default function TabBar() {
   const t = useTranslations("tabBar");
@@ -30,9 +31,9 @@ export default function TabBar() {
         .map((tab) => {
           const active = isActive(pathname, tab.href);
           return (
-            <Link key={tab.key} href={tab.href} className={`${styles.tab} ${active ? styles.on : ""}`} aria-current={active ? "page" : undefined}>
+            <Link key={tab.key} href={tab.href} className={`${styles.tab} ${active ? styles.on : ""}`} aria-label={t(tab.key)} aria-current={active ? "page" : undefined}>
               {tab.icon}
-              <span className={styles.label}>{t(tab.key)}</span>
+              {active ? <span className={styles.label}>{t(tab.key)}</span> : null}
             </Link>
           );
         })}
