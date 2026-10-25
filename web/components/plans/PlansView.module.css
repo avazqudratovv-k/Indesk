@@ -1,0 +1,106 @@
+/* Board main: 1180 px, 40 px top and 32 px sides, 24 px gap. Phones: 22 px top, 20 px sides. */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 32px 0;
+  /* Korean breaks between words, not inside them. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.intro {
+  max-width: 760px;
+}
+
+.title {
+  margin: 0;
+  font: 300 46px/1.1 var(--sans);
+  letter-spacing: -0.02em;
+}
+
+/* Midnight: the board paints page headlines with a white-to-lilac gradient. */
+:global([data-theme="dark"]) .title {
+  background: linear-gradient(180deg, #ffffff 12%, #bfb7ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sub {
+  margin: 12px 0 0;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+
+.paid {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border: 1px solid var(--ok);
+  border-radius: 14px;
+  background: var(--okBg);
+  color: var(--ok);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.limit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 22px;
+  border: 1px solid var(--warn);
+  border-radius: 14px;
+  background: var(--warnBg);
+}
+
+.limitTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--warn);
+}
+
+.limitBody {
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.demoLine {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--mute);
+}
+
+@media (max-width: 760px) {
+  .main {
+    padding: 22px 20px 0;
+  }
+
+  .title {
+    font-size: 40px;
+    line-height: 1.05;
+  }
+
+  /* The board's phone rule gives every <section> 20 px of side padding, so the card rows sit 40 px from the edge. */
+  .row {
+    padding: 0 var(--plans-row-inset, 20px);
+  }
+
+  .paid,
+  .limit {
+    padding-inline: 20px;
+  }
+}

@@ -1,0 +1,118 @@
+.card {
+  composes: surface from "./surface.module.css";
+  flex: 1 1 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 24px;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.title {
+  margin: 0;
+  font: 300 18px/1.55 var(--sans);
+  letter-spacing: -0.03em;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plan,
+.demo {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.plan {
+  background: var(--accentSoft);
+  color: var(--accentText);
+}
+
+.demo {
+  border: 1px solid var(--warn);
+  color: var(--warn);
+}
+
+.text {
+  font: 500 34px/1.55 var(--mono);
+}
+
+.track {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.fill {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--accent);
+}
+
+.fillFull {
+  background: var(--bad);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.run,
+.reset {
+  min-height: 48px;
+  border-radius: 14px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.run {
+  padding: 0 20px;
+  border: 0;
+  background: var(--accent);
+  color: var(--accentInk);
+  font-weight: 700;
+}
+
+.run:disabled {
+  background: var(--disabled);
+  color: var(--mute);
+  cursor: not-allowed;
+}
+
+.reset {
+  padding: 0 18px;
+  border: 1px solid var(--rule2);
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.note {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--mute);
+}
+
+@media (max-width: 760px) {
+  .text {
+    overflow-wrap: anywhere;
+  }
+}

@@ -1,0 +1,84 @@
+/* Board left card: 30 px padding, 28 px gap, 38 px heading (30 px on phones). */
+.card {
+  composes: surface from "./surface.module.css";
+  flex: 1.5 1 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+  padding: 30px;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title {
+  margin: 0;
+  font: 300 38px/1.08 var(--sans);
+  letter-spacing: -0.03em;
+}
+
+.sub {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+
+.runs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.runsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.runsLabel {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.runsValue {
+  font: 400 28px/1.55 var(--mono);
+  letter-spacing: -0.02em;
+}
+
+.range {
+  width: 100%;
+  min-height: 32px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.scale {
+  display: flex;
+  justify-content: space-between;
+  font: 400 13.5px var(--mono);
+  color: var(--mute);
+}
+
+.note {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--mute);
+}
+
+@media (max-width: 760px) {
+  .title {
+    font-size: 30px;
+  }
+
+  /* Phone touch target for the slider (board: 32 px). */
+  .range {
+    min-height: 44px;
+  }
+}

@@ -297,5 +297,134 @@
       "Code runs in a sandbox with no internet",
       "Demo: no real payments are taken"
     ]
+  },
+  "plans": {
+    "title": "Plans and usage",
+    "sub": "Start free. Pay only when you need bigger files or more runs.",
+    "paidMsg": "Payment simulated. Your limits were raised.",
+    "limitTitle": "You’ve used all your runs",
+    "limitBody": "The server blocks new runs until you upgrade or the month resets. Your reports stay available.",
+    "demoNoPayments": "Demo: no real payments are taken.",
+    "demoBadge": "Demo",
+    "popular": "Most popular",
+    "currentPlan": "Current plan",
+    "startFree": "Start free",
+    "names": {
+      "free": "Free",
+      "pro": "Pro",
+      "payg": "Pay as you go"
+    },
+    "per": {
+      "forever": "forever",
+      "month": "per month",
+      "once": "for {runs, number} runs"
+    },
+    "cta": {
+      "free": "Free plan",
+      "pro": "Upgrade to Pro",
+      "payg": "Buy {runs, number} runs"
+    },
+    "features": {
+      "runsFree": "{runs, number} analysis runs",
+      "runsPro": "{runs, number} runs per month",
+      "runsPayg": "{runs, number} runs, never expire",
+      "fileSize": "Files up to {mb, number} MB each",
+      "csvRows": "CSV up to {rows, number} rows",
+      "pdfPages": "PDF up to {pages, number} pages",
+      "retention": "Reports kept for {days, number} days"
+    },
+    "custom": {
+      "eyebrow": "Custom plan",
+      "title": "Build your own plan",
+      "sub": "Choose what you need and the price follows. It never drops below {minimum}, the Pro price.",
+      "runsLabel": "Runs per month",
+      "runsValueText": "{runs, number} runs per month, {price} per month",
+      "fileSize": {
+        "title": "Largest file",
+        "hint": "per upload"
+      },
+      "dataSize": {
+        "title": "Data size",
+        "hint": "rows and pages per file"
+      },
+      "retention": {
+        "title": "Keep reports",
+        "hint": "original files are always deleted after 24 h"
+      },
+      "parallel": {
+        "title": "Runs at the same time",
+        "hint": "how many analyses can run together"
+      },
+      "mb": "{mb, number} MB",
+      "days": "{days, number} days",
+      "count": "{count, number}",
+      "dataStandard": "Standard · 200k rows · 200 pages",
+      "dataLarge": "Large · 1M rows · 1,000 pages",
+      "optionsNote": "Demo: only the number of runs sets the price.",
+      "yourPlan": "Your plan",
+      "per": "per month",
+      "perRun": "{price} per run on average",
+      "lineRuns": "{runs, number} runs × {perRun}",
+      "lineFileSize": "File size {mb, number} MB",
+      "lineDataStandard": "Standard data size",
+      "lineDataLarge": "Large data size",
+      "lineRetention": "Reports kept {days, number} days",
+      "lineParallel": "{count, number} at the same time",
+      "included": "included",
+      "minNote": "Under {minimum} we round up to {minimum}, the same as Pro, which already covers {proRuns, number} runs.",
+      "cta": "Choose this plan",
+      "note": "Demo checkout, test mode. No real charge."
+    },
+    "usage": {
+      "title": "Your usage",
+      "planFree": "Free plan",
+      "planFreeCredits": "Free + credits",
+      "planPro": "Pro plan",
+      "planCustom": "Custom plan",
+      "text": "{used, number} of {limit, number} runs used",
+      "simulate": "Simulate one run",
+      "reset": "Reset demo",
+      "demoNote": "Demo only: this counter lives in your browser and enforces nothing."
+    },
+    "enforce": {
+      "title": "How the limits are enforced",
+      "items": [
+        "The server counts runs per account, not the browser.",
+        "Files are checked for type, size and rows before any AI runs.",
+        "Sign-ups are limited per hour, which protects the free runs.",
+        "A daily budget cap stops any single day from costing too much."
+      ],
+      "demoNote": "These are the design rules. This demo page does not enforce them."
+    },
+    "checkout": {
+      "title": "Demo checkout",
+      "summaryPro": "Pro plan · {price} per month",
+      "summaryPayg": "{runs, number} runs · {price} once",
+      "summaryCustom": "Custom plan · {runs, number} runs · {price} per month",
+      "testNote": "Test mode: no real card is charged and no money moves.",
+      "cardLabel": "Test card number",
+      "expLabel": "Expiry",
+      "cvcLabel": "CVC",
+      "payBtn": "Pay (test mode)",
+      "cancel": "Cancel",
+      "cardPlaceholder": "1234 1234 1234 1234",
+      "expPlaceholder": "MM/YY",
+      "cvcPlaceholder": "123",
+      "demoHint": "Demo: use 4242 4242 4242 4242 to succeed or 4000 0000 0000 0002 to see a decline.",
+      "noRealCards": "Do not enter real card details.",
+      "processing": "Processing…",
+      "successTitle": "Payment successful",
+      "successLine": "Your demo payment went through. No real money moved.",
+      "done": "Done",
+      "declinedTitle": "Payment declined",
+      "declinedLine": "This demo card was declined.",
+      "tryAgain": "Try again",
+      "errors": {
+        "numberIncomplete": "Enter all 16 digits of the card number.",
+        "expiryInvalid": "Enter the expiry as MM/YY, with a month from 01 to 12.",
+        "expiryPast": "This expiry date has passed.",
+        "cvcShort": "Enter the 3 or 4 digit CVC."
+      }
+    }
   }
 }

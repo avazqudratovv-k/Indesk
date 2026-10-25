@@ -40,6 +40,29 @@ export type CustomConfig = {
   parallel: 1 | 3 | 5;
 };
 
+// Plan prices on the Plans screen are whole Korean won (KRW only, display-only demo values).
+export type PlanOffer = {
+  plan: "free" | "pro" | "payg";
+  runs: number;
+  price: number;
+  period: "forever" | "month" | "once";
+  max_file_mb: number;
+  csv_rows: number;
+  pdf_pages: number;
+  retention_days: number;
+  popular: boolean;
+};
+
+export type CustomPlanOffer = {
+  runs: { min: number; max: number; step: number; default: number };
+  per_run: number;
+  minimum: number;
+  max_file_mb: CustomConfig["max_file_mb"][];
+  data_tier: string[];
+  retention_days: CustomConfig["retention_days"][];
+  parallel: CustomConfig["parallel"][];
+};
+
 export type Subscription = {
   id: string;
   user_id: string;

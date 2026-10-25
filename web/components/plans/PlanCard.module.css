@@ -1,0 +1,131 @@
+/* Board plan card: 2 px border, 26 px padding, 16 px gap; popular card has the lighter rule2 border, the current one the accent. */
+.card {
+  composes: surface from "./surface.module.css";
+  flex: 1 1 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 26px;
+  border: 2px solid var(--rule);
+}
+
+.cardPopular {
+  border-color: var(--rule2);
+}
+
+.cardOn {
+  border-color: var(--accent);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.name {
+  margin: 0;
+  font: 300 20px/1.55 var(--sans);
+  letter-spacing: -0.03em;
+}
+
+.popular {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accentInk);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.priceRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+  margin: 0;
+}
+
+.price {
+  font: 300 46px/1.55 var(--sans);
+  letter-spacing: -0.02em;
+}
+
+.per {
+  font-size: 14px;
+  color: var(--mute);
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+
+.tick {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--okBg);
+  color: var(--ok);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 14px;
+  font: 700 15px var(--sans);
+  text-align: center;
+  cursor: pointer;
+}
+
+.btnLink {
+  text-decoration: none;
+}
+
+.btnAccent {
+  background: var(--accent);
+  color: var(--accentInk);
+}
+
+.btnInk {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btnSoft {
+  background: var(--accentSoft);
+  color: var(--accentText);
+}
+
+.btnQuiet {
+  background: var(--disabled);
+  color: var(--mute);
+}
+
+.btn:disabled {
+  cursor: default;
+}

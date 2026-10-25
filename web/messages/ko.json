@@ -297,5 +297,134 @@
       "코드는 인터넷이 없는 샌드박스에서 실행됩니다",
       "데모: 실제 결제는 이루어지지 않습니다"
     ]
+  },
+  "plans": {
+    "title": "요금제와 사용량",
+    "sub": "무료로 시작하세요. 더 큰 파일이나 더 많은 실행이 필요할 때만 결제하세요.",
+    "paidMsg": "결제가 시뮬레이션되었습니다. 한도가 늘어났습니다.",
+    "limitTitle": "모든 실행을 사용했습니다",
+    "limitBody": "업그레이드하거나 월이 바뀔 때까지 서버가 새 실행을 막습니다. 기존 보고서는 계속 볼 수 있습니다.",
+    "demoNoPayments": "데모: 실제 결제는 이루어지지 않습니다.",
+    "demoBadge": "데모",
+    "popular": "인기",
+    "currentPlan": "현재 플랜",
+    "startFree": "무료로 시작",
+    "names": {
+      "free": "무료",
+      "pro": "Pro",
+      "payg": "종량제"
+    },
+    "per": {
+      "forever": "영구 무료",
+      "month": "월",
+      "once": "{runs, number}회"
+    },
+    "cta": {
+      "free": "무료 플랜",
+      "pro": "Pro로 업그레이드",
+      "payg": "{runs, number}회 구매"
+    },
+    "features": {
+      "runsFree": "분석 {runs, number}회",
+      "runsPro": "월 {runs, number}회 실행",
+      "runsPayg": "{runs, number}회, 만료 없음",
+      "fileSize": "파일당 최대 {mb, number}MB",
+      "csvRows": "CSV 최대 {rows, number}행",
+      "pdfPages": "PDF 최대 {pages, number}쪽",
+      "retention": "보고서 {days, number}일 보관"
+    },
+    "custom": {
+      "eyebrow": "맞춤 플랜",
+      "title": "나에게 맞는 플랜 만들기",
+      "sub": "필요한 만큼 고르면 가격이 계산돼요. 최저 가격은 Pro와 같은 {minimum}입니다.",
+      "runsLabel": "월 분석 횟수",
+      "runsValueText": "월 {runs, number}회, 월 {price}",
+      "fileSize": {
+        "title": "최대 파일 크기",
+        "hint": "업로드당"
+      },
+      "dataSize": {
+        "title": "데이터 규모",
+        "hint": "파일당 행·쪽 수"
+      },
+      "retention": {
+        "title": "보고서 보관 기간",
+        "hint": "원본 파일은 항상 24시간 뒤 삭제"
+      },
+      "parallel": {
+        "title": "동시 실행",
+        "hint": "동시에 돌릴 수 있는 분석 수"
+      },
+      "mb": "{mb, number}MB",
+      "days": "{days, number}일",
+      "count": "{count, number}",
+      "dataStandard": "표준 · 20만 행 · 200쪽",
+      "dataLarge": "대용량 · 100만 행 · 1,000쪽",
+      "optionsNote": "데모: 가격은 실행 횟수로만 정해집니다.",
+      "yourPlan": "내 플랜",
+      "per": "월",
+      "perRun": "평균 회당 {price}",
+      "lineRuns": "{runs, number}회 × {perRun}",
+      "lineFileSize": "파일 {mb, number}MB",
+      "lineDataStandard": "표준 데이터 규모",
+      "lineDataLarge": "대용량 데이터",
+      "lineRetention": "보고서 {days, number}일 보관",
+      "lineParallel": "동시 {count, number}개",
+      "included": "포함",
+      "minNote": "{minimum} 미만은 {minimum}으로 올려 받아요. Pro와 같은 가격이며 {proRuns, number}회가 포함됩니다.",
+      "cta": "이 플랜 선택",
+      "note": "데모 결제, 테스트 모드. 실제 청구 없음."
+    },
+    "usage": {
+      "title": "내 사용량",
+      "planFree": "무료 플랜",
+      "planFreeCredits": "무료 + 크레딧",
+      "planPro": "Pro 플랜",
+      "planCustom": "맞춤 플랜",
+      "text": "{used, number}/{limit, number}회 사용",
+      "simulate": "실행 1회 시뮬레이션",
+      "reset": "데모 초기화",
+      "demoNote": "데모 전용: 이 카운터는 브라우저 안에서만 동작하며 아무것도 제한하지 않습니다."
+    },
+    "enforce": {
+      "title": "한도는 이렇게 적용됩니다",
+      "items": [
+        "서버가 브라우저가 아닌 계정별로 실행 횟수를 계산합니다.",
+        "AI가 실행되기 전에 파일 형식, 크기, 행 수를 검사합니다.",
+        "가입 횟수를 시간당으로 제한해 무료 실행을 보호합니다.",
+        "일일 예산 한도가 하루 비용이 과도해지는 것을 막습니다."
+      ],
+      "demoNote": "설계 규칙입니다. 이 데모 페이지는 실제로 적용하지 않습니다."
+    },
+    "checkout": {
+      "title": "데모 결제",
+      "summaryPro": "Pro 플랜 · 월 {price}",
+      "summaryPayg": "{runs, number}회 · 1회 결제 {price}",
+      "summaryCustom": "맞춤 플랜 · {runs, number}회 · 월 {price}",
+      "testNote": "테스트 모드: 실제 카드는 청구되지 않으며 돈이 이동하지 않습니다.",
+      "cardLabel": "테스트 카드 번호",
+      "expLabel": "만료일",
+      "cvcLabel": "CVC",
+      "payBtn": "결제 (테스트 모드)",
+      "cancel": "취소",
+      "cardPlaceholder": "1234 1234 1234 1234",
+      "expPlaceholder": "MM/YY",
+      "cvcPlaceholder": "123",
+      "demoHint": "데모: 4242 4242 4242 4242는 결제 성공, 4000 0000 0000 0002는 결제 거절을 보여 줍니다.",
+      "noRealCards": "실제 카드 정보를 입력하지 마세요.",
+      "processing": "처리 중…",
+      "successTitle": "결제가 완료되었어요",
+      "successLine": "데모 결제가 처리되었어요. 실제로 돈은 이동하지 않았어요.",
+      "done": "완료",
+      "declinedTitle": "결제가 거절되었어요",
+      "declinedLine": "이 데모 카드는 거절되었어요.",
+      "tryAgain": "다시 시도",
+      "errors": {
+        "numberIncomplete": "카드 번호 16자리를 모두 입력해 주세요.",
+        "expiryInvalid": "만료일을 MM/YY 형식으로 입력해 주세요. 월은 01~12입니다.",
+        "expiryPast": "만료일이 지났어요.",
+        "cvcShort": "CVC 3~4자리를 입력해 주세요."
+      }
+    }
   }
 }

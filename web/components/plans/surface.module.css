@@ -1,0 +1,15 @@
+/* Board `var(--surface)` rule: translucent blurred card with the theme shadow. Other modules compose it. */
+.surface {
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+
+/* Midnight: inset top highlight and indigo shadow (board dkv2). */
+:global([data-theme="dark"]) .surface {
+  box-shadow: inset 0 1px 0 rgba(200, 208, 255, 0.09), 0 22px 46px -30px rgba(3, 5, 32, 0.95);
+}

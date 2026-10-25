@@ -1,12 +1,15 @@
 // Typed read functions over web/mocks/*.json (ROADMAP 1.7). Screens call these until the API exists (section 4 swaps them).
-import type { Claim, Evidence, PersonResult, Report, ShareLink, ShareLinkState, Upload, User } from "@/lib/types";
+import type { Claim, CustomPlanOffer, PlanOffer, Evidence, PersonResult, Report, ShareLink, ShareLinkState, Upload, User } from "@/lib/types";
 import claimsFile from "./claims.json";
 import evidenceFile from "./evidence.json";
+import plansFile from "./plans.json";
 import reportsFile from "./reports.json";
 import shareLinksFile from "./share-links.json";
 import uploadsFile from "./uploads.json";
 import usersFile from "./users.json";
 
+const planOffers = plansFile.records as PlanOffer[];
+const customPlanOffer = plansFile.custom as CustomPlanOffer;
 const users = usersFile.records as User[];
 const uploads = uploadsFile.records as Upload[];
 const reports = reportsFile.records as Report[];
@@ -71,4 +74,12 @@ export function searchMockPeople(query: string): PersonResult[] {
 
 export function listMockDiscoverablePeople(): PersonResult[] {
   return users.filter((user) => user.discoverable).map(({ id, display_name, handle }) => ({ id, display_name, handle }));
+}
+
+export function listMockPlanOffers(): PlanOffer[] {
+  return planOffers;
+}
+
+export function getMockCustomPlanOffer(): CustomPlanOffer {
+  return customPlanOffer;
 }
