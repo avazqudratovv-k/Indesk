@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import { useSession } from "@/hooks/use-session";
@@ -17,11 +18,22 @@ export default function Navbar() {
   const session = useSession();
   const onAuthPage = pathname === "/login" || pathname === "/signup";
   const authHidden = onAuthPage ? styles.authPageHidden : "";
+  const [tapped, setTapped] = useState(false);
+  const tapTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => window.clearTimeout(tapTimer.current), []);
+
+  // Tilts the mark for 600 ms on click or tap. The link still navigates; nothing is prevented.
+  function tapBrand() {
+    window.clearTimeout(tapTimer.current);
+    setTapped(true);
+    tapTimer.current = window.setTimeout(() => setTapped(false), 600);
+  }
 
   return (
     <header className={styles.mast}>
       <div className={styles.inner}>
-        <Link href="/" className={styles.brand} aria-label={t("brand")}>
+        <Link href="/" className={`${styles.brand} ${tapped ? styles.tap : ""}`} aria-label={t("brand")} onClick={tapBrand}>
           <BrandMark />
           <span className={styles.brandName}>indesk</span>
         </Link>

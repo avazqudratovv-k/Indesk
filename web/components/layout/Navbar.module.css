@@ -30,6 +30,29 @@
   text-decoration: none;
 }
 
+.brand svg {
+  display: block;
+  transition: transform 0.5s;
+}
+
+.brand:focus-visible svg,
+.tap svg {
+  transform: rotate(-8deg);
+}
+
+/* Hover only where a real pointer exists, so a tap on a phone does not leave the mark tilted. */
+@media (hover: hover) {
+  .brand:hover svg {
+    transform: rotate(-8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand svg {
+    transition: none;
+  }
+}
+
 .brandName {
   display: none;
   font-weight: 400;
