@@ -1,8 +1,17 @@
+import ipaddress
 from functools import lru_cache
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import SecretStr, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr, field_validator, model_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+
+AUTH_SECRET_MIN_LENGTH = 32
+
+
+def _split_commas(value: object) -> object:
+    if isinstance(value, str):
+        return [part.strip() for part in value.split(",") if part.strip()]
+    return value
 
 
 class Settings(BaseSettings):
@@ -16,6 +25,45 @@ class Settings(BaseSettings):
     postgres_password: SecretStr | None = None
     auth_secret: SecretStr | None = None
     gemini_api_key: SecretStr | None = None
+    # Comma-separated in the environment. Origins that may send a write request (CSRF check).
+    allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:3000"]
+    # Comma-separated IPs or CIDRs of reverse proxies whose X-Forwarded-For is believed.
+    trusted_proxies: Annotated[list[str], NoDecode] = []
+
+    @property
+    def auth_ready(self) -> bool:
+        secret = self.auth_secret
+        return secret is not None and len(secret.get_secret_value()) >= AUTH_SECRET_MIN_LENGTH
+
+    @property
+    def cookie_secure(self) -> bool:
+        return self.app_env == "production"
+
+    @model_validator(mode="after")
+    def _production_needs_auth_secret(self) -> "Settings":
+        if self.app_env == "production" and not self.auth_ready:
+            raise ValueError("AUTH_SECRET must be set and at least 32 characters in production")
+        return self
+
+    @field_validator("allowed_origins", "trusted_proxies", mode="before")
+    @classmethod
+    def _comma_list(cls, value: object) -> object:
+        return _split_commas(value)
+
+    @field_validator("allowed_origins")
+    @classmethod
+    def _origins_shape(cls, value: list[str]) -> list[str]:
+        cleaned = [origin.rstrip("/") for origin in value]
+        if not all(o.startswith(("http://", "https://")) for o in cleaned):
+            raise ValueError("each origin must start with http:// or https://")
+        return cleaned
+
+    @field_validator("trusted_proxies")
+    @classmethod
+    def _proxies_shape(cls, value: list[str]) -> list[str]:
+        for entry in value:
+            ipaddress.ip_network(entry, strict=False)  # raises ValueError on a bad entry
+        return value
 
     @field_validator("database_url")
     @classmethod

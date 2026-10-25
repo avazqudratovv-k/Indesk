@@ -24,6 +24,7 @@ class ErrorCode(StrEnum):
     INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
     RATE_LIMITED = "RATE_LIMITED"
     UNAUTHENTICATED = "UNAUTHENTICATED"
+    ORIGIN_NOT_ALLOWED = "ORIGIN_NOT_ALLOWED"
     # Uploads.
     CONSENT_REQUIRED = "CONSENT_REQUIRED"
     FILE_TOO_LARGE = "FILE_TOO_LARGE"
@@ -47,8 +48,25 @@ _CODES = {
 }
 
 
-def error_response(status: int, code: ErrorCode | str) -> JSONResponse:
-    return JSONResponse(status_code=status, content={"error": {"code": str(code)}})
+class AppError(Exception):
+    """Raised anywhere in a request to answer with {"error": {"code": ...}}. Carries no message."""
+
+    def __init__(self, status: int, code: ErrorCode, headers: dict[str, str] | None = None) -> None:
+        super().__init__(code.value)
+        self.status = status
+        self.code = code
+        self.headers = headers
+
+
+def error_response(
+    status: int, code: ErrorCode | str, headers: dict[str, str] | None = None
+) -> JSONResponse:
+    return JSONResponse(status_code=status, content={"error": {"code": str(code)}}, headers=headers)
+
+
+async def _app_error(_: Request, exc: Exception) -> JSONResponse:
+    assert isinstance(exc, AppError)  # noqa: S101  # narrows the handler type for mypy
+    return error_response(exc.status, exc.code, exc.headers)
 
 
 async def _http_error(_: Request, exc: Exception) -> JSONResponse:
@@ -69,6 +87,7 @@ async def _unhandled_error(request: Request, exc: Exception) -> JSONResponse:
 
 
 def register_error_handlers(app: FastAPI) -> None:
+    app.add_exception_handler(AppError, _app_error)
     app.add_exception_handler(StarletteHTTPException, _http_error)
     app.add_exception_handler(RequestValidationError, _validation_error)
     app.add_exception_handler(Exception, _unhandled_error)

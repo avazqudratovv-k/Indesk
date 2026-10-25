@@ -8,3 +8,5 @@ psycopg-binary==3.3.6
 alembic==1.20.1
 redis==8.1.0
 rq==2.12.0
+argon2-cffi==25.1.0  # Argon2id password hashing (the reference binding, maintained by the Argon2 authors group)
+PyJWT==2.15.1  # signs and verifies the HS256 access token, with the algorithm pinned on decode

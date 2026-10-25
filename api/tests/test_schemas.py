@@ -40,6 +40,7 @@ def test_error_codes_are_the_agreed_list() -> None:
         "INVALID_CREDENTIALS",
         "RATE_LIMITED",
         "UNAUTHENTICATED",
+        "ORIGIN_NOT_ALLOWED",
         "CONSENT_REQUIRED",
         "FILE_TOO_LARGE",
         "UNSUPPORTED_TYPE",
