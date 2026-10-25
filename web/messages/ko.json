@@ -860,5 +860,104 @@
         }
       }
     }
+  },
+  "report": {
+    "title": "보고서",
+    "exampleBanner": {
+      "title": "예시 보고서",
+      "body": "내 파일을 분석한 결과가 아닙니다. 아래 주장, 숫자, 출처는 모두 샘플 데이터입니다."
+    },
+    "paper": {
+      "small": "최종 답변 · 예시 보고서",
+      "stampWord": "검증됨",
+      "stampCount": "{total}개 중 {verified}개",
+      "stampAria": "주장 {total}개 중 {verified}개 검증됨",
+      "rowMatches": "✓ 일치",
+      "rowNotProven": "! 입증 안 됨",
+      "resultLabel": "결과"
+    },
+    "confidence": {
+      "high": "신뢰도 높음",
+      "medium": "신뢰도 보통",
+      "low": "신뢰도 낮음"
+    },
+    "view": {
+      "label": "보기 방식",
+      "simple": "쉬운 보기",
+      "detailed": "자세히 보기"
+    },
+    "simple": {
+      "inShort": "한눈에 보기",
+      "confTitle": "얼마나 확실한가요?",
+      "confNote": "주장 {total}개를 확인했습니다. {verified}개는 데이터나 문서로 뒷받침됩니다.{open, plural, =0 {} other { {open}개는 가설일 뿐이라 표시했습니다.}}",
+      "confBar": "{verified} / {total}",
+      "keyBar": "CSV에서 계산",
+      "keyTick": "차트 사진에서 읽음",
+      "viewTable": "표로 보기",
+      "chartLabel": "성장률 차트, 역마다 한 줄",
+      "thStation": "역",
+      "thData": "데이터",
+      "thChart": "차트 사진",
+      "tip": "{name}: 데이터 {data}, 차트 사진 {photo}",
+      "meaningTitle": "의미",
+      "nextTitle": "다음에 할 일"
+    },
+    "detailed": {
+      "claimsTitle": "주장과 근거",
+      "showUnverified": "미검증 주장 보기",
+      "verified": "검증됨",
+      "unverified": "미검증",
+      "noSource": "출처를 찾지 못함",
+      "glossTitle": "용어 설명",
+      "gloss": {
+        "verified": {
+          "term": "검증됨",
+          "def": "비평가가 숫자를 다시 계산했거나 파일에서 인용문을 찾았습니다."
+        },
+        "unverified": {
+          "term": "미검증",
+          "def": "파일에서 근거를 찾지 못한 주장입니다. 사실일 수 있지만 보여줄 수는 없습니다."
+        },
+        "evidence": {
+          "term": "근거",
+          "def": "주장 뒤에 있는 정확한 숫자, 코드, 인용문입니다. 출처 칩을 눌러 확인하세요."
+        }
+      }
+    },
+    "evidence": {
+      "title": "근거",
+      "empty": "출처 칩을 눌러 주장 뒤의 근거를 확인하세요.",
+      "kind": {
+        "table": "데이터 · Pandas",
+        "chart": "데이터 · 차트",
+        "code": "데이터 · 코드",
+        "image_boxes": "이미지 · 비전",
+        "passage": "문서 · 검색",
+        "diff": "데이터 · 비교",
+        "critic_note": "비평가 · 근거 없음"
+      },
+      "chip": {
+        "table": "pandas",
+        "chart": "차트",
+        "code": "코드",
+        "image_boxes": "차트",
+        "passage": "구절",
+        "diff": "차이",
+        "critic_note": "표시 이유"
+      },
+      "source": "{file} · {location}",
+      "sourceFile": "{file}"
+    },
+    "later": "공유, 다운로드, 후속 질문은 이후 버전에서 제공됩니다.",
+    "states": {
+      "loading": "보고서를 불러오는 중…",
+      "notFound": {
+        "title": "보고서를 찾을 수 없습니다",
+        "body": "이 보고서가 없거나 볼 수 있는 권한이 없습니다.",
+        "home": "홈으로",
+        "workspace": "워크스페이스로"
+      },
+      "noClaims": "표시할 주장이 없는 보고서입니다."
+    }
   }
 }

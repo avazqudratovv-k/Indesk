@@ -1,8 +1,7 @@
 import { forwardRef } from "react";
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
-import { exampleReportHref } from "@/components/home/agents";
-import type { RunScenario } from "@/lib/run/mock-run";
+import { reportHrefFor, type RunScenario } from "@/lib/run/mock-run";
 import styles from "./RunHeader.module.css";
 
 type Props = {
@@ -17,6 +16,7 @@ type Props = {
 // Failed runs have no report, so the link is not offered there. The h1 takes focus when a run starts.
 const RunHeader = forwardRef<HTMLHeadingElement, Props>(function RunHeader({ title, finished, scenario, onBack, onReplay }, ref) {
   const t = useTranslations("workspace");
+  const reportHref = reportHrefFor(scenario);
   return (
     <div className={styles.head}>
       <div className={styles.text}>
@@ -33,8 +33,8 @@ const RunHeader = forwardRef<HTMLHeadingElement, Props>(function RunHeader({ tit
         <Button size="sm" onClick={onReplay} disabled={!finished}>
           {t("live.replay")}
         </Button>
-        {finished && scenario !== "failed" ? (
-          <Button size="sm" variant="ink" href={exampleReportHref.ask}>
+        {finished && reportHref ? (
+          <Button size="sm" variant="ink" href={reportHref}>
             {t("live.viewReport")}
           </Button>
         ) : null}

@@ -1,0 +1,54 @@
+/* Board main: 1240 px wide, 36 px top, 32 px sides, 24 px gap. Phones: 22 px top, 20 px sides. */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-sizing: border-box;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 36px 32px 0;
+  /* Korean breaks between words, not inside them. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+}
+
+/* Stands in for the board's Share and Style & download buttons, which are not built yet (ROADMAP 2.8, 2.9). */
+.later {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--mute);
+}
+
+.cols {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 28px;
+}
+
+.article {
+  display: flex;
+  flex: 999 1 560px;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.empty {
+  margin: 0;
+  color: var(--mute);
+}
+
+@media (max-width: 760px) {
+  .main {
+    padding: 22px 20px 0;
+  }
+}

@@ -1,0 +1,22 @@
+.chip {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--rule2);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--accentText);
+  font: 500 12.5px var(--mono);
+  cursor: pointer;
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accentInk);
+}
+
+@media (max-width: 760px) {
+  .chip {
+    min-height: 44px;
+  }
+}

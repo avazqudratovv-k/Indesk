@@ -1,0 +1,54 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  color: var(--ink);
+  background: var(--paper2);
+  padding: 22px 24px;
+}
+
+.title {
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  margin: 0;
+  font-size: 16px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+}
+
+.item {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+
+.term,
+.def {
+  display: inline;
+  margin: 0;
+}
+
+.term {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.term::after {
+  content: " ";
+}
+
+@media (max-width: 760px) {
+  .card {
+    padding: 20px;
+  }
+}

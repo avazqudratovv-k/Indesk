@@ -860,5 +860,104 @@
         }
       }
     }
+  },
+  "report": {
+    "title": "Report",
+    "exampleBanner": {
+      "title": "Example report",
+      "body": "Not an analysis of your files. The claims, numbers and sources below are sample data."
+    },
+    "paper": {
+      "small": "Final answer · Example report",
+      "stampWord": "Verified",
+      "stampCount": "{verified} of {total}",
+      "stampAria": "Verified {verified} of {total} claims",
+      "rowMatches": "✓ matches",
+      "rowNotProven": "! not proven",
+      "resultLabel": "Result"
+    },
+    "confidence": {
+      "high": "High confidence",
+      "medium": "Medium confidence",
+      "low": "Low confidence"
+    },
+    "view": {
+      "label": "View",
+      "simple": "Simple",
+      "detailed": "Detailed"
+    },
+    "simple": {
+      "inShort": "In short",
+      "confTitle": "How sure are we?",
+      "confNote": "We checked {total} statements. {verified} are backed by the data or the document.{open, plural, =0 {} one { 1 is only an idea and is marked.} other { # are only ideas and are marked.}}",
+      "confBar": "{verified} / {total}",
+      "keyBar": "Computed from the CSV",
+      "keyTick": "Read from the chart photo",
+      "viewTable": "View as table",
+      "chartLabel": "Growth chart, one row per station",
+      "thStation": "Station",
+      "thData": "Data",
+      "thChart": "Chart photo",
+      "tip": "{name}: data {data}, chart photo {photo}",
+      "meaningTitle": "What this means",
+      "nextTitle": "What you could do next"
+    },
+    "detailed": {
+      "claimsTitle": "Claims and evidence",
+      "showUnverified": "Show unverified claims",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "noSource": "No source found",
+      "glossTitle": "Words explained",
+      "gloss": {
+        "verified": {
+          "term": "Verified",
+          "def": "The Critic recomputed the number or found the quote in your files."
+        },
+        "unverified": {
+          "term": "Unverified",
+          "def": "A statement with no proof in your files. It may be true, but we cannot show it."
+        },
+        "evidence": {
+          "term": "Evidence",
+          "def": "The exact numbers, code or quote behind a statement. Click a source chip to see it."
+        }
+      }
+    },
+    "evidence": {
+      "title": "Evidence",
+      "empty": "Pick a source chip to see the evidence behind a claim.",
+      "kind": {
+        "table": "Data · Pandas",
+        "chart": "Data · Chart",
+        "code": "Data · Code",
+        "image_boxes": "Image · Vision",
+        "passage": "Document · Retrieval",
+        "diff": "Data · Comparison",
+        "critic_note": "Critic · no evidence"
+      },
+      "chip": {
+        "table": "pandas",
+        "chart": "chart",
+        "code": "code",
+        "image_boxes": "chart",
+        "passage": "passage",
+        "diff": "diff",
+        "critic_note": "why flagged"
+      },
+      "source": "{file} · {location}",
+      "sourceFile": "{file}"
+    },
+    "later": "Sharing, download and follow-up questions come in a later version.",
+    "states": {
+      "loading": "Loading the report…",
+      "notFound": {
+        "title": "Report not found",
+        "body": "This report does not exist, or it is not available to you.",
+        "home": "Back to Home",
+        "workspace": "Go to Workspace"
+      },
+      "noClaims": "This report has no claims to show."
+    }
   }
 }

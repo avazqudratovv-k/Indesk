@@ -1,0 +1,89 @@
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.flagged {
+  border-color: var(--badLine);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.number {
+  flex: none;
+  padding-top: 4px;
+  font: 400 13px var(--mono);
+  color: var(--mute);
+}
+
+.text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.ok {
+  background: var(--okBg);
+  color: var(--ok);
+}
+
+.bad {
+  background: var(--badBg);
+  color: var(--bad);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-left: 30px;
+}
+
+.none {
+  font-size: 13.5px;
+  color: var(--mute);
+}
+
+@media (max-width: 760px) {
+  .row {
+    padding: 16px;
+  }
+
+  .head {
+    flex-wrap: wrap;
+  }
+
+  .text {
+    flex-basis: calc(100% - 44px);
+    font-size: 17px;
+  }
+
+  .badge {
+    margin-left: 30px;
+  }
+
+  .chips {
+    padding-left: 0;
+  }
+}

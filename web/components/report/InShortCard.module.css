@@ -1,0 +1,54 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  padding: 24px 26px;
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: 0 0 0 1px var(--accent), 0 24px 60px -34px var(--glow);
+}
+
+.title {
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  margin: 0;
+  font-size: 20px;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.mark {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ok {
+  background: var(--okBg);
+  color: var(--ok);
+}
+
+.bad {
+  background: var(--badBg);
+  color: var(--bad);
+}
+
+@media (max-width: 760px) {
+  .card {
+    padding: 20px;
+  }
+}

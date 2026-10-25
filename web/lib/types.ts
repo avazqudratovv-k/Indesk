@@ -176,7 +176,8 @@ export type AgentStep = {
   model: string | null;
 };
 
-export type EvidenceType = "table" | "chart" | "code" | "image_boxes" | "passage" | "diff";
+// critic_note: why the Critic could not verify a flagged claim (added for the Report screen, ROADMAP 2.7).
+export type EvidenceType = "table" | "chart" | "code" | "image_boxes" | "passage" | "diff" | "critic_note";
 
 export type Evidence = {
   id: string;
@@ -191,16 +192,26 @@ export type Evidence = {
 
 // summary_json is free-form jsonb in DATA.md; only `answer` is documented there.
 // The other keys are PLACEHOLDER shapes invented for the Check and Compare screens (ROADMAP 2.10, 2.11). Revisit with the API (3.13, 3.14).
+export type ReportRowStatus = "verified" | "flagged";
+
 export type ReportSummary = {
   answer: string;
+  // Ask (ROADMAP 2.7). Values and statuses come from code; the prose (answer, in_short, meaning, next_steps) from the model.
+  top_rows?: { label: string; value: string; status: ReportRowStatus }[];
+  in_short?: { status: ReportRowStatus; text: string }[];
+  meaning?: string;
+  next_steps?: string[];
   not_checked?: string[];
   totals?: { label: string; a: string; b: string; change: string }[];
   movers?: { label: string; change_pct: number }[];
   could_not_compare?: string[];
 };
 
+export type ReportMode = "ask" | "check" | "compare";
+
 export type Report = {
   id: string;
+  mode: ReportMode;
   run_id: string;
   owner_id: string;
   title: string;

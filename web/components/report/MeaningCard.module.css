@@ -1,0 +1,32 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  gap: 10px;
+  padding: 22px 24px;
+}
+
+.title {
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  margin: 0;
+  font-size: 18px;
+}
+
+.text {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--ink2);
+}
+
+@media (max-width: 760px) {
+  .card {
+    padding: 20px;
+  }
+}

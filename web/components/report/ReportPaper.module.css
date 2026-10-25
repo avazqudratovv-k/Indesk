@@ -1,0 +1,132 @@
+/* Board `.pb`: cream paper, same in both themes. Colours come from the --report-* tokens. */
+.paper {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  flex: 1 1 100%;
+  padding: 40px 48px 34px;
+  border-top: 8px solid var(--accent);
+  border-radius: 6px;
+  background: var(--report-paper);
+  box-shadow: 0 30px 60px -30px color-mix(in srgb, var(--report-ink) 45%, transparent);
+  color: var(--report-ink);
+}
+
+.stamp {
+  position: absolute;
+  top: 30px;
+  right: 36px;
+  padding: 8px 16px;
+  border: 3px solid var(--report-ok);
+  border-radius: 12px;
+  color: var(--report-ok);
+  font: 900 16px var(--mono);
+  line-height: 1.25;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(-8deg);
+}
+
+.stampLine {
+  display: block;
+}
+
+.small {
+  display: block;
+  font: 700 12px var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--report-mute);
+}
+
+/* Always solid ink, never the dark theme's gradient headline. */
+.title {
+  max-width: 640px;
+  margin: 12px 0 14px;
+  font-size: 46px;
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--report-ink);
+  background: none;
+  -webkit-text-fill-color: var(--report-ink);
+}
+
+.answer {
+  max-width: 680px;
+  margin: 0 0 22px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--report-ink) 88%, var(--report-paper));
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px dashed color-mix(in srgb, var(--report-mute) 55%, var(--report-paper));
+  font-size: 16px;
+}
+
+.label {
+  flex: 1;
+}
+
+.value {
+  font: 600 16px var(--mono);
+}
+
+.status {
+  min-width: 130px;
+  font-style: normal;
+  font-weight: 700;
+  text-align: right;
+}
+
+.ok {
+  color: var(--report-ok);
+}
+
+.bad {
+  color: var(--report-bad);
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 2px solid var(--report-ink);
+  font: 800 14px var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Board: paper breakpoint is 700 px; 760 here like the rest of the app (DESIGN.md). The stamp leaves the corner and sits in the flow. */
+@media (max-width: 760px) {
+  .paper {
+    padding: 26px 20px;
+  }
+
+  .stamp {
+    position: static;
+    display: inline-block;
+    margin: 6px 0 20px;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .status {
+    min-width: 0;
+    text-align: left;
+  }
+}

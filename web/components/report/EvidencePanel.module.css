@@ -1,0 +1,128 @@
+.aside,
+.inline {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  gap: 14px;
+  padding: 22px;
+}
+
+/* Board: right-hand panel, 340 px or more beside the article. */
+.aside {
+  flex: 1 1 340px;
+}
+
+/* Phones: the panel opens under the claim instead (the aside is hidden). */
+.inline {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .aside {
+    display: none;
+  }
+
+  .inline {
+    display: flex;
+    padding: 18px;
+    background: var(--paper2);
+  }
+}
+
+.eyebrow {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+/* Tinted with the agent colour (the board uses a solid colour with white text; no token covers that in both themes). */
+.kind {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 1px solid var(--kind);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--kind) 16%, var(--card));
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.title {
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  margin: 10px 0 0;
+  font-size: 19px;
+  line-height: 1.3;
+}
+
+.body {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink2);
+}
+
+.code {
+  overflow-x: auto;
+  border-radius: 14px;
+  background: var(--code);
+}
+
+.pre {
+  margin: 0;
+  padding: 14px 16px;
+  color: var(--codeInk);
+  font: 400 12.5px/1.7 var(--mono);
+}
+
+.tableBox {
+  overflow-x: auto;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  padding: 9px 12px;
+  background: var(--paper2);
+  font-weight: 600;
+  text-align: left;
+  color: var(--mute);
+}
+
+.table td {
+  padding: 9px 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.num {
+  font-family: var(--mono);
+}
+
+.quote {
+  margin: 0;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--quoteBg);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--quoteInk);
+}
+
+.meta {
+  font: 400 12px var(--mono);
+  overflow-wrap: anywhere;
+  color: var(--mute);
+}

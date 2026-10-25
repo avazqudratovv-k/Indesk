@@ -19,6 +19,13 @@ export function getRunScript(scenario: RunScenario): RunEvent[] {
   return getMockRunScript(scenario);
 }
 
+// The mock report a finished scripted run opens (ROADMAP 2.7). A failed run produces no report.
+const reportHrefs: Record<RunScenario, string | null> = { answered: "/reports/rep_01", partial: "/reports/rep_04", failed: null };
+
+export function reportHrefFor(scenario: RunScenario): string | null {
+  return reportHrefs[scenario];
+}
+
 export function isRunScenario(value: unknown): value is RunScenario {
   return value === "answered" || value === "partial" || value === "failed";
 }

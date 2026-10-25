@@ -1,0 +1,163 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  gap: 14px;
+  padding: 22px;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  margin: 0;
+  font-size: 17px;
+}
+
+.toggle {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--accentText);
+  font: 600 13.5px var(--sans);
+  cursor: pointer;
+}
+
+.toggle[aria-pressed="true"] {
+  background: var(--accentSoft);
+  border-color: var(--accent);
+}
+
+.key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.keyItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.keyBar {
+  width: 22px;
+  height: 10px;
+  border-radius: 6px;
+  background: var(--accent);
+}
+
+.keyTick {
+  width: 3px;
+  height: 16px;
+  background: var(--ink);
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 4px 0 0;
+  list-style: none;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.name {
+  flex: 0 0 96px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 14px;
+  border-radius: 6px;
+  background: var(--track);
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 14px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+}
+
+.tick {
+  position: absolute;
+  top: -4px;
+  width: 3px;
+  height: 22px;
+  background: var(--ink);
+  box-shadow: 0 0 0 2px var(--card);
+}
+
+.value {
+  flex: 0 0 56px;
+  font: 400 13px var(--mono);
+  text-align: right;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.table th {
+  padding: 8px 10px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--mute);
+}
+
+.table td {
+  padding: 8px 10px;
+  border-top: 1px solid var(--rule);
+}
+
+.num {
+  font-family: var(--mono);
+}
+
+@media (max-width: 760px) {
+  .card {
+    padding: 20px;
+  }
+
+  .toggle {
+    min-height: 44px;
+  }
+
+  .name {
+    flex-basis: 84px;
+  }
+}
