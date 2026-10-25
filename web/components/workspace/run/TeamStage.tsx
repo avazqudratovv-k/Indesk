@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { useTranslations } from "next-intl";
+import { useScrollable } from "@/lib/use-scrollable";
 import { agentColor } from "@/components/home/agents";
 import { deriveFlow, owlBubble, type AgentView, type RunAgent, type RunEvent, type RunScenario } from "@/lib/run/mock-run";
 import AgentSprite from "./AgentSprite";
@@ -38,16 +39,18 @@ type Props = {
 
 // The board's "The team" map (desktop, 761 px and up): a contour-line map with a scale bar and compass, five agent
 // cards joined by dotted connectors that turn solid as work is handed over, envelopes travelling along them, speech
-// bubbles, a Report node and, at the end, a stamp. Purely visual (aria-hidden): the same state is in the timeline list.
+// bubbles, a Report node and, at the end, a stamp. Purely visual (the map is aria-hidden): the same state is in the timeline list. Where the card is narrower than the
+// map its box scrolls sideways, and only then is it a labelled tab stop.
 export default function TeamStage({ agents, events, step, reportReady, scenario, finished }: Props) {
   const t = useTranslations("workspace");
   const home = useTranslations("home.team");
   const flow = deriveFlow(agents, reportReady);
   const bubbleOwl = owlBubble(events, step);
+  const { ref: scrollRef, scrollable } = useScrollable<HTMLDivElement>();
 
   return (
-    <div className={styles.scroll} aria-hidden="true">
-      <div className={styles.bench}>
+    <div ref={scrollRef} className={styles.scroll} {...(scrollable ? { tabIndex: 0, role: "region", "aria-label": t("live.stageScroll") } : {})}>
+      <div className={styles.bench} aria-hidden="true">
         <i className={`${styles.tpg} ${styles.mn}`} />
         <i className={`${styles.tpg} ${styles.mj}`} />
         <svg className={styles.tcmp} width="760" height="500" viewBox="0 0 760 500">

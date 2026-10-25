@@ -21,7 +21,7 @@ export default function HoundView({ artifacts, finished }: { artifacts: Artifact
         <p className={styles.query}>
           <span className={styles.srOnly}>{t("artifacts.hound.queryLabel")}: </span>“{query}”
         </p>
-        <StepList items={items} />
+        <StepList items={items} size="small" />
       </ArtifactPane>
       <ArtifactPane className={styles.found}>
         <div className={styles.head}>

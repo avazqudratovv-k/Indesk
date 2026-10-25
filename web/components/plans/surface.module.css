@@ -3,8 +3,8 @@
   border: 1px solid var(--rule2);
   border-radius: 14px;
   background: color-mix(in srgb, var(--card) 68%, transparent);
-  backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   box-shadow: var(--shadow);
   color: var(--ink);
 }

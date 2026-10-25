@@ -590,6 +590,7 @@
       },
       "stageTitle": "The team",
       "stageNote": "Envelopes show work being handed over",
+      "stageScroll": "The team map, scrolls sideways on a narrow screen",
       "timelineLabel": "Agent timeline",
       "status": {
         "waiting": "Waiting",

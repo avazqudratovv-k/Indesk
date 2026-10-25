@@ -3,8 +3,8 @@
   z-index: 30;
   border-bottom: 1px solid var(--rule);
   background: color-mix(in srgb, var(--paper) 62%, transparent);
-  backdrop-filter: blur(18px) saturate(1.4);
   -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
 }
 
 .inner {
