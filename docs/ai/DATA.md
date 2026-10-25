@@ -46,7 +46,7 @@ id; user_id R; run_id; kind R (run, credit_purchase); amount int R (a run record
 | user_id | uuid | yes | |
 | filename | text | yes | max 255 (rec) |
 | mime | text | yes | CSV, PDF, JPG, PNG, TXT |
-| size | int | yes | Free 2 MB; Pro 25 MB; Custom 25/100/250 MB |
+| size | int | yes | Free 5 MB (owner decision, replaces the old 2 MB, see DECISIONS #79); Pro 25 MB; Custom 25/100/250 MB |
 | sha256 | text | yes | |
 | storage_key | text | no | removed at deletion |
 | page_count | int | no | PDF: Free 10, Pro 200 |

@@ -1,6 +1,6 @@
 # ROADMAP.md — Indesk v1
 
-Lives at: `docs/ai/ROADMAP.md`. Last updated 2026-10-25.
+Lives at: `docs/ai/ROADMAP.md`. Last updated 2026-10-25. HEAD e771b11.
 UI-first. Order: 1) skeleton, tokens, layout; 2) each screen on mock data (shapes from `DATA.md`); 3) backend features matching `DATA.md`; 4) swap mock for real, one screen at a time; 5) deploy.
 Each item is sized for 1 to 2 work sessions. Check a box only when the item's "done when" is true.
 
@@ -8,6 +8,8 @@ Each item is sized for 1 to 2 work sessions. Check a box only when the item's "d
 - **[A]** core, planned for about Nov 1: the core backend (foundation, first working run, manager and critic, PDF and retrieval), Check, Compare, the full UI, the Gemini gateway and the cached example.
 - **[B]** product layer: build as time allows; until built, those screens stay on mock data.
 - **[C]** Vision (images, scanned PDFs, OCR test): after Nov 1.
+**Order change (owner-approved 2026-10-25, a deliberate change to the cut line).** Work now runs: docs batch, then 2.7 Report (Ask), then a backend slice (3.1 Compose/CI, 3.2 state contract, 3.4 DB, 3.5 auth, 3.6 uploads CSV only, 3.7 sandbox, 3.8 Gemini gateway with the fake client first, 3.9 first real run with 3.3 SSE absorbed, 3.11 critic and report API), then 4.1 to 4.4 swap mock to real, then 3.10 gates and outcomes, then 5.6 basic deploy and 5.7 README and demo video (5.1 Seoul demo data needs the owner's check), and last the remaining UI 2.8 to 2.16 on mock data. Reason: one real CSV-to-cited-report run on a public URL is worth more to the portfolio than five more mock screens.
+
 If time runs out, cut from the bottom: [C] first, then [B] items from the bottom up. Never cut the cached example.
 
 How to work: for each item, Claude writes a prompt, you paste it into a fresh Claude Code session, paste back the report, then commit. Never put keys in prompts. The Gemini key goes only in `api/.env` (ignored by git), and Claude Code never reads it.
@@ -26,8 +28,8 @@ How to work: for each item, Claude writes a prompt, you paste it into a fresh Cl
 - [x] **2.2 [A] Log in.** Form and validation messages, fake submit.
 - [x] **2.3 [A] Sign up.** Form, fake submit, demo notice.
 - [x] **2.4 [A] Plans.** Cards and the custom plan calculator (price rule in `DECISIONS.md` #18, prices in KRW per #74), demo checkout screen.
-- [ ] **2.5 [A] Workspace: Ask tab.** Tabs, mode switch, upload list, consent box with the demo notice, question box, chips, info blocks.
-- [ ] **2.6 [A] Workspace: run tab.** Agent cards with expandable artifacts, handover card, trace driven by a timer on mock events, guardrails, "No run yet" state.
+- [x] **2.5 [A] Workspace: Ask tab.** Tabs, mode switch, upload list, consent box with the demo notice, question box, chips, info blocks. (Commit 52b8a70; additions in DECISIONS #80, #81.)
+- [x] **2.6 [A] Workspace: run tab.** Agent cards with expandable artifacts, handover card, trace driven by a timer on mock events, guardrails, "No run yet" state. Built in four parts: 2.6a run tab and demo run (d89399d), 2.6b-1 agent tabs, handover, Owl and Cat views (1edb207), 2.6b-2 Chameleon, Beaver and Hound views (41cb257), follow-up fix (e771b11). Decisions #82 to #84.
 - [ ] **2.7 [A] Report (Ask).** Stamped final answer, Simple/Detailed, claims with evidence chips, confidence bar, follow-up thread.
 - [ ] **2.8 [A] Style & download panel.** Template, typeface, size, format, Download button (shows a message).
 - [ ] **2.9 [A] Share panel.** Private/shared states, copy link, expiry text, unshare.
@@ -52,6 +54,7 @@ How to work: for each item, Claude writes a prompt, you paste it into a fresh Cl
   - [ ] Fonts are about 966 KB; trim at deploy (first paint about 2.7 MB).
   - [ ] Korean copy review by the user for Home, Auth and Plans (including the Home heading "누구를 위한 서비스인가요" and heading punctuation such as 결제가 완료되었어요.).
   - [ ] Safari, Firefox, a real touch device and a real screen reader are untested.
+  - [ ] Free file size (5 MB, DECISIONS #79) comes from one source shared by the UI, mocks and backend.
   - [ ] The film board PNG renders blank, so the Home film is compared against the live design.
 
 ## 3. Backend features (match DATA.md)
