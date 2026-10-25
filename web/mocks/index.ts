@@ -1,8 +1,10 @@
 // Typed read functions over web/mocks/*.json (ROADMAP 1.7). Screens call these until the API exists (section 4 swaps them).
+import type { RunEvent, RunScenario } from "@/lib/run/mock-run";
 import type { Claim, CustomPlanOffer, PlanOffer, Evidence, PersonResult, Report, ShareLink, ShareLinkState, Upload, User } from "@/lib/types";
 import claimsFile from "./claims.json";
 import evidenceFile from "./evidence.json";
 import plansFile from "./plans.json";
+import runScriptFile from "./run-script.json";
 import reportsFile from "./reports.json";
 import shareLinksFile from "./share-links.json";
 import uploadsFile from "./uploads.json";
@@ -82,4 +84,9 @@ export function listMockPlanOffers(): PlanOffer[] {
 
 export function getMockCustomPlanOffer(): CustomPlanOffer {
   return customPlanOffer;
+}
+
+// Scripted demo run for the Workspace run tab (ROADMAP 2.6a). Not measured, not from the user's files.
+export function getMockRunScript(scenario: RunScenario): RunEvent[] {
+  return (runScriptFile.records as Record<RunScenario, RunEvent[]>)[scenario];
 }

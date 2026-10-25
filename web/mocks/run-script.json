@@ -1,0 +1,48 @@
+{
+  "_note": "SCRIPTED DEMO RUN for the Workspace run tab (ROADMAP 2.6a). Nothing here is measured or computed from the user's files: it is the board's example sequence (14 events, 800 ms apart) with all five agents working. `tok` is a scripted token count shown as 'Example'. The Seoul station names, figures, row counts and file names in messages (workspace.live.events) are INVENTED PLACEHOLDERS. Event text lives in messages/*.json under workspace.live.events, keyed by `key`.",
+  "records": {
+    "answered": [
+      {"agent": "owl", "kind": "say", "state": "working", "key": "plan", "tok": 1240, "bubble": "owlSplit"},
+      {"agent": "owl", "kind": "say", "state": "working", "key": "dispatch", "tok": 380, "bubble": "owlSplit"},
+      {"agent": "chameleon", "kind": "tool", "state": "working", "key": "ocr", "tok": 910},
+      {"agent": "beaver", "kind": "tool", "state": "working", "key": "readCsv", "tok": 560},
+      {"agent": "hound", "kind": "tool", "state": "working", "key": "search", "tok": 780},
+      {"agent": "beaver", "kind": "tool", "state": "working", "key": "runPython", "tok": 1850},
+      {"agent": "chameleon", "kind": "say", "state": "done", "key": "chartValues", "tok": 980},
+      {"agent": "hound", "kind": "say", "state": "done", "key": "bestPassage", "tok": 1420},
+      {"agent": "beaver", "kind": "say", "state": "done", "key": "top3", "tok": 1130},
+      {"agent": "owl", "kind": "say", "state": "working", "key": "merge", "tok": 1360, "bubble": "owlMerge"},
+      {"agent": "cat", "kind": "tool", "state": "working", "key": "verify1", "tok": 2100},
+      {"agent": "cat", "kind": "flag", "state": "working", "key": "flag4", "tok": 1900},
+      {"agent": "cat", "kind": "say", "state": "done", "key": "verdict", "tok": 940},
+      {"agent": "owl", "kind": "say", "state": "done", "key": "ready", "tok": 620}
+    ],
+    "partial": [
+      {"agent": "owl", "kind": "say", "state": "working", "key": "plan", "tok": 1240, "bubble": "owlSplit"},
+      {"agent": "owl", "kind": "say", "state": "working", "key": "dispatch", "tok": 380, "bubble": "owlSplit"},
+      {"agent": "chameleon", "kind": "tool", "state": "working", "key": "ocr", "tok": 910},
+      {"agent": "beaver", "kind": "tool", "state": "working", "key": "readCsv", "tok": 560},
+      {"agent": "hound", "kind": "tool", "state": "working", "key": "search", "tok": 780},
+      {"agent": "beaver", "kind": "tool", "state": "working", "key": "runPython", "tok": 1850},
+      {"agent": "chameleon", "kind": "say", "state": "done", "key": "chartValues", "tok": 980},
+      {"agent": "hound", "kind": "flag", "state": "failed", "key": "searchFailed", "tok": 0},
+      {"agent": "beaver", "kind": "say", "state": "done", "key": "top3", "tok": 1130},
+      {"agent": "owl", "kind": "say", "state": "working", "key": "mergePartial", "tok": 1360, "bubble": "owlMerge"},
+      {"agent": "cat", "kind": "tool", "state": "working", "key": "verify1", "tok": 2100},
+      {"agent": "cat", "kind": "flag", "state": "working", "key": "flagPartial", "tok": 1900},
+      {"agent": "cat", "kind": "say", "state": "done", "key": "verdictPartial", "tok": 940},
+      {"agent": "owl", "kind": "say", "state": "done", "key": "readyPartial", "tok": 620}
+    ],
+    "failed": [
+      {"agent": "owl", "kind": "say", "state": "working", "key": "plan", "tok": 1240, "bubble": "owlSplit"},
+      {"agent": "owl", "kind": "say", "state": "working", "key": "dispatch", "tok": 380, "bubble": "owlSplit"},
+      {"agent": "chameleon", "kind": "tool", "state": "working", "key": "ocr", "tok": 910},
+      {"agent": "beaver", "kind": "tool", "state": "working", "key": "readCsv", "tok": 560},
+      {"agent": "hound", "kind": "tool", "state": "working", "key": "search", "tok": 780},
+      {"agent": "beaver", "kind": "flag", "state": "failed", "key": "runPythonFailed", "tok": 0},
+      {"agent": "chameleon", "kind": "say", "state": "done", "key": "chartValues", "tok": 980},
+      {"agent": "hound", "kind": "say", "state": "done", "key": "bestPassage", "tok": 1420},
+      {"agent": "owl", "kind": "say", "state": "done", "key": "stopped", "tok": 0}
+    ]
+  }
+}

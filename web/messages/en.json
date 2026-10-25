@@ -568,6 +568,159 @@
       "summaryFiles": "{count, plural, one {# file} other {# files}}",
       "summaryQuestion": "Question",
       "change": "Change question"
+    },
+    "live": {
+      "demoBanner": "Demo run. Scripted example, not an analysis of your files.",
+      "demoTag": "Demo run",
+      "question": "Question",
+      "replay": "Replay run",
+      "viewReport": "View report",
+      "mark": {
+        "answered": "Example result",
+        "partial": "Example result: partial",
+        "failed": "Example run: failed"
+      },
+      "running": "Running the scripted example…",
+      "tilesLabel": "Run summary",
+      "tiles": {
+        "time": "Time",
+        "tokens": "Tokens",
+        "tools": "Tool calls",
+        "agents": "Agents done"
+      },
+      "stageTitle": "The team",
+      "stageNote": "Envelopes show work being handed over",
+      "timelineLabel": "Agent timeline",
+      "status": {
+        "waiting": "Waiting",
+        "working": "Working",
+        "done": "Done",
+        "skipped": "Skipped",
+        "failed": "Failed",
+        "flagged": "{count, number} flagged"
+      },
+      "feedTitle": "Live trace",
+      "feedEmpty": "The team is starting…",
+      "feedLabel": "Latest events, newest last",
+      "finishedAnnounce": {
+        "answered": "Run finished: example result ready.",
+        "partial": "Run finished: partial example result.",
+        "failed": "Run stopped: an agent failed."
+      },
+      "failure": {
+        "title": "{agent} failed",
+        "body": "No answer after 35 s and one retry.",
+        "retry": "Retry {agent}",
+        "note": "Demo: Retry replays the example run and it succeeds. No model is called."
+      },
+      "guard": {
+        "title": "Guardrails in this run",
+        "tools": "Tool-call limit",
+        "toolsValue": "12",
+        "budget": "Budget",
+        "budgetValue": "Each run has a spending cap.",
+        "network": "Network for code",
+        "networkValue": "none",
+        "files": "Your files",
+        "filesValue": "deleted in 24 h"
+      },
+      "events": {
+        "plan": "Plan: read the chart, compute growth from the CSV, find context in the report.",
+        "dispatch": "Dispatching vision, data and retrieval agents in parallel.",
+        "ocr": "ocr_chart(\"ridership-chart-photo.jpg\") → 8 bars found",
+        "readCsv": "pandas.read_csv(\"seoul-subway-ridership.csv\") → 3,640 rows",
+        "search": "search(\"ridership growth by station\", k=5) → 5 passages",
+        "runPython": "run_python(sandbox) → growth by station, 2019 to 2025",
+        "chartValues": "Chart values read: Hapjeong 18, Seongsu 17, Magok 14 …",
+        "bestPassage": "Best passage: city-transport-report-2025.pdf, p. 12",
+        "top3": "Top 3 growth: Hapjeong +18.2%, Seongsu +16.9%, Magok +14.1%",
+        "merge": "Merging results and drafting 6 claims.",
+        "verify1": "verify(claim 1) → +18.2% matches the data",
+        "flag4": "verify(claim 4) → no source supports \"caused by the new line\"",
+        "verdict": "5 of 6 claims verified, 1 flagged.",
+        "ready": "Report ready. 1 claim marked as unverified.",
+        "runPythonFailed": "run_python(sandbox) → no answer after 35 s and one retry",
+        "searchFailed": "search(\"ridership growth by station\", k=5) → no answer after 35 s and one retry",
+        "stopped": "Run stopped: the data step failed. Nothing is shown as verified.",
+        "mergePartial": "Merging what is available. Claims that need the report stay unverified.",
+        "flagPartial": "verify(claim 4) → depends on the report, marked unverified",
+        "verdictPartial": "3 of 6 claims verified, 3 marked unverified.",
+        "readyPartial": "Partial report ready. 3 claims marked as unverified."
+      },
+      "ends": {
+        "title": "How each agent can end",
+        "sub": "Only the agents a question needs are woken. A failed agent is never hidden: it shows Failed and can be retried.",
+        "listLabel": "Example agent states",
+        "lines": {
+          "done": "Finished its part.",
+          "skipped": "Not needed: no images in this file.",
+          "working": "Reading the file…",
+          "failed": "No answer after 35 s and one retry.",
+          "waiting": "Waits for the others."
+        }
+      },
+      "outcomes": {
+        "title": "How a run can end",
+        "sub": "Every run ends in exactly one of these outcomes. Nothing fails silently, and the model's own memory is never used to fill a gap. These cards are examples.",
+        "counted": "Counts as a run",
+        "notCounted": "Not counted",
+        "answered": {
+          "label": "Answered",
+          "head": "5 of 6 statements verified",
+          "body": "Every number links to the row or page it came from."
+        },
+        "partial": {
+          "label": "Partial",
+          "head": "Vision failed on page 3",
+          "body": "3 of 6 statements are verified. The ones that depend on page 3 are marked unverified."
+        },
+        "notAnswerable": {
+          "label": "Not answerable",
+          "head": "The file does not cover 2015",
+          "body": "It holds ridership from 2019 to 2025 and nothing earlier. Here is what it does contain.",
+          "chips": [
+            "Ridership per year in this file?",
+            "Which station has the most riders?"
+          ]
+        },
+        "needsBetterInput": {
+          "label": "Needs better input",
+          "head": "This photo is too blurry to read",
+          "body": "We could not find text we can trust. Try a sharper photo, or upload the original file."
+        },
+        "rejected": {
+          "label": "Not accepted",
+          "head": "This file can't be processed",
+          "body": "It was removed and not stored or read. See the upload rules."
+        },
+        "failed": {
+          "label": "Failed",
+          "head": "Something broke on our side",
+          "body": "Please try again. This run was not used up."
+        }
+      },
+      "bubbles": {
+        "owlSplit": "Splitting the question…",
+        "owlMerge": "Merging the results…",
+        "chameleon": "Reading the chart…",
+        "beaver": "Crunching the numbers…",
+        "hound": "Sniffing the report…",
+        "cat": "Checking every claim…"
+      },
+      "stamp": {
+        "answered": "EXAMPLE 5/6",
+        "partial": "EXAMPLE 3/6"
+      },
+      "reportNode": {
+        "name": "Report",
+        "waiting": "Waiting",
+        "ready": "Ready"
+      },
+      "traceNote": "Example data: station names, figures and file details in this trace are placeholders.",
+      "tilesTag": {
+        "playback": "Demo playback",
+        "example": "Example"
+      }
     }
   }
 }

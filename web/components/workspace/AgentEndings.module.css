@@ -1,0 +1,99 @@
+.sec {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 1136px;
+  margin-inline: auto;
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 6px 0 0;
+  max-width: 760px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--mute);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 16px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  background: var(--card);
+  text-align: center;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font: 700 12.5px var(--sans);
+}
+
+.done {
+  background: var(--okBg);
+  color: var(--ink);
+}
+
+.skipped,
+.waiting {
+  background: var(--medal);
+  color: var(--ink2);
+}
+
+.working {
+  background: var(--accentSoft);
+  color: var(--accentText);
+}
+
+.failed {
+  background: var(--badBg);
+  color: var(--ink);
+}
+
+.line {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--mute);
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

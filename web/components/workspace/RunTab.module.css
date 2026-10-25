@@ -45,3 +45,16 @@
   font-weight: 500;
 }
 
+
+/* "Demo run" label on the Check and Compare summary card. */
+.demoTag {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 700 11.5px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

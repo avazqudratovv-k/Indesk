@@ -1,0 +1,93 @@
+.run {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0;
+  padding: 10px 16px;
+  border: 1px dashed var(--rule2);
+  border-radius: 12px;
+  background: var(--warm);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.bannerTag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 700 11.5px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Board layout: the map card grows (flex 999), the trace card is 340 px or more; they wrap on narrow screens. */
+.team {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.stage {
+  composes: surface from "../../plans/surface.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 999 1 560px;
+  min-width: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.stageHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The legend talks about envelopes, which are not drawn when motion is reduced. */
+@media (prefers-reduced-motion: reduce) {
+  .note {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .team {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

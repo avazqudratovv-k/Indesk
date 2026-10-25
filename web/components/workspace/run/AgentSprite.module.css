@@ -1,0 +1,42 @@
+.lvs {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  flex: none;
+}
+
+.lvs img {
+  display: block;
+  height: 100%;
+  width: 2400%;
+  max-width: none;
+  animation: lvstep 2.4s steps(24, jump-end) infinite;
+  animation-delay: var(--phase, 0s);
+  animation-play-state: paused;
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.3));
+}
+
+.on img {
+  animation-play-state: running;
+}
+
+.dim img {
+  opacity: 0.55;
+  filter: grayscale(0.5) drop-shadow(0 4px 5px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes lvstep {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lvs img {
+    animation: none;
+  }
+}

@@ -1,0 +1,429 @@
+/* Board "The team" stage: a fixed 760 x 500 map centred in the card; on narrower cards it scrolls inside its box. */
+.scroll {
+  overflow-x: auto;
+}
+
+.bench {
+  position: relative;
+  width: 760px;
+  height: 500px;
+  margin: 0 auto;
+  border-radius: 12px;
+  background: var(--paper2);
+}
+
+.bench > svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.tpg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.mn {
+  background: var(--mute);
+  opacity: 0.45;
+  -webkit-mask-image: url("/workspace/topo-minor.svg");
+  mask-image: url("/workspace/topo-minor.svg");
+}
+
+.mj {
+  background: var(--ink);
+  opacity: 0.32;
+  -webkit-mask-image: url("/workspace/topo-major.svg");
+  mask-image: url("/workspace/topo-major.svg");
+}
+
+.compass,
+.scale {
+  fill: none;
+  stroke: var(--ink);
+}
+
+.compass {
+  opacity: 0.55;
+}
+
+.scale {
+  opacity: 0.6;
+  stroke-width: 1.5;
+}
+
+.compass text {
+  font: 600 11px var(--mono);
+  fill: var(--ink);
+  stroke: none;
+}
+
+.scale text {
+  font: 500 10px var(--mono);
+  fill: var(--ink);
+  stroke: none;
+  letter-spacing: 0.12em;
+}
+
+.needle {
+  fill: var(--ink);
+  opacity: 0.4;
+}
+
+/* Connectors: dotted lines, solid violet once work is handed over. */
+.edges path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 5;
+  stroke-dasharray: 1 8;
+}
+
+.edges .edgeOff {
+  stroke: var(--rule2);
+}
+
+.edges .edgeOn {
+  stroke: var(--accent);
+}
+
+.pk rect {
+  fill: var(--card);
+  stroke: var(--accent);
+}
+
+.pk path {
+  stroke: var(--accent);
+  stroke-dasharray: none;
+  stroke-width: 1.6;
+}
+
+.pkBad rect,
+.pkBad path {
+  stroke: var(--bad);
+}
+
+.pk.pkOk rect {
+  fill: var(--ok);
+  stroke: var(--ok);
+}
+
+.pk.pkOk path {
+  stroke: var(--accentInk);
+}
+
+.node {
+  position: absolute;
+  width: 190px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border: 2px solid var(--rule);
+  border-radius: 14px;
+  background: var(--card);
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+
+.s_working {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accentSoft);
+}
+
+.s_done {
+  border-color: var(--ok);
+}
+
+.s_flagged,
+.s_failed {
+  border-color: var(--bad);
+}
+
+.pool {
+  position: absolute;
+  left: -14px;
+  right: -14px;
+  bottom: -30px;
+  height: 42px;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--pc) 48%, transparent), transparent);
+  opacity: var(--po, 0);
+  transition: opacity 0.4s;
+}
+
+.poolRun {
+  animation: poolp 1.6s ease-in-out infinite;
+}
+
+.mascot {
+  position: relative;
+  flex: none;
+  width: 54px;
+  height: 54px;
+}
+
+.sprite {
+  margin: -4px;
+}
+
+.zz {
+  position: absolute;
+  right: -8px;
+  top: -6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+  animation: zz 1.6s ease-in-out infinite;
+}
+
+.sparkle {
+  position: absolute;
+  right: -6px;
+  top: -4px;
+  fill: var(--c-owl);
+}
+
+.sweat {
+  position: absolute;
+  right: -4px;
+  top: 8px;
+  /* One-off colour from the board: a light-blue sweat drop. */
+  fill: #6ec1ff;
+}
+
+.label {
+  display: block;
+  min-width: 0;
+}
+
+/* 14 px (the board has 15): in Onest "Chameleon" is about 3 px wider than the space beside the spinner and would break mid-word. */
+.name {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  overflow-wrap: normal;
+}
+
+.status {
+  display: block;
+  margin-top: 1px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--mute);
+}
+
+.s_working .status {
+  color: var(--accentText);
+}
+
+.s_done .status {
+  color: var(--ok);
+}
+
+/* --bad on the card measures 4.36:1, below 4.5:1, so the text stays --ink; the red border and sweat drop carry the cue. */
+.s_flagged .status,
+.s_failed .status {
+  color: var(--ink);
+}
+
+.spinner {
+  margin-left: auto;
+  animation: spin 0.9s linear infinite;
+}
+
+.spinner circle {
+  stroke: var(--rule2);
+}
+
+.spinner path {
+  stroke: var(--accent);
+}
+
+.bubble {
+  position: absolute;
+  left: 8px;
+  bottom: 100%;
+  margin-bottom: 8px;
+  z-index: 2;
+  padding: 6px 10px;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  animation: pop 0.2s ease-out;
+}
+
+.tail {
+  position: absolute;
+  left: 22px;
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  background: var(--card);
+  border-right: 1px solid var(--rule2);
+  border-bottom: 1px solid var(--rule2);
+  transform: rotate(45deg);
+}
+
+.reportIcon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: var(--accentInk);
+}
+
+.bob {
+  animation: bob 0.7s ease-in-out infinite;
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out 3;
+}
+
+/* The stamp keeps its tilt in the base rule so it still sits rotated when the entrance animation is off. */
+.stamp {
+  position: absolute;
+  left: 500px;
+  top: 428px;
+  padding: 6px 12px;
+  border: 3px solid var(--ok);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--ok);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  transform: rotate(-8deg);
+  animation: stamp 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.stampWarn {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-2px);
+  }
+
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes zz {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.9);
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes poolp {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(2.4) rotate(-14deg);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(0.94) rotate(-8deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .bob,
+  .shake,
+  .zz,
+  .poolRun,
+  .stamp,
+  .bubble {
+    animation: none;
+  }
+
+  .pk {
+    display: none;
+  }
+
+  .node {
+    transition: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .scroll {
+    display: none;
+  }
+}

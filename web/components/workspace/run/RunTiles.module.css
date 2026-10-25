@@ -1,0 +1,31 @@
+/* Board tiles: flex row, 14 px gap, each 1 1 180px, label 13 px, mono value 24 px. */
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.tile {
+  composes: surface from "../../plans/surface.module.css";
+  flex: 1 1 180px;
+  min-width: 0;
+  padding: 14px 18px;
+  box-sizing: border-box;
+}
+
+.name {
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.value {
+  margin-top: 4px;
+  font: 500 24px var(--mono);
+}
+
+.tag {
+  display: block;
+  margin-top: 2px;
+  font: 600 12px var(--sans);
+  color: var(--mute);
+}

@@ -1,0 +1,53 @@
+.panel {
+  composes: surface from "../../plans/surface.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 24px;
+  box-sizing: border-box;
+}
+
+.title {
+  margin: 0;
+  font: 700 12px var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.rows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 32px;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 14.5px;
+}
+
+.row dt {
+  color: var(--ink2);
+}
+
+.row dd {
+  margin: 0;
+  font: 500 13.5px var(--mono);
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .rows {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .row dd {
+    text-align: left;
+  }
+}

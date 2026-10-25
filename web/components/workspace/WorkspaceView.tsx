@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useSession } from "@/hooks/use-session";
+import type { RunScenario } from "@/lib/run/mock-run";
 import type { PlanOffer } from "@/lib/types";
 import AskPanel, { type RunSummary } from "./AskPanel";
 import RunTab from "./RunTab";
@@ -13,12 +14,15 @@ import styles from "./WorkspaceView.module.css";
 type Tab = "ask" | "run";
 const tabs: Tab[] = ["ask", "run"];
 
-// The Workspace screen (ROADMAP 2.5): tabs, heading, usage pill and the Ask tab. The run tab is a placeholder until 2.6.
-export default function WorkspaceView({ offers }: { offers: PlanOffer[] }) {
+// The Workspace screen (ROADMAP 2.5, 2.6a): tabs, heading, usage pill, the Ask tab and the scripted run tab.
+// `mockOutcome` (dev only, set by the page) picks a failed or partial scripted run.
+export default function WorkspaceView({ offers, mockOutcome = "answered" }: { offers: PlanOffer[]; mockOutcome?: RunScenario }) {
   const t = useTranslations("workspace");
   const session = useSession();
   const [tab, setTab] = useState<Tab>("ask");
   const [run, setRun] = useState<RunSummary | null>(null);
+  const [runKey, setRunKey] = useState(0);
+  const [running, setRunning] = useState(false);
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
 
   const plan = session.user?.plan ?? "free";
@@ -55,6 +59,7 @@ export default function WorkspaceView({ offers }: { offers: PlanOffer[] }) {
           >
             <span className={styles.tabNumber}>{index + 1}</span>
             {t(value === "ask" ? "tabAsk" : "tabRun")}
+            {value === "run" && running ? <span className={styles.liveDot} aria-hidden="true" /> : null}
           </button>
         ))}
       </div>
@@ -72,11 +77,11 @@ export default function WorkspaceView({ offers }: { offers: PlanOffer[] }) {
             </Link>
           ) : null}
         </div>
-        {session.signedIn ? <AskPanel freeRuns={plan === "free" ? (offer?.runs ?? null) : null} plan={plan} onRun={(summary) => { setRun(summary); setTab("run"); }} /> : <SignedOutCard />}
+        {session.signedIn ? <AskPanel freeRuns={plan === "free" ? (offer?.runs ?? null) : null} plan={plan} onRun={(summary) => { setRun(summary); setRunKey((key) => key + 1); setTab("run"); }} /> : <SignedOutCard />}
       </div>
 
       <div id="ws-panel-run" role="tabpanel" aria-labelledby="ws-tab-run" hidden={tab !== "run"} className={styles.panel}>
-        <RunTab run={run} onBack={() => { setTab("ask"); buttons.current[0]?.focus(); }} />
+        <RunTab run={run} runKey={runKey} scenario={mockOutcome} onBack={() => { setTab("ask"); buttons.current[0]?.focus(); }} onRunningChange={setRunning} />
       </div>
     </main>
   );

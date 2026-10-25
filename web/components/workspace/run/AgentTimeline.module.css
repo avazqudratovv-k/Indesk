@@ -1,0 +1,98 @@
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: 27px;
+  padding: 12px 0 12px 34px;
+  border-left: 2px solid var(--rule2);
+}
+
+.ring {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  margin-left: -63px;
+  overflow: hidden;
+  border: 2px solid var(--rule);
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+.sprite {
+  border-radius: 50%;
+}
+
+.s_working .ring {
+  border-color: var(--accent);
+}
+
+.s_done .ring {
+  border-color: var(--ok);
+}
+
+.s_flagged .ring,
+.s_failed .ring {
+  border-color: var(--bad);
+}
+
+.reportMark {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-left: -53px;
+  border: 2px solid var(--ink);
+  background: var(--accent);
+  color: var(--accentInk);
+  font: 700 16px var(--mono);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  font: 600 17px var(--sans);
+}
+
+.status {
+  font: 500 13px var(--mono);
+  color: var(--mute);
+}
+
+.s_working .status {
+  color: var(--accentText);
+}
+
+.s_done .status {
+  color: var(--ok);
+}
+
+/* --bad measures 4.36:1 on the card, so the text stays --ink; the red ring carries the cue. */
+.s_flagged .status,
+.s_failed .status {
+  color: var(--ink);
+}
+
+/* From 761 px the map shows the state; the list stays for screen readers only. */
+@media (min-width: 761px) {
+  .list {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

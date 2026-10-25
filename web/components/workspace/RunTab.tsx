@@ -2,12 +2,24 @@
 
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
+import type { RunScenario } from "@/lib/run/mock-run";
 import type { RunSummary } from "./AskPanel";
+import RunLive from "./run/RunLive";
 import styles from "./RunTab.module.css";
 
-// Placeholder for the run tab (ROADMAP 2.6 builds the real one). Shows the board's "No run yet" card, or a short
-// summary after Run was pressed. Nothing was uploaded or sent.
-export default function RunTab({ run, onBack }: { run: RunSummary | null; onBack: () => void }) {
+type Props = {
+  run: RunSummary | null;
+  // Changes on every Run press, so a new run starts fresh while a tab switch keeps the current one.
+  runKey: number;
+  // Dev-only ?mockOutcome value; the page passes it only in development.
+  scenario: RunScenario;
+  onBack: () => void;
+  onRunningChange: (running: boolean) => void;
+};
+
+// The run tab (ROADMAP 2.6a). Ask runs show the scripted live view; Check and Compare keep a summary card until
+// their scripts exist. Every run here is a demo: nothing was uploaded or sent.
+export default function RunTab({ run, runKey, scenario, onBack, onRunningChange }: Props) {
   const t = useTranslations("workspace");
   if (!run) {
     return (
@@ -20,9 +32,13 @@ export default function RunTab({ run, onBack }: { run: RunSummary | null; onBack
       </section>
     );
   }
+  if (run.mode === "ask") {
+    return <RunLive key={runKey} run={run} scenario={scenario} onBack={onBack} onRunningChange={onRunningChange} />;
+  }
   return (
     <section className={styles.peek}>
       <div>
+        <span className={styles.demoTag}>{t("live.demoTag")}</span>
         <b className={styles.peekTitle}>{t("runTab.readyTitle")}</b>
         <p className={styles.peekSub}>{t("runTab.readyBody")}</p>
         <dl className={styles.summary}>

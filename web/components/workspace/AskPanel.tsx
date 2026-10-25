@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import DemoNotice from "@/components/ui/DemoNotice";
 import { MAX_QUESTION_CHARS, MODE_SLOTS, questionLength, type SlotId, type WorkspaceMode } from "@/lib/workspace/validate";
+import AgentEndings from "./AgentEndings";
 import ConsentBox from "./ConsentBox";
 import FileSlot from "./FileSlot";
 import ModeSwitch from "./ModeSwitch";
@@ -150,6 +151,7 @@ export default function AskPanel({ freeRuns, plan, onRun }: { freeRuns: number |
       </p>
 
       <TeamReady />
+      <AgentEndings />
       <UploadInfo />
     </div>
   );
