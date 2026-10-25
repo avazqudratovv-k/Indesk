@@ -238,5 +238,64 @@
       "people": "Discoverable people",
       "notFound": "Not found"
     }
+  },
+  "auth": {
+    "tabsLabel": "Account",
+    "tabSignup": "Sign up",
+    "tabLogin": "Log in",
+    "login": {
+      "title": "Log in",
+      "sub": "Log in to see your reports and usage.",
+      "cta": "Log in",
+      "switchText": "New here?",
+      "switchLink": "Sign up",
+      "submitting": "Logging in…"
+    },
+    "signup": {
+      "title": "Sign up",
+      "sub": "2 free runs. No card needed.",
+      "cta": "Sign up",
+      "switchText": "Already have an account?",
+      "switchLink": "Log in",
+      "submitting": "Signing up…"
+    },
+    "name": "Display name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••••",
+    "passwordHint": "At least 10 characters",
+    "show": "Show",
+    "hide": "Hide",
+    "errors": {
+      "nameRequired": "Enter a display name.",
+      "nameTooLong": "Use 60 characters or fewer.",
+      "emailRequired": "Enter your email.",
+      "emailInvalid": "Enter a valid email, like you@example.com.",
+      "emailTooLong": "Use 254 characters or fewer.",
+      "passwordRequired": "Enter your password.",
+      "passwordTooShort": "Use at least 10 characters.",
+      "passwordTooLong": "Use 128 characters or fewer."
+    },
+    "success": {
+      "dev": "Signed in as the demo user. Opening your workspace…",
+      "demo": "This demo has no accounts yet. Nothing was sent or saved, and no one was signed in."
+    },
+    "freeTitle": "Included for free",
+    "free": [
+      "2 analysis runs",
+      "Files up to 2 MB each",
+      "CSV up to 5,000 rows",
+      "PDF up to 10 pages",
+      "Reports kept for 30 days"
+    ],
+    "trustTitle": "How we protect you",
+    "trust": [
+      "Passwords are hashed with Argon2",
+      "Uploaded files are deleted after 24 hours",
+      "Code runs in a sandbox with no internet",
+      "Demo: no real payments are taken"
+    ]
   }
 }

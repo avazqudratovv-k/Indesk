@@ -1,0 +1,16 @@
+/* Board main: 1100 px, flex-wrap, 32 px gap; phones use 20 px sides and 22 px top. */
+.main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: stretch;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 32px 0;
+}
+
+@media (max-width: 760px) {
+  .main {
+    padding: 22px 20px 0;
+  }
+}

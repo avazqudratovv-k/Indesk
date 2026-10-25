@@ -1,5 +1,12 @@
-import RoutePlaceholder from "@/components/RoutePlaceholder";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import AuthPage from "@/components/auth/AuthPage";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth");
+  return { title: `${t("tabLogin")} · Indesk` };
+}
 
 export default function Page() {
-  return <RoutePlaceholder route="Log in" />;
+  return <AuthPage mode="login" />;
 }

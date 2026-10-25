@@ -16,6 +16,7 @@
   --green: #0B7F54;
   --ok: var(--green);
   --greenBg: #D8F2E4;
+  --okBg: var(--greenBg);
   --bad: #D93A22;
   --badBg: #FFE6E1;
   --badLine: #F2A598;
