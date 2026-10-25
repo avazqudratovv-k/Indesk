@@ -70,7 +70,7 @@ There is **no admin role** in v1. Operate through the database and logs.
 1. Lists reports (status Private / Shared with expiry) and uploaded file names (name, type, size; "Deleted" after 24 h). 2. Share/Unshare, delete with 7-day undo.
 
 **K. Plans**
-1. Free, Pro $9/mo, Pay-as-you-go $5/20 runs, Custom plan calculator. 2. Simulated "demo checkout".
+1. Free (2 runs), Pro ₩12,000/mo (50 runs), Pay-as-you-go ₩6,500 for 20 runs, Custom plan calculator (₩130 per run, minimum ₩12,000). Prices are KRW only (DECISIONS #74). 2. Simulated "demo checkout".
 
 **L. People**
 1. Signed-in users search by name or handle (2+ characters, 20 results max). Only people who opted in are found.
@@ -127,6 +127,13 @@ There is **no admin role** in v1. Operate through the database and logs.
 - 0:50 to 1:00 Switch to Check a document: the planted error "Magok grew 21%" is shown next to the data's 14.1%.
 - Success means: no errors, nothing slower than a few seconds on the cached example, works in light and dark, looks right on a phone. Figures above come from the mock design; the real numbers come from the real Seoul data, which the user is checking.
 - A recruiter who uploads their own big file gets either a correct cited answer or a clear, polite message ("needs better input", size limit, "busy today"), never a crash.
+
+## 8. Copy claims that must be true before launch
+Every sentence on a public page that promises something must be backed by a built and tested feature. Check this list at the end of the UI pass and at the security pass.
+- "Passwords are hashed with Argon2" (ROADMAP 3.5).
+- "Reports kept 30 / 60 / 90 days by plan" (retention job, ROADMAP 3.6).
+- "Sign-ups are limited per hour" (rate limit, ROADMAP 3.5).
+- Plan option groups (file size, data size, retention, parallel runs) are advertised only when the backend enforces them (DECISIONS #75).
 
 ## OPEN questions in this file
 None. (The paid-tier switch happens before the link is shared; hosting is the user's existing VPS with an sslip.io hostname.)

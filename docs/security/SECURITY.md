@@ -67,5 +67,10 @@ Files and extracted text are sent to Google Gemini to be answered. The privacy t
 - Database users get minimum rights (the API user cannot drop tables; the sandbox has no database access).
 - `.env` is in `.gitignore` from the first commit.
 
+## 6. Items for the security pass (ROADMAP 5.4)
+Both are **not verified** yet.
+- Production builds ignore the `dev_session` cookie: plant the cookie against a production build and confirm the app still treats the visitor as signed out (DECISIONS #67).
+- The demo checkout makes no network request and stores nothing when card details are typed: with the network panel open and storage inspected (cookies, local and session storage, URL), type a card and finish or decline the payment; confirm no request carries the values and nothing is stored (DECISIONS #77).
+
 ## OPEN questions in this file
 None. (The date for the switch to the paid tier is tracked in `SPEC.md`.)

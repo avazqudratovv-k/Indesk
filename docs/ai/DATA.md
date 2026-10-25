@@ -14,6 +14,7 @@ Legend: R = required. Types: uuid, text, int, bool, ts (timestamp), jsonb, vecto
 |---|---|---|---|
 | id | uuid | yes | |
 | email | text | yes | unique, lowercase, max 254 (rec) |
+| password | (input only) | yes | 10 to 128 characters; never stored, only `password_hash` is |
 | password_hash | text | yes | Argon2 |
 | display_name | text | yes | 1 to 60 (rec) |
 | handle | text | yes | unique, lowercase, 3 to 30 (rec) |
@@ -162,7 +163,7 @@ Paths are accepted. "Auth" = signed-in user; "Owner" = signed-in user who owns t
 | My reports | `GET /api/reports` | none | list with status | Auth (own) |
 | People search | `GET /api/people?q=` | q (2+ characters) | up to 20: display_name, handle, languages | Auth; rate limited |
 | Plans / usage | `GET /api/plans`, `GET /api/usage` | none | plans; for the user: runs left on the plan and today's runs and model calls against the daily caps | Visitor / Auth |
-| Custom price | `POST /api/plans/custom/quote` | choices | price (server computed, rounded up, minimum $9) | Auth |
+| Custom price | `POST /api/plans/custom/quote` | choices | price (server computed, rounded up, KRW: ₩130 per run, minimum ₩12,000; see DECISIONS #74) | Auth |
 | Demo checkout | `POST /api/checkout` | plan or custom config | simulated payment, subscription | Auth |
 | Try example | `GET /api/example` | none | cached example run and report | Everyone |
 
@@ -185,7 +186,7 @@ Use these shapes for the UI-first mock data. The Seoul figures are placeholders 
 ```
 ```json
 // payments
-{"id":"pay_01","user_id":"u_01","provider_ref":"sim_pay_01","amount":1400,"currency":"USD","status":"succeeded","test_mode":true}
+{"id":"pay_01","user_id":"u_01","provider_ref":"sim_pay_01","amount":13000,"currency":"KRW","status":"succeeded","test_mode":true}
 ```
 ```json
 // usage_events
@@ -247,6 +248,14 @@ Use these shapes for the UI-first mock data. The Seoul figures are placeholders 
 // benchmark_runs
 {"id":"bm_01","commit_sha":"a1b2c3d","score":44,"total":50,"details":{"failed":["q07","q19"]}}
 ```
+
+### Plans screen mock (`web/mocks/plans.json`, types in `web/lib/types.ts`)
+Display-only demo values; prices are whole KRW (DECISIONS #74). Not a database table; `GET /api/plans` returns this shape later.
+- `records[]` (`PlanOffer`): `plan` (free, pro, payg), `runs`, `price` (KRW), `period` (forever, month, once), `max_file_mb`, `csv_rows`, `pdf_pages`, `retention_days` (30, 90, 60), `popular`.
+  - free: 2 runs, ₩0; pro: 50 runs, ₩12,000 per month; payg: 20 runs, ₩6,500 once.
+- `custom` (`CustomPlanOffer`): `runs` {min 10, max 1000, step 10, default 100}, `per_run` 130, `minimum` 12000, and the option lists mirroring `custom_config`: `max_file_mb` [25, 100, 250], `data_tier` ["200k_rows_200_pages", "1m_rows_1000_pages"], `retention_days` [90, 180, 365], `parallel` [1, 3, 5]. The option groups carry no price (#75); only `runs` sets the price.
+- The sign-up form limits (DECISIONS #73): display name 1 to 60, email max 254, password 10 to 128.
+- Cost fields (`runs.cost_usd`, `agent_steps.cost_usd`, `ai_calls.est_cost_usd`, `usage_daily.est_cost_usd`) are internal, in USD, and never shown to users.
 
 ## summary_json shapes (mock, to confirm at 3.13 and 3.14)
 Taken from `web/mocks/reports.json`. Every shape has `answer`.

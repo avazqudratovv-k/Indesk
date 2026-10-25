@@ -17,15 +17,15 @@ How to work: for each item, Claude writes a prompt, you paste it into a fresh Cl
 - [x] **1.2 [A] Next.js app.** `web/`: Next.js App Router, TypeScript, one empty page per route in `DESIGN.md`. Done when: every route opens and shows its name.
 - [x] **1.3 [A] Design tokens.** `tokens.css` with all light and dark variables from `DESIGN.md`, fonts loaded, theme switch via `data-theme`, CSS Modules for components. Done when: a test page shows every color swatch in both themes.
 - [x] **1.4 [A] Base components.** Button (default, ink, primary, sm/lg), icon button, eyebrow, card, chip, demo notice. Touch targets at least 44 px on mobile. Done when: a components page shows each in light and dark.
-- [x] **1.5 [A] Layout shell.** Navbar (links, language switch, theme toggle, avatar), footer with the demo notice, 760 px breakpoint, signed-in/signed-out nav, mobile bottom tab bar (signed in: Home, Workspace, My, Plans; signed out: Home, Workspace, Plans). Done when: it matches the Home board at 1280 and 390 px.
+- [x] **1.5 [A] Layout shell.** Navbar (links, language switch, theme toggle, avatar), footer with the demo notice, 760 px breakpoint, signed-in/signed-out nav, mobile bottom tab bar (signed in: Home, Workspace, My, Plans; signed out: Home, Workspace, Plans). Done when: it matches the Home board at 1280 and 390 px. Shell changes after the first build: mobile navbar scrolls away and hides Log in / Sign up on the auth pages (#70), floating pill tab bar (#71), logo tilt (#72).
 - [x] **1.6 [A] Translations.** `next-intl`; `en` and `ko` files with keys for all UI text. Done when: switching language changes the navbar and footer.
 - [x] **1.7 [A] Mock data.** `web/mocks/*.json` using the example records in `DATA.md`, plus a development switch "signed in / signed out". Done when: a page can read a mock report.
 
 ## 2. Screens on mock data (one per item)
-- [ ] **2.1 [A] Home.** Headline, looping silent demo (can be a recorded animation), "Try with an example", team, three modes.
-- [ ] **2.2 [A] Log in.** Form and validation messages, fake submit.
-- [ ] **2.3 [A] Sign up.** Form, fake submit, demo notice.
-- [ ] **2.4 [A] Plans.** Cards and the custom plan calculator (price rule in `DECISIONS.md` #18), demo checkout screen.
+- [x] **2.1 [A] Home.** Headline, looping silent demo (can be a recorded animation), "Try with an example", team, three modes.
+- [x] **2.2 [A] Log in.** Form and validation messages, fake submit.
+- [x] **2.3 [A] Sign up.** Form, fake submit, demo notice.
+- [x] **2.4 [A] Plans.** Cards and the custom plan calculator (price rule in `DECISIONS.md` #18, prices in KRW per #74), demo checkout screen.
 - [ ] **2.5 [A] Workspace: Ask tab.** Tabs, mode switch, upload list, consent box with the demo notice, question box, chips, info blocks.
 - [ ] **2.6 [A] Workspace: run tab.** Agent cards with expandable artifacts, handover card, trace driven by a timer on mock events, guardrails, "No run yet" state.
 - [ ] **2.7 [A] Report (Ask).** Stamped final answer, Simple/Detailed, claims with evidence chips, confidence bar, follow-up thread.
@@ -38,6 +38,21 @@ How to work: for each item, Claude writes a prompt, you paste it into a fresh Cl
 - [ ] **2.14 [A] People.** Search box, results, disabled Invite.
 - [ ] **2.15 [A] Outcome cards.** All 9 run outcomes from the States board, plus the "busy today" message, used by Report and the run tab.
 - [ ] **2.16 [A] Dark mode and mobile pass.** Every screen checked at 390 and 1280, light and dark, English and Korean. Done when: no horizontal scroll, no unreadable text, touch targets at least 44 px.
+  Open items collected while building 2.1 to 2.4:
+  - [ ] Footer tagline contrast is 3.8 (needs 4.5).
+  - [ ] Hero eyebrow and "See plans" worst-pixel contrast.
+  - [ ] Phone section titles are 30 px vs 38 px on the board.
+  - [ ] Reduced-motion tests across screens.
+  - [ ] Mobile PNG comparisons against the boards.
+  - [ ] Plans at exactly 360 px.
+  - [ ] Plans phone row inset (40 px as on the board) may be too wide; user to decide.
+  - [ ] Footer links and some text links are under 44 px.
+  - [ ] Desktop calculator slider is 32 px (board value).
+  - [ ] Stray `styles.login` class (renders "undefined") in `Navbar.tsx`.
+  - [ ] Fonts are about 966 KB; trim at deploy (first paint about 2.7 MB).
+  - [ ] Korean copy review by the user for Home, Auth and Plans (including the Home heading "누구를 위한 서비스인가요" and heading punctuation such as 결제가 완료되었어요.).
+  - [ ] Safari, Firefox, a real touch device and a real screen reader are untested.
+  - [ ] The film board PNG renders blank, so the Home film is compared against the live design.
 
 ## 3. Backend features (match DATA.md)
 - [ ] **3.1 [A] Compose and CI.** Docker Compose with API, Postgres + pgvector, Redis, RQ worker; CI runs lint and tests. Done when: `docker compose up` gives a healthy API.
