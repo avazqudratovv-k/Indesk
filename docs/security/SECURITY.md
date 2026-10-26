@@ -92,10 +92,11 @@ Replaces the earlier `dev_session` item. The `dev_session` cookie and the mock s
 - One module (`app/ai`) makes every model call, with plain `httpx`. The key is `GEMINI_API_KEY` in `api/.env`, read as a `SecretStr`, sent only in the `x-goog-api-key` header, and never put in a URL, a log line, a result or a prompt (#154).
 - It logs and stores metadata only: model, tokens, status, latency. No prompt, answer, question or file text (#159).
 - Daily caps are atomic SQL upserts on `usage_daily`; if the counter store fails the call is refused (fail closed) (#158). Dev values: 50 calls per user and 200 global per day; production values are set at deploy (#160). Prompts over 40,000 characters are refused.
-- **Not verified:** nothing has run against real Gemini; model names are unchecked (#155, #161). Tests use a fake client and never spend the cap.
+- **Not verified:** real calls have been made by hand only (P8b, #214); two chain entries are untested and the real rate limits per model name are unknown. Tests use a fake client and never spend the cap.
 ### Rate limits (fixed windows in Redis; if Redis is down the request is refused, fail closed)
 - Sign-ups: 5 per hour per IP. Log-ins: 10 per 15 minutes per IP and email. Uploads: 30 per hour per user, counted after the body is parsed (#149). Run requests: 20 per hour per user, plus one active run per user (database index) and at most 3 open event streams per user.
 - Upload bodies are cut off at the file limit plus 64 KB while they arrive (#151). The upload limit is 5 MB, 5,000 rows and 200 columns.
+- CSV upload validation now tolerates trailing empty cells (#211): extra cells after the header's width are allowed only if every extra cell is empty and every data row has the same cell count; a non-empty extra cell, a short row, mixed widths, different extra counts or an empty cell in the middle is still `BAD_CSV`. Covered by tests (reported for P8b; not re-run in this batch). No control changed status.
 - Not built: the 30 runs per day on paid plans and the people-search limit (no such features yet).
 ### Redis test guard (P7)
 - Tests use Redis database 15 only. A guard fails the suite at start if the test URL is database 0 and refuses a connection pool for any other database, so a test cannot flush the dev queue or reset dev rate limits (#172). Never run `FLUSHDB` on production.

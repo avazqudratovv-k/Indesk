@@ -259,7 +259,7 @@ Added in docs batch 8 (2026-10-26) for the work in commits bc1cc5e to b2a13b2. D
 | 197 | Oct 26 | D7: a new "Not available yet" group lists PDFs and photos in "What you can upload". The chips are red; a neutral style is on the polish list (STATE) | Tells the visitor what comes later | Hiding them |
 
 ### P8a: Ask flow with Owl and Beaver (09e5340)
-Added in docs batch 9 (2026-10-26). Nothing here has run against real Gemini; model names, the thinking field for `gemini-3.x` and the prompt text are untested. Where a reason was not given, the cell says "not recorded".
+Added in docs batch 9 (2026-10-26). When written, nothing here had run against real Gemini; P8b below (#211 to #218) records what the first real calls showed. Where a reason was not given, the cell says "not recorded".
 | # | Date | Decision | Why | Rejected alternatives |
 |---|---|---|---|---|
 | 198 | Oct 26 | **Supersedes #155** (the `gemini-2.5` pair chosen from memory). `api/config/models.toml` now holds two chains as in #27 (light) and #28 (main): 3 entries each, 35 s shared budget (#31). The names are still **NOT verified** against a real key (OPEN 5) | Brings the config back in line with #27, #28 and AGENTS.md | The single `gemini-2.5` chain |
@@ -276,9 +276,25 @@ Added in docs batch 9 (2026-10-26). Nothing here has run against real Gemini; mo
 | 209 | Oct 26 | `AskFlow` replaces `UnconfiguredFlow` for Ask (the dev stub still wins in development only, #170). Ask ends `answered` with no report until P9. Check and Compare still use `UnconfiguredFlow` | Only Ask is real in v1 (#181) | not recorded |
 | 210 | Oct 26 | Deleting a run or an account removes the payload rows (`ON DELETE CASCADE`, tested) | Stored code must not outlive its run or user (#15) | Cleanup in code |
 
+### P8b: first real Gemini calls, demo data (7897561, 86fe0b2)
+Added in docs batch 10 (2026-10-26). Four real runs on the Seoul CSV (three question types, one in Korean) ended answered and matched independently computed answers. Where a reason was not given, the cell says "not recorded".
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 211 | Oct 26 | Upload accepts a trailing empty cell: a data row may have extra cells after the header's width only if every extra cell is empty and every data row has the same cell count. Anything else stays `BAD_CSV`: a non-empty extra cell, a short row, a mix of widths, extra cells of different counts, an empty cell in the middle. `uploads.column_count` is the header's width. Stored bytes, sha256 and row count are unchanged. This is a narrow exception to the strict CSV rows of #134 | The real Seoul export has a trailing empty field on every row | Rejecting the real file; accepting any wider row |
+| 212 | Oct 26 | The sandbox reads the CSV with `index_col=False` | Without it pandas shifted every column when rows were wider than the header (found in P8b) | Default `read_csv` |
+| 213 | Oct 26 | Profile sample rows are cut to the header width | The profile must match the columns Beaver is told about (#211) | Sending the extra empty cells |
+| 214 | Oct 26 | `models.toml` gets a per-entry `thinking_level`, never combined with `thinking_budget` (both on one entry is a config error). `gemini-3.5-flash-lite` entries use `"minimal"`. Verified live: `gemini-3.5-flash-lite` returns HTTP 400 for `thinkingBudget` 0 and works with `thinkingLevel` minimal; `gemini-3.1-flash-lite` accepts budget 0; `gemini-3.8-flash` accepts budget 1024; `gemini-3.8-flash` does not support "minimal". The `thinkingLevel` request shape was confirmed by live 200 responses, not read from Google's reference page. Refines #200 | The first live call showed the field differs by model | One field for every model |
+| 215 | Oct 26 | Real response fields `real_client.py` ignores today: `thoughtSignature` on the part, `serviceTier`, `promptTokensDetails` | Recorded so a later change knows they exist | not recorded |
+| 216 | Oct 26 | Demo data: `docs/demo-data/seoul_subway_2026-09.csv`, Seoul subway ridership, September 2026, lines 1, 2, 3 and 7 only, 4,079 rows, BOM removed. Source line to show: "Source: Seoul Metropolitan Government, Korail, Airport Railroad (Seoul Open Data Plaza), KOGL Type 1" (attribution required; commercial use and changes allowed). It covers one month, so questions about growth over years do not fit it. The demo question chips and example copy must match this file (for example "total boardings per day"). "Average daily boardings" is ambiguous (mean of daily network totals versus per station-row), so example questions must say which. Refines #21 | Copy must match what the file can answer (SPEC section 8) | Chips about growth over years |
+| 217 | Oct 26 | Price table, internal reference only, never shown to users (#74). Per 1M tokens, input / output in USD: `gemini-3.1-flash-lite` 0.25 / 1.50; `gemini-3.5-flash-lite` 0.30 / 2.50; `gemini-3.6-flash` and `gemini-3.8-flash` 0.75 / 3.75 until Dec 31 2026, then 1.50 / 7.50. Source of the cost estimate in STATE; `ai_calls.est_cost_usd` stays 0 (#159) | Needed for the cost caps and the per-run estimate | Showing prices to users |
+| 218 | Oct 26 | The free tier may use data to improve Google products and the paid tier does not, so the deployed key must be a paid key, and the demo notice stays. Restates #33 and #64 | Privacy | Deploying on a free-tier key |
+
 ## OPEN questions in this file
 1. Gemini embedding model ID and vector size (#34), decided at ROADMAP 3.12.
-2. Confirm every Gemini model ID in Google AI Studio before the first real call (#30).
+2. ~~Confirm every Gemini model ID in Google AI Studio before the first real call (#30).~~ Closed in P8b: all six names were listed for the key and four real runs worked.
 3. ~~Decision #93 versus the `translations.ko` work~~ Closed: the owner kept the Korean text; #98 replaces #93.
 4. ~~Which model chain is the real one?~~ Closed as to structure: #198 replaces #155, and `models.toml` holds the two chains of #27 and #28. The names themselves are open under item 5.
-5. Verify, with the real key (owner: P8b): (a) the model names in `models.toml`, with `scripts/list_models.py`; (b) the thinking field name for `gemini-3.x` (`thinkingBudget` versus `thinkingLevel`; check Google's docs), see #200; (c) the real price and free-tier limits per model name.
+5. Verify, with the real key (owner: P8b):
+   - (a) ~~model names in `models.toml`~~ Closed (see item 2).
+   - (b) ~~thinking field name for `gemini-3.x`~~ Closed for the entries tested (#214). Still open: the third light entry (`gemini-3.8-flash`, thinking_budget 0) and the second main entry (`gemini-3.6-flash`, thinking_budget 1024) have never been called; probe each with one call (planned inside P9).
+   - (c) Price part closed (#217). Still open: the real rate limits per model name; the owner reads aistudio.google.com/rate-limit (needed before P10 daily caps).

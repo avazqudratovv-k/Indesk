@@ -3,19 +3,19 @@
 #   light: route, plan, pick-and-quote, claim extraction.
 #   main:  Beaver code, Chameleon vision, Cat verdicts.
 #
-# UNVERIFIED: none of these names has been checked against a real key. Run
+# Verified live (P8b): all six names are listed for the key, and four real runs worked. To re-check:
 #   docker compose run --rm api python scripts/list_models.py
-# first, and fix any name it does not list. Nothing here has run against real Gemini.
+# NOT yet called: the third light entry (gemini-3.8-flash, thinking_budget 0) and the second main
+# entry (gemini-3.6-flash, thinking_budget 1024). A probe of each is planned in P9.
 #
 # Per entry, all changeable here without code:
 #   timeout_seconds, max_output_tokens, thinking_budget OR thinking_level (not both).
-# First real call (P8b): gemini-3.5-flash-lite answers HTTP 400 to thinkingBudget 0 and works with
-# thinkingLevel "minimal". gemini-3.1-flash-lite accepted budget 0 and gemini-3.8-flash accepted
-# budget 1024; the other budget entries are still unverified. 3.8-flash does not support "minimal".
+# Verified live (P8b): gemini-3.5-flash-lite answers HTTP 400 to thinkingBudget 0 and works with
+# thinkingLevel "minimal"; gemini-3.1-flash-lite accepts budget 0; gemini-3.8-flash accepts budget
+# 1024 and does not support "minimal". The thinkingLevel request shape was confirmed by live 200
+# responses. Not verified: budget 0 on gemini-3.8-flash, budget 1024 on gemini-3.6-flash.
 # thinking_budget may be left out: then no thinking field is sent and the model uses its default.
-# 0 is sent as 0. UNVERIFIED for gemini-3.x: those models may not accept `thinkingBudget` at all
-# (they may use a thinking level instead); if the first real call fails with HTTP 400, that is the
-# first thing to check, and it is one change in app/ai/real_client.py.
+# 0 is sent as 0.
 # Thinking tokens may count against max_output_tokens (true for gemini-2.5, UNVERIFIED for 3.x),
 # so a small max_output_tokens plus thinking can cut an answer short.
 #

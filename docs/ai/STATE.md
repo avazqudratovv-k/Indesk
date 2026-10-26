@@ -6,7 +6,7 @@
 Updated: 2026-10-26
 
 ## Status in one line
-Screens 2.1 to 2.7b are done on mock data. The backend foundation (P1 to P7), the Ask flow with Owl and Beaver (P8a) and the web swap for log in, sign up and the Ask run (4.1 to 4.3) are committed. A real Ask run goes through Owl and Beaver on the fake gateway in tests and ends `answered` with no report (Cat and reports come in P9); Check and Compare still end as unconfigured. HEAD 09e5340. Nov 1 is now a soft target (Nov 1 to 3), not a hard date. **No real Gemini call has happened.** The model names, the thinking field for `gemini-3.x` and the prompt text are untested.
+Screens 2.1 to 2.7b are done on mock data. The backend foundation (P1 to P7), the Ask flow with Owl and Beaver (P8a), the first real Gemini calls (P8b) and the web swap for log in, sign up and the Ask run (4.1 to 4.3) are committed. A real Ask run goes through Owl and Beaver and ends `answered` with no report (Cat and reports come in P9); Check and Compare still end as unconfigured. HEAD 86fe0b2. Nov 1 is now a soft target (Nov 1 to 3), not a hard date. **Four real runs on the Seoul CSV (three question types, one in Korean) ended `answered` and matched independently computed answers.** 11 of 12 budgeted calls were used; cost was about 0.0024 USD per run (an estimate: `ai_calls` records no cost yet).
 
 ## Commits since the last docs batch (7fcfccb)
 | Step | Commit | What |
@@ -21,7 +21,9 @@ Screens 2.1 to 2.7b are done on mock data. The backend foundation (P1 to P7), th
 | 4.1 + 4.2 | a5461cd | Real auth in the web, single-flight refresh, Log out, disabled Check/Compare |
 | 4.3 | b2a13b2 | Ask on the real API, live trace over SSE, failure cards, CSV-only copy |
 | P8a (3.9, agent half) | 09e5340 | Ask flow: Owl and Beaver on two model chains, `AskFlow`, fake-gateway tests |
-Decisions for all of these: DECISIONS #99 to #210.
+| P8b (3.9, live half) | 7897561 | First real Gemini calls, `thinking_level`, trailing empty CSV cells, sandbox `index_col=False` fix |
+| Demo data | 86fe0b2 | `docs/demo-data/seoul_subway_2026-09.csv` (4,079 rows, KOGL Type 1) |
+Decisions for all of these: DECISIONS #99 to #218.
 
 ## What exists
 ### `web/`
@@ -35,18 +37,17 @@ Decisions for all of these: DECISIONS #99 to #210.
 - Routes (all under `/api`): `GET /health`, `GET /ready`; `POST /auth/signup`, `/auth/login`, `/auth/refresh`, `/auth/logout`; `GET /me`; `POST /uploads`, `GET /uploads`, `GET /uploads/{id}`; `POST /runs` (202, optional `Idempotency-Key`), `GET /runs/{id}`, `GET /runs/{id}/events` (SSE). Check the code before relying on this list.
 - Services in `compose.yaml`: api, worker, scheduler, sandbox, db (pgvector), redis. Migrations 0001 and 0002.
 - Gateway (`app/ai/`), sandbox service (`api/sandbox/`), run machine and executor (`app/runs/`), Owl and Beaver with `AskFlow` (P8a, #198 to #210). Cat is not built; see "Next".
-- `api/config/models.toml` holds two chains (light and main, 3 entries each, #198); the names are unverified.
-- Tests: `api/tests/` (pytest against real Postgres and Redis database 15, and a fake model client). Counts reported for P8a: 796 api + 20 sandbox (`-m sandbox`) + 138 web. CI jobs: `api`, `sandbox`, `web`. These were not re-run in the docs batch.
+- `api/config/models.toml` holds two chains (light and main, 3 entries each, #198). All six names were listed for the key. Per-entry `thinking_level` or `thinking_budget` (#214).
+- Tests: `api/tests/` (pytest against real Postgres and Redis database 15, and a fake model client). Counts reported for P8b: 806 api + 21 sandbox (`-m sandbox`) + 138 web. CI jobs: `api`, `sandbox`, `web`. These were not re-run in the docs batch.
 
 ## In progress
 - Nothing.
 
 ## Next
-1. **P8b:** live smoke test with the real Gemini key and the Seoul CSV (run `scripts/list_models.py` first; confirm model IDs, the thinking field name and prices; DECISIONS OPEN 5).
-2. **P9:** Cat (critic), claims and evidence, the report API.
-3. **Web 4.4:** Report (Ask) on the real API; remove the line "Results appear in the report (not connected yet)".
-4. **P10:** quotas and counting, "busy today" cards, split DB roles, deploy fixes from the checklist below.
-5. **5.x:** Seoul demo data, cached example, stress tests, security pass, paid tier, deploy, README and video.
+1. **P9:** Cat as code (critic), claims and evidence, the report API; includes one probe call each for the two untested chain entries.
+2. **Web 4.4:** Report (Ask) on the real API; remove the line "Results appear in the report (not connected yet)".
+3. **P10:** quotas and counting, "busy today" cards, split DB roles, deploy fixes from the checklist below.
+4. **5.x:** copy to match the demo file, cached example, stress tests, security pass, paid tier, deploy, README and video. (The Seoul demo CSV itself is committed, 86fe0b2.)
 - PLANNED, not built (#98): "Translate to <other language>" for real reports (API in P9, UI in 4.4); dropped first if a day slips.
 - ROADMAP 2.16 holds the open polish and accessibility items collected so far.
 
@@ -101,10 +102,12 @@ Decisions for all of these: DECISIONS #99 to #210.
 - Two tabs refreshing at the same moment can end the session (#126); the web reduces it with a lock (#177).
 
 ## Not verified
-- No real Gemini call has happened. The model names in `api/config/models.toml`, the thinking field for `gemini-3.x` (`thinkingBudget` or `thinkingLevel`) and the Owl and Beaver prompt text are untested (DECISIONS OPEN 2 and 5).
+- Two chain entries have never been called: the third light entry (`gemini-3.8-flash`, thinking_budget 0, the budget-0 setting in particular) and the second main entry (`gemini-3.6-flash`, thinking_budget 1024). A probe of each is planned inside P9 (DECISIONS OPEN 5).
+- The real rate limits per model name are unknown (owner reads aistudio.google.com/rate-limit; needed before P10 daily caps).
+- Cost per run is an estimate from token counts and the price table (#217); `ai_calls.est_cost_usd` is still 0.
 - EventSource and the gzip fix were checked in Chrome only. Safari, Firefox and real phones are untested.
 - The Korean text has not been reviewed by a native speaker.
-- Build, lint, typecheck and tests were not re-run in this docs batch.
+- Build, lint, typecheck and tests were not re-run in this docs batch (the counts above are as reported for P8b).
 
 ## Environments
 - Local: web http://localhost:3000 (dev server rewrites `/api` to the API), API http://127.0.0.1:8000 through `docker compose up --build`; Postgres and Redis run in Compose.
