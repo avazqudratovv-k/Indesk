@@ -1,6 +1,6 @@
 # SECURITY.md — Indesk (first draft)
 
-Lives at: `docs/security/SECURITY.md`. Last updated 2026-10-26 (HEAD 5c12875). Sections 1 to 5 were written on 2026-10-25 and are still mostly **Planned**. Section 6 and 7 below describe what is built; each control says whether a test exists. **Built is not the same as verified:** the tests named here were not re-run in the docs batch of 2026-10-26, and nothing was checked against a deployed server. Unless a line says "test exists", read it as not verified.
+Lives at: `docs/security/SECURITY.md`. Last updated 2026-10-27 (HEAD 43dd394; the superuser role item is closed by migration 0004, the role split and the role test; owner-only `DELETE /uploads/{id}` added). Sections 1 to 5 were written on 2026-10-25 and are still mostly **Planned**. Section 6 and 7 below describe what is built; each control says whether a test exists. **Built is not the same as verified:** the tests named here were not re-run in the docs batch of 2026-10-26, and nothing was checked against a deployed server. Unless a line says "test exists", read it as not verified.
 
 ## 1. The three most realistic ways someone could misuse Indesk
 ### 1. A poisoned file (prompt injection, malware, harmful content)
@@ -64,7 +64,7 @@ Files and extracted text are sent to Google Gemini to be answered. The privacy t
 ## 5. Rules for the build process
 - Never put API keys or passwords in prompts or chat.
 - Claude Code never reads, prints or edits `.env` files.
-- Database users get minimum rights (the API user cannot drop tables; the sandbox has no database access). **Not true today:** the API connects as the Postgres superuser until P10 (see section 8). The sandbox has no database access: it gets no environment at all (a test, `tests/test_compose_sandbox.py`, checks `compose.yaml`).
+- Database users get minimum rights (the API user cannot drop tables; the sandbox has no database access). **True since P10c (migration 0004, #255):** the API, worker and scheduler connect as `indesk_app` (SELECT, INSERT, UPDATE, DELETE only); tests prove DROP, ALTER, CREATE and TRUNCATE fail for it. The sandbox has no database access: it gets no environment at all (a test, `tests/test_compose_sandbox.py`, checks `compose.yaml`).
 - `.env` is in `.gitignore` from the first commit.
 
 ## 6. Auth and sessions as built (P3, web 4.1 and 4.2)
@@ -103,13 +103,16 @@ Replaces the earlier `dev_session` item. The `dev_session` cookie and the mock s
 - **Owner-only report access:** `GET /api/reports/{id}` checks ownership on the server; another user's, a missing, an expired and a deleted report give the same 404, and no session gives 401 (#227). Test reported for P9.
 - **Leak test:** an HTTP-level test checks that `GET /runs/{id}`, the SSE stream and `GET /reports/{id}` contain none of the sentinel code or plan strings (#227). Reported for P9.
 - No control changed status in this docs batch.
+### Upload delete (P10c, DECISIONS #257)
+- `DELETE /api/uploads/{id}` is owner only. Another user's or a missing upload gives 404; an upload used by an active run gives 409 `UPLOAD_IN_USE`. The stored object is removed, the row is kept as deleted, and an audit row is written. Tested in P10c as reported; not re-run in this batch except as part of the full api suite run at the end of it.
+- No other control changed status in this docs batch.
 ### Redis test guard (P7)
 - Tests use Redis database 15 only. A guard fails the suite at start if the test URL is database 0 and refuses a connection pool for any other database, so a test cannot flush the dev queue or reset dev rate limits (#172). Never run `FLUSHDB` on production.
 ### Runs
 - Run limits: soft timeout 180 s, job kill 240 s, hard limit 300 s, 60,000 tokens, step cap 12, one retry (#167). A run that dies is ended by the reaper (#168). Failures are fixed reason codes, never model messages (#166).
 
 ## 8. Known gaps
-- **Superuser database role (deploy blocker).** The API connects as the Postgres superuser `indesk` until P10. It must become a limited app role plus a separate migrator role, with a test that the app role cannot `DROP TABLE` (#118).
+- ~~**Superuser database role (deploy blocker).**~~ **Closed in P10c (be59343).** Migration 0004 and the role split: `indesk_migrator` owns the database and runs DDL; `indesk_app` has SELECT, INSERT, UPDATE, DELETE only, no CREATE, no TRUNCATE, and cannot read `alembic_version` (#118, #255). The role test proves DROP, ALTER, CREATE and TRUNCATE fail for the app role. Still not verified on a deployed stack (`compose.prod.yaml` is a skeleton and was only checked with `docker compose config`).
 - **Shared kernel.** The sandbox shares the host kernel; a kernel escape is not ruled out (#147).
 - **No malware scan.** ClamAV is not built; uploads stay `moderation=pending` and are never marked `passed` (#132, #138). No image moderation (Tier C).
 - **`compose.yaml` is mounted into the `api` container** for a test; remove it before deploy (#152).
