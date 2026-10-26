@@ -5,7 +5,15 @@ from typing import Annotated, Literal
 
 from pydantic import Field
 
-from app.core.enums import AgentKey, Bubble, EvidenceType, RunOutcome, StepKind, StepState
+from app.core.enums import (
+    AgentKey,
+    Bubble,
+    EvidenceType,
+    RunOutcome,
+    RunReason,
+    StepKind,
+    StepState,
+)
 from app.schemas.common import ApiModel, Id
 from app.schemas.runs import MessageArgs, MessageKey
 
@@ -40,6 +48,7 @@ class DoneEvent(ApiModel):
     run_id: Id
     outcome: RunOutcome
     report_id: Id | None = None
+    reason: RunReason | None = None  # additive: why a failed or rejected run ended
 
 
 RunEvent = Annotated[StepEvent | EvidenceEvent | DoneEvent, Field(discriminator="event")]

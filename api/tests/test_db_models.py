@@ -251,7 +251,11 @@ def test_run_defaults(session: Session) -> None:
 
 def test_seq_is_unique_per_run_but_not_across_runs(session: Session) -> None:
     user = make_user(session)
-    run_a, run_b = make_run(session, user), make_run(session, user)
+    # Only one unfinished run per user is allowed (migration 0002), so the second one is finished.
+    run_a, run_b = (
+        make_run(session, user),
+        make_run(session, user, status="finished", outcome="answered"),
+    )
     make_step(session, run_a, seq=1)
     make_step(session, run_a, seq=2)
     rejected(session, lambda s: make_step(s, run_a, seq=2))
@@ -332,7 +336,10 @@ def test_run_files_one_subject_but_many_sources(session: Session) -> None:
 
 def test_evidence_ref_is_unique_per_run_and_step_must_belong_to_the_run(session: Session) -> None:
     user = make_user(session)
-    run, other = make_run(session, user), make_run(session, user)
+    run, other = (
+        make_run(session, user),
+        make_run(session, user, status="finished", outcome="answered"),
+    )
     step, other_step = make_step(session, run), make_step(session, other)
     make_evidence(session, run, step, ref="D1")
     rejected(session, lambda s: make_evidence(s, run, step, ref="D1"))

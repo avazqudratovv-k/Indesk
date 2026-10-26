@@ -81,10 +81,11 @@ def test_an_upload_used_by_an_unfinished_run_waits(
 ) -> None:
     user = make_user(session)
     waiting = stored_upload(session, storage, user, expires_at=NOW - timedelta(hours=1))
-    running = stored_upload(session, storage, user, expires_at=NOW - timedelta(hours=1))
+    other = make_user(session)  # one unfinished run per user (migration 0002)
+    running = stored_upload(session, storage, other, expires_at=NOW - timedelta(hours=1))
     finished = stored_upload(session, storage, user, expires_at=NOW - timedelta(hours=1))
     make_run_file(session, make_run(session, user, status=RunStatus.QUEUED), waiting)
-    make_run_file(session, make_run(session, user, status=RunStatus.RUNNING), running)
+    make_run_file(session, make_run(session, other, status=RunStatus.RUNNING), running)
     make_run_file(
         session, make_run(session, user, status=RunStatus.FINISHED, outcome="answered"), finished
     )

@@ -1,7 +1,14 @@
 import uuid
 from typing import Annotated, Self
 
-from pydantic import AwareDatetime, Field, StringConstraints, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    AwareDatetime,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_validator,
+)
 
 from app.core.enums import (
     AgentKey,
@@ -11,6 +18,7 @@ from app.core.enums import (
     QuestionType,
     RunMode,
     RunOutcome,
+    RunReason,
     RunStatus,
     StepKind,
     StepState,
@@ -107,3 +115,31 @@ class RunCreate(ApiModel):
         if not ok:
             raise ValueError("file roles do not fit the mode")
         return self
+
+
+class RunCreated(ApiModel):
+    """The answer to POST /api/runs (202)."""
+
+    id: Id
+    status: RunStatus
+
+
+class RunView(ApiModel):
+    """GET /api/runs/{id}. Written for the owner's browser: no user id, no cost, no error text, no
+    step payload, no model name. `reason` is a code the browser translates."""
+
+    id: Id
+    mode: RunMode
+    question: str
+    status: RunStatus
+    outcome: RunOutcome | None
+    reason: RunReason | None = Field(validation_alias=AliasChoices("reason", "outcome_reason"))
+    lang: Lang
+    tokens_in: int
+    tokens_out: int
+    tool_calls: int
+    created_at: AwareDatetime | None
+    started_at: AwareDatetime | None
+    finished_at: AwareDatetime | None
+    steps: list[AgentStep]
+    report_id: Id | None

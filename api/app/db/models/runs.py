@@ -70,6 +70,13 @@ class Run(Base):
         # (id, user_id) lets child rows prove they have the same owner as the run.
         UniqueConstraint("id", "user_id", name="uq_runs_id_user_id"),
         Index("ix_runs_user_id_created_at", "user_id", "created_at"),
+        # One active (queued or running) run per user, enforced by the database.
+        Index(
+            "uq_runs_user_id_active",
+            "user_id",
+            unique=True,
+            postgresql_where=text("status <> 'finished'"),
+        ),
         CheckConstraint("char_length(question) BETWEEN 1 AND 1000", name="question"),
         CheckConstraint("tokens_in >= 0 AND tokens_out >= 0 AND tool_calls >= 0", name="counters"),
         CheckConstraint("cost_usd >= 0", name="cost_usd"),

@@ -33,6 +33,51 @@ daily_calls_per_user = 50
 # It stops a whole CSV from being sent by mistake: the model only sees column names, a sample and results.
 max_prompt_chars = 40000
 
+# --- Runs (P7) ---
+
+# Longest question in characters. DATA.md runs.question "max 1,000 (rec)"; DECISIONS #25, #80.
+max_question_chars = 1000
+
+# Run requests one user may make per hour (fixed window in Redis; refused ones count too). Owner-approved proposal
+# for P7: a flood guard on top of the call caps. DATA.md also names 30 runs a day on paid plans (quota, P10).
+runs_per_hour = 20
+
+# Most agent invocations in one run, retries included. AGENTS.md "Step cap 12"; DECISIONS #42.
+max_agent_steps = 12
+
+# Soft deadline of a run in seconds, checked before every step and every retry. Owner-approved proposal for P7.
+# A model request already running is not interrupted (35 s budget), so the worst case is this plus 35 s.
+run_timeout_seconds = 180
+
+# Hard kill of the RQ job, in seconds. Must be above run_timeout_seconds + 35 s + the sandbox call.
+run_job_timeout_seconds = 240
+
+# The reaper fails a run that is still unfinished after this long (queued: since created; running: since
+# started). Must be above run_job_timeout_seconds so a legitimately slow run is never cut short.
+run_hard_limit_seconds = 300
+
+# Seconds between reaper passes in the scheduler.
+reaper_interval_seconds = 60
+
+# A run younger than this is never called lost (the job is enqueued just after the row is committed).
+reaper_gone_grace_seconds = 30
+
+# Most tokens (in + out, summed from ai_calls) one run may use. Owner-approved proposal for P7: the web mock runs
+# use about 20,000, so this is 3x headroom. Stands in for the $0.05 cost cap, which needs a price table (DECISIONS #74).
+max_tokens_per_run = 60000
+
+# Live event streams one user may hold open at once.
+sse_streams_per_user = 3
+
+# Seconds between database polls of one stream.
+sse_poll_seconds = 1
+
+# Seconds between ping comments on an idle stream (proxies close silent connections).
+sse_ping_seconds = 15
+
+# A stream closes after this many seconds; the browser reconnects with Last-Event-ID. Above run_hard_limit_seconds.
+sse_max_seconds = 330
+
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
 # the run endpoint will read these.
 [files_per_slot]

@@ -1,11 +1,13 @@
 import os
 from collections.abc import Callable, Iterator
+from urllib.parse import urlparse
 
 import httpx
 import pytest
 from alembic import command
 from fastapi.testclient import TestClient
 from redis import Redis
+from redis.connection import ConnectionPool
 from sqlalchemy import Connection, Engine, create_engine
 from sqlalchemy.orm import Session
 
@@ -65,7 +67,41 @@ TEST_ORIGIN = "http://localhost:3000"
 
 def _test_redis_url() -> str:
     """Tests use Redis database 15 so they never reset the rate limits of the dev database 0."""
-    return os.environ["REDIS_URL"].rsplit("/", 1)[0] + "/15"
+    return os.environ["REDIS_URL"].rsplit("/", 1)[0] + f"/{TEST_REDIS_DB}"
+
+
+TEST_REDIS_DB = 15
+
+
+def redis_db_of(url: str) -> int:
+    """The database number a Redis URL points at (no number means database 0)."""
+    path = urlparse(url).path.strip("/")
+    return int(path) if path.isdigit() else 0
+
+
+def assert_redis_url_is_safe(url: str) -> None:
+    if redis_db_of(url) != TEST_REDIS_DB:
+        raise RuntimeError(
+            f"tests may only use Redis database {TEST_REDIS_DB}, never the dev database 0"
+        )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _redis_guard() -> Iterator[None]:
+    """Fail the run at start if the test Redis URL is database 0, and refuse (loudly) any Redis
+    connection pool a test creates for another database. A dev worker listens on database 0."""
+    assert_redis_url_is_safe(_test_redis_url())
+    original = ConnectionPool.__init__
+
+    def guarded(self: ConnectionPool, *args: object, **kwargs: object) -> None:
+        if kwargs.get("db", 0) != TEST_REDIS_DB:
+            raise RuntimeError("a test tried to use a Redis database other than 15")
+        original(self, *args, **kwargs)  # type: ignore[arg-type]
+
+    patcher = pytest.MonkeyPatch()
+    patcher.setattr(ConnectionPool, "__init__", guarded)
+    yield
+    patcher.undo()
 
 
 @pytest.fixture

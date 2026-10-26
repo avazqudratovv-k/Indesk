@@ -224,3 +224,38 @@ class CapDecision(StrEnum):
     USER_CAP = "user_cap"
     GLOBAL_CAP = "global_cap"
     UNAVAILABLE = "unavailable"  # the counter store failed; the gateway fails closed
+
+
+class RunReason(StrEnum):
+    """Why a run ended without an answer. A fixed code, never a message: the browser translates it.
+    The first two come with outcome `rejected`, the rest with `failed` (DATA.md: a cap refuses)."""
+
+    DAILY_CAP_USER = "daily_cap_user"
+    DAILY_CAP_GLOBAL = "daily_cap_global"
+    MODEL_BUSY = "model_busy"  # every model answered 429
+    MODEL_TIMEOUT = "model_timeout"
+    MODEL_UNAVAILABLE = "model_unavailable"  # also: no agents are configured yet
+    BAD_MODEL_OUTPUT = "bad_model_output"
+    ANALYSIS_FAILED = "analysis_failed"  # the sandbox could not run the generated code
+    SANDBOX_UNAVAILABLE = "sandbox_unavailable"
+    INPUT_UNUSABLE = "input_unusable"
+    STEP_CAP = "step_cap"
+    RUN_TIMEOUT = "run_timeout"
+    WORKER_LOST = "worker_lost"
+    BUDGET_EXCEEDED = "budget_exceeded"  # max_tokens_per_run
+    INTERNAL_ERROR = "internal_error"
+
+
+class TraceKey(StrEnum):
+    """The closed list of trace line keys. The browser holds the text for each one."""
+
+    PLAN = "plan"
+    DISPATCH = "dispatch"
+    READ_CSV = "readCsv"
+    RUN_PYTHON = "runPython"
+    TOP3 = "top3"
+    MERGE = "merge"
+    READY = "ready"
+    STEP_STARTED = "stepStarted"  # the executor opens an agent that failed before saying anything
+    STEP_FAILED = "stepFailed"
+    STOPPED = "stopped"  # the closing line of every run that did not end in a normal answer

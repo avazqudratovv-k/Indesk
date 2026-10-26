@@ -55,6 +55,9 @@ def test_error_codes_are_the_agreed_list() -> None:
         "QUOTA_EXHAUSTED",
         "NOT_RETRYABLE",
         "MODEL_UNAVAILABLE",
+        "RUN_ACTIVE",
+        "UPLOAD_NOT_READY",
+        "TOO_MANY_STREAMS",
     }
 
 

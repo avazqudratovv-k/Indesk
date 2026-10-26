@@ -18,7 +18,7 @@ def test_pid_1_must_be_the_scheduler(tmp_path: Path) -> None:
 
 def test_redis_answers() -> None:
     assert scheduler_health.redis_answers(_test_redis_url()) is True
-    assert scheduler_health.redis_answers("redis://127.0.0.1:1/0") is False
+    assert scheduler_health.redis_answers("redis://127.0.0.1:1/15") is False
 
 
 def test_main_is_unhealthy_when_either_check_fails(monkeypatch: pytest.MonkeyPatch) -> None:

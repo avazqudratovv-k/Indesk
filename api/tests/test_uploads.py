@@ -448,7 +448,7 @@ def test_signed_out_attempts_do_not_count(make_client: MakeClient, tmp_path: Pat
 def test_redis_down_refuses_the_upload(make_client: MakeClient, tmp_path: Path) -> None:
     settings = settings_for(tmp_path)
     client = signed_in(make_client, settings, "down@example.com", 46)
-    down = settings.model_copy(update={"redis_url": SecretStr("redis://127.0.0.1:1/0")})
+    down = settings.model_copy(update={"redis_url": SecretStr("redis://127.0.0.1:1/15")})
     app.dependency_overrides[get_settings] = lambda: down
     err(post(client), 503, "NOT_READY")
     assert stored_files(settings) == []

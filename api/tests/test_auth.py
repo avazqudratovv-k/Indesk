@@ -580,7 +580,7 @@ def test_garbage_forwarded_header_falls_back_to_the_peer(
 
 
 def test_redis_down_fails_closed(make_client: MakeClient, auth_settings: Settings) -> None:
-    down = auth_settings.model_copy(update={"redis_url": SecretStr("redis://127.0.0.1:1/0")})
+    down = auth_settings.model_copy(update={"redis_url": SecretStr("redis://127.0.0.1:1/15")})
     client = make_client(down)
     for response in (signup(client), login(client)):
         assert response.status_code == 503

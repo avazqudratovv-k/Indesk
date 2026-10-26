@@ -8,6 +8,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    PositiveFloat,
     PositiveInt,
     SecretStr,
     field_validator,
@@ -35,6 +36,20 @@ class Limits(BaseModel):
     daily_calls_per_user: PositiveInt
     max_prompt_chars: PositiveInt
     files_per_slot: dict[str, PositiveInt]
+    # Runs (P7). Each number names its source in limits.toml.
+    max_question_chars: PositiveInt
+    runs_per_hour: PositiveInt
+    max_agent_steps: PositiveInt
+    run_timeout_seconds: PositiveFloat
+    run_job_timeout_seconds: PositiveInt
+    run_hard_limit_seconds: PositiveFloat
+    reaper_interval_seconds: PositiveInt
+    reaper_gone_grace_seconds: PositiveFloat
+    max_tokens_per_run: PositiveInt
+    sse_streams_per_user: PositiveInt
+    sse_poll_seconds: PositiveFloat
+    sse_ping_seconds: PositiveFloat
+    sse_max_seconds: PositiveFloat
 
 
 def load_limits(path: Path = LIMITS_FILE) -> Limits:
@@ -65,6 +80,10 @@ class Settings(BaseSettings):
     trusted_proxies: Annotated[list[str], NoDecode] = []
     # Where the sandbox service listens (only the worker shares a network with it).
     sandbox_url: str = "http://sandbox:8080"
+    # DEV ONLY: lets a developer watch a run end to end with scripted agents and no Gemini. Honoured
+    # only when app_env is "development" (like the web dev_session cookie, DECISIONS #67). Never set
+    # in compose.yaml (a test checks); a developer sets it in their own api/.env.
+    runs_dev_stub: bool = False
     # Where uploaded files live. A named volume shared by the api and the worker.
     storage_dir: Path = Path("/data/uploads")
     limits: Limits = Field(default_factory=load_limits)
