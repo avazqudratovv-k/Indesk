@@ -68,6 +68,9 @@ class OwlAgent:
         known = set(profile.column_names)
         if not isinstance(plan, OwlPlan) or any(c not in known for c in plan.named_columns()):
             return AgentFailed(RunReason.BAD_MODEL_OUTPUT, retryable=True)
+        numeric = {c.name for c in profile.columns if c.dtype in ("integer", "float")}
+        if any(c not in numeric for c in plan.add_metrics):
+            return AgentFailed(RunReason.BAD_MODEL_OUTPUT, retryable=True)
         ctx.emit(
             TraceLine(
                 AgentKey.MANAGER,

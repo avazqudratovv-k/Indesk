@@ -118,12 +118,12 @@ def test_a_good_plan_and_good_code_end_answered_with_a_stored_result_and_a_repor
     assert payload["code"] == CODE_OK
     assert (payload["method"], payload["attempt"], payload["row_count"]) == ("rank", 1, 204)
     assert (payload["owl_prompt_version"], payload["beaver_prompt_version"]) == (
-        "owl-1", "beaver-1",
+        "owl-2", "beaver-2",
     )  # fmt: skip
     dispatch = next(s for s in step_rows(factory, world.run_id) if s.key == "dispatch")
     assert dispatch.payload is not None
     assert dispatch.payload["plan"] == PLAN and dispatch.payload["attempt"] == 1
-    assert dispatch.payload["prompt_version"] == "owl-1"
+    assert dispatch.payload["prompt_version"] == "owl-2"
 
 
 def test_trace_args_are_only_whitelisted_codes_and_numbers(factory: SessionFactory) -> None:
@@ -458,7 +458,16 @@ def _answered_run(factory: SessionFactory, **world_kw: Any) -> World:
     return world
 
 
-SECRETS = ["groupby", "Synthetic Station 07", "123456", "FIRST-ATTEMPT", "owl-1", "beaver-1"]
+SECRETS = [
+    "groupby",
+    "Synthetic Station 07",
+    "123456",
+    "FIRST-ATTEMPT",
+    "owl-1",
+    "beaver-1",
+    "owl-2",
+    "beaver-2",
+]
 
 
 def test_the_stored_result_and_code_are_in_no_response_schema(factory: SessionFactory) -> None:

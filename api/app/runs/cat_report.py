@@ -20,6 +20,7 @@ from app.runs.cat_checks import (
     prose_ok,
     resolve,
     scrub_text,
+    tidy,
 )
 from app.runs.cat_schemas import (
     ClaimRow,
@@ -41,21 +42,48 @@ TABLE_TOOL = "run_python"
 MAX_TOP_ROWS = 5
 
 
+MAX_LABEL = 60
+MAX_HEADER = 24
+SEP = " · "
+
+
+def _numeric_columns(view: ResultView) -> int:
+    width = len(view.columns)
+    return sum(any(c < len(r) and is_number(r[c]) for r in view.rows) for c in range(width))
+
+
 def _row_label(refs: list[str], view: ResultView) -> str:
+    """All text cells of the cited row (a line and a station: "1호선 서울역"), plus " · header" of
+    the cited column when the table has two or more number columns (one row can then be cited for
+    different columns)."""
     for ref in refs:
         cell = resolve(ref, view)
         if cell is None or not is_number(cell.value):
             continue
         if cell.row is None:
-            return view.scalars[int(ref[1:]) - 1][0][:60]
-        for item in view.rows[cell.row]:
-            if isinstance(item, str) and item:
-                return item[:60]
+            return view.scalars[int(ref[1:]) - 1][0][:MAX_LABEL]
+        row = " ".join(item for item in view.rows[cell.row] if isinstance(item, str) and item)
+        if row:
+            if cell.col is None or _numeric_columns(view) < 2:
+                return row[:MAX_LABEL]
+            head = view.headers[cell.col][:MAX_HEADER]
+            return row[: MAX_LABEL - len(SEP) - len(head)] + SEP + head
     return ""
 
 
-def _prose(text: str, view: ResultView, qnums: set) -> str | None:  # type: ignore[type-arg]
-    clean = scrub_text(text)
+def _unique(label: str, taken: set[str]) -> str:
+    """The label itself, or with " (2)", " (3)"... when an earlier claim already has it."""
+    candidate, n = label, 1
+    while candidate in taken:
+        n += 1
+        suffix = f" ({n})"
+        candidate = label[: MAX_LABEL - len(suffix)] + suffix
+    taken.add(candidate)
+    return candidate
+
+
+def _prose(text: str, view: ResultView, qnums: set, protected: set) -> str | None:  # type: ignore[type-arg]
+    clean = tidy(text, view, protected)
     return clean if clean and prose_ok(clean, view, qnums) else None
 
 
@@ -64,9 +92,10 @@ def build_report(
 ) -> tuple[ReportDraft, list[VerdictRecord]] | None:
     """None when no claim survives scrubbing (the writer's output was not usable)."""
     qnums = exact_tokens(question)
+    protected = qnums | view.label_numbers()
     kept: list[tuple[str, list[str], Verdict]] = []
     for raw, cells in zip(out.claim_texts, out.claim_cells, strict=True):
-        text = scrub_text(raw)
+        text = tidy(raw, view, protected)
         if not text:
             continue
         refs = cells.split(",")
@@ -98,7 +127,7 @@ def build_report(
             columns=view.columns, rows_used=view.rows_used, tool=TABLE_TOOL,
             method=EvidenceMethod(beaver.method),
             table=EvidenceTable(
-                headers=view.columns, rows=[[format_cell(c) for c in row] for row in view.rows]
+                headers=view.headers, rows=[[format_cell(c) for c in row] for row in view.rows]
             ),
         ),
     )  # fmt: skip
@@ -109,16 +138,21 @@ def build_report(
     ]  # fmt: skip
 
     first_verified = next((c.text for c in claims if c.status is ClaimStatus.VERIFIED), None)
-    title = _prose(out.title, view, qnums) or scrub_text(question)[:100].strip() or "Report"
-    answer = _prose(out.answer, view, qnums) or first_verified or claims[0].text
-    meaning = _prose(out.meaning, view, qnums) if out.meaning.strip() else None
-    steps = [s for s in (scrub_text(x) for x in out.next_steps) if s and not has_number(s)]
+    title = (
+        _prose(out.title, view, qnums, protected) or scrub_text(question)[:100].strip() or "Report"
+    )
+    answer = _prose(out.answer, view, qnums, protected) or first_verified or claims[0].text
+    meaning = _prose(out.meaning, view, qnums, protected) if out.meaning.strip() else None
+    steps = [
+        s for s in (tidy(x, view, protected) for x in out.next_steps) if s and not has_number(s)
+    ]
 
+    taken: set[str] = set()
     summary = ReportSummary(
         answer=answer,
         top_rows=[
             TopRow(
-                label=_row_label(refs, view) or f"#{c.n}",
+                label=_unique(_row_label(refs, view) or f"#{c.n}", taken),
                 value=c.computed_value or "",
                 status=c.status,
             )

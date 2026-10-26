@@ -67,6 +67,17 @@ def clean_label(text: str) -> str:
     return cleaned[:MAX_LABEL_CHARS].strip()
 
 
+_CAMEL: Final = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+
+
+def humanize(name: str) -> str:
+    """A column name as words: snake_case, kebab-case and camelCase are split at their joints and
+    plain ASCII is lowercased (mean_daily_boardings -> mean daily boardings). Other scripts, such
+    as 승차총승객수, pass unchanged. Nothing is translated."""
+    spaced = _SPACES.sub(" ", _CAMEL.sub(" ", name.replace("_", " ").replace("-", " "))).strip()
+    return spaced.lower() if spaced.isascii() else spaced
+
+
 def scrub_text(text: str) -> str:
     """The writer's sentence without markup, links or control characters (never reworded)."""
     return _strip(text)
@@ -99,6 +110,7 @@ class ResultView:
     """Beaver's stored result with every string cleaned. The only form Cat ever uses."""
 
     columns: list[str]
+    headers: list[str]  # the columns as words (humanize); what a reader sees
     rows: list[list[Scalar]]
     scalars: list[tuple[str, int | float]]
     rows_used: int
@@ -109,8 +121,10 @@ class ResultView:
         rows: list[list[Scalar]] = [
             [clean_label(c) if isinstance(c, str) else c for c in row] for row in result.rows
         ]
+        columns = [clean_label(c) or PLACEHOLDER for c in result.columns]
         return cls(
-            columns=[clean_label(c) or PLACEHOLDER for c in result.columns],
+            columns=columns,
+            headers=[humanize(c) for c in columns],
             rows=rows,
             scalars=[(clean_label(k) or PLACEHOLDER, v) for k, v in result.scalars.items()],
             rows_used=result.rows_used,
@@ -126,7 +140,7 @@ class ResultView:
     def prompt_table(self) -> dict[str, object]:
         """What the writer sees. Rows and columns count from 1; scalars are s1, s2..."""
         return {
-            "columns": self.columns,
+            "columns": self.headers,
             "rows": self.rows,
             "scalars": [
                 {"ref": f"s{i}", "name": n, "value": v} for i, (n, v) in enumerate(self.scalars, 1)
@@ -147,6 +161,48 @@ class ResultView:
                 if isinstance(cell, str):
                     out |= exact_tokens(cell)
         return out
+
+
+# ---- plain text: column names as words, numbers with thousands separators ----
+
+# YYYYMMDD, or a year (1900-2100): never regrouped.
+_DATE8: Final = re.compile(r"^(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$")
+# A run of 4+ digits with no separator. Not after a letter, digit, decimal point, comma, dash,
+# underscore or #; not before a letter, digit, dash, slash or colon. Hangul after it is fine
+# (2450051명). The optional decimals are kept as written.
+_BARE_NUMBER: Final = re.compile(r"(?<![A-Za-z0-9_.,#\-])(\d{4,})(\.\d+)?(?![A-Za-z0-9\-/:])")
+
+
+def _regroup(hit: re.Match[str], protected: set[Decimal]) -> str:
+    digits_only, decimals = hit.group(1), hit.group(2) or ""
+    if len(digits_only) == 4 and 1900 <= int(digits_only) <= 2100:
+        return hit.group(0)
+    if _DATE8.match(digits_only) or normal(Decimal(digits_only)) in protected:
+        return hit.group(0)
+    return f"{int(digits_only):,}{decimals}"
+
+
+def group_thousands(text: str, protected: set[Decimal]) -> str:
+    """2450051 -> 2,450,051. The value never changes, so a wrong number stays wrong. Dates, years,
+    ids and any number already in the question or a label (`protected`) are left alone."""
+    return _BARE_NUMBER.sub(lambda hit: _regroup(hit, protected), text)
+
+
+def plain_columns(text: str, view: "ResultView") -> str:
+    """A column name written in its raw form becomes its words (mean_daily_boardings -> mean daily
+    boardings). Only a whole token is replaced, and not when the same text is part of a label of the
+    table."""
+    cells = [norm(c) for row in view.rows for c in row if isinstance(c, str)]
+    for raw, words in zip(view.columns, view.headers, strict=True):
+        if raw == words or raw == PLACEHOLDER or any(norm(raw) in cell for cell in cells):
+            continue
+        text = re.sub(rf"(?<!\w){re.escape(raw)}(?!\w)", words, text)
+    return text
+
+
+def tidy(text: str, view: "ResultView", protected: set[Decimal]) -> str:
+    """The writer's text, scrubbed, with columns in words and numbers grouped."""
+    return group_thousands(plain_columns(scrub_text(text), view), protected)
 
 
 # ---- cells ----

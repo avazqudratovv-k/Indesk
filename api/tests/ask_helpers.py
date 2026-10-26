@@ -35,6 +35,7 @@ PLAN: dict[str, Any] = {
     "time_column": None,
     "order": "desc",
     "top_n": 5,
+    "add_metrics": [],
 }
 CODE_OK = (
     "g = df.groupby('station')['riders'].sum().sort_values(ascending=False).head(5)\n"

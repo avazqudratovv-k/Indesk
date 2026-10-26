@@ -22,9 +22,9 @@ from typing import Final
 from app.runs.ask_schemas import MAX_CODE_CHARS, MAX_RESULT_COLUMNS, MAX_RESULT_ROWS, OwlPlan
 from app.runs.profile import CsvProfile
 
-OWL_PROMPT_VERSION: Final = "owl-1"
-BEAVER_PROMPT_VERSION: Final = "beaver-1"
-CAT_PROMPT_VERSION: Final = "cat-1"
+OWL_PROMPT_VERSION: Final = "owl-2"
+BEAVER_PROMPT_VERSION: Final = "beaver-2"
+CAT_PROMPT_VERSION: Final = "cat-2"
 
 
 def new_nonce() -> str:
@@ -103,7 +103,10 @@ def build_owl_prompt(question: str, profile: CsvProfile, *, nonce: str) -> Promp
         "the given schema, and nothing else. Use only column names that appear in COLUMNS, "
         "spelled exactly as listed, even if the question uses another language or spelling. "
         "If no column fits well, still reply with the closest plan you can make from the listed "
-        "columns. " + _data_rules(nonce)
+        "columns. Fill add_metrics only when the question asks for a total or combination of "
+        "two or more numeric columns (for example 'A plus B', 'A and B together', in any "
+        "language); then list those columns there and set metric to null. Otherwise leave "
+        "add_metrics empty. " + _data_rules(nonce)
     )
     prompt = "\n".join(
         [
@@ -141,7 +144,9 @@ def build_beaver_prompt(
         "with one cell per column; cells are text under 200 characters, numbers, true/false or "
         "null), rows_used (how many df rows the calculation used) and, optionally, scalars "
         f"(a dict of name to number). Keep the code under {MAX_CODE_CHARS} characters. "
-        + _data_rules(nonce)
+        "If PLAN.add_metrics is not empty, the metric is the row-wise sum of those columns: "
+        "add them first, then group, rank or aggregate that sum, and return the total as the "
+        "number column; do not return the parts as separate columns. " + _data_rules(nonce)
     )
     parts = [
         "Write the code for this plan.",
@@ -168,10 +173,12 @@ def build_cat_prompt(
         "use your own knowledge. Write 1 to 6 claims; each claim is one short sentence about one "
         'fact, and claim_cells[i] lists the cells claim_texts[i] relies on, like "r1c1,r1c2" '
         '(row, column, both counted from 1) or "s1" for the first scalar. Cite at least one '
-        "number cell in every claim. Copy every number exactly from the cited cells (you may use "
-        "thousands separators or round it); never add, subtract, average, convert or estimate a "
-        "new number. Include the name of the row (its text cell) word for word in the claim. Do "
-        "not use words like most, highest, top, least, lowest, 가장, 최대, 최고, 최소, 최저 unless "
+        "number cell in every claim. Copy every number exactly from the cited cells (you may round "
+        "it); write numbers of 1,000 or more with thousands separators, like 2,450,051. Name a "
+        "column in plain words, never with underscores or code-style names; never add, subtract, "
+        "average, convert or estimate a new number. Include the name of the row (its text cell) "
+        "word for word in the claim. Do not use words like most, highest, top, least, lowest, "
+        "가장, 최대, 최고, 최소, 최저 unless "
         "the cited number is the largest or smallest in its column of TABLE. Put no numbers in "
         "next_steps. No markup, no links, no code. " + _data_rules(nonce)
     )

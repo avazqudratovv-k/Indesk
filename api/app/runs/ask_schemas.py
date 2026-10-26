@@ -32,9 +32,22 @@ class OwlPlan(BaseModel):
     time_column: ColumnRef | None
     order: Literal["asc", "desc"]
     top_n: int = Field(ge=1, le=50)
+    # Columns added row by row to form the metric ("boardings plus alightings"). Empty when the
+    # question asks for no combined total. Checked against the real columns in code.
+    add_metrics: list[ColumnRef] = Field(default_factory=list, max_length=4)
+
+    @model_validator(mode="after")
+    def _combined_metric(self) -> "OwlPlan":
+        if self.add_metrics and (
+            self.metric is not None
+            or len(self.add_metrics) < 2
+            or len(set(self.add_metrics)) != len(self.add_metrics)
+        ):
+            raise ValueError("add_metrics: 2 to 4 different columns, and no single metric")
+        return self
 
     def named_columns(self) -> list[str]:
-        named = [*self.columns, *self.group_by]
+        named = [*self.columns, *self.group_by, *self.add_metrics]
         for single in (self.metric, self.time_column):
             if single is not None:
                 named.append(single)

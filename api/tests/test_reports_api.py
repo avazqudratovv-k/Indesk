@@ -26,7 +26,7 @@ from tests.test_uploads import settings_for, signed_in
 SENTINEL = "SENTINEL_CODE_7f3a"
 FORBIDDEN_EVERYWHERE = [
     SENTINEL, "groupby", "group_by", "time_column", "top_n", "prompt_version", "owl-1",
-    "beaver-1", "cat-1", "aggregation", '"code"', "run_python(",
+    "beaver-1", "cat-1", "owl-2", "beaver-2", "cat-2", "add_metrics", "aggregation", '"code"', "run_python(",
 ]  # fmt: skip
 
 

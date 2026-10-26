@@ -187,7 +187,7 @@ def test_retry_hints_are_a_closed_table_and_only_added_when_given() -> None:
 
 
 def test_prompts_are_versioned_constants() -> None:
-    assert (OWL_PROMPT_VERSION, BEAVER_PROMPT_VERSION) == ("owl-1", "beaver-1")
+    assert (OWL_PROMPT_VERSION, BEAVER_PROMPT_VERSION) == ("owl-2", "beaver-2")
 
 
 def test_prompts_fit_the_gateway_cap_even_for_the_widest_file() -> None:
@@ -214,5 +214,5 @@ def test_show_prompts_prints_both_prompts_without_a_network() -> None:
     assert done.returncode == 0, done.stderr
     out = done.stdout
     assert "NOTHING IS SENT ANYWHERE" in out
-    assert "OWL owl-1: SYSTEM" in out and "BEAVER beaver-1: PROMPT" in out
+    assert "OWL owl-2: SYSTEM" in out and "BEAVER beaver-2: PROMPT" in out
     assert "Synthetic Station 01" in out and "<<<COLUMNS-" in out
