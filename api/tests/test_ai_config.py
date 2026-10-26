@@ -44,10 +44,13 @@ def test_a_left_out_thinking_budget_is_none() -> None:
     assert spec.thinking_budget is None
 
 
-def test_models_toml_says_the_names_are_unverified() -> None:
+def test_models_toml_says_what_was_called_live_and_what_was_not() -> None:
     text = MODELS_FILE.read_text()
-    assert "UNVERIFIED" in text and "scripts/list_models.py" in text
-    assert "max_output_tokens" in text and "gemini-3.x" in text
+    assert "Verified live" in text and "scripts/list_models.py" in text
+    assert "NOT yet called" in text and "Not verified" in text
+    assert "gemini-3.8-flash, thinking_budget 0" in text
+    assert "gemini-3.6-flash, thinking_budget 1024" in text
+    assert "thinking_level" in text and "thinkingLevel" in text
 
 
 def test_new_limits() -> None:
