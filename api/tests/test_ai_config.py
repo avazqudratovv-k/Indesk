@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.ai.config import MODELS_FILE, ModelChain, load_model_chains
+from app.ai.config import MODELS_FILE, ModelChain, ModelSpec, load_model_chains
 from app.core.config import load_limits
 
 SPEC = {"timeout_seconds": 10, "max_output_tokens": 100, "thinking_budget": 0}
@@ -21,6 +21,17 @@ def test_models_toml_has_the_two_chains_in_order() -> None:
     assert not any(
         "pro" in m.name or "argon" in m.name for c in (chains.light, chains.main) for m in c.chain
     )
+
+
+def test_a_thinking_level_and_a_budget_together_are_refused() -> None:
+    with pytest.raises(ValidationError):
+        ModelSpec(
+            name="a",
+            timeout_seconds=1,
+            max_output_tokens=1,
+            thinking_budget=0,
+            thinking_level="low",
+        )
 
 
 def test_a_left_out_thinking_budget_is_none() -> None:

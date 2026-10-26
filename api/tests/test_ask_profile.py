@@ -55,6 +55,14 @@ def test_names_follow_pandas_for_blank_and_repeated_headers() -> None:
     assert profile_of(b"a,a,,a\n1,2,3,4\n").column_names == ["a", "a.1", "Unnamed: 2", "a.2"]
 
 
+def test_sample_rows_are_cut_to_the_header_width() -> None:
+    data = b'"a","b","c","d","e","f"\r\n' + b'"1","x","y","3","4","5",""\n' * 3
+    profile = profile_of(data)
+    assert profile.column_names == list("abcdef")
+    assert all(len(row) == 6 for row in profile.sample_rows)
+    assert profile.sample_rows[0] == ["1", "x", "y", "3", "4", "5"]
+
+
 @pytest.mark.parametrize("delimiter", [";", "\t"])
 def test_a_non_comma_file_is_refused(delimiter: str) -> None:
     data = f"a{delimiter}b{delimiter}c\n1{delimiter}2{delimiter}3\n4{delimiter}5{delimiter}6\n"

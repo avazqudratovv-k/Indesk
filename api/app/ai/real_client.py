@@ -119,11 +119,13 @@ class GeminiRestClient:
         max_output_tokens: int,
         thinking_budget: int | None,
         timeout: float,
+        thinking_level: str | None = None,
     ) -> ClientResult:
         generation: dict[str, Any] = {"maxOutputTokens": max_output_tokens}
         if thinking_budget is not None:  # None: leave the field out; 0 is sent as 0
-            # UNVERIFIED for gemini-3.x: these models may want another field (a thinking level).
             generation["thinkingConfig"] = {"thinkingBudget": thinking_budget}
+        if thinking_level is not None:  # gemini-3.x; never sent together with a budget
+            generation["thinkingConfig"] = {"thinkingLevel": thinking_level}
         if response_schema is not None:
             generation["responseMimeType"] = "application/json"
             generation["responseJsonSchema"] = response_schema

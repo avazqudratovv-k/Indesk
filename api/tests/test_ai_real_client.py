@@ -120,6 +120,17 @@ def test_a_zero_thinking_budget_is_still_sent() -> None:
     )
 
 
+def test_a_thinking_level_is_sent_as_thinking_level() -> None:
+    seen: list[dict[str, Any]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return json_response(GOOD)
+
+    generate(make(handler), thinking_budget=None, thinking_level="minimal")
+    assert seen[0]["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "minimal"}
+
+
 # ---- failure mapping ----
 
 

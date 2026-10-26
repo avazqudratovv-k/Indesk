@@ -105,6 +105,26 @@ def test_groupby_returns_the_right_result() -> None:
     assert answer["status"] == 200
 
 
+def test_a_trailing_empty_cell_on_every_row_does_not_shift_the_columns() -> None:
+    # Header of 3, every row has a 4th empty cell (the Seoul file's shape). Plain read_csv would
+    # use the first column as the index and move every value one name to the left.
+    csv = b'"day","station","boardings"\r\n"20260901","A","10",""\n"20260902","B","20",""\n'
+    answer = submit(
+        "result = {'cols': list(df.columns), 'shape': list(df.shape),"
+        " 'day': int(df['day'].iloc[0]), 'station': str(df['station'].iloc[1]),"
+        " 'sum': int(df['boardings'].sum())}",
+        csv,
+    )
+    assert answer["ok"] is True, answer
+    assert answer["result"] == {
+        "cols": ["day", "station", "boardings"],
+        "shape": [2, 3],
+        "day": 20260901,
+        "station": "B",
+        "sum": 30,
+    }
+
+
 def test_the_client_runs_a_job_end_to_end() -> None:
     result = run_pandas(GROUPBY, CSV)
     assert isinstance(result, SandboxOk)

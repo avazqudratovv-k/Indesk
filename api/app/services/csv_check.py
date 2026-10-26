@@ -179,7 +179,10 @@ def _check_header(line: bytes, limits: Limits, head: bytes) -> bytes:
 
 def parse_rows(text: str, limits: Limits) -> tuple[int, int]:
     """Stream the rows once and return (data rows, columns). The header sets the width and every
-    row must match it; a row that does not is a broken file, not something to guess about."""
+    row must match it; a row that does not is a broken file, not something to guess about.
+    One exception: every data row may carry the same number of EMPTY cells after the header's
+    width (a trailing delimiter, as in the Seoul file). Only those trailing cells are ignored; the
+    column count returned is the header's, and the stored bytes are not changed."""
     try:
         reader = csv.reader(io.StringIO(text), delimiter=detect_delimiter(text), strict=True)
         header = next(reader, None)
@@ -189,11 +192,18 @@ def parse_rows(text: str, limits: Limits) -> tuple[int, int]:
         if limits.max_columns is not None and width > limits.max_columns:
             raise _refuse(422, ErrorCode.TOO_MANY_COLUMNS)
         rows = 0
+        extra: int | None = None
         for row in reader:
             if _is_blank(row):
                 continue
-            if len(row) != width:
+            if len(row) < width:
                 raise _refuse(422, ErrorCode.BAD_CSV)
+            if len(row) > width and any(cell.strip() for cell in row[width:]):
+                raise _refuse(422, ErrorCode.BAD_CSV)  # extra cells are allowed only when empty
+            if extra is None:
+                extra = len(row) - width  # the first data row sets it; every row must match
+            elif len(row) - width != extra:
+                raise _refuse(422, ErrorCode.BAD_CSV)  # some rows have extra cells: damaged
             rows += 1
             if rows > limits.max_rows:
                 raise _refuse(422, ErrorCode.TOO_MANY_ROWS)

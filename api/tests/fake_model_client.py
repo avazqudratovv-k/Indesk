@@ -79,6 +79,7 @@ class FakeClient:
         max_output_tokens: int,
         thinking_budget: int | None,
         timeout: float,
+        thinking_level: str | None = None,
     ) -> ClientResult:
         self.calls.append(
             Call(

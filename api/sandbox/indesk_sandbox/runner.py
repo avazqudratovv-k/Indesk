@@ -81,7 +81,9 @@ def build_namespace(csv_bytes: bytes, ast_on: bool) -> dict[str, Any]:
     import pandas as pd  # noqa: PLC0415
 
     try:
-        df = pd.read_csv(io.BytesIO(csv_bytes))
+        # index_col=False: a file whose every row ends with an extra empty cell (header 6, rows 7)
+        # would otherwise lose its first column to the index and shift all the others.
+        df = pd.read_csv(io.BytesIO(csv_bytes), index_col=False)
     except Exception as error:
         raise ValueError("bad csv") from error
     safe = {k: v for k, v in vars(builtins).items() if not ast_on or k not in _HIDDEN_BUILTINS}

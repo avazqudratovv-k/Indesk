@@ -135,6 +135,30 @@ def test_rows_columns_and_shape_rules() -> None:
     )  # open quote
 
 
+def test_a_trailing_empty_cell_on_every_row_is_accepted_and_not_counted() -> None:
+    data = b'"a","b","c"\r\n"1","x","3",""\n"4","y","6",""\n'
+    checked = csv_check.check_csv(data, LIMITS)
+    assert (checked.row_count, checked.column_count) == (2, 3)  # the header's width, not 4
+    assert checked.utf8_bytes == data  # nothing is re-encoded or cut
+    two = csv_check.check_csv(b"a,b\n1,2,,\n3,4,,\n", LIMITS)  # several trailing cells are fine too
+    assert (two.row_count, two.column_count) == (2, 2)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        b"a,b,c\n1,2,3,4\n",  # a non-empty extra cell
+        b"a,b,c\n1,,3,4\n5,6,7,\n",  # an empty cell in the middle is not a trailing cell
+        b"a,b,c\n1,2,3,\n4,5\n",  # a short row
+        b"a,b,c\n1,2,3,\n4,5,6\n",  # a mix of 4-cell and 3-cell rows
+        b"a,b,c\n1,2,3\n4,5,6,\n",  # the same mix, the other way round
+        b"a,b,c\n1,2,3,\n4,5,6,,\n",  # extra cells of different counts
+    ],
+)
+def test_other_ragged_rows_are_still_refused(data: bytes) -> None:
+    assert refused(csv_check.check_csv, data, LIMITS).code == ErrorCode.BAD_CSV
+
+
 def test_the_column_limit_is_off_when_it_is_unset() -> None:
     off = LIMITS.model_copy(update={"max_columns": None})
     header = ",".join(f"c{i}" for i in range(500)).encode()

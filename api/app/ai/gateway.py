@@ -262,7 +262,7 @@ class Gateway:
             result = self._client.generate(
                 model=spec.name, prompt=prompt, system=system, response_schema=schema,
                 max_output_tokens=spec.max_output_tokens, thinking_budget=spec.thinking_budget,
-                timeout=timeout,
+                timeout=timeout, thinking_level=spec.thinking_level,
             )  # fmt: skip
         except Exception:  # noqa: BLE001  # a client that raises is just another failure
             result = ClientFailure(kind=ModelFailure.OTHER)

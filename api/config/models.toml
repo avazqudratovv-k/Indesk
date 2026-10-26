@@ -8,7 +8,10 @@
 # first, and fix any name it does not list. Nothing here has run against real Gemini.
 #
 # Per entry, all changeable here without code:
-#   timeout_seconds, max_output_tokens, thinking_budget.
+#   timeout_seconds, max_output_tokens, thinking_budget OR thinking_level (not both).
+# First real call (P8b): gemini-3.5-flash-lite answers HTTP 400 to thinkingBudget 0 and works with
+# thinkingLevel "minimal". gemini-3.1-flash-lite accepted budget 0 and gemini-3.8-flash accepted
+# budget 1024; the other budget entries are still unverified. 3.8-flash does not support "minimal".
 # thinking_budget may be left out: then no thinking field is sent and the model uses its default.
 # 0 is sent as 0. UNVERIFIED for gemini-3.x: those models may not accept `thinkingBudget` at all
 # (they may use a thinking level instead); if the first real call fails with HTTP 400, that is the
@@ -25,7 +28,7 @@ total_budget_seconds = 35
 name = "gemini-3.5-flash-lite"
 timeout_seconds = 12
 max_output_tokens = 2048
-thinking_budget = 0
+thinking_level = "minimal"
 
 [[light]]
 name = "gemini-3.1-flash-lite"
@@ -55,4 +58,4 @@ thinking_budget = 1024
 name = "gemini-3.5-flash-lite"
 timeout_seconds = 12
 max_output_tokens = 8192
-thinking_budget = 0
+thinking_level = "minimal"

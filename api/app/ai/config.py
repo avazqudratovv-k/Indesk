@@ -3,6 +3,7 @@ code (Decision #30)."""
 
 import tomllib
 from pathlib import Path
+from typing import Literal
 
 from pydantic import (
     BaseModel,
@@ -29,6 +30,15 @@ class ModelSpec(BaseModel):
     # None (the key is left out of the file): no thinking field is sent at all, so the model uses
     # its own default. 0 is sent as 0.
     thinking_budget: NonNegativeInt | None = None
+    # gemini-3.x models take a level, not a budget (the first real call showed HTTP 400 for
+    # thinkingBudget 0 on gemini-3.5-flash-lite). Set at most one of the two.
+    thinking_level: Literal["minimal", "low", "medium", "high"] | None = None
+
+    @model_validator(mode="after")
+    def _one_thinking_setting(self) -> "ModelSpec":
+        if self.thinking_budget is not None and self.thinking_level is not None:
+            raise ValueError("set thinking_budget or thinking_level, not both")
+        return self
 
 
 class ModelChain(BaseModel):

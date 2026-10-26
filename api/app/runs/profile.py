@@ -124,7 +124,8 @@ def build_profile(csv_bytes: bytes, limits: Limits) -> CsvProfile | ProfileFaile
                 if cell:
                     kinds[index].add(_kind(cell))
             if len(sample) < limits.profile_sample_rows:
-                shown = row[: limits.profile_sample_columns]
+                width = min(limits.profile_sample_columns, len(names))  # never past the header
+                shown = row[:width]
                 sample.append([clean(cell, limits.profile_cell_chars) for cell in shown])
     except (AppError, csv.Error, UnicodeError, ValueError):
         return ProfileFailed(ProfileError.UNREADABLE)
