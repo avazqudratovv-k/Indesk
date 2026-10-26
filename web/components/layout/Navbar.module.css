@@ -106,22 +106,28 @@
   white-space: nowrap;
 }
 
-.avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--btn-grad);
-  color: var(--btn-grad-ink);
-  font: 600 16px var(--sans);
-  text-decoration: none;
+/* Signed-in name: plain text in the nav link style, desktop only, cut off with an ellipsis. */
+.who {
+  display: none;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-[data-theme="dark"] .avatar {
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset, 0 10px 30px -12px var(--glow);
+.plainButton {
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.plainButton:disabled {
+  cursor: progress;
+}
+
+.plainButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 @media (max-width: 760px) {
@@ -159,9 +165,24 @@
   .right {
     gap: 10px;
   }
+}
 
-  .avatar {
-    width: 40px;
-    height: 40px;
+/* The name needs room next to the nav links, the language buttons and Log out, so it waits for wider screens. */
+@media (min-width: 960px) {
+  .who {
+    display: inline-flex;
+  }
+}
+
+/* Signed in on a narrow desktop: Log out takes more room than the old avatar, so the bar uses tighter side
+   padding between 761 and 959 px (the name is hidden there). */
+@media (min-width: 761px) and (max-width: 959px) {
+  .compact .inner {
+    gap: 12px;
+    padding: 0 20px;
+  }
+
+  .compact .link {
+    padding: 0 8px;
   }
 }

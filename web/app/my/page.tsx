@@ -1,5 +1,10 @@
+import RequireAuth from "@/components/auth/RequireAuth";
 import RoutePlaceholder from "@/components/RoutePlaceholder";
 
 export default function Page() {
-  return <RoutePlaceholder route="My page" />;
+  return (
+    <RequireAuth>
+      <RoutePlaceholder route="My page" />
+    </RequireAuth>
+  );
 }

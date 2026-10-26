@@ -159,13 +159,15 @@
   cursor: progress;
 }
 
-.result {
+/* Same look as the field errors; empty until the server answers with an error. */
+.formError {
   margin: -6px 0 0;
   font-size: 13.5px;
-  color: var(--ink2);
+  font-weight: 600;
+  color: var(--bad);
 }
 
-.result:empty {
+.formError:empty {
   display: none;
 }
 

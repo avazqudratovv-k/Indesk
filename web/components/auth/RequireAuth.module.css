@@ -1,0 +1,12 @@
+.placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 50vh;
+  padding: 40px 20px;
+}
+
+.label {
+  margin: 0;
+  font-size: 14px;
+  color: var(--mute);
+}

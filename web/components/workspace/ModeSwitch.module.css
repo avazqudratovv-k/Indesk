@@ -10,6 +10,7 @@
 
 .mode {
   min-height: 44px;
+  line-height: 1.2;
   padding: 0 20px;
   border: 0;
   border-radius: 12px;
@@ -21,6 +22,28 @@
 
 .mode:hover {
   color: var(--ink);
+}
+
+/* Not available yet: the name is dimmed, there is no hover and no pointer cursor. The "Coming soon" line stays
+   at full --mute strength because it carries the meaning. */
+.mode[aria-disabled="true"] {
+  color: var(--mute);
+  cursor: default;
+}
+
+.name {
+  opacity: 0.6;
+}
+
+.mode[aria-disabled="true"]:hover {
+  color: var(--mute);
+}
+
+.soon {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 .mode:focus-visible {

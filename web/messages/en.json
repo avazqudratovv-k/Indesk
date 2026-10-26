@@ -9,7 +9,10 @@
     "plans": "Plans",
     "login": "Log in",
     "signup": "Sign up",
-    "account": "Account: {name}"
+    "account": "Account: {name}",
+    "logout": "Log out",
+    "logoutBusy": "Logging out…",
+    "logoutFailed": "Could not log out. Try again."
   },
   "tabBar": {
     "label": "Main",
@@ -227,11 +230,6 @@
       "lede": "Read from web/mocks through typed functions.",
       "report": "Report rep_01 (Ask)",
       "check": "Report rep_02 (Check)",
-      "session": "Session (dev_session cookie)",
-      "signedIn": "signed in",
-      "signedOut": "signed out",
-      "switchLabel": "Dev session",
-      "switchTo": "Switch to {state}",
       "claims": "Claims",
       "shareLinks": "Share links",
       "uploads": "Uploads",
@@ -277,10 +275,6 @@
       "passwordRequired": "Enter your password.",
       "passwordTooShort": "Use at least 10 characters.",
       "passwordTooLong": "Use 128 characters or fewer."
-    },
-    "success": {
-      "dev": "Signed in as the demo user. Opening your workspace…",
-      "demo": "This demo has no accounts yet. Nothing was sent or saved, and no one was signed in."
     },
     "freeTitle": "Included for free",
     "free": [
@@ -448,7 +442,8 @@
         "ask": "Ask anything your files can answer. Every claim comes with its proof.",
         "check": "Upload a document and the data behind it. We find every checkable claim and test it.",
         "compare": "Two files of the same kind. We show what changed, with proof."
-      }
+      },
+      "soon": "Coming soon"
     },
     "steps": {
       "askFiles": "1. Choose your files",
@@ -959,5 +954,24 @@
       },
       "noClaims": "This report has no claims to show."
     }
+  },
+  "common": {
+    "loading": "Loading…"
+  },
+  "apiErrors": {
+    "INVALID_CREDENTIALS": "Email or password is not right.",
+    "EMAIL_TAKEN": "An account with this email already exists. Try logging in.",
+    "VALIDATION_ERROR": "Some details are not valid. Check them and try again.",
+    "UNAUTHENTICATED": "Your session has ended. Log in again.",
+    "ORIGIN_NOT_ALLOWED": "This request was blocked for safety. Reload the page and try again.",
+    "UNSUPPORTED_TYPE": "This kind of request is not supported.",
+    "RATE_LIMITED": "Too many attempts. Wait a little and try again.",
+    "RATE_LIMITED_WAIT": "Too many attempts. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
+    "NOT_READY": "The service is not ready yet. Try again in a moment.",
+    "INTERNAL": "Something went wrong on our side. Try again in a moment.",
+    "NOT_FOUND": "We could not find that.",
+    "METHOD_NOT_ALLOWED": "This request is not supported.",
+    "NETWORK": "Could not reach the server. Check your connection and try again.",
+    "UNKNOWN": "Something went wrong. Try again."
   }
 }

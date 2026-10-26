@@ -1,16 +1,15 @@
 import type { User } from "@/lib/types";
 
-// Mock session for the UI-first phase (ROADMAP 1.7). Replaced by real auth in 4.1.
-export type Session = { signedIn: true; user: User } | { signedIn: false; user: null };
+// `unknown`: the server could not tell (for example the access cookie expired); the client resolves it.
+// `signedIn` stays a plain boolean so screens that only need "is someone signed in" keep working.
+export type Session =
+  | { status: "unknown"; signedIn: false; user: null }
+  | { status: "signedOut"; signedIn: false; user: null }
+  | { status: "signedIn"; signedIn: true; user: User };
 
-export const devSessionCookie = "dev_session";
-export type DevSessionValue = "in" | "out";
+export const unknownSession: Session = { status: "unknown", signedIn: false, user: null };
+export const signedOutSession: Session = { status: "signedOut", signedIn: false, user: null };
 
-export const signedOutSession: Session = { signedIn: false, user: null };
-
-export function isDevSessionValue(value: string | undefined): value is DevSessionValue {
-  return value === "in" || value === "out";
+export function signedInSession(user: User): Session {
+  return { status: "signedIn", signedIn: true, user };
 }
-
-// The dev switch exists only outside production builds.
-export const devSwitchEnabled = process.env.NODE_ENV !== "production";

@@ -18,6 +18,7 @@ const tabs: Tab[] = ["ask", "run"];
 // `mockOutcome` (dev only, set by the page) picks a failed or partial scripted run.
 export default function WorkspaceView({ offers, mockOutcome = "answered" }: { offers: PlanOffer[]; mockOutcome?: RunScenario }) {
   const t = useTranslations("workspace");
+  const tCommon = useTranslations("common");
   const session = useSession();
   const [tab, setTab] = useState<Tab>("ask");
   const [run, setRun] = useState<RunSummary | null>(null);
@@ -77,7 +78,7 @@ export default function WorkspaceView({ offers, mockOutcome = "answered" }: { of
             </Link>
           ) : null}
         </div>
-        {session.signedIn ? <AskPanel freeRuns={plan === "free" ? (offer?.runs ?? null) : null} plan={plan} onRun={(summary) => { setRun(summary); setRunKey((key) => key + 1); setTab("run"); }} /> : <SignedOutCard />}
+        {session.status === "unknown" ? <p className={styles.sub} role="status">{tCommon("loading")}</p> : session.signedIn ? <AskPanel freeRuns={plan === "free" ? (offer?.runs ?? null) : null} plan={plan} onRun={(summary) => { setRun(summary); setRunKey((key) => key + 1); setTab("run"); }} /> : <SignedOutCard />}
       </div>
 
       <div id="ws-panel-run" role="tabpanel" aria-labelledby="ws-tab-run" hidden={tab !== "run"} className={styles.panel}>

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
-import DevSessionSwitch from "@/components/layout/DevSessionSwitch";
 import SessionProvider from "@/components/layout/SessionProvider";
 import Shell from "@/components/layout/Shell";
-import { getSession } from "@/lib/session-server";
+import { getServerSession } from "@/lib/auth/server";
 import { themeInitScript } from "@/lib/theme";
 import "../styles/globals.css";
 
@@ -15,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
-  const session = await getSession();
+  const session = await getServerSession();
   return (
     <html lang={locale} data-theme="light" suppressHydrationWarning>
       <head>
@@ -32,7 +31,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <NextIntlClientProvider>
           <SessionProvider session={session}>
             <Shell>{children}</Shell>
-            <DevSessionSwitch />
           </SessionProvider>
         </NextIntlClientProvider>
       </body>

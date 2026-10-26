@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
-import { useSession } from "@/hooks/use-session";
+import { useSession, useSessionActions } from "@/hooks/use-session";
 import BrandMark from "./BrandMark";
 import LanguageSwitch from "./LanguageSwitch";
 import ThemeToggle from "./ThemeToggle";
@@ -16,12 +17,37 @@ export default function Navbar() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const session = useSession();
+  const { endSession } = useSessionActions();
+  const router = useRouter();
   const onAuthPage = pathname === "/login" || pathname === "/signup";
   const authHidden = onAuthPage ? styles.authPageHidden : "";
   const [tapped, setTapped] = useState(false);
   const tapTimer = useRef<number | undefined>(undefined);
+  const [logout, setLogout] = useState<"idle" | "busy" | "failed">("idle");
+  const failTimer = useRef<number | undefined>(undefined);
 
-  useEffect(() => () => window.clearTimeout(tapTimer.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(tapTimer.current);
+      window.clearTimeout(failTimer.current);
+    },
+    [],
+  );
+
+  // Logs out on the server first. If the server cannot be reached the session is still active, so say that.
+  async function onLogout() {
+    if (logout === "busy") return;
+    setLogout("busy");
+    try {
+      await endSession();
+      setLogout("idle");
+      router.push("/");
+    } catch {
+      setLogout("failed");
+      window.clearTimeout(failTimer.current);
+      failTimer.current = window.setTimeout(() => setLogout("idle"), 4000);
+    }
+  }
 
   // Tilts the mark for 600 ms on click or tap. The link still navigates; nothing is prevented.
   function tapBrand() {
@@ -31,7 +57,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className={styles.mast}>
+    <header className={`${styles.mast} ${session.signedIn ? styles.compact : ""}`}>
       <div className={styles.inner}>
         <Link href="/" className={`${styles.brand} ${tapped ? styles.tap : ""}`} aria-label={t("brand")} onClick={tapBrand}>
           <BrandMark />
@@ -54,10 +80,13 @@ export default function Navbar() {
         <div className={styles.right}>
           <LanguageSwitch />
           <ThemeToggle />
-          {session.user ? (
-            <Link href="/my" className={styles.avatar} aria-label={t("account", { name: session.user.display_name })}>
-              {session.user.display_name.slice(0, 1).toUpperCase()}
-            </Link>
+          {session.status === "unknown" ? null : session.user ? (
+            <>
+              <span className={`${styles.link} ${styles.who}`}>{session.user.display_name}</span>
+              <button type="button" className={`${styles.link} ${styles.plainButton}`} onClick={onLogout} disabled={logout === "busy"} aria-live="polite">
+                {logout === "busy" ? t("logoutBusy") : logout === "failed" ? t("logoutFailed") : t("logout")}
+              </button>
+            </>
           ) : (
             <>
               <Link href="/login" className={`${styles.link} ${styles.login} ${authHidden}`}>

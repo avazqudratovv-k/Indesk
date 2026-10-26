@@ -4,10 +4,10 @@ import type { AuthMode } from "./validate";
 import styles from "./AuthPage.module.css";
 
 // Log in and Sign up share one board: form card, then the "included for free" panel (below it on phones).
-export default function AuthPage({ mode }: { mode: AuthMode }) {
+export default function AuthPage({ mode, next }: { mode: AuthMode; next?: string }) {
   return (
     <main className={styles.main}>
-      <AuthForm mode={mode} />
+      <AuthForm mode={mode} next={next} />
       <AuthSide />
     </main>
   );

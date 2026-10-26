@@ -2,15 +2,16 @@ import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import Eyebrow from "@/components/ui/Eyebrow";
 import FilmStage from "./FilmStage";
+import HideWhenSignedIn from "./HideWhenSignedIn";
 import HomeFilm from "./HomeFilm";
 import HomeOrbit from "./HomeOrbit";
 import { workspaceHref } from "./agents";
 import styles from "./HomeHero.module.css";
 
-type Props = { verified: number; total: number; signedIn: boolean };
+type Props = { verified: number; total: number };
 
 // Hero panel from the board: dark photo panel, copy on the left, demo film on the right (stacked on phones).
-export default function HomeHero({ verified, total, signedIn }: Props) {
+export default function HomeHero({ verified, total }: Props) {
   const t = useTranslations("home.hero");
   return (
     <div className={styles.wrap}>
@@ -33,13 +34,15 @@ export default function HomeHero({ verified, total, signedIn }: Props) {
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
               </Button>
-              {signedIn ? null : (
+              <HideWhenSignedIn>
                 <Button href="/signup" size="lg">
                   {t("signUp")}
                 </Button>
-              )}
+              </HideWhenSignedIn>
             </div>
-            {signedIn ? null : <p className={styles.note}>{t("note")}</p>}
+            <HideWhenSignedIn>
+              <p className={styles.note}>{t("note")}</p>
+            </HideWhenSignedIn>
           </div>
           <div className={styles.stage}>
             <HomeOrbit />
