@@ -6,7 +6,7 @@
 Updated: 2026-10-26
 
 ## Status in one line
-Screens 2.1 to 2.7b are done on mock data. The backend foundation (P1 to P7), the Ask flow with Owl and Beaver (P8a), the first real Gemini calls (P8b) and the web swap for log in, sign up and the Ask run (4.1 to 4.3) and P9 (Cat as code, the report and `GET /api/reports/{id}`) are committed. A real Ask run goes through Owl, Beaver and Cat and ends with a report; the web does not show it yet (4.4). Check and Compare still end as unconfigured. HEAD 5c12875. Nov 1 is now a soft target (Nov 1 to 3), not a hard date. **Real runs through Owl, Beaver and Cat matched independently computed answers:** the Korean question (5 of 5 claims verified, confidence high, Korean prose) and weekdays versus weekends (2 of 2 verified). Both previously untested chain entries returned HTTP 200, so every chain entry is now verified live. 13 of 14 budgeted calls were used.
+Screens 2.1 to 2.7b are done on mock data. The backend foundation (P1 to P7), the Ask flow with Owl and Beaver (P8a), the first real Gemini calls (P8b) and the web swap for log in, sign up and the Ask run (4.1 to 4.3) P9 (Cat as code, the report and `GET /api/reports/{id}`), web 4.4 (the real report screen), the P9 follow-up (report quality) and the Korean least fix are committed. A real Ask run goes through Owl, Beaver and Cat and ends with a report the web shows. Check and Compare still end as unconfigured. HEAD e6103d0. Nov 1 is now a soft target (Nov 1 to 3), not a hard date. **Real runs through Owl, Beaver and Cat matched independently computed answers** for top station, line totals (Korean and English) and the weekday versus weekend average. Line totals ran in P8b, in web 4.4 and in the follow-up. Both previously untested chain entries returned HTTP 200, so every chain entry is now verified live.
 
 ## Commits since the last docs batch (7fcfccb)
 | Step | Commit | What |
@@ -25,7 +25,11 @@ Screens 2.1 to 2.7b are done on mock data. The backend foundation (P1 to P7), th
 | Demo data | 86fe0b2 | `docs/demo-data/seoul_subway_2026-09.csv` (4,079 rows, KOGL Type 1) |
 | P9 (3.10, 3.11) | fae02e5 | Cat as code, report with claims and evidence, `GET /api/reports/{id}` |
 | Test fix | 5c12875 | `models.toml` header test checks what was called live (fixes CI after batch 10) |
-Decisions for all of these: DECISIONS #99 to #229.
+| Docs batch 11 | c20bccf | Records P9, fixes the stale `models.toml` comment |
+| 4.4 | 294f9da | Real report screen on `GET /api/reports/{id}`, live trace verify step, plain-text safety |
+| P9 follow-up | 1fe735a | Report quality, `add_metrics` sums, unique labels, number grouping, plain column words |
+| Korean least fix | e6103d0 | Korean least wording is checked against the column minimum |
+Decisions for all of these: DECISIONS #99 to #244.
 
 ## What exists
 ### `web/`
@@ -40,16 +44,16 @@ Decisions for all of these: DECISIONS #99 to #229.
 - Services in `compose.yaml`: api, worker, scheduler, sandbox, db (pgvector), redis. Migrations 0001 and 0002.
 - Gateway (`app/ai/`), sandbox service (`api/sandbox/`), run machine and executor (`app/runs/`), Owl and Beaver with `AskFlow` (P8a, #198 to #210). Cat and the report (P9, #219 to #229).
 - `api/config/models.toml` holds two chains (light and main, 3 entries each, #198). All six names were listed for the key. Per-entry `thinking_level` or `thinking_budget` (#214).
-- Tests: `api/tests/` (pytest against real Postgres and Redis database 15, and a fake model client). Counts reported for P9: 882 api + 21 sandbox (`-m sandbox`) + 138 web. CI jobs: `api`, `sandbox`, `web`.
+- Tests: `api/tests/` (pytest against real Postgres and Redis database 15, and a fake model client). Counts at HEAD e6103d0: 937 api (run in docs batch 12) + 21 sandbox (`-m sandbox`) + 209 web (as reported). CI jobs: `api`, `sandbox`, `web`.
 
 ## In progress
 - Nothing.
 
 ## Next
-1. **Web 4.4:** real report screen on `GET /api/reports/{id}`; the web must translate the verify trace key and the evidence reason and method codes; no code and no chart in v1; remove the line "Results appear in the report (not connected yet)".
-2. **P10:** quotas and counting, "busy today" cards, split DB roles, deploy fixes from the checklist below.
-3. **5.x:** copy to match the demo file, cached example, stress tests, security pass, paid tier, deploy, README and video. (The Seoul demo CSV itself is committed, 86fe0b2.)
-- PLANNED, not built (#98): "Translate to <other language>" for real reports (API in P9, UI in 4.4); dropped first if a day slips.
+1. **P10:** quotas and counting, "busy today" cards, split DB roles, deploy fixes from the checklist below; add `lang` to the report so the web needs no extra run fetch.
+2. **Copy-honesty prompt:** question chips and example copy match the demo file (ROADMAP 5.1).
+3. **Deploy (5.x):** cached example, stress tests, security pass, paid tier, deploy, README and video. (The Seoul demo CSV itself is committed, 86fe0b2.)
+- PLANNED, not built (#98): "Translate to <other language>" for real reports (not in API or web yet; 4.4 shows only a language note, #236); dropped first if a day slips.
 - ROADMAP 2.16 holds the open polish and accessibility items collected so far.
 
 ## Later
@@ -84,10 +88,12 @@ Decisions for all of these: DECISIONS #99 to #229.
 - Contrast of the error pill, the disabled Run button and the counter.
 - Decide which agent steps truly use an LLM (Owl is rule-based in v1, #61) so README claims stay accurate.
 - After section 4: compare 5 questions against a plain chatbot for the README.
-- The web mock still returns HTTP 200 for an unknown report id (#94); the API returns 404 (#227), so 4.4 must handle it.
+- The web mock still returns HTTP 200 for an unknown report id (#94); the API returns 404 (#227). Real reports show a neutral no-report card (#240); not re-checked here for the mock path.
 - Report claim rows are narrower on phones (board quirk, #95).
 - Evidence table cell text is not compared with the board.
-- Share and Style & download (2.8, 2.9) and the follow-up thread are built after Nov 1 (#87).
+- Share and Style & download (2.8, 2.9) and the follow-up thread are built after Nov 1 (#87); real reports hide them with one line (#231).
+- Claims are checked for the right row, not for naming the right column.
+- Korean header words: English column headers stay English inside Korean reports.
 - One source for the 5 MB file limit: the server now reads `limits.toml` (#128); `web/lib/workspace/validate.ts` and `web/mocks/plans.json` still hold copies.
 - `GET /api/example` and the cached example do not exist yet (ROADMAP 5.2); Home "Try with an example" still uses the mock.
 
@@ -102,13 +108,13 @@ Decisions for all of these: DECISIONS #99 to #229.
 - Two tabs refreshing at the same moment can end the session (#126); the web reduces it with a lock (#177).
 
 ## Not verified
-- English question 2 (total riders per line, a two-column sum) has not run live.
 - Safari, Firefox and a real browser reading a report are untested.
 - The real rate limits per model name are unknown (owner reads aistudio.google.com/rate-limit; needed before P10 daily caps).
 - Cost per run is an estimate from token counts and the price table (#217); `ai_calls.est_cost_usd` is still 0.
 - EventSource and the gzip fix were checked in Chrome only. Safari, Firefox and real phones are untested.
-- The Korean text has not been reviewed by a native speaker.
-- The test counts above are as reported for P9; the docs batch re-ran the api suite (see the batch report).
+- The Korean text (UI labels, report prose and the 4.4 report strings) has not been reviewed by a native speaker.
+- Whether a column is "the sum" cannot be proven in code; the prompt and live runs are the evidence (#242).
+- The api count (937) was re-run in docs batch 12; the sandbox and web counts are as reported by the owner.
 
 ## Environments
 - Local: web http://localhost:3000 (dev server rewrites `/api` to the API), API http://127.0.0.1:8000 through `docker compose up --build`; Postgres and Redis run in Compose.

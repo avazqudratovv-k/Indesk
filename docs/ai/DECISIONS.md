@@ -305,6 +305,26 @@ Added in docs batch 11 (2026-10-26). Real runs through Owl, Beaver and Cat match
 | 228 | Oct 26 | Operational lessons: run `docker compose up -d --build api worker` before any live run (stale containers wasted two real calls in P9); `ruff format` inside `docker compose run` does not write back to the host without a volume mount | Live calls are budgeted | not recorded |
 | 229 | Oct 26 | Test rule: after any edit to a file a test may read (config, comments, docs), run the full test suite, not only a diff check. Batch 10 broke CI through a comment edit | The stale `models.toml` header test failed in CI (fixed in 5c12875) | Diff check only |
 
+### Web 4.4, P9 follow-up, Korean least fix (294f9da, 1fe735a, e6103d0)
+Added in docs batch 12 (2026-10-26). Real runs matched independently computed answers for top station, line totals (Korean and English) and the weekday versus weekend average. Where a reason was not given, the cell says "not recorded".
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 230 | Oct 26 | Web 4.4 deviation: real reports have no Example banner, no report number, no chart and no code field | not recorded | not recorded |
+| 231 | Oct 26 | Web 4.4 deviation: Share, Style and download and the follow-up thread are hidden and replaced by one line | not recorded | not recorded |
+| 232 | Oct 26 | Web 4.4 deviation: D1 and U# evidence titles and texts are built in the web from the method and reason codes. The board's U1 title names a claim number; ours does not | One critic note can serve several claims | not recorded |
+| 233 | Oct 26 | Web 4.4 deviation: the evidence location such as "rows 1-4079" is parsed and translated; any other shape is hidden. The tool `run_python` shows as "pandas"; an unknown tool is hidden | not recorded | not recorded |
+| 234 | Oct 26 | Web 4.4 deviation: a reason line sits under each unverified claim | not recorded | not recorded |
+| 235 | Oct 26 | Web 4.4 deviation: the confidence note and the glossary have real-report wording. The board's "only ideas" is untrue for code-checked claims | Copy must match what works (SPEC section 8) | not recorded |
+| 236 | Oct 26 | Web 4.4 deviation: the language note reads "The text of this report is in English/Korean". It appears only when the run's language is known and differs from the site language, and has no Translate button. The extra `GET /runs/{id}` supplies the language | not recorded | not recorded |
+| 237 | Oct 26 | Web 4.4: an unknown status counts as unverified; an unknown confidence hides the card; unknown codes show neutral text; raw codes never reach the user | not recorded | not recorded |
+| 238 | Oct 26 | Web 4.4: the Report node on a finished real run says Ready | not recorded | not recorded |
+| 239 | Oct 26 | Web 4.4: `plainText()` strips control and bidi characters from all server text | not recorded | not recorded |
+| 240 | Oct 26 | Web 4.4: `workspace.real.noReport` is a neutral no-report card | not recorded | not recorded |
+| 241 | Oct 26 | Web 4.4: the Korean strings are unreviewed by a native speaker | not recorded | not recorded |
+| 242 | Oct 26 | P9 follow-up: `OwlPlan.add_metrics` (2 to 4 different numeric columns, default empty, rejected together with `metric`) lets a plan say "add column A to column B". Beaver builds the row-wise sum first and returns the total, not the parts. Prompt versions: owl-2, beaver-2, cat-2. Claim and prose text goes through tidy before the checks: column names become plain words (snake_case and camelCase split; a name matching a table label is left alone) and numbers of 4 or more digits get thousands separators (dates, years 1900-2100, ids and numbers from the question or labels are skipped). Checks and tolerance are unchanged. `top_rows` labels are unique: the row's text cells joined, plus " · header" when two or more numeric columns exist, capped at 60, with " (2)" for remaining duplicates. Evidence headers show words; stored `payload.columns` keep the cleaned raw names. Whether a column is "the sum" cannot be proven in code; the prompt and live runs are the evidence. English column headers stay English in Korean reports | not recorded | not recorded |
+| 243 | Oct 26 | Korean least fix: Korean least words (가장 적, 가장 낮, 가장 작, 최소, 최저 and endings) make a LEAST claim checked against the column minimum. Mixed or unknown wording after 가장 is unverified (`ranking_unchecked`). Refines #221 | not recorded | not recorded |
+| 244 | Oct 26 | Demo questions must state the reading. The weekday versus weekend example is "Compare weekdays and weekends: average total boardings per day" (mean of daily network totals), because "average daily boardings" can also mean per station-row (seen live: 22,403 versus 15,236). Refines #216 | The ambiguous wording gave two different true answers | "Average daily boardings" |
+
 ## OPEN questions in this file
 1. Gemini embedding model ID and vector size (#34), decided at ROADMAP 3.12.
 2. ~~Confirm every Gemini model ID in Google AI Studio before the first real call (#30).~~ Closed in P8b: all six names were listed for the key and four real runs worked.
