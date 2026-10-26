@@ -7,29 +7,45 @@ import styles from "./RunTiles.module.css";
 
 // Seconds on the real clock since the tile mounted (a run mounts it fresh), frozen when the run finishes. This is the
 // playback time of the demo, measured; the rest of the tiles come from the script.
-function useElapsed(finished: boolean): number {
+function useElapsed(finished: boolean, fixed: boolean): number {
   const [start] = useState(() => performance.now());
   const [now, setNow] = useState(start);
   useEffect(() => {
+    if (fixed) return;
     if (finished) {
       const id = setTimeout(() => setNow(performance.now()), 0);
       return () => clearTimeout(id);
     }
     const id = setInterval(() => setNow(performance.now()), 100);
     return () => clearInterval(id);
-  }, [finished]);
+  }, [finished, fixed]);
   return (now - start) / 1000;
 }
 
-type Props = { toolCalls: number; tokens: number; agentsDone: number; agentCount: number; finished: boolean };
+// `real` is set for a real run: the time runs from the run's start to its end (or to now while it is going) and the other
+// tiles are counted from the run's own events, so the "Example" and "Demo playback" tags are left out.
+// The current time, refreshed twice a second while `active`.
+function useNow(active: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) return;
+    const id = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(id);
+  }, [active]);
+  return now;
+}
+
+type Props = { toolCalls: number; tokens: number; agentsDone: number; agentCount: number; finished: boolean; real?: { startMs: number | null; endMs: number | null } };
 
 // Board summary tiles, in step with the events. Time is the real elapsed clock; Tokens and Tool calls are scripted
 // ("Example"); Agents done replaces the board's Cost tile (no cost is shown to users, DECISIONS #74).
-export default function RunTiles({ toolCalls, tokens, agentsDone, agentCount, finished }: Props) {
+export default function RunTiles({ toolCalls, tokens, agentsDone, agentCount, finished, real }: Props) {
   const t = useTranslations("workspace");
-  const elapsed = useElapsed(finished);
+  const playback = useElapsed(finished, real !== undefined);
+  const now = useNow(real !== undefined && real.endMs === null);
+  const elapsed = real ? (real.startMs === null ? null : Math.max(0, ((real.endMs ?? now) - real.startMs) / 1000)) : playback;
   const tiles = [
-    { id: "time", value: `${elapsed.toFixed(1)}s`, tag: t("live.tilesTag.playback") },
+    { id: "time", value: elapsed === null ? "—" : `${elapsed.toFixed(1)}s`, tag: t("live.tilesTag.playback") },
     { id: "tokens", value: tokens.toLocaleString("en-US"), tag: t("live.tilesTag.example") },
     { id: "agents", value: `${agentsDone} / ${agentCount}`, tag: t("live.tilesTag.example") },
     { id: "tools", value: `${toolCalls} / ${TOOL_CALL_LIMIT}`, tag: t("live.tilesTag.example") },
@@ -40,7 +56,7 @@ export default function RunTiles({ toolCalls, tokens, agentsDone, agentCount, fi
         <div key={tile.id} className={styles.tile}>
           <div className={styles.name}>{t(`live.tiles.${tile.id}`)}</div>
           <div className={styles.value}>{tile.value}</div>
-          <span className={styles.tag}>{tile.tag}</span>
+          {real ? null : <span className={styles.tag}>{tile.tag}</span>}
         </div>
       ))}
     </section>

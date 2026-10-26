@@ -1,0 +1,28 @@
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--paper2);
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.lineFailed {
+  border: 1px solid var(--bad);
+  background: var(--badBg);
+}
+
+.later {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  color: var(--mute);
+}

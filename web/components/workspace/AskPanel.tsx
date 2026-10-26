@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import DemoNotice from "@/components/ui/DemoNotice";
-import { MAX_QUESTION_CHARS, MODE_SLOTS, questionLength, type SlotId, type WorkspaceMode } from "@/lib/workspace/validate";
+import { apiErrorKey, retryMinutes, ApiError } from "@/lib/api/errors";
+import type { FileStatus } from "@/lib/run/live/submit";
+import { MAX_QUESTION_CHARS, MODE_SLOTS, questionLength, type SlotFile, type SlotId, type WorkspaceMode } from "@/lib/workspace/validate";
+import Button from "@/components/ui/Button";
 import AgentEndings from "./AgentEndings";
 import ConsentBox from "./ConsentBox";
 import FileSlot from "./FileSlot";
@@ -16,11 +19,27 @@ import styles from "./AskPanel.module.css";
 
 export type RunSummary = { mode: WorkspaceMode; fileCount: number; question: string };
 
+// What Run hands to the page: the summary plus the files themselves (the page uploads them).
+export type RunSubmission = RunSummary & { files: SlotFile[] };
+
+// The state of starting a real run (uploads, then the run request), owned by the page.
+export type SubmitState = {
+  stage: "idle" | "uploading" | "starting";
+  progress: { done: number; total: number };
+  fileStatus: Record<string, FileStatus>;
+  failure: { code: ApiError["code"]; fileId: string | null; retryAfter?: number } | null;
+  // A run of this person that is still going (found after RUN_ACTIVE): offered as "Watch it".
+  activeRunId: string | null;
+  onWatchActive: () => void;
+  onFileRemoved: (fileId: string) => void;
+  onDismissFailure: () => void;
+};
+
 type Need = "files" | "document" | "sources" | "both" | "question" | "tooLong" | "consent";
 
 // The Ask tab: mode switch, the two cards (files, question), the team strip and the upload info.
 // Everything here is local state. Pressing Run hands a summary to the page; nothing is uploaded or stored.
-export default function AskPanel({ freeRuns, plan, onRun }: { freeRuns: number | null; plan: string; onRun: (summary: RunSummary) => void }) {
+export default function AskPanel({ freeRuns, plan, onRun, submit }: { freeRuns: number | null; plan: string; onRun: (submission: RunSubmission) => void; submit?: SubmitState }) {
   const t = useTranslations("workspace");
   const [mode, setMode] = useState<WorkspaceMode>("ask");
   const [questions, setQuestions] = useState<Record<WorkspaceMode, string>>({ ask: "", check: "", compare: "" });
@@ -48,8 +67,10 @@ export default function AskPanel({ freeRuns, plan, onRun }: { freeRuns: number |
     return null;
   }
 
+  const busy = submit !== undefined && submit.stage !== "idle";
   const missing = need();
-  const hint = missing ? t(`run.need.${missing}`) : plan === "free" && freeRuns !== null ? t("run.usesFree", { runs: freeRuns }) : t("run.usesOther");
+  const busyHint = submit && busy ? (submit.stage === "uploading" ? t("submit.uploading", { done: Math.min(submit.progress.done + 1, submit.progress.total), total: submit.progress.total }) : t("submit.starting")) : null;
+  const hint = busyHint ?? (missing ? t(`run.need.${missing}`) : plan === "free" && freeRuns !== null ? t("run.usesFree", { runs: freeRuns }) : t("run.usesOther"));
 
   function handleAdd(slot: SlotId, files: File[]) {
     const result = add(slot, files);
@@ -61,14 +82,16 @@ export default function AskPanel({ freeRuns, plan, onRun }: { freeRuns: number |
   }
 
   function handleRemove(slot: SlotId, id: string) {
+    if (busy) return;
     const item = slots[slot].find((entry) => entry.id === id);
     remove(slot, id);
+    submit?.onFileRemoved(id);
     if (item) setAnnouncement(t("upload.announceRemoved", { name: item.file.name }));
   }
 
   function run() {
-    if (need() !== null) return;
-    onRun({ mode, fileCount, question: trimmed });
+    if (need() !== null || busy) return;
+    onRun({ mode, fileCount, question: trimmed, files: slotIds.flatMap((id) => slots[id]) });
   }
 
   const slot = (id: SlotId, extra: { title?: string; documentOnly?: boolean } = {}) => (
@@ -79,6 +102,8 @@ export default function AskPanel({ freeRuns, plan, onRun }: { freeRuns: number |
       documentOnly={extra.documentOnly}
       items={slots[id]}
       errors={errors[id]}
+      statuses={submit?.fileStatus}
+      locked={busy}
       onAdd={(files) => handleAdd(id, files)}
       onRemove={(fileId) => handleRemove(id, fileId)}
     />
@@ -133,7 +158,7 @@ export default function AskPanel({ freeRuns, plan, onRun }: { freeRuns: number |
             />
           )}
           <div className={styles.runBar}>
-            <button type="button" className={styles.run} aria-disabled={missing !== null} aria-describedby="ws-run-hint" onClick={run}>
+            <button type="button" className={styles.run} aria-disabled={missing !== null || busy} aria-describedby="ws-run-hint" onClick={run}>
               {t(`run.${mode}`)}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 12h14M13 6l6 6-6 6" />
@@ -143,6 +168,7 @@ export default function AskPanel({ freeRuns, plan, onRun }: { freeRuns: number |
               {hint}
             </span>
           </div>
+          {submit?.failure ? <SubmitProblem submit={submit} failure={submit.failure} names={Object.fromEntries(slotIds.flatMap((id) => slots[id]).map((item) => [item.id, item.file.name]))} /> : null}
         </div>
       </section>
 
@@ -153,6 +179,24 @@ export default function AskPanel({ freeRuns, plan, onRun }: { freeRuns: number |
       <TeamReady />
       <AgentEndings />
       <UploadInfo />
+    </div>
+  );
+}
+
+// Why starting a run did not work: a generic message for the code (never server text), and for RUN_ACTIVE a way to
+// watch the run that is already going. Announced politely; the Run button stays the place to try again.
+function SubmitProblem({ submit, failure, names }: { submit: SubmitState; failure: NonNullable<SubmitState["failure"]>; names: Record<string, string> }) {
+  const t = useTranslations("workspace");
+  const tErrors = useTranslations("apiErrors");
+  const error = new ApiError(0, failure.code, failure.retryAfter);
+  const key = apiErrorKey(error);
+  const base = failure.code === "RATE_LIMITED" && failure.retryAfter !== undefined ? t("submit.tooSoon", { minutes: retryMinutes(error) }) : tErrors(key);
+  const name = failure.fileId ? names[failure.fileId] : undefined;
+  const text = failure.code === "RUN_ACTIVE" ? (submit.activeRunId ? t("submit.activeRunWatch") : t("submit.activeRun")) : name ? t("submit.fileError", { name, message: base }) : base;
+  return (
+    <div className={styles.problem} role="alert">
+      <span>{text}</span>
+      {failure.code === "RUN_ACTIVE" && submit.activeRunId ? <Button size="sm" onClick={submit.onWatchActive}>{t("submit.watch")}</Button> : null}
     </div>
   );
 }

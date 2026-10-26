@@ -39,7 +39,7 @@ export function useWorkspaceFiles(mode: WorkspaceMode) {
       const accepted: SlotFile[] = [];
       const found: FileError[] = [];
       for (const file of incoming) {
-        const code = checkFile(file, { slot, takenNames: taken, count: slots[slot].length + accepted.length, partnerKind });
+        const code = checkFile(file, { slot, takenNames: taken, count: slots[slot].length + accepted.length, partnerKind, csvOnly: mode === "ask" });
         if (code) {
           found.push({ code, name: file.name });
           continue;

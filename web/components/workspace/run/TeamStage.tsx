@@ -35,13 +35,15 @@ type Props = {
   reportReady: boolean;
   scenario: RunScenario;
   finished: boolean;
+  // The board's "EXAMPLE 5/6" stamp belongs to the scripted demo only; real runs turn it off.
+  showStamp?: boolean;
 };
 
 // The board's "The team" map (desktop, 761 px and up): a contour-line map with a scale bar and compass, five agent
 // cards joined by dotted connectors that turn solid as work is handed over, envelopes travelling along them, speech
 // bubbles, a Report node and, at the end, a stamp. Purely visual (the map is aria-hidden): the same state is in the timeline list. Where the card is narrower than the
 // map its box scrolls sideways, and only then is it a labelled tab stop.
-export default function TeamStage({ agents, events, step, reportReady, scenario, finished }: Props) {
+export default function TeamStage({ agents, events, step, reportReady, scenario, finished, showStamp = true }: Props) {
   const t = useTranslations("workspace");
   const home = useTranslations("home.team");
   const flow = deriveFlow(agents, reportReady);
@@ -146,7 +148,7 @@ export default function TeamStage({ agents, events, step, reportReady, scenario,
           </span>
         </div>
 
-        {finished && scenario !== "failed" ? <div className={`${styles.stamp} ${scenario === "partial" ? styles.stampWarn : ""}`}>{t(`live.stamp.${scenario}`)}</div> : null}
+        {showStamp && finished && scenario !== "failed" ? <div className={`${styles.stamp} ${scenario === "partial" ? styles.stampWarn : ""}`}>{t(`live.stamp.${scenario}`)}</div> : null}
       </div>
     </div>
   );

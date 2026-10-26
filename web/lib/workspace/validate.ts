@@ -47,7 +47,8 @@ export type FileErrorCode =
   | "duplicate"
   | "slotFull"
   | "documentMustBePdf"
-  | "sameKind";
+  | "sameKind"
+  | "csvOnly";
 
 export type FileError = { code: FileErrorCode; name: string };
 
@@ -74,6 +75,8 @@ export type SlotRules = {
   count: number;
   // Kind of the file in the other Compare slot, if there is one.
   partnerKind: FileKind | null;
+  // Ask runs read CSV files only for now (the server refuses the rest), so other kinds are turned away here.
+  csvOnly?: boolean;
 };
 
 // Returns the first reason a file cannot be added, or null. The caller adds files one at a time and updates
@@ -81,6 +84,7 @@ export type SlotRules = {
 export function checkFile(file: File, rules: SlotRules): FileErrorCode | null {
   const kind = kindOf(file);
   if (!kind) return "type";
+  if (rules.csvOnly && kind !== "csv") return "csvOnly";
   if (file.name.length > MAX_FILE_NAME_CHARS) return "nameTooLong";
   if (file.size === 0) return "empty";
   if (file.size > MAX_FILE_BYTES) return "tooBig";

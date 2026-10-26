@@ -6,8 +6,10 @@ import { useTranslations } from "next-intl";
 import { useSession } from "@/hooks/use-session";
 import type { RunScenario } from "@/lib/run/mock-run";
 import type { PlanOffer } from "@/lib/types";
-import AskPanel, { type RunSummary } from "./AskPanel";
+import AskPanel, { type RunSubmission, type RunSummary } from "./AskPanel";
+import RealRunTab from "./RealRunTab";
 import RunTab from "./RunTab";
+import { useLiveRun } from "./run/use-live-run";
 import SignedOutCard from "./SignedOutCard";
 import styles from "./WorkspaceView.module.css";
 
@@ -15,8 +17,9 @@ type Tab = "ask" | "run";
 const tabs: Tab[] = ["ask", "run"];
 
 // The Workspace screen (ROADMAP 2.5, 2.6a): tabs, heading, usage pill, the Ask tab and the scripted run tab.
-// `mockOutcome` (dev only, set by the page) picks a failed or partial scripted run.
-export default function WorkspaceView({ offers, mockOutcome = "answered" }: { offers: PlanOffer[]; mockOutcome?: RunScenario }) {
+// Ask runs are real (ROADMAP 4.3): files are uploaded and the run is followed over the event stream.
+// `mockOutcome` (dev only, set by the page) switches the tab back to the scripted demo run to look at a failed or partial case.
+export default function WorkspaceView({ offers, mockOutcome }: { offers: PlanOffer[]; mockOutcome?: RunScenario }) {
   const t = useTranslations("workspace");
   const tCommon = useTranslations("common");
   const session = useSession();
@@ -24,11 +27,25 @@ export default function WorkspaceView({ offers, mockOutcome = "answered" }: { of
   const [run, setRun] = useState<RunSummary | null>(null);
   const [runKey, setRunKey] = useState(0);
   const [running, setRunning] = useState(false);
+  const live = useLiveRun(session.signedIn ? session.user.id : null);
+  const mockMode = mockOutcome !== undefined;
+  const runLive = mockMode ? running : live.run !== null && live.run.done === null;
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
 
   const plan = session.user?.plan ?? "free";
   const offer = offers.find((entry) => entry.plan === plan);
   const usage = session.signedIn ? t(`usage.${plan}`, { runs: offer?.runs ?? 0 }) : null;
+
+  async function onRun(submission: RunSubmission) {
+    if (mockMode) {
+      setRun({ mode: submission.mode, fileCount: submission.fileCount, question: submission.question });
+      setRunKey((key) => key + 1);
+      setTab("run");
+      return;
+    }
+    if (submission.mode !== "ask") return;
+    if (await live.start(submission.files, submission.question)) setTab("run");
+  }
 
   function onKeyDown(event: KeyboardEvent, index: number) {
     const next =
@@ -60,7 +77,7 @@ export default function WorkspaceView({ offers, mockOutcome = "answered" }: { of
           >
             <span className={styles.tabNumber}>{index + 1}</span>
             {t(value === "ask" ? "tabAsk" : "tabRun")}
-            {value === "run" && running ? <span className={styles.liveDot} aria-hidden="true" /> : null}
+            {value === "run" && runLive ? <span className={styles.liveDot} aria-hidden="true" /> : null}
           </button>
         ))}
       </div>
@@ -78,11 +95,15 @@ export default function WorkspaceView({ offers, mockOutcome = "answered" }: { of
             </Link>
           ) : null}
         </div>
-        {session.status === "unknown" ? <p className={styles.sub} role="status">{tCommon("loading")}</p> : session.signedIn ? <AskPanel freeRuns={plan === "free" ? (offer?.runs ?? null) : null} plan={plan} onRun={(summary) => { setRun(summary); setRunKey((key) => key + 1); setTab("run"); }} /> : <SignedOutCard />}
+        {session.status === "unknown" ? <p className={styles.sub} role="status">{tCommon("loading")}</p> : session.signedIn ? <AskPanel freeRuns={plan === "free" ? (offer?.runs ?? null) : null} plan={plan} onRun={onRun} submit={mockMode ? undefined : { stage: live.stage, progress: live.progress, fileStatus: live.fileStatus, failure: live.failure, activeRunId: live.activeRunId, onWatchActive: () => void live.watchActive().then(() => setTab("run")), onFileRemoved: live.forgetFile, onDismissFailure: live.clearFailure }} /> : <SignedOutCard />}
       </div>
 
       <div id="ws-panel-run" role="tabpanel" aria-labelledby="ws-tab-run" hidden={tab !== "run"} className={styles.panel}>
-        <RunTab run={run} runKey={runKey} scenario={mockOutcome} onBack={() => { setTab("ask"); buttons.current[0]?.focus(); }} onRunningChange={setRunning} />
+        {mockMode ? (
+          <RunTab run={run} runKey={runKey} scenario={mockOutcome} onBack={() => { setTab("ask"); buttons.current[0]?.focus(); }} onRunningChange={setRunning} />
+        ) : (
+          <RealRunTab live={live} onBack={() => { setTab("ask"); buttons.current[0]?.focus(); }} />
+        )}
       </div>
     </main>
   );

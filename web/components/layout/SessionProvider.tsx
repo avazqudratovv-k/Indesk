@@ -6,6 +6,7 @@ import { apiClient, setAuthLostHandler } from "@/lib/api/client";
 import { fetchMe, logout } from "@/lib/auth/api";
 import { resolveUnknownSession } from "@/lib/auth/bootstrap";
 import { clearHint, readHint, setHint } from "@/lib/auth/hint";
+import { clearRunId } from "@/lib/run/live/storage";
 import { signedInSession, signedOutSession, type Session } from "@/lib/session";
 import type { User } from "@/lib/types";
 
@@ -77,11 +78,14 @@ export default function SessionProvider({ session: initial, children }: { sessio
     tell("signedIn");
   }, []);
 
+  const userId = session.user?.id ?? null;
   const endSession = useCallback(async () => {
     await logout();
+    // The remembered run id belongs to this account only; it goes with the session.
+    if (userId) clearRunId(userId);
     signedOut();
     tell("signedOut");
-  }, [signedOut]);
+  }, [signedOut, userId]);
 
   const value = useMemo<SessionApi>(() => ({ session, startSession, endSession }), [session, startSession, endSession]);
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

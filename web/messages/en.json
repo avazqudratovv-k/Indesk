@@ -463,7 +463,7 @@
       "dropMany": "Drop files here or choose files",
       "dropOne": "Drop a file here or choose a file",
       "choose": "Choose",
-      "help": "CSV, PDF, JPG or PNG, up to {mb, number} MB each.",
+      "help": "CSV files only, up to {mb, number} MB each.",
       "helpDocument": "A PDF, up to {mb, number} MB.",
       "listLabel": "Added files",
       "empty": "No files added yet.",
@@ -472,7 +472,13 @@
       "announceRemoved": "Removed {name}.",
       "announceRejected": "{count, plural, one {# file was not added.} other {# files were not added.}}",
       "announceAddedOne": "Added {name}.",
-      "announceAddedMany": "Added {count, number} files."
+      "announceAddedMany": "Added {count, number} files.",
+      "status": {
+        "waiting": "Waiting to upload",
+        "uploading": "Uploading…",
+        "error": "Not uploaded"
+      },
+      "statusReady": "Uploaded, deleted from our servers on {when}"
     },
     "errors": {
       "type": "{name}: only CSV, PDF, JPG and PNG files work.",
@@ -482,7 +488,8 @@
       "duplicate": "{name}: a file with this name is already added.",
       "slotFull": "{name}: no room left here. You can add {max, plural, one {# file} other {# files}}.",
       "documentMustBePdf": "{name}: the document to check must be a PDF.",
-      "sameKind": "{name}: both files must be the same kind (CSV, PDF or image)."
+      "sameKind": "{name}: both files must be the same kind (CSV, PDF or image).",
+      "csvOnly": "{name}: PDF and image files are not available yet. Use a CSV file for now."
     },
     "question": {
       "label": "Your question",
@@ -535,9 +542,7 @@
       "ok": "Works with",
       "no": "Not supported",
       "okItems": [
-        "CSV tables",
-        "PDFs with text",
-        "Photos (JPG, PNG)"
+        "CSV tables"
       ],
       "noItems": [
         "Video or audio",
@@ -545,6 +550,11 @@
         "Password-protected PDFs",
         "ZIP archives",
         "Live databases or web links"
+      ],
+      "later": "Not available yet",
+      "laterItems": [
+        "PDFs with text",
+        "Photos (JPG, PNG)"
       ]
     },
     "signedOut": {
@@ -854,6 +864,155 @@
           "merge": "Merge both lists → keep the best 3"
         }
       }
+    },
+    "submit": {
+      "uploading": "Uploading file {done, number} of {total, number}…",
+      "starting": "Starting the run…",
+      "fileError": "{name}: {message}",
+      "activeRun": "You already have a run in progress. Wait for it to finish, then try again.",
+      "activeRunWatch": "You already have a run in progress.",
+      "watch": "Watch it",
+      "tooSoon": "Too many attempts. Try again in {minutes, plural, one {# minute} other {# minutes}}.",
+      "retry": "Press Run to try again."
+    },
+    "real": {
+      "simulatedTag": "Simulated run",
+      "simulatedBanner": "This run was played back from a script. Nothing was read from your file and no AI was used.",
+      "simulatedTraceNote": "Simulated run: these lines come from a script, not from your file.",
+      "traceNote": "These lines describe what each agent did in this run.",
+      "queued": "Waiting for a worker to pick up your run…",
+      "announce": {
+        "queued": "Your run is waiting to start.",
+        "running": "The team is working.",
+        "finishedReport": "The run finished.",
+        "finishedNoReport": "The run finished. There is no report to show yet.",
+        "failed": "The run did not finish.",
+        "lost": "The connection to this run was lost."
+      },
+      "mark": {
+        "finished": "Finished",
+        "failed": "Did not finish"
+      },
+      "noReport": {
+        "title": "The run finished, but there is no report yet",
+        "body": "Report generation is not connected yet, so there are no results to show. Nothing here has been checked or verified.",
+        "example": "See an example report",
+        "exampleNote": "Example, not your data"
+      },
+      "lost": {
+        "title": "Lost the connection to this run",
+        "body": "The run may still be going. Reconnect to keep watching.",
+        "button": "Reconnect",
+        "signedOut": "Your session has ended. Log in again to see this run.",
+        "login": "Log in"
+      },
+      "detail": {
+        "empty": "No updates from this agent yet.",
+        "later": "Results appear in the report (not connected yet).",
+        "linesLabel": "Updates from this agent"
+      },
+      "end": {
+        "busyToday": "Busy today",
+        "notAccepted": "Not accepted",
+        "failed": "Failed",
+        "notAnswerable": "Not answerable",
+        "needsBetterInput": "Needs better input",
+        "freeRunNote": "This didn't use one of your free runs.",
+        "newQuestion": "Change question",
+        "notCounted": "Not counted",
+        "failedExample": "Please try again."
+      }
+    },
+    "trace": {
+      "plan": "Planning the work",
+      "planFiles": "Planning the work on {files, plural, one {# file} other {# files}}",
+      "dispatch": "Handing the work to the other agents",
+      "dispatchAgents": "Handing the work to {agents, plural, one {# agent} other {# agents}}",
+      "readCsv": "Reading the CSV file",
+      "readCsvSized": "Read the CSV file: {rows, number} rows, {cols, number} columns",
+      "runPython": "Running the analysis in the sandbox",
+      "runPythonAttempt": "Running the analysis in the sandbox (attempt {attempt, number})",
+      "top3": "Worked out the top results",
+      "top3Rows": "Worked out the top results ({rows, plural, one {# row} other {# rows}})",
+      "merge": "Putting the results together",
+      "ready": "The analysis finished",
+      "stepStarted": "Starting a step",
+      "stepStartedAttempt": "Starting a step again (attempt {attempt, number})",
+      "stepFailed": "A step failed",
+      "stepFailedReason": "A step failed: {reason}",
+      "stopped": "The run stopped",
+      "stoppedReason": "The run stopped: {reason}",
+      "unknown": "The agent reported progress"
+    },
+    "reasons": {
+      "daily_cap_user": {
+        "head": "You've reached today's limit",
+        "body": "Your runs for today are used up. Try again tomorrow."
+      },
+      "daily_cap_global": {
+        "head": "Indesk is busy today",
+        "body": "The demo has reached its limit for today. Please try again tomorrow."
+      },
+      "model_busy": {
+        "head": "The AI service is busy",
+        "body": "Too many people are asking at once. Try again later."
+      },
+      "model_timeout": {
+        "head": "This took too long",
+        "body": "The AI service didn't answer in time. Try again."
+      },
+      "model_unavailable": {
+        "head": "The AI service isn't available right now",
+        "body": "Try again later."
+      },
+      "bad_model_output": {
+        "head": "We couldn't build a reliable result",
+        "body": "The AI service returned something we can't use, so nothing is shown. Try again."
+      },
+      "analysis_failed": {
+        "head": "The analysis couldn't run",
+        "body": "The calculation on your file didn't finish. Try a simpler question or another file."
+      },
+      "sandbox_unavailable": {
+        "head": "The analysis service isn't available",
+        "body": "Try again in a little while."
+      },
+      "input_unusable": {
+        "head": "We couldn't use this file or question",
+        "body": "Check that the file is a normal CSV and the question is short, then try again."
+      },
+      "step_cap": {
+        "head": "This question needed too many steps",
+        "body": "Try a more specific question."
+      },
+      "run_timeout": {
+        "head": "The run ran out of time",
+        "body": "Try again, or ask something smaller."
+      },
+      "worker_lost": {
+        "head": "The run was interrupted",
+        "body": "Something stopped it on our side. Please try again."
+      },
+      "budget_exceeded": {
+        "head": "This was too large for one run",
+        "body": "Try a more specific question or a smaller file."
+      },
+      "internal_error": {
+        "head": "Something broke on our side",
+        "body": "Please try again."
+      },
+      "unknown": {
+        "head": "We couldn't finish this run",
+        "body": "Please try again."
+      },
+      "notAnswerable": {
+        "head": "The file doesn't answer this question",
+        "body": "Try a question about what the file contains."
+      },
+      "needsBetterInput": {
+        "head": "We need a better input",
+        "body": "Check the file and try again."
+      }
     }
   },
   "report": {
@@ -972,6 +1131,22 @@
     "NOT_FOUND": "We could not find that.",
     "METHOD_NOT_ALLOWED": "This request is not supported.",
     "NETWORK": "Could not reach the server. Check your connection and try again.",
-    "UNKNOWN": "Something went wrong. Try again."
+    "UNKNOWN": "Something went wrong. Try again.",
+    "CONSENT_REQUIRED": "Tick the box to confirm the files are not private or sensitive.",
+    "FILE_TOO_LARGE": "This file is too large.",
+    "TYPE_MISMATCH": "This file does not look like a CSV file.",
+    "TOO_MANY_ROWS": "This file has too many rows.",
+    "TOO_MANY_COLUMNS": "This file has too many columns.",
+    "EMPTY_FILE": "This file is empty.",
+    "BAD_CSV": "This file could not be read as a table. Check that it is a normal CSV file.",
+    "MODE_NOT_AVAILABLE": "This mode is not available yet.",
+    "DAILY_CAP_USER": "You have reached today's limit. Try again tomorrow.",
+    "DAILY_CAP_GLOBAL": "Indesk is busy today. Please try again tomorrow.",
+    "QUOTA_EXHAUSTED": "You have used all your runs.",
+    "NOT_RETRYABLE": "This cannot be retried.",
+    "MODEL_UNAVAILABLE": "The AI service isn't available right now. Try again later.",
+    "RUN_ACTIVE": "You already have a run in progress.",
+    "UPLOAD_NOT_READY": "The file is still being prepared. Try again in a moment.",
+    "TOO_MANY_STREAMS": "Too many windows are following runs. Close one and try again."
   }
 }

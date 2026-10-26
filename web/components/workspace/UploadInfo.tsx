@@ -6,6 +6,7 @@ export default function UploadInfo() {
   const t = useTranslations("workspace");
   const ok = t.raw("info.okItems") as string[];
   const no = t.raw("info.noItems") as string[];
+  const later = t.raw("info.laterItems") as string[];
   return (
     <section className={styles.sec} aria-labelledby="ws-info-title">
       <div>
@@ -29,6 +30,16 @@ export default function UploadInfo() {
           <div className={`${styles.label} ${styles.noLabel}`}>{t("info.no")}</div>
           <ul className={styles.pills}>
             {no.map((item) => (
+              <li key={item} className={`${styles.pill} ${styles.noPill}`}>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className={`${styles.box} ${styles.wide}`}>
+          <div className={`${styles.label} ${styles.noLabel}`}>{t("info.later")}</div>
+          <ul className={styles.pills}>
+            {later.map((item) => (
               <li key={item} className={`${styles.pill} ${styles.noPill}`}>
                 {item}
               </li>

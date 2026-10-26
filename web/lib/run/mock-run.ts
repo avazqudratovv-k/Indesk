@@ -9,7 +9,8 @@ export type RunScenario = "answered" | "partial" | "failed";
 export type AgentState = "waiting" | "working" | "done" | "skipped" | "failed";
 export type EventKind = "say" | "tool" | "flag";
 
-export type RunEvent = { agent: RunAgent; kind: EventKind; state: Exclude<AgentState, "waiting">; key: string; tok: number; bubble?: "owlSplit" | "owlMerge" };
+export type RunEvent = { agent: RunAgent; kind: EventKind; state: Exclude<AgentState, "waiting">; key: string; tok: number; bubble?: "owlSplit" | "owlMerge"; text?: string };
+// `text` is set only by real runs: the already translated trace line. Scripted events leave it out and are looked up by `key`.
 export type AgentView = { state: AgentState; flags: number };
 
 // Tool-call limit of one run (AGENTS.md: step cap 12).

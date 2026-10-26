@@ -9,9 +9,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: `${t("workspace")} · Indesk` };
 }
 
-// ?mockOutcome=failed|partial picks a scripted failure to look at. It is read in development only and ignored in production.
+// ?mockOutcome=answered|failed|partial switches the run tab to the scripted demo. It is read in development only and ignored in production.
 export default async function Page({ searchParams }: { searchParams: Promise<{ mockOutcome?: string | string[] }> }) {
   const { mockOutcome } = await searchParams;
-  const scenario = process.env.NODE_ENV === "development" && isRunScenario(mockOutcome) ? mockOutcome : "answered";
+  const scenario = process.env.NODE_ENV === "development" && isRunScenario(mockOutcome) ? mockOutcome : undefined;
   return <WorkspaceView offers={listMockPlanOffers()} mockOutcome={scenario} />;
 }

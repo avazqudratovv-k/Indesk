@@ -14,7 +14,9 @@ const outcomes: Outcome[] = [
   { id: "failed", tone: "neutral", counted: false },
 ];
 
-export default function OutcomeCards() {
+// `real` is set next to a real run: the board's "counts as a run" tags and the "not used up" sentence of the Failed card
+// are left out there, because nothing in the data says whether a run was counted (deviation D5, restored in P10).
+export default function OutcomeCards({ real = false }: { real?: boolean }) {
   const t = useTranslations("workspace");
   return (
     <section className={styles.sec} aria-labelledby="ws-outcomes-title">
@@ -29,10 +31,10 @@ export default function OutcomeCards() {
           <li key={outcome.id} className={styles.card}>
             <div className={styles.top}>
               <span className={`${styles.label} ${styles[outcome.tone]}`}>{t(`live.outcomes.${outcome.id}.label`)}</span>
-              <span className={styles.count}>{outcome.counted ? t("live.outcomes.counted") : t("live.outcomes.notCounted")}</span>
+              {real && (outcome.counted || outcome.id === "failed") ? null : <span className={styles.count}>{outcome.counted ? t("live.outcomes.counted") : t("live.outcomes.notCounted")}</span>}
             </div>
             <div className={styles.head}>{t(`live.outcomes.${outcome.id}.head`)}</div>
-            <p className={styles.body}>{t(`live.outcomes.${outcome.id}.body`)}</p>
+            <p className={styles.body}>{real && outcome.id === "failed" ? t("real.end.failedExample") : t(`live.outcomes.${outcome.id}.body`)}</p>
             {outcome.id === "notAnswerable" ? (
               <ul className={styles.chips}>
                 {(t.raw("live.outcomes.notAnswerable.chips") as string[]).map((chip) => (

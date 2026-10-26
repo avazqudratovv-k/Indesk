@@ -9,6 +9,10 @@ export type ApiRequest = {
   signal?: AbortSignal;
   // false for the auth endpoints themselves: a 401 there is an answer, not an expired session.
   refreshOn401?: boolean;
+  // Overrides the default 15 s limit (an upload of a few MB can need longer).
+  timeoutMs?: number;
+  // Extra request headers (for example Idempotency-Key). Content-Type is set by the client itself.
+  headers?: Readonly<Record<string, string>>;
 };
 
 export type ClientDeps = {
@@ -33,14 +37,14 @@ export function createApiClient(deps: ClientDeps): ApiClient {
   const now = deps.now ?? Date.now;
 
   async function send(path: string, init: ApiRequest): Promise<Response> {
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = { ...init.headers };
     let body: string | FormData | undefined;
     if (init.form) body = init.form; // the browser sets the multipart boundary itself
     else if (init.json !== undefined) {
       headers["Content-Type"] = "application/json";
       body = JSON.stringify(init.json);
     }
-    const timeout = AbortSignal.timeout(deps.timeoutMs ?? defaultTimeoutMs);
+    const timeout = AbortSignal.timeout(init.timeoutMs ?? deps.timeoutMs ?? defaultTimeoutMs);
     const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
     try {
       return await deps.fetch(path, { method: init.method ?? "GET", headers, body, signal, credentials: "same-origin", cache: "no-store" });

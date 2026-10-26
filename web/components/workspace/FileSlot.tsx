@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type DragEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
+import type { FileStatus } from "@/lib/run/live/submit";
 import { ACCEPT_ATTRIBUTE, extensionOf, formatSize, MAX_FILE_BYTES, SLOT_MAX, type FileError, type SlotFile, type SlotId } from "@/lib/workspace/validate";
 import styles from "./FileSlot.module.css";
 
@@ -11,6 +12,9 @@ type Props = {
   items: SlotFile[];
   errors: FileError[];
   documentOnly?: boolean;
+  // Real upload state per file id (Ask runs), and whether the list may change right now (uploads in progress).
+  statuses?: Record<string, FileStatus>;
+  locked?: boolean;
   onAdd: (files: File[]) => void;
   onRemove: (id: string) => void;
 };
@@ -19,7 +23,7 @@ const kindColor = { csv: "var(--c-cham)", pdf: "var(--c-cat)", image: "var(--c-b
 
 // One upload area with its list of added files. Single-file slots (document, file A, file B) swap the drop area
 // for the file once it is added. Files stay in the browser: this component never reads their contents.
-export default function FileSlot({ slot, title, items, errors, documentOnly, onAdd, onRemove }: Props) {
+export default function FileSlot({ slot, title, items, errors, documentOnly, statuses, locked, onAdd, onRemove }: Props) {
   const t = useTranslations("workspace");
   const format = useFormatter();
   const ids = useId();
@@ -66,7 +70,13 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, onA
     handle(Array.from(event.dataTransfer.files));
   }
 
-  const showDrop = !single || items.length === 0;
+  const showDrop = (!single || items.length === 0) && !locked;
+
+  function statusText(status: FileStatus | undefined): string {
+    if (!status) return "";
+    if (status.state === "ready") return status.expiresAt ? t("upload.statusReady", { when: format.dateTime(status.expiresAt, { dateStyle: "medium", timeStyle: "short" }) }) : "";
+    return t(`upload.status.${status.state}`);
+  }
 
   return (
     <div className={styles.slot}>
@@ -89,12 +99,14 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, onA
                   <span className={styles.name}>{item.file.name}</span>
                   <span className={styles.meta}>
                     {format.number(size.value)} {size.unit}
+                    {statusText(statuses?.[item.id]) ? ` · ${statusText(statuses?.[item.id])}` : ""}
                   </span>
                 </span>
                 <button
                   type="button"
                   className={styles.remove}
                   aria-label={t("upload.remove", { name: item.file.name })}
+                  disabled={locked}
                   ref={(node) => {
                     if (node) removeButtons.current.set(item.id, node);
                     else removeButtons.current.delete(item.id);

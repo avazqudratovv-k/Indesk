@@ -130,3 +130,18 @@
     transition: none;
   }
 }
+
+/* Why a run did not start. Same quiet tone as the field errors: a tinted bar, text in the ink colour. */
+.problem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--badBg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+}

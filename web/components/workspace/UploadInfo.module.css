@@ -94,3 +94,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* "Not available yet" sits under the two boxes and spans both columns. */
+.wide {
+  grid-column: 1 / -1;
+}

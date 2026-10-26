@@ -11,6 +11,22 @@ export const knownCodes = [
   "UNAUTHENTICATED",
   "ORIGIN_NOT_ALLOWED",
   "UNSUPPORTED_TYPE",
+  "CONSENT_REQUIRED",
+  "FILE_TOO_LARGE",
+  "TYPE_MISMATCH",
+  "TOO_MANY_ROWS",
+  "TOO_MANY_COLUMNS",
+  "EMPTY_FILE",
+  "BAD_CSV",
+  "MODE_NOT_AVAILABLE",
+  "DAILY_CAP_USER",
+  "DAILY_CAP_GLOBAL",
+  "QUOTA_EXHAUSTED",
+  "NOT_RETRYABLE",
+  "MODEL_UNAVAILABLE",
+  "RUN_ACTIVE",
+  "UPLOAD_NOT_READY",
+  "TOO_MANY_STREAMS",
   "NETWORK",
   "UNKNOWN",
 ] as const;
@@ -44,11 +60,12 @@ export function parseRetryAfter(value: string | null): number | undefined {
   return seconds >= 1 ? Math.min(seconds, maxRetryAfter) : undefined;
 }
 
-// Fallback for a code we do not know yet (for example an upload code before 4.2 maps it): by status only.
+// Fallback for a code we do not know yet (a code added to the API but not to this list yet): by status only.
 function codeFromStatus(status: number): ApiErrorCode {
   if (status === 401) return "UNAUTHENTICATED";
   if (status === 403) return "ORIGIN_NOT_ALLOWED";
   if (status === 404) return "NOT_FOUND";
+  if (status === 413) return "FILE_TOO_LARGE";
   if (status === 415) return "UNSUPPORTED_TYPE";
   if (status === 422) return "VALIDATION_ERROR";
   if (status === 429) return "RATE_LIMITED";

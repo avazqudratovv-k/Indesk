@@ -463,7 +463,7 @@
       "dropMany": "파일을 여기에 놓거나 직접 선택하세요",
       "dropOne": "파일을 여기에 놓거나 직접 선택하세요",
       "choose": "선택",
-      "help": "CSV, PDF, JPG, PNG · 파일당 최대 {mb, number}MB",
+      "help": "CSV 파일만 · 파일당 최대 {mb, number}MB",
       "helpDocument": "PDF · 최대 {mb, number}MB",
       "listLabel": "추가한 파일",
       "empty": "아직 추가한 파일이 없습니다.",
@@ -472,7 +472,13 @@
       "announceRemoved": "{name}을(를) 삭제했습니다.",
       "announceRejected": "파일 {count, number}개를 추가하지 못했습니다.",
       "announceAddedOne": "{name}을(를) 추가했습니다.",
-      "announceAddedMany": "파일 {count, number}개를 추가했습니다."
+      "announceAddedMany": "파일 {count, number}개를 추가했습니다.",
+      "status": {
+        "waiting": "업로드 대기 중",
+        "uploading": "업로드 중…",
+        "error": "업로드하지 못했습니다"
+      },
+      "statusReady": "업로드됨, {when}에 서버에서 삭제됩니다"
     },
     "errors": {
       "type": "{name}: CSV, PDF, JPG, PNG 파일만 쓸 수 있습니다.",
@@ -482,7 +488,8 @@
       "duplicate": "{name}: 같은 이름의 파일이 이미 있습니다.",
       "slotFull": "{name}: 더 추가할 수 없습니다. 여기에는 최대 {max, number}개까지 넣을 수 있습니다.",
       "documentMustBePdf": "{name}: 검증할 문서는 PDF여야 합니다.",
-      "sameKind": "{name}: 두 파일은 같은 종류(CSV, PDF, 이미지)여야 합니다."
+      "sameKind": "{name}: 두 파일은 같은 종류(CSV, PDF, 이미지)여야 합니다.",
+      "csvOnly": "{name}: PDF와 이미지 파일은 아직 쓸 수 없습니다. 지금은 CSV 파일을 사용하세요."
     },
     "question": {
       "label": "질문",
@@ -535,9 +542,7 @@
       "ok": "지원",
       "no": "지원 안 함",
       "okItems": [
-        "CSV 표",
-        "텍스트가 있는 PDF",
-        "사진(JPG, PNG)"
+        "CSV 표"
       ],
       "noItems": [
         "동영상·오디오",
@@ -545,6 +550,11 @@
         "암호 걸린 PDF",
         "ZIP 압축 파일",
         "실시간 DB·웹 링크"
+      ],
+      "later": "아직 쓸 수 없음",
+      "laterItems": [
+        "텍스트가 있는 PDF",
+        "사진(JPG, PNG)"
       ]
     },
     "signedOut": {
@@ -854,6 +864,155 @@
           "merge": "두 목록을 합쳐 상위 3개 유지"
         }
       }
+    },
+    "submit": {
+      "uploading": "파일 {total, number}개 중 {done, number}개 업로드 중…",
+      "starting": "실행을 시작하는 중…",
+      "fileError": "{name}: {message}",
+      "activeRun": "이미 진행 중인 실행이 있습니다. 끝날 때까지 기다린 뒤 다시 시도하세요.",
+      "activeRunWatch": "이미 진행 중인 실행이 있습니다.",
+      "watch": "보러 가기",
+      "tooSoon": "시도가 너무 많습니다. {minutes, number}분 뒤에 다시 시도하세요.",
+      "retry": "실행을 눌러 다시 시도하세요."
+    },
+    "real": {
+      "simulatedTag": "시뮬레이션 실행",
+      "simulatedBanner": "이 실행은 스크립트를 재생한 것입니다. 파일을 읽지 않았고 AI도 쓰지 않았습니다.",
+      "simulatedTraceNote": "시뮬레이션 실행: 이 줄들은 파일이 아닌 스크립트에서 나온 것입니다.",
+      "traceNote": "이 실행에서 각 에이전트가 한 일을 보여 줍니다.",
+      "queued": "실행을 맡을 작업자를 기다리는 중…",
+      "announce": {
+        "queued": "실행이 시작을 기다리고 있습니다.",
+        "running": "팀이 작업 중입니다.",
+        "finishedReport": "실행이 끝났습니다.",
+        "finishedNoReport": "실행이 끝났습니다. 아직 보여 줄 보고서는 없습니다.",
+        "failed": "실행이 끝나지 않았습니다.",
+        "lost": "이 실행과의 연결이 끊겼습니다."
+      },
+      "mark": {
+        "finished": "완료",
+        "failed": "끝나지 않음"
+      },
+      "noReport": {
+        "title": "실행은 끝났지만 아직 보고서는 없습니다",
+        "body": "보고서 생성이 아직 연결되지 않아 보여 줄 결과가 없습니다. 여기에 있는 어떤 것도 확인되거나 검증된 것이 아닙니다.",
+        "example": "예시 보고서 보기",
+        "exampleNote": "예시이며 내 데이터가 아닙니다"
+      },
+      "lost": {
+        "title": "이 실행과의 연결이 끊겼습니다",
+        "body": "실행은 아직 진행 중일 수 있습니다. 다시 연결해 계속 지켜보세요.",
+        "button": "다시 연결",
+        "signedOut": "세션이 끝났습니다. 이 실행을 보려면 다시 로그인하세요.",
+        "login": "로그인"
+      },
+      "detail": {
+        "empty": "이 에이전트의 소식이 아직 없습니다.",
+        "later": "결과는 보고서에 나타납니다(아직 연결되지 않음).",
+        "linesLabel": "이 에이전트의 진행 내용"
+      },
+      "end": {
+        "busyToday": "오늘은 붐빕니다",
+        "notAccepted": "받지 않음",
+        "failed": "실패",
+        "notAnswerable": "답할 수 없음",
+        "needsBetterInput": "더 나은 입력 필요",
+        "freeRunNote": "무료 실행 횟수를 쓰지 않았습니다.",
+        "newQuestion": "질문 바꾸기",
+        "notCounted": "횟수에 포함되지 않음",
+        "failedExample": "다시 시도해 주세요."
+      }
+    },
+    "trace": {
+      "plan": "작업 계획 세우는 중",
+      "planFiles": "파일 {files, number}개에 대한 작업 계획 세우는 중",
+      "dispatch": "다른 에이전트에게 일을 넘기는 중",
+      "dispatchAgents": "에이전트 {agents, number}명에게 일을 넘기는 중",
+      "readCsv": "CSV 파일 읽는 중",
+      "readCsvSized": "CSV 파일을 읽었습니다: {rows, number}행, {cols, number}열",
+      "runPython": "샌드박스에서 분석 실행 중",
+      "runPythonAttempt": "샌드박스에서 분석 실행 중({attempt, number}번째 시도)",
+      "top3": "상위 결과를 계산했습니다",
+      "top3Rows": "상위 결과를 계산했습니다({rows, number}행)",
+      "merge": "결과를 합치는 중",
+      "ready": "분석이 끝났습니다",
+      "stepStarted": "단계를 시작하는 중",
+      "stepStartedAttempt": "단계를 다시 시작하는 중({attempt, number}번째 시도)",
+      "stepFailed": "한 단계가 실패했습니다",
+      "stepFailedReason": "한 단계가 실패했습니다: {reason}",
+      "stopped": "실행이 멈췄습니다",
+      "stoppedReason": "실행이 멈췄습니다: {reason}",
+      "unknown": "에이전트가 진행 상황을 알렸습니다"
+    },
+    "reasons": {
+      "daily_cap_user": {
+        "head": "오늘 사용 한도에 도달했습니다",
+        "body": "오늘 쓸 수 있는 실행을 모두 썼습니다. 내일 다시 시도하세요."
+      },
+      "daily_cap_global": {
+        "head": "오늘은 Indesk가 붐빕니다",
+        "body": "데모의 오늘 한도에 도달했습니다. 내일 다시 시도해 주세요."
+      },
+      "model_busy": {
+        "head": "AI 서비스가 붐빕니다",
+        "body": "한꺼번에 많은 사람이 질문하고 있습니다. 나중에 다시 시도하세요."
+      },
+      "model_timeout": {
+        "head": "시간이 너무 오래 걸렸습니다",
+        "body": "AI 서비스가 제때 답하지 않았습니다. 다시 시도하세요."
+      },
+      "model_unavailable": {
+        "head": "지금은 AI 서비스를 사용할 수 없습니다",
+        "body": "나중에 다시 시도하세요."
+      },
+      "bad_model_output": {
+        "head": "믿을 만한 결과를 만들지 못했습니다",
+        "body": "AI 서비스가 쓸 수 없는 답을 보냈기 때문에 아무것도 보여 주지 않습니다. 다시 시도하세요."
+      },
+      "analysis_failed": {
+        "head": "분석을 실행하지 못했습니다",
+        "body": "파일에 대한 계산이 끝나지 않았습니다. 더 간단한 질문이나 다른 파일로 시도해 보세요."
+      },
+      "sandbox_unavailable": {
+        "head": "분석 서비스를 사용할 수 없습니다",
+        "body": "잠시 후 다시 시도하세요."
+      },
+      "input_unusable": {
+        "head": "이 파일이나 질문을 사용할 수 없습니다",
+        "body": "일반 CSV 파일인지, 질문이 짧은지 확인하고 다시 시도하세요."
+      },
+      "step_cap": {
+        "head": "이 질문에는 단계가 너무 많이 필요했습니다",
+        "body": "더 구체적인 질문을 해 보세요."
+      },
+      "run_timeout": {
+        "head": "실행 시간이 다 되었습니다",
+        "body": "다시 시도하거나 더 작은 질문을 해 보세요."
+      },
+      "worker_lost": {
+        "head": "실행이 중단되었습니다",
+        "body": "저희 쪽에서 멈췄습니다. 다시 시도해 주세요."
+      },
+      "budget_exceeded": {
+        "head": "한 번의 실행으로는 너무 큽니다",
+        "body": "더 구체적인 질문이나 더 작은 파일로 시도해 보세요."
+      },
+      "internal_error": {
+        "head": "저희 쪽에서 문제가 생겼습니다",
+        "body": "다시 시도해 주세요."
+      },
+      "unknown": {
+        "head": "이 실행을 끝내지 못했습니다",
+        "body": "다시 시도해 주세요."
+      },
+      "notAnswerable": {
+        "head": "이 파일로는 이 질문에 답할 수 없습니다",
+        "body": "파일에 들어 있는 내용에 대해 물어보세요."
+      },
+      "needsBetterInput": {
+        "head": "더 나은 입력이 필요합니다",
+        "body": "파일을 확인하고 다시 시도하세요."
+      }
     }
   },
   "report": {
@@ -972,6 +1131,22 @@
     "NOT_FOUND": "찾을 수 없습니다.",
     "METHOD_NOT_ALLOWED": "지원하지 않는 요청입니다.",
     "NETWORK": "서버에 연결할 수 없습니다. 연결을 확인한 뒤 다시 시도해 주세요.",
-    "UNKNOWN": "문제가 발생했습니다. 다시 시도해 주세요."
+    "UNKNOWN": "문제가 발생했습니다. 다시 시도해 주세요.",
+    "CONSENT_REQUIRED": "비공개·민감한 파일이 아님을 확인하는 상자를 선택하세요.",
+    "FILE_TOO_LARGE": "파일이 너무 큽니다.",
+    "TYPE_MISMATCH": "CSV 파일이 아닌 것 같습니다.",
+    "TOO_MANY_ROWS": "행이 너무 많은 파일입니다.",
+    "TOO_MANY_COLUMNS": "열이 너무 많은 파일입니다.",
+    "EMPTY_FILE": "비어 있는 파일입니다.",
+    "BAD_CSV": "표로 읽을 수 없는 파일입니다. 일반 CSV 파일인지 확인하세요.",
+    "MODE_NOT_AVAILABLE": "아직 쓸 수 없는 모드입니다.",
+    "DAILY_CAP_USER": "오늘 사용 한도에 도달했습니다. 내일 다시 시도하세요.",
+    "DAILY_CAP_GLOBAL": "오늘은 Indesk가 붐빕니다. 내일 다시 시도해 주세요.",
+    "QUOTA_EXHAUSTED": "사용할 수 있는 실행 횟수를 모두 썼습니다.",
+    "NOT_RETRYABLE": "다시 시도할 수 없습니다.",
+    "MODEL_UNAVAILABLE": "지금은 AI 서비스를 사용할 수 없습니다. 나중에 다시 시도하세요.",
+    "RUN_ACTIVE": "이미 진행 중인 실행이 있습니다.",
+    "UPLOAD_NOT_READY": "파일을 아직 준비하고 있습니다. 잠시 후 다시 시도하세요.",
+    "TOO_MANY_STREAMS": "실행을 보고 있는 창이 너무 많습니다. 하나를 닫고 다시 시도하세요."
   }
 }
