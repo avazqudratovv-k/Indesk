@@ -27,6 +27,7 @@
 .text {
   flex: 1 1 auto;
   min-width: 0;
+  overflow-wrap: anywhere;
   font-size: 19px;
   line-height: 1.45;
 }
@@ -49,6 +50,21 @@
 
 .bad {
   background: var(--badBg);
+  color: var(--bad);
+}
+
+/* The reason a claim is not verified (real reports): text under the claim, in the claim's own column, with a "!" so it is not colour alone. */
+.reason {
+  margin: -4px 0 0;
+  padding-left: 30px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink2);
+}
+
+.reason::before {
+  content: "! ";
+  font-weight: 700;
   color: var(--bad);
 }
 
@@ -77,7 +93,8 @@
     margin-left: 30px;
   }
 
-  .chips {
+  .chips,
+  .reason {
     padding-left: 0;
   }
 }

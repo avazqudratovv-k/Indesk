@@ -1,0 +1,141 @@
+{
+ "_note": "Test fixture with invented numbers. Never imported by the app.",
+ "report": {
+  "id": "11111111-1111-4111-8111-111111111111",
+  "run_id": "22222222-2222-4222-8222-222222222222",
+  "owner_id": "00000001-4444-4444-8444-444444444444",
+  "mode": "ask",
+  "title": "<b>Title</b>",
+  "summary_json": {
+   "answer": "<script>alert(1)</script> [click me](https://evil.example/x) https://evil.example/y **bold** <img src=x onerror=alert(2)>",
+   "top_rows": [
+    {
+     "label": "<script>alert(1)</script> [click me](https://evil.example/x) https://evil.example/y **bold** <img src=x onerror=alert(2)>",
+     "value": "1,234,567,890,123",
+     "status": "verified"
+    }
+   ],
+   "in_short": [
+    {
+     "status": "verified",
+     "text": "<script>alert(1)</script> [click me](https://evil.example/x) https://evil.example/y **bold** <img src=x onerror=alert(2)>"
+    }
+   ],
+   "meaning": "<script>alert(1)</script> [click me](https://evil.example/x) https://evil.example/y **bold** <img src=x onerror=alert(2)>",
+   "next_steps": [
+    "<script>alert(1)</script> [click me](https://evil.example/x) https://evil.example/y **bold** <img src=x onerror=alert(2)>"
+   ]
+  },
+  "confidence": "medium",
+  "verified_count": 2,
+  "total_claims": 3,
+  "pdf_key": null,
+  "template": "plain",
+  "typeface": "clean",
+  "text_size": "m",
+  "created_at": "2026-10-26T09:00:00Z",
+  "expires_at": "2026-11-25T09:00:00Z",
+  "deleted_at": null,
+  "purge_at": null,
+  "translations": null
+ },
+ "claims": [
+  {
+   "id": "00000101-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 1,
+   "text": "<script>alert(1)</script> [click me](https://evil.example/x) https://evil.example/y **bold** <img src=x onerror=alert(2)>",
+   "status": "verified",
+   "origin": "answer",
+   "doc_quote": null,
+   "doc_location": null,
+   "doc_value": null,
+   "computed_value": "1",
+   "evidence_refs": [
+    "D1"
+   ],
+   "ko": null
+  },
+  {
+   "id": "00000102-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 2,
+   "text": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+   "status": "unverified",
+   "origin": "answer",
+   "doc_quote": null,
+   "doc_location": null,
+   "doc_value": null,
+   "computed_value": "2",
+   "evidence_refs": [
+    "D1",
+    "U1"
+   ],
+   "ko": null
+  },
+  {
+   "id": "00000103-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 3,
+   "text": "bidi ‮abc‬ and​ zero\u0007width",
+   "status": "verified",
+   "origin": "answer",
+   "doc_quote": null,
+   "doc_location": null,
+   "doc_value": null,
+   "computed_value": "3",
+   "evidence_refs": [
+    "D1"
+   ],
+   "ko": null
+  }
+ ],
+ "evidence": [
+  {
+   "id": "00000200-4444-4444-8444-444444444444",
+   "run_id": "22222222-2222-4222-8222-222222222222",
+   "step_id": "33333333-3333-4333-8333-333333333333",
+   "ref": "D1",
+   "type": "table",
+   "file_name": "seoul_subway_2026-09.csv",
+   "location": "rows 1–4079",
+   "payload": {
+    "columns": [
+     "<i>Name</i>",
+     "Boardings"
+    ],
+    "rows_used": 4079,
+    "tool": "run_python",
+    "method": "rank",
+    "table": {
+     "headers": [
+      "<i>Name</i>",
+      "Boardings"
+     ],
+     "rows": [
+      [
+       "<script>alert(1)</script> [click me](https://evil.example/x) https://evil.example/y **bold** <img src=x onerror=alert(2)>",
+       "1,234,567,890,123"
+      ],
+      [
+       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+       "2"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "00000301-4444-4444-8444-444444444444",
+   "run_id": "22222222-2222-4222-8222-222222222222",
+   "step_id": "33333333-3333-4333-8333-333333333333",
+   "ref": "U1",
+   "type": "critic_note",
+   "file_name": "",
+   "location": null,
+   "payload": {
+    "reason": "label_missing"
+   }
+  }
+ ]
+}

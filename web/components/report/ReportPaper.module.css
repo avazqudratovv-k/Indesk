@@ -71,11 +71,15 @@
 }
 
 .label {
-  flex: 1;
+  flex: 1 1 140px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .value {
+  min-width: 0;
   font: 600 16px var(--mono);
+  overflow-wrap: anywhere;
 }
 
 .status {

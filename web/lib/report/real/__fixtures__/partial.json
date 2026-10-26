@@ -1,0 +1,209 @@
+{
+ "_note": "Test fixture with invented numbers. Never imported by the app.",
+ "report": {
+  "id": "11111111-1111-4111-8111-111111111111",
+  "run_id": "22222222-2222-4222-8222-222222222222",
+  "owner_id": "00000001-4444-4444-8444-444444444444",
+  "mode": "ask",
+  "title": "Boardings by station",
+  "summary_json": {
+   "answer": "Gangnam leads, but one ranking could not be proven.",
+   "top_rows": [
+    {
+     "label": "Gangnam",
+     "value": "412,300",
+     "status": "verified"
+    },
+    {
+     "label": "Jamsil",
+     "value": "398,120",
+     "status": "flagged"
+    },
+    {
+     "label": "Hongdae",
+     "value": "351,004",
+     "status": "flagged"
+    },
+    {
+     "label": "Sinchon",
+     "value": "300,500",
+     "status": "verified"
+    }
+   ],
+   "in_short": [
+    {
+     "status": "verified",
+     "text": "Gangnam had 412,300 boardings."
+    },
+    {
+     "status": "flagged",
+     "text": "Jamsil was the busiest station overall."
+    },
+    {
+     "status": "flagged",
+     "text": "Hongdae had 351,000 boardings."
+    },
+    {
+     "status": "verified",
+     "text": "Sinchon had 300,500 boardings."
+    }
+   ],
+   "meaning": null,
+   "next_steps": [
+    "Ask again with a narrower question."
+   ]
+  },
+  "confidence": "medium",
+  "verified_count": 2,
+  "total_claims": 4,
+  "pdf_key": null,
+  "template": "plain",
+  "typeface": "clean",
+  "text_size": "m",
+  "created_at": "2026-10-26T09:00:00Z",
+  "expires_at": "2026-11-25T09:00:00Z",
+  "deleted_at": null,
+  "purge_at": null,
+  "translations": null
+ },
+ "claims": [
+  {
+   "id": "00000101-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 1,
+   "text": "Gangnam had 412,300 boardings.",
+   "status": "verified",
+   "origin": "answer",
+   "doc_quote": null,
+   "doc_location": null,
+   "doc_value": null,
+   "computed_value": "412,300",
+   "evidence_refs": [
+    "D1"
+   ],
+   "ko": null
+  },
+  {
+   "id": "00000102-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 2,
+   "text": "Jamsil was the busiest station overall.",
+   "status": "unverified",
+   "origin": "answer",
+   "doc_quote": null,
+   "doc_location": null,
+   "doc_value": null,
+   "computed_value": "398,120",
+   "evidence_refs": [
+    "D1",
+    "U1"
+   ],
+   "ko": null
+  },
+  {
+   "id": "00000103-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 3,
+   "text": "Hongdae had 351,000 boardings.",
+   "status": "unverified",
+   "origin": "answer",
+   "doc_quote": null,
+   "doc_location": null,
+   "doc_value": null,
+   "computed_value": "351,004",
+   "evidence_refs": [
+    "D1",
+    "U2"
+   ],
+   "ko": null
+  },
+  {
+   "id": "00000104-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 4,
+   "text": "Sinchon had 300,500 boardings.",
+   "status": "verified",
+   "origin": "answer",
+   "doc_quote": null,
+   "doc_location": null,
+   "doc_value": null,
+   "computed_value": "300,500",
+   "evidence_refs": [
+    "D1"
+   ],
+   "ko": null
+  }
+ ],
+ "evidence": [
+  {
+   "id": "00000200-4444-4444-8444-444444444444",
+   "run_id": "22222222-2222-4222-8222-222222222222",
+   "step_id": "33333333-3333-4333-8333-333333333333",
+   "ref": "D1",
+   "type": "table",
+   "file_name": "seoul_subway_2026-09.csv",
+   "location": "rows 1–4079",
+   "payload": {
+    "columns": [
+     "Station",
+     "Boardings"
+    ],
+    "rows_used": 4079,
+    "tool": "run_python",
+    "method": "rank",
+    "table": {
+     "headers": [
+      "Station",
+      "Boardings"
+     ],
+     "rows": [
+      [
+       "Gangnam",
+       "412,300"
+      ],
+      [
+       "Jamsil",
+       "398,120"
+      ],
+      [
+       "Hongdae",
+       "351,004"
+      ],
+      [
+       "Sinchon",
+       "300,500"
+      ],
+      [
+       "Yeongdeungpo",
+       "288,090"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "00000301-4444-4444-8444-444444444444",
+   "run_id": "22222222-2222-4222-8222-222222222222",
+   "step_id": "33333333-3333-4333-8333-333333333333",
+   "ref": "U1",
+   "type": "critic_note",
+   "file_name": "",
+   "location": null,
+   "payload": {
+    "reason": "ranking_unchecked"
+   }
+  },
+  {
+   "id": "00000302-4444-4444-8444-444444444444",
+   "run_id": "22222222-2222-4222-8222-222222222222",
+   "step_id": "33333333-3333-4333-8333-333333333333",
+   "ref": "U2",
+   "type": "critic_note",
+   "file_name": "",
+   "location": null,
+   "payload": {
+    "reason": "number_mismatch"
+   }
+  }
+ ]
+}

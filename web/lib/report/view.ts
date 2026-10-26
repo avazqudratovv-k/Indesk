@@ -14,6 +14,9 @@ export type EvidenceView = {
   quote: string | null;
   fileName: string;
   location: string | null;
+  // The source line of the panel. Undefined: built from the tool, file and location (mock reports). A string replaces it,
+  // null hides it (real reports, whose lines are built from closed codes).
+  metaText?: string | null;
 };
 
 export type ChartBar = { label: string; value: number; photo: number | null };

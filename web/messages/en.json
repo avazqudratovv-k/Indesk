@@ -894,10 +894,8 @@
         "failed": "Did not finish"
       },
       "noReport": {
-        "title": "The run finished, but there is no report yet",
-        "body": "Report generation is not connected yet, so there are no results to show. Nothing here has been checked or verified.",
-        "example": "See an example report",
-        "exampleNote": "Example, not your data"
+        "title": "The run finished, but there is no report to open",
+        "body": "The report could not be linked to this run. Nothing here has been checked or verified."
       },
       "lost": {
         "title": "Lost the connection to this run",
@@ -908,8 +906,8 @@
       },
       "detail": {
         "empty": "No updates from this agent yet.",
-        "later": "Results appear in the report (not connected yet).",
-        "linesLabel": "Updates from this agent"
+        "linesLabel": "Updates from this agent",
+        "inReport": "The full results are in the report."
       },
       "end": {
         "busyToday": "Busy today",
@@ -921,6 +919,11 @@
         "newQuestion": "Change question",
         "notCounted": "Not counted",
         "failedExample": "Please try again."
+      },
+      "ready": {
+        "title": "Your report is ready",
+        "body": "Open it to read the answer and see which claims are verified and which are not.",
+        "open": "Open the report"
       }
     },
     "trace": {
@@ -942,7 +945,9 @@
       "stepFailedReason": "A step failed: {reason}",
       "stopped": "The run stopped",
       "stoppedReason": "The run stopped: {reason}",
-      "unknown": "The agent reported progress"
+      "unknown": "The agent reported progress",
+      "verify": "Checking the claims",
+      "verifyCounts": "{verified, number} of {claims, number} claims verified"
     },
     "reasons": {
       "daily_cap_user": {
@@ -1028,7 +1033,8 @@
       "stampAria": "Verified {verified} of {total} claims",
       "rowMatches": "✓ matches",
       "rowNotProven": "! not proven",
-      "resultLabel": "Result"
+      "resultLabel": "Result",
+      "smallReal": "Final answer"
     },
     "confidence": {
       "high": "High confidence",
@@ -1054,7 +1060,8 @@
       "thChart": "Chart photo",
       "tip": "{name}: data {data}, chart photo {photo}",
       "meaningTitle": "What this means",
-      "nextTitle": "What you could do next"
+      "nextTitle": "What you could do next",
+      "confNoteReal": "We checked {total} statements. {verified} match the computed data.{open, plural, =0 {} one { 1 could not be verified and is marked.} other { # could not be verified and are marked.}}"
     },
     "detailed": {
       "claimsTitle": "Claims and evidence",
@@ -1076,6 +1083,11 @@
           "term": "Evidence",
           "def": "The exact numbers, code or quote behind a statement. Click a source chip to see it."
         }
+      },
+      "glossReal": {
+        "verified": "Every number and name in the claim matches the computed table.",
+        "unverified": "The claim could not be matched to the computed table. It may be true, but we cannot show it.",
+        "evidence": "The computed table, or the reason a claim is not verified. Click a source chip to see it."
       }
     },
     "evidence": {
@@ -1100,7 +1112,13 @@
         "critic_note": "why flagged"
       },
       "source": "{file} · {location}",
-      "sourceFile": "{file}"
+      "sourceFile": "{file}",
+      "d1Title": "Computed table",
+      "rowsUsed": "Used {n, number} rows",
+      "rows": "Rows {from, number}–{to, number}",
+      "tool": {
+        "pandas": "pandas"
+      }
     },
     "later": "Sharing, download and follow-up questions come in a later version.",
     "states": {
@@ -1111,7 +1129,60 @@
         "home": "Back to Home",
         "workspace": "Go to Workspace"
       },
-      "noClaims": "This report has no claims to show."
+      "noClaims": "This report has no claims to show.",
+      "unauthorized": {
+        "title": "Log in to see this report",
+        "body": "Your session has ended, or you are not logged in. Reports are private to their owner.",
+        "action": "Log in"
+      },
+      "error": {
+        "title": "The report did not load",
+        "body": "Something went wrong while loading it. Check your connection and try again.",
+        "action": "Try again"
+      }
+    },
+    "langNote": {
+      "en": "The text of this report is in English.",
+      "ko": "The text of this report is in Korean."
+    },
+    "method": {
+      "rank": "Ranked from your file",
+      "aggregate": "Totals computed from your file",
+      "trend": "Change over time computed from your file",
+      "compare_groups": "Groups compared in your file",
+      "count": "Counted in your file",
+      "describe": "Summary computed from your file",
+      "unknown": "Computed from your file"
+    },
+    "reason": {
+      "rows_mismatch": {
+        "title": "Not every row was used",
+        "body": "The calculation did not use every row of your file."
+      },
+      "bad_reference": {
+        "title": "Source cell not found",
+        "body": "The claim points to a cell that does not exist."
+      },
+      "no_numeric_evidence": {
+        "title": "No number behind it",
+        "body": "The claim cites no number from the results."
+      },
+      "label_missing": {
+        "title": "Row not named",
+        "body": "The claim does not name the row it cites."
+      },
+      "number_mismatch": {
+        "title": "Number does not match",
+        "body": "A number in the claim is not in the cited cells."
+      },
+      "ranking_unchecked": {
+        "title": "Ranking not proven",
+        "body": "“Most” or “least” is not the extreme of its column in the computed results."
+      },
+      "unknown": {
+        "title": "Could not be verified",
+        "body": "This claim could not be checked."
+      }
     }
   },
   "common": {

@@ -5,7 +5,7 @@ import styles from "./ConfidenceCard.module.css";
 
 // "How sure are we?": the level from the report, one segment per claim (green proven, red not proven).
 // Hidden when the report has no confidence (the critic did not run).
-export default function ConfidenceCard({ report, claims }: { report: Report; claims: Claim[] }) {
+export default function ConfidenceCard({ report, claims, real = false }: { report: Report; claims: Claim[]; real?: boolean }) {
   const t = useTranslations("report");
   if (!report.confidence) return null;
   const { verified_count: verified, total_claims: total } = report;
@@ -17,7 +17,7 @@ export default function ConfidenceCard({ report, claims }: { report: Report; cla
         <div className={`${styles.level} ${styles[report.confidence]}`}>
           {t(`confidence.${report.confidence}`)} · {verified}/{total}
         </div>
-        <div className={styles.note}>{t("simple.confNote", { total, verified, open: total - verified })}</div>
+        <div className={styles.note}>{t(real ? "simple.confNoteReal" : "simple.confNote", { total, verified, open: total - verified })}</div>
       </div>
       <div className={styles.bar} role="img" aria-label={t("simple.confBar", { verified, total })}>
         {ordered.map((claim) => (

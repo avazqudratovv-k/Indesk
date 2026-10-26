@@ -26,3 +26,13 @@
   font-size: 13.5px;
   color: var(--mute);
 }
+
+/* The link is text inside a line, so it keeps a 44 px target on phones with padding rather than a taller line. */
+.reportLink {
+  display: inline-block;
+  padding: 12px 6px;
+  margin: -12px 0;
+  color: var(--accentText);
+  font-weight: 600;
+  text-decoration: underline;
+}

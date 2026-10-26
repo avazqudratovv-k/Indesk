@@ -1,0 +1,134 @@
+{
+ "_note": "Test fixture with invented numbers. Never imported by the app.",
+ "report": {
+  "id": "11111111-1111-4111-8111-111111111111",
+  "run_id": "22222222-2222-4222-8222-222222222222",
+  "owner_id": "00000001-4444-4444-8444-444444444444",
+  "mode": "ask",
+  "title": "승차 인원이 가장 많은 역",
+  "summary_json": {
+   "answer": "승차 인원이 가장 많은 역은 잠실(송파구청)입니다.",
+   "top_rows": [
+    {
+     "label": "잠실(송파구청)",
+     "value": "398,120",
+     "status": "verified"
+    },
+    {
+     "label": "강남(역삼동 근처 아주 긴 이름의 역 이름 시험용 문자열)",
+     "value": "412,300",
+     "status": "flagged"
+    }
+   ],
+   "in_short": [
+    {
+     "status": "verified",
+     "text": "잠실(송파구청)역의 승차 인원이 가장 많습니다."
+    }
+   ],
+   "meaning": "도심 환승역이 가장 붐빕니다.",
+   "next_steps": [
+    "다른 달과 비교해 보세요."
+   ]
+  },
+  "confidence": "medium",
+  "verified_count": 1,
+  "total_claims": 2,
+  "pdf_key": null,
+  "template": "plain",
+  "typeface": "clean",
+  "text_size": "m",
+  "created_at": "2026-10-26T09:00:00Z",
+  "expires_at": "2026-11-25T09:00:00Z",
+  "deleted_at": null,
+  "purge_at": null,
+  "translations": null
+ },
+ "claims": [
+  {
+   "id": "00000101-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 1,
+   "text": "잠실(송파구청)역의 승차 인원은 398,120명으로 가장 많습니다.",
+   "status": "verified",
+   "origin": "answer",
+   "doc_quote": null,
+   "doc_location": null,
+   "doc_value": null,
+   "computed_value": "398,120",
+   "evidence_refs": [
+    "D1"
+   ],
+   "ko": null
+  },
+  {
+   "id": "00000102-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 2,
+   "text": "강남(역삼동 근처 아주 긴 이름의 역 이름 시험용 문자열)은 두 번째입니다.",
+   "status": "unverified",
+   "origin": "answer",
+   "doc_quote": null,
+   "doc_location": null,
+   "doc_value": null,
+   "computed_value": "412,300",
+   "evidence_refs": [
+    "D1",
+    "U1"
+   ],
+   "ko": null
+  }
+ ],
+ "evidence": [
+  {
+   "id": "00000200-4444-4444-8444-444444444444",
+   "run_id": "22222222-2222-4222-8222-222222222222",
+   "step_id": "33333333-3333-4333-8333-333333333333",
+   "ref": "D1",
+   "type": "table",
+   "file_name": "seoul_subway_2026-09.csv",
+   "location": "rows 1–4079",
+   "payload": {
+    "columns": [
+     "역명",
+     "승차 인원"
+    ],
+    "rows_used": 4079,
+    "tool": "run_python",
+    "method": "rank",
+    "table": {
+     "headers": [
+      "역명",
+      "승차 인원"
+     ],
+     "rows": [
+      [
+       "잠실(송파구청)",
+       "398,120"
+      ],
+      [
+       "강남(역삼동 근처 아주 긴 이름의 역 이름 시험용 문자열)",
+       "412,300"
+      ],
+      [
+       "홍대입구(서교동)",
+       "351,004"
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "id": "00000301-4444-4444-8444-444444444444",
+   "run_id": "22222222-2222-4222-8222-222222222222",
+   "step_id": "33333333-3333-4333-8333-333333333333",
+   "ref": "U1",
+   "type": "critic_note",
+   "file_name": "",
+   "location": null,
+   "payload": {
+    "reason": "ranking_unchecked"
+   }
+  }
+ ]
+}

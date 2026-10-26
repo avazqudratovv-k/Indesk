@@ -3,13 +3,13 @@ import type { TraceArgs } from "./types";
 
 // The closed set of trace keys (api/app/runs/trace.py TraceKey) and the arguments each may use. A key we do not know,
 // or an argument of the wrong kind, never reaches the screen as text: it becomes a generic line.
-export const TRACE_KEYS = ["plan", "dispatch", "readCsv", "runPython", "top3", "merge", "ready", "stepStarted", "stepFailed", "stopped"] as const;
+export const TRACE_KEYS = ["plan", "dispatch", "readCsv", "runPython", "top3", "merge", "verify", "ready", "stepStarted", "stepFailed", "stopped"] as const;
 export type TraceKey = (typeof TRACE_KEYS)[number];
 
 // Message ids under workspace.trace.* (one per wording; a variant exists where an argument can be missing).
 export const TRACE_MESSAGE_IDS = [
   "plan", "planFiles", "dispatch", "dispatchAgents", "readCsv", "readCsvSized", "runPython", "runPythonAttempt",
-  "top3", "top3Rows", "merge", "ready", "stepStarted", "stepStartedAttempt", "stepFailed", "stepFailedReason",
+  "top3", "top3Rows", "merge", "verify", "verifyCounts", "ready", "stepStarted", "stepStartedAttempt", "stepFailed", "stepFailedReason",
   "stopped", "stoppedReason", "unknown",
 ] as const;
 export type TraceMessageId = (typeof TRACE_MESSAGE_IDS)[number];
@@ -52,6 +52,11 @@ export function describeTrace(key: string, args: TraceArgs): TraceText {
     }
     case "merge":
       return say("merge");
+    case "verify": {
+      const claims = count(args, "claims", 1);
+      const verified = count(args, "verified", 0);
+      return claims === null || verified === null || verified > claims ? say("verify") : say("verifyCounts", { claims, verified });
+    }
     case "ready":
       return say("ready");
     case "stepStarted":

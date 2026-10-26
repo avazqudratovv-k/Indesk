@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { isSimulated, toRunEvents } from "@/lib/run/live/agents";
 import type { LiveRun } from "@/lib/run/live/reducer";
+import { isRealReportId } from "@/lib/report/real/id";
 import { endCard } from "@/lib/run/live/reasons";
 import { describeTrace } from "@/lib/run/live/trace";
 import type { LiveStep, Outcome } from "@/lib/run/live/types";
@@ -64,6 +65,8 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
   const simulated = isSimulated(run.steps);
   const card = run.done ? endCard(run.done.outcome, run.done.reason) : null;
   const lost = !finished && connection !== "live";
+  // The Report node is ready only when the run really has a report to open.
+  const reportReady = card?.kind === "report" && run.done?.reportId != null && isRealReportId(run.done.reportId);
 
   useEffect(() => {
     heading.current?.focus();
@@ -82,7 +85,7 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
     ? t("real.announce.lost")
     : card
       ? ok
-        ? t("real.announce.finishedNoReport")
+        ? t(run.done?.reportId ? "real.announce.finishedReport" : "real.announce.finishedNoReport")
         : `${t("real.announce.failed")} ${message(`reasons.${card.reason}.head`)}`
       : latest
         ? `${home(`${latest.agent}.name`)}: ${latest.text ?? ""}`
@@ -103,7 +106,7 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
       <RunHeader ref={heading} title={run.question} finished={finished} onBack={onBack} real={{ mark }} />
       <RunTiles key={run.id} toolCalls={toolCalls} tokens={sumTokens(events, step)} agentsDone={countAgentsDone(agents)} agentCount={RUN_AGENTS.length} finished={finished} real={{ startMs: run.createdAt ?? run.startedAt, endMs: run.finishedAt }} />
       {lost ? <RunNotice signedOut={connection === "signedOut"} onReconnect={onReconnect} /> : null}
-      {card ? <RunEndCard card={card} headingRef={endHeading} onChange={onBack} /> : null}
+      {card ? <RunEndCard card={card} reportId={run.done?.reportId ?? null} headingRef={endHeading} onChange={onBack} /> : null}
       {!finished && !lost && events.length === 0 ? (
         <p className={styles.note} role="status">
           {t("real.queued")}
@@ -115,8 +118,8 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
             <h2 className={styles.h2}>{t("live.stageTitle")}</h2>
             <span className={styles.note}>{t("live.stageNote")}</span>
           </div>
-          <TeamStage agents={agents} events={events} step={step} reportReady={false} scenario="answered" finished={finished} showStamp={false} />
-          <AgentTimeline agents={agents} reportReady={false} finished={finished} />
+          <TeamStage agents={agents} events={events} step={step} reportReady={reportReady} scenario="answered" finished={finished} showStamp={false} />
+          <AgentTimeline agents={agents} reportReady={reportReady} finished={finished} />
         </div>
         <LiveTrace events={events} step={step} note={simulated ? t("real.simulatedTraceNote") : t("real.traceNote")} />
       </section>
@@ -124,7 +127,7 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
         {announcement}
       </p>
       <GuardrailsPanel />
-      <RealAgentWork key={`work-${run.id}`} agents={agents} events={events} finished={finished} />
+      <RealAgentWork key={`work-${run.id}`} agents={agents} events={events} finished={finished} reportId={run.done?.reportId ?? null} />
       <OutcomeCards real />
     </div>
   );

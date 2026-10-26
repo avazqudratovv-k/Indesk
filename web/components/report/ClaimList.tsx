@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import type { Claim, Evidence } from "@/lib/types";
-import { visibleClaims } from "@/lib/report/view";
+import { visibleClaims, type EvidenceView } from "@/lib/report/view";
 import ClaimRow from "./ClaimRow";
 import styles from "./ClaimList.module.css";
 
@@ -12,11 +12,13 @@ type Props = {
   selectedRef: string | null;
   openClaim: string | null;
   onPick: (claimId: string, ref: string) => void;
+  viewOf: (item: Evidence) => EvidenceView;
+  reasonOf?: (claim: Claim) => string | null;
 };
 
 // Detailed view: every claim with its badge and chips, and a box to hide the ones that are not proven.
 // The stamp and the confidence bar keep counting all claims whatever the box says.
-export default function ClaimList({ claims, evidence, showUnverified, onShowUnverified, selectedRef, openClaim, onPick }: Props) {
+export default function ClaimList({ claims, evidence, showUnverified, onShowUnverified, selectedRef, openClaim, onPick, viewOf, reasonOf }: Props) {
   const t = useTranslations("report.detailed");
   return (
     <section className={styles.section} aria-labelledby="report-claims">
@@ -31,7 +33,7 @@ export default function ClaimList({ claims, evidence, showUnverified, onShowUnve
       </div>
       <ol className={styles.list}>
         {visibleClaims(claims, showUnverified).map((claim) => (
-          <ClaimRow key={claim.id} claim={claim} evidence={evidence} selectedRef={selectedRef} open={openClaim === claim.id} onPick={(ref) => onPick(claim.id, ref)} />
+          <ClaimRow key={claim.id} claim={claim} evidence={evidence} selectedRef={selectedRef} open={openClaim === claim.id} onPick={(ref) => onPick(claim.id, ref)} viewOf={viewOf} reason={reasonOf?.(claim) ?? null} />
         ))}
       </ol>
     </section>

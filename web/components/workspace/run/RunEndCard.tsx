@@ -1,36 +1,38 @@
 import type { Ref } from "react";
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
+import { isRealReportId } from "@/lib/report/real/id";
 import type { EndCard } from "@/lib/run/live/reasons";
 import styles from "./RunEndCard.module.css";
 
-// The mock report the "example" link opens. It is labelled as an example everywhere it is offered.
-const EXAMPLE_REPORT = "/reports/rep_01";
-
-type Props = { card: EndCard; headingRef: Ref<HTMLHeadingElement>; onChange: () => void };
+type Props = { card: EndCard; reportId: string | null; headingRef: Ref<HTMLHeadingElement>; onChange: () => void };
 
 // How a real run ended (board "How a run can end"): a failure or rejection with a generic message for its reason code,
-// or, for a run that finished with no report to open yet, an honest "finished, no report" card. Nothing is claimed as
-// verified, and the text never comes from the server.
-export default function RunEndCard({ card, headingRef, onChange }: Props) {
+// or, for a run that finished with a report, a link to it (no automatic redirect, so the trace can still be read). A
+// finished run with no usable report id says so. Nothing is claimed as verified, and the text never comes from the server.
+export default function RunEndCard({ card, reportId, headingRef, onChange }: Props) {
   const t = useTranslations("workspace");
   // Keys are built from closed lists (reasons.ts, the outcome enum); the message types cannot see that.
   const message = t as unknown as (key: string) => string;
 
   if (card.kind === "report") {
+    const href = reportId !== null && isRealReportId(reportId) ? `/reports/${reportId}` : null;
     return (
       <section className={`${styles.card} ${styles.stripe} ${card.outcome === "answered" ? styles.stripe_ok : styles.stripe_warn}`} aria-labelledby="ws-end-title">
         <div className={styles.top}>
           <span className={`${styles.label} ${card.outcome === "answered" ? styles.ok : styles.warn}`}>{t("real.mark.finished")}</span>
         </div>
         <h2 id="ws-end-title" ref={headingRef} tabIndex={-1} className={styles.head}>
-          {t("real.noReport.title")}
+          {href ? t("real.ready.title") : t("real.noReport.title")}
         </h2>
-        <p className={styles.body}>{t("real.noReport.body")}</p>
-        <div className={styles.actions}>
-          <Button href={EXAMPLE_REPORT}>{t("real.noReport.example")}</Button>
-          <span className={styles.note}>{t("real.noReport.exampleNote")}</span>
-        </div>
+        <p className={styles.body}>{href ? t("real.ready.body") : t("real.noReport.body")}</p>
+        {href ? (
+          <div className={styles.actions}>
+            <Button href={href} variant="ink">
+              {t("real.ready.open")}
+            </Button>
+          </div>
+        ) : null}
       </section>
     );
   }

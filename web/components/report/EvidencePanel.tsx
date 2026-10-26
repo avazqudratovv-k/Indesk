@@ -28,8 +28,9 @@ export default function EvidencePanel({ view, variant }: { view: EvidenceView | 
       </aside>
     );
   }
-  const source = view.location ? t("source", { file: view.fileName, location: view.location }) : t("sourceFile", { file: view.fileName });
+  const defaultSource = view.location ? t("source", { file: view.fileName, location: view.location }) : t("sourceFile", { file: view.fileName });
   const { table } = view;
+  const source = view.metaText !== undefined ? view.metaText : view.tool ? `${view.tool} · ${defaultSource}` : defaultSource;
   return (
     <aside key={view.ref} className={root} aria-label={t("title")}>
       <div className={styles.eyebrow}>{t("title")}</div>
@@ -50,16 +51,16 @@ export default function EvidencePanel({ view, variant }: { view: EvidenceView | 
           <table className={styles.table}>
             <thead>
               <tr>
-                {table.headers.map((header) => (
-                  <th key={header} scope="col">
+                {table.headers.map((header, index) => (
+                  <th key={index} scope="col">
                     {header}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {table.rows.map((row) => (
-                <tr key={row.join("|")}>
+              {table.rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
                   {row.map((cell, index) => (
                     <td key={index} className={index === 0 ? undefined : styles.num}>
                       {cell}
@@ -72,7 +73,7 @@ export default function EvidencePanel({ view, variant }: { view: EvidenceView | 
         </ScrollRegion>
       ) : null}
       {view.quote ? <blockquote className={styles.quote}>{view.quote}</blockquote> : null}
-      <div className={styles.meta}>{view.tool ? `${view.tool} · ${source}` : source}</div>
+      {source ? <div className={styles.meta}>{source}</div> : null}
     </aside>
   );
 }

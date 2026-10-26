@@ -1,0 +1,31 @@
+{
+ "_note": "Test fixture with invented numbers. Never imported by the app.",
+ "report": {
+  "id": "11111111-1111-4111-8111-111111111111",
+  "run_id": "22222222-2222-4222-8222-222222222222",
+  "owner_id": "00000001-4444-4444-8444-444444444444",
+  "mode": "ask",
+  "title": "Empty",
+  "summary_json": {
+   "answer": "Nothing to show.",
+   "top_rows": null,
+   "in_short": null,
+   "meaning": null,
+   "next_steps": null
+  },
+  "confidence": null,
+  "verified_count": 0,
+  "total_claims": 0,
+  "pdf_key": null,
+  "template": "plain",
+  "typeface": "clean",
+  "text_size": "m",
+  "created_at": "2026-10-26T09:00:00Z",
+  "expires_at": "2026-11-25T09:00:00Z",
+  "deleted_at": null,
+  "purge_at": null,
+  "translations": null
+ },
+ "claims": [],
+ "evidence": []
+}

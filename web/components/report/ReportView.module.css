@@ -42,6 +42,13 @@
   min-width: 0;
 }
 
+.langNote {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink2);
+}
+
 .empty {
   margin: 0;
   color: var(--mute);
