@@ -10,8 +10,8 @@ const spriteDelay = (index: number) => `${(-0.45 * index).toFixed(2)}s`;
 const cx = (...names: string[]) => names.map((name) => styles[name]).join(" ");
 
 // The 8:5 stage of the demo film. Purely visual: the screen-reader text lives in HomeFilm.
-// PLACEHOLDER content: see film-data.ts and home.film.placeholderClaims in the message files.
-export default function FilmStage({ verified, total }: { verified: number; total: number }) {
+// PLACEHOLDER content (a sample, not a real run): see film-data.ts and home.film.placeholderClaims in the message files.
+export default function FilmStage() {
   const t = useTranslations("home.film");
   return (
     <div className={styles.film}>
@@ -67,26 +67,7 @@ export default function FilmStage({ verified, total }: { verified: number; total
       </div>
       <div className={cx("abs", "workCard", "fc1k")} style={{ "--i": 1, "--agent": agentColor.chameleon } as Vars}>
         <div className={styles.cardHead}>{t("agents.chameleon")}</div>
-        <div className={styles.shot}>
-          {[
-            ["0.781cqw", "2.188cqw", "#6b6250"],
-            ["3.125cqw", "3.438cqw", "#5c5444"],
-            ["5.469cqw", "5.625cqw", "#8a7f66"],
-            ["7.812cqw", "4.375cqw", "#5c5444"],
-          ].map(([x, h, c]) => (
-            <i key={x} style={{ "--x": x, "--h": h, "--c": c } as Vars} />
-          ))}
-          <b style={{ left: "0.312cqw", top: "0.312cqw", width: "3.75cqw", height: "1.25cqw" }} />
-          <b style={{ left: "7.188cqw", top: "2.188cqw", width: "2.5cqw", height: "3.75cqw" }} />
-        </div>
-        <div className={styles.quotes}>
-          {film.vision.quotes.map(([label, value]) => (
-            <div key={label}>
-              {label} <b>{value}</b>
-            </div>
-          ))}
-          <span className={styles.good}>{film.vision.confidence}</span>
-        </div>
+        <div className={styles.cardNote}>{t("later")}</div>
       </div>
       <div className={cx("abs", "workCard", "fc2k")} style={{ "--i": 2, "--agent": agentColor.beaver } as Vars}>
         <div className={styles.cardHead}>{t("agents.beaver")}</div>
@@ -108,15 +89,7 @@ export default function FilmStage({ verified, total }: { verified: number; total
       </div>
       <div className={cx("abs", "workCard", "fc3k")} style={{ "--i": 3, "--agent": agentColor.hound } as Vars}>
         <div className={styles.cardHead}>{t("agents.hound")}</div>
-        <div className={styles.cardMono} style={{ padding: "0.625cqw 0.781cqw 0" }}>
-          {film.retrieval.source}
-        </div>
-        <div className={styles.snippet}>
-          {[94, 100, 72, 88, 50].map((width, i) => (
-            <i key={i} className={i === 1 || i === 2 ? styles.mark : undefined} style={{ width: `${width}%` }} />
-          ))}
-        </div>
-        <div className={cx("cardNote", "good")}>{film.retrieval.score}</div>
+        <div className={styles.cardNote}>{t("later")}</div>
       </div>
       <div className={cx("abs", "workCard", "fc4k")} style={{ "--i": 4, "--agent": agentColor.cat } as Vars}>
         <div className={styles.cardHead}>{t("agents.cat")}</div>
@@ -178,8 +151,7 @@ export default function FilmStage({ verified, total }: { verified: number; total
             </svg>
           </div>
         </div>
-        <div className={cx("abs", "stamp", "fstamp")}>{t("report.stamp", { verified, total })}</div>
-        <div className={cx("abs", "download", "fdl")}>↓ {t("report.download")}</div>
+        <div className={cx("abs", "stamp", "fstamp")}>{t("report.stamp", { verified: film.verified, total: film.total })}</div>
       </div>
     </div>
   );

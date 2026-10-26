@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import styles from "./Chip.module.css";
 
-export type ChipTone = "neutral" | "accent" | "ok" | "bad" | "warn";
+export type ChipTone = "neutral" | "accent" | "ok" | "bad" | "warn" | "soon";
 
 type StaticProps = { tone?: ChipTone; onClick?: undefined; children: ReactNode };
 type ButtonProps = { tone?: ChipTone; children: ReactNode } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className" | "children"> & {

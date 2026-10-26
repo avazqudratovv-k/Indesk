@@ -167,8 +167,6 @@
 .fcirc{animation:fcirc 10s ease-out infinite;opacity:0}
 @keyframes fstamp{0%{opacity:0;transform:scale(2.4) rotate(-14deg)}87%{opacity:0;transform:scale(2.4) rotate(-14deg)}90%{opacity:1;transform:scale(.94) rotate(-7deg)}91.5%{opacity:1;transform:scale(1) rotate(-7deg)}96%{opacity:1;transform:scale(1) rotate(-7deg)}98%{opacity:0}100%{opacity:0}}
 .fstamp{animation:fstamp 10s ease-out infinite;opacity:0}
-@keyframes fdl{0%{opacity:0;transform:translateY(8px)}91%{opacity:0;transform:translateY(8px)}93%{opacity:1;transform:none}96%{opacity:1;transform:none}98%{opacity:0}100%{opacity:0}}
-.fdl{animation:fdl 10s ease-out infinite;opacity:0}
 @keyframes fcap0{0%{opacity:1;background:var(--hl);color:var(--hlInk)}15.99%{opacity:1;background:var(--hl);color:var(--hlInk)}16%{opacity:.5;background:transparent;color:var(--mute)}100%{opacity:.5;background:transparent;color:var(--mute)}}
 .fcap0{animation:fcap0 10s linear infinite}
 @keyframes fcap1{0%{opacity:.5;background:transparent;color:var(--mute)}15.99%{opacity:.5;background:transparent;color:var(--mute)}16%{opacity:1;background:var(--hl);color:var(--hlInk)}29.99%{opacity:1;background:var(--hl);color:var(--hlInk)}30%{opacity:.5;background:transparent;color:var(--mute)}100%{opacity:.5;background:transparent;color:var(--mute)}}
@@ -713,18 +711,6 @@
   letter-spacing: 0.08em;
 }
 
-.download {
-  left: 3.125cqw;
-  bottom: 2.812cqw;
-  padding: 1.25cqw 2.188cqw;
-  border: 1.5px solid var(--ink);
-  border-radius: 0.781cqw;
-  background: var(--accent);
-  box-shadow: 0.312cqw 0.312cqw 0 var(--ink);
-  color: #16202a;
-  font: 800 max(7px, 1.875cqw) var(--sans);
-}
-
 /* Controls under the film */
 .controls {
   display: flex;
@@ -753,7 +739,8 @@
 }
 
 .track {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  min-width: 24px;
   height: 6px;
   overflow: hidden;
   border-radius: 6px;
@@ -777,7 +764,9 @@
 }
 
 .fine {
+  flex: none;
   color: var(--mute);
+  white-space: nowrap;
   font: 400 13.5px var(--mono);
 }
 

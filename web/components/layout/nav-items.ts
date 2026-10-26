@@ -1,15 +1,27 @@
 // One list drives the desktop links; the mobile tab bar picks its own subset (DECISIONS #62).
 export type NavKey = "home" | "workspace" | "people" | "myReports" | "plans";
 
-export type NavItem = { key: NavKey; href: string; signedInOnly: boolean };
+// `built: false` hides the link (nav and tab bar) and makes the page answer 404 until the page exists (P11 B1).
+// To bring a page back, flip its flag to true.
+export type NavItem = { key: NavKey; href: string; signedInOnly: boolean; built: boolean };
 
 export const navItems: NavItem[] = [
-  { key: "home", href: "/", signedInOnly: false },
-  { key: "workspace", href: "/workspace", signedInOnly: false },
-  { key: "people", href: "/people", signedInOnly: true },
-  { key: "myReports", href: "/my", signedInOnly: true },
-  { key: "plans", href: "/plans", signedInOnly: false },
+  { key: "home", href: "/", signedInOnly: false, built: true },
+  { key: "workspace", href: "/workspace", signedInOnly: false, built: true },
+  { key: "people", href: "/people", signedInOnly: true, built: false },
+  { key: "myReports", href: "/my", signedInOnly: true, built: false },
+  { key: "plans", href: "/plans", signedInOnly: false, built: true },
 ];
+
+// The desktop links a visitor sees: built pages only, and signed-in pages only when signed in.
+export function visibleNavItems(signedIn: boolean, items: NavItem[] = navItems): NavItem[] {
+  return items.filter((item) => item.built && (signedIn || !item.signedInOnly));
+}
+
+// A page that is not built answers 404 (used by app/people and app/my).
+export function isBuilt(href: string, items: NavItem[] = navItems): boolean {
+  return items.find((item) => item.href === href)?.built ?? true;
+}
 
 export function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";

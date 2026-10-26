@@ -7,6 +7,7 @@ import RealReport from "@/components/report/RealReport";
 import ReportView from "@/components/report/ReportView";
 import { defaultLocale, isLocale } from "@/i18n/config";
 import { getReport } from "@/lib/report/get-report";
+import { mockReportsEnabled } from "@/lib/report/mock-reports";
 import { EXAMPLE_ID, isRealReportId } from "@/lib/report/real/id";
 
 type Props = { params: Promise<{ id: string }> };
@@ -18,17 +19,22 @@ async function currentLocale() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const [t, bundle] = await Promise.all([getTranslations("report"), currentLocale().then((locale) => getReport(id, locale))]);
+  // A mock id is dev data: in production it gets the 404 page, so its title is never put in the tab either.
+  const [t, bundle] = await Promise.all([
+    getTranslations("report"),
+    mockReportsEnabled() ? currentLocale().then((locale) => getReport(id, locale)) : null,
+  ]);
   return { title: `${bundle?.report.title ?? t("title")} · Indesk` };
 }
 
 // "example" is the public example (GET /api/example, no login). A UUID is a real report (ROADMAP 4.4): the browser loads
-// it from the API with the person's session. Any other id is looked up among the mock reports (dev only data).
+// it from the API with the person's session. Any other id is looked up among the mock reports (dev only data: a production build answers 404).
 // Check and Compare reports (2.10, 2.11) keep the placeholder.
 export default async function Page({ params }: Props) {
   const { id } = await params;
   if (id === EXAMPLE_ID) return <ExampleReport />;
   if (isRealReportId(id)) return <RealReport id={id} />;
+  if (!mockReportsEnabled()) notFound();
   const bundle = await getReport(id, await currentLocale());
   if (!bundle) notFound();
   if (bundle.report.mode !== "ask") return <RoutePlaceholder route="Report" param={id} />;

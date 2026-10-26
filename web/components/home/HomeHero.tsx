@@ -8,10 +8,8 @@ import HomeOrbit from "./HomeOrbit";
 import { workspaceHref } from "./agents";
 import styles from "./HomeHero.module.css";
 
-type Props = { verified: number; total: number };
-
 // Hero panel from the board: dark photo panel, copy on the left, demo film on the right (stacked on phones).
-export default function HomeHero({ verified, total }: Props) {
+export default function HomeHero() {
   const t = useTranslations("home.hero");
   return (
     <div className={styles.wrap}>
@@ -46,7 +44,7 @@ export default function HomeHero({ verified, total }: Props) {
           </div>
           <div className={styles.stage}>
             <HomeOrbit />
-            <HomeFilm stage={<FilmStage verified={verified} total={total} />} verified={verified} total={total} />
+            <HomeFilm stage={<FilmStage />} />
           </div>
         </section>
       </div>

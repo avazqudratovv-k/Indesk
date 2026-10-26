@@ -1,8 +1,12 @@
 import { useTranslations } from "next-intl";
 import Card from "@/components/ui/Card";
+import Chip from "@/components/ui/Chip";
 import HomeSection from "./HomeSection";
 import PlateMark from "./PlateMark";
-import { agentColor, agentIds, agentPlate, type AgentId } from "./agents";
+import { agentBuilt, agentColor, agentIds, agentPlate, type AgentId } from "./agents";
+
+// Only the built agents have a tag (the others show the "Coming later" chip).
+type BuiltAgentId = Exclude<AgentId, "chameleon" | "hound">;
 import styles from "./HomeTeam.module.css";
 
 export default function HomeTeam() {
@@ -17,9 +21,15 @@ export default function HomeTeam() {
               {t(`${id}.name`)} · {t(`${id}.role`)}
             </h3>
             <p className={styles.desc}>{t(`${id}.desc`)}</p>
-            <span className={styles.tag}>{t(`${id}.tag`)}</span>
+            {agentBuilt[id] ? (
+              <span className={styles.tag}>{t(`${id as BuiltAgentId}.tag`)}</span>
+            ) : (
+              <span className={styles.later}>
+                <Chip tone="soon">{t("comingLater")}</Chip>
+              </span>
+            )}
             <p className={styles.see}>
-              <b>{t("seeLabel")}</b> {t(`${id}.see`)}
+              <b>{t(agentBuilt[id] ? "seeLabel" : "seeLabelLater")}</b> {t(`${id}.see`)}
             </p>
           </Card>
         ))}

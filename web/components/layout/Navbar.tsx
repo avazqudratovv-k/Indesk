@@ -10,7 +10,7 @@ import { useSession, useSessionActions } from "@/hooks/use-session";
 import BrandMark from "./BrandMark";
 import LanguageSwitch from "./LanguageSwitch";
 import ThemeToggle from "./ThemeToggle";
-import { isActive, navItems } from "./nav-items";
+import { isActive, visibleNavItems } from "./nav-items";
 import styles from "./Navbar.module.css";
 
 export default function Navbar() {
@@ -65,8 +65,7 @@ export default function Navbar() {
         </Link>
 
         <nav className={styles.nav} aria-label={t("main")}>
-          {navItems
-            .filter((item) => session.signedIn || !item.signedInOnly)
+          {visibleNavItems(session.signedIn)
             .map((item) => {
               const active = isActive(pathname, item.href);
               return (

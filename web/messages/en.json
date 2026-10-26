@@ -37,20 +37,20 @@
     "hero": {
       "eyebrow": "A team of AI agents that shows its work",
       "title": "Answers from your files, with proof.",
-      "lede": "Upload a spreadsheet, a photo of a chart or a PDF. Five animal agents read, calculate and search, and a critic checks every claim before you see the report.",
+      "lede": "Upload one CSV and ask a question. Three agents plan, calculate and check, and every claim in the report is marked verified or not.",
       "tryDemo": "Try the demo",
       "signUp": "Sign up free",
-      "note": "2 free runs · no card needed"
+      "note": "Free runs · no card needed"
     },
     "film": {
-      "label": "Demo of an Indesk run",
-      "description": "A 10-second loop: files arrive, a question is asked, five animal agents work, and a verified report appears.",
+      "label": "Sample animation",
+      "description": "A 10-second sample loop: a CSV arrives, a question is asked, three agents work and a report appears. Chameleon and Hound are not built yet.",
       "pause": "Pause animation",
       "play": "Play animation",
-      "duration": "10 s",
+      "duration": "Sample animation · 10 s",
       "live": "LIVE",
       "caseLabel": "CASE №{no}",
-      "question": "Which stations grew fastest since 2019?",
+      "question": "Which Seoul station was busiest in September?",
       "agents": {
         "owl": "Manager",
         "chameleon": "Vision",
@@ -59,15 +59,14 @@
         "cat": "Critic"
       },
       "placeholderClaims": {
-        "a": "Seongsu +51%",
-        "b": "5 above 30%",
-        "c": "Busan fastest"
+        "a": "Top station",
+        "b": "Total",
+        "c": "Weekend"
       },
       "report": {
         "title": "Report",
         "meta": "№{no} · {agents} agents",
-        "stamp": "VERIFIED {verified}/{total}",
-        "download": "Download PDF"
+        "stamp": "VERIFIED {verified}/{total}"
       },
       "steps": {
         "upload": "Upload files",
@@ -85,7 +84,8 @@
         "hound": "search",
         "cat": "critic",
         "flagged": "flagged"
-      }
+      },
+      "later": "later"
     },
     "team": {
       "title": "Meet the team",
@@ -95,38 +95,38 @@
       "owl": {
         "name": "Owl",
         "role": "Manager",
-        "desc": "Reads your question, picks a plan and merges the results.",
+        "desc": "Reads your question and plans the calculation.",
         "tag": "router · planner",
-        "see": "The plan, and how your question was classified."
+        "see": "The plan it made for your question."
       },
       "chameleon": {
         "name": "Chameleon",
         "role": "Vision",
-        "desc": "Reads photos, charts and scanned pages.",
-        "tag": "OCR + vision model",
+        "desc": "Will read photos, charts and scanned pages.",
         "see": "The photo with every detected bar and the text it read."
       },
       "beaver": {
         "name": "Beaver",
         "role": "Data",
         "desc": "Runs real calculations on your tables in a safe sandbox.",
-        "tag": "pandas · NumPy",
+        "tag": "pandas",
         "see": "The exact code and the table it produced."
       },
       "hound": {
         "name": "Hound",
         "role": "Retrieval",
-        "desc": "Sniffs out the right passages in long PDFs.",
-        "tag": "embeddings + keywords",
+        "desc": "Will find the right passages in long PDFs.",
         "see": "Matched passages with page numbers and scores."
       },
       "cat": {
         "name": "Cat",
         "role": "Critic",
-        "desc": "Checks every claim against the evidence, and flags the weak ones.",
-        "tag": "checks + LLM judge",
+        "desc": "Checks every claim against the evidence, in code, and flags the weak ones.",
+        "tag": "checks in code",
         "see": "Each claim with its evidence and a verdict."
-      }
+      },
+      "seeLabelLater": "Planned:",
+      "comingLater": "Coming later"
     },
     "modes": {
       "title": "Three ways to work with your files",
@@ -134,50 +134,49 @@
       "ask": {
         "title": "Ask a question",
         "body": "Ask in your own words. The team computes, reads and checks, then hands you a cited report.",
-        "example": "Example: Which stations grew fastest since 2019?"
+        "example": "Example: How do weekday and weekend boardings compare?"
       },
       "check": {
         "title": "Check a document",
-        "body": "Give us a report and the data behind it. We test every claim and show which ones do not hold.",
-        "example": "Example: 4 of 6 claims hold, 1 does not match"
+        "body": "Give us a report and the data behind it. We test every claim and show which ones do not hold."
       },
       "compare": {
         "title": "Compare",
-        "body": "Two months, two versions, two sources. We show what changed and prove it.",
-        "example": "Example: Total boardings rose 6.3%"
+        "body": "Two months, two versions, two sources. We show what changed and prove it."
       },
-      "try": "Try with an example"
+      "try": "Try with an example",
+      "comingSoon": "Coming soon"
     },
     "who": {
       "title": "Who it’s for",
       "items": {
         "publish": {
           "title": "Data journalists",
-          "text": "Check a city’s open data against an official PDF before publishing."
+          "text": "Ask a question of a city’s open data CSV and see which numbers hold before you quote them."
         },
         "paper": {
           "title": "Students and researchers",
-          "text": "Ask one question across a paper’s tables and figures, with page references."
+          "text": "Ask one question of a results table and get a cited answer you can check row by row."
         },
         "weekly": {
           "title": "Small-team analysts",
-          "text": "Turn last month’s export and a screenshot into a cited summary for the weekly meeting."
+          "text": "Turn last month’s export into a cited summary for the weekly meeting."
         },
         "board": {
           "title": "Nonprofit staff",
-          "text": "Read a funder’s PDF report and a donations sheet together to answer a board question."
+          "text": "Ask a board question of a donations sheet and see which claims are verified."
         }
       }
     },
     "trust": {
       "files": "Your files are deleted after 24 hours.",
       "sandbox": "Code runs in a sandbox with no internet.",
-      "evidence": "Every claim links to its evidence.",
-      "instructions": "Text inside uploads is never treated as instructions."
+      "evidence": "Every claim shows its evidence, or why it couldn’t be verified.",
+      "instructions": "Text inside uploads is fenced off as data in every prompt."
     },
     "closing": {
       "title": "Start free. Pay only for bigger jobs.",
-      "body": "Two free runs on every account, with clear limits on file size.",
+      "body": "Free runs on every account, with clear limits on file size.",
       "tryDemo": "Try the demo",
       "seePlans": "See plans"
     }
@@ -243,7 +242,7 @@
     "tabLogin": "Log in",
     "login": {
       "title": "Log in",
-      "sub": "Log in to see your reports and usage.",
+      "sub": "Log in to run analyses and see your usage.",
       "cta": "Log in",
       "switchText": "New here?",
       "switchLink": "Sign up",
@@ -251,7 +250,7 @@
     },
     "signup": {
       "title": "Sign up",
-      "sub": "2 free runs. No card needed.",
+      "sub": "Free runs. No card needed.",
       "cta": "Sign up",
       "switchText": "Already have an account?",
       "switchLink": "Log in",
@@ -278,11 +277,9 @@
     },
     "freeTitle": "Included for free",
     "free": [
-      "2 analysis runs",
+      "Free analysis runs, a one-time allowance",
       "Files up to 5 MB each",
-      "CSV up to 5,000 rows",
-      "PDF up to 10 pages",
-      "Reports kept for 30 days"
+      "CSV up to 5,000 rows"
     ],
     "trustTitle": "How we protect you",
     "trust": [
@@ -297,7 +294,7 @@
     "sub": "Start free. Pay only when you need bigger files or more runs.",
     "paidMsg": "Payment simulated. Your limits were raised.",
     "limitTitle": "You’ve used all your runs",
-    "limitBody": "The server blocks new runs until you upgrade or the month resets. Your reports stay available.",
+    "limitBody": "The server blocks new runs. Free runs are a one-time allowance. Your reports stay available.",
     "demoNoPayments": "Demo: no real payments are taken.",
     "demoBadge": "Demo",
     "popular": "Most popular",
@@ -323,9 +320,7 @@
       "runsPro": "{runs, number} runs per month",
       "runsPayg": "{runs, number} runs, never expire",
       "fileSize": "Files up to {mb, number} MB each",
-      "csvRows": "CSV up to {rows, number} rows",
-      "pdfPages": "PDF up to {pages, number} pages",
-      "retention": "Reports kept for {days, number} days"
+      "csvRows": "CSV up to {rows, number} rows"
     },
     "custom": {
       "eyebrow": "Custom plan",
@@ -339,21 +334,16 @@
       },
       "dataSize": {
         "title": "Data size",
-        "hint": "rows and pages per file"
-      },
-      "retention": {
-        "title": "Keep reports",
-        "hint": "original files are always deleted after 24 h"
+        "hint": "rows per file"
       },
       "parallel": {
         "title": "Runs at the same time",
         "hint": "how many analyses can run together"
       },
       "mb": "{mb, number} MB",
-      "days": "{days, number} days",
       "count": "{count, number}",
-      "dataStandard": "Standard · 200k rows · 200 pages",
-      "dataLarge": "Large · 1M rows · 1,000 pages",
+      "dataStandard": "Standard · 200k rows",
+      "dataLarge": "Large · 1M rows",
       "optionsNote": "Demo: only the number of runs sets the price.",
       "yourPlan": "Your plan",
       "per": "per month",
@@ -362,7 +352,6 @@
       "lineFileSize": "File size {mb, number} MB",
       "lineDataStandard": "Standard data size",
       "lineDataLarge": "Large data size",
-      "lineRetention": "Reports kept {days, number} days",
       "lineParallel": "{count, number} at the same time",
       "included": "included",
       "minNote": "Under {minimum} we round up to {minimum}, the same as Pro, which already covers {proRuns, number} runs.",
@@ -562,7 +551,7 @@
     },
     "signedOut": {
       "title": "Log in to ask",
-      "body": "Log in to add files and ask the team. Sign-up gives you 2 free runs, no card needed.",
+      "body": "Log in to add files and ask the team. Sign-up includes free runs, no card needed.",
       "login": "Log in",
       "signup": "Sign up"
     },

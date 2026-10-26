@@ -26,7 +26,6 @@ export default function CustomSummary({ offer, pro, quote, choices, signedIn, on
     { label: t("lineRuns", { runs: quote.runs, perRun: money(quote.perRun) }), amount: money(quote.base) },
     { label: t("lineFileSize", { mb: offer.max_file_mb[choices.fileSize] }), amount: t("included") },
     { label: choices.dataTier === 0 ? t("lineDataStandard") : t("lineDataLarge"), amount: t("included") },
-    { label: t("lineRetention", { days: offer.retention_days[choices.retention] }), amount: t("included") },
     { label: t("lineParallel", { count: offer.parallel[choices.parallel] }), amount: t("included") },
   ];
 

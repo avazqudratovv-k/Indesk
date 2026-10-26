@@ -1,33 +1,31 @@
-// Non-language literals for the demo film (board Home.dc.html). Every value here is PLACEHOLDER sample data,
-// not a real run: file names, scores, row counts and the code snippet only make the loop look real.
+// Non-language literals for the sample animation (board Home.dc.html). Every value here is PLACEHOLDER sample data,
+// not a real run: scores, row counts and the code snippet only make the loop look real. Chameleon and Hound are
+// not built, so their lanes say "later" (home.film.later) and carry no sample data.
 // Words that a person reads live in messages (home.film.*), never here.
 export const film = {
   caseNo: "0147",
-  agentCount: 5,
-  // CSV / PDF / JPG sample files that fly in first; colour is the agent that reads them.
-  files: [
-    { kind: "CSV", color: "var(--c-bea)" },
-    { kind: "PDF", color: "var(--c-hou)" },
-    { kind: "JPG", color: "var(--c-cham)" },
-  ],
-  owl: { field: "question_type", value: ["numeric_", "comparison"], confidence: "0.96 → data + docs" },
-  vision: { quotes: [["“2019”", "4,812"], ["“2024”", "7,265"]], confidence: "conf 0.93" },
+  agentCount: 3,
+  // The stamp on the sample report: matches the report rows below (three marked, one flagged).
+  verified: 3,
+  total: 4,
+  // Ask takes exactly one CSV, so one sample file flies in.
+  files: [{ kind: "CSV", color: "var(--c-bea)" }],
+  owl: { field: "question_type", value: ["numeric_", "comparison"], confidence: "0.96 → data" },
   data: { codeStart: "df.groupby(", codeArg: "\"st\"", codeEnd: ")", codeLine2: ".riders.pct()", summary: "3 rows · 0.04 s" },
-  retrieval: { source: "report.pdf · p.4", score: "score 0.91" },
-  // Row labels and agent colour for the dots on the report paper (last row is the flagged one).
+  // Row labels and agent colour for the dots on the report paper (last row is the flagged one). Only Beaver's data rows exist today.
   reportRows: [
     { label: "D1", color: "var(--c-bea)", width: 72 },
-    { label: "R1", color: "var(--c-hou)", width: 58 },
-    { label: "V1", color: "var(--c-cham)", width: 66 },
+    { label: "D2", color: "var(--c-bea)", width: 58 },
+    { label: "D3", color: "var(--c-bea)", width: 66 },
   ],
   flaggedRow: { label: "U1", width: 60 },
   // Trace log (desktop only): time stamp and the technical detail after the agent name.
   trace: [
-    { time: "00:03", detail: "route → numeric_comparison" },
-    { time: "00:04", detail: "OCR chart.jpg · conf 0.93" },
-    { time: "00:05", detail: "groupby → 3 rows · 0.04 s" },
-    { time: "00:06", detail: "report.pdf p.4 · 0.91" },
-    { time: "00:07", detail: "" },
+    { time: "00:03", detail: "route → numeric_comparison", later: false },
+    { time: "00:04", detail: "", later: true },
+    { time: "00:05", detail: "groupby → 3 rows · 0.04 s", later: false },
+    { time: "00:06", detail: "", later: true },
+    { time: "00:07", detail: "", later: false },
   ],
 } as const;
 

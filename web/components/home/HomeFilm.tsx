@@ -10,12 +10,12 @@ const stepKeys = ["upload", "ask", "work", "check", "report"] as const;
 
 // Wraps the film stage (a server-rendered child) with the pause control, step captions and trace log.
 // The loop itself is pure CSS; this component only toggles animation-play-state through a class.
-export default function HomeFilm({ stage, verified, total }: { stage: ReactNode; verified: number; total: number }) {
+export default function HomeFilm({ stage }: { stage: ReactNode }) {
   const t = useTranslations("home.film");
   const [paused, setPaused] = useState(false);
   return (
     <figure className={`${styles.loop} ${paused ? styles.paused : ""}`} aria-label={t("label")}>
-      <p className={styles.srOnly}>{t("description", { verified, total })}</p>
+      <p className={styles.srOnly}>{t("description")}</p>
       {/* The picture repeats the description above, so screen readers skip it. */}
       <div aria-hidden="true">{stage}</div>
       <div className={styles.controls}>
@@ -56,7 +56,7 @@ export default function HomeFilm({ stage, verified, total }: { stage: ReactNode;
                 <i className={styles.led} />
                 <span className={styles.traceTime}>{line.time}</span>
                 <span className={styles.traceWho}>{t(`trace.${id}`)}</span>
-                {line.detail ? line.detail : (
+                {line.later ? <span className={styles.bad}>{t("later")}</span> : line.detail ? line.detail : (
                   <>
                     <span style={{ color: "var(--green)" }}>✓ ✓</span> <span className={styles.bad}>✗ {t("trace.flagged")}</span>
                   </>

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import Card from "@/components/ui/Card";
+import Chip from "@/components/ui/Chip";
 import HomeSection from "./HomeSection";
-import { exampleReportHref } from "./agents";
+import { exampleHref } from "./agents";
 import styles from "./HomeModes.module.css";
 
 const modes = ["ask", "check", "compare"] as const;
@@ -44,10 +45,18 @@ export default function HomeModes() {
             </span>
             <h3 className={styles.name}>{t(`${mode}.title`)}</h3>
             <p className={styles.body}>{t(`${mode}.body`)}</p>
-            <p className={styles.example}>{t(`${mode}.example`)}</p>
-            <Link className={styles.link} href={exampleReportHref[mode]}>
-              {t("try")} <span aria-hidden="true">→</span>
-            </Link>
+            {mode === "ask" ? (
+              <>
+                <p className={styles.example}>{t("ask.example")}</p>
+                <Link className={styles.link} href={exampleHref}>
+                  {t("try")} <span aria-hidden="true">→</span>
+                </Link>
+              </>
+            ) : (
+              <span className={styles.soon}>
+                <Chip tone="soon">{t("comingSoon")}</Chip>
+              </span>
+            )}
           </Card>
         ))}
       </ul>

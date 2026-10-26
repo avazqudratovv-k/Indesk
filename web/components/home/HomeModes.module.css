@@ -46,6 +46,11 @@
   font: 500 13px var(--mono);
 }
 
+.soon {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
 .link {
   display: inline-flex;
   align-items: center;

@@ -30,7 +30,6 @@ export default function CustomCalculator({ offer, quote, choices, onRuns, onChoi
   const groups = [
     { key: "fileSize", title: t("fileSize.title"), hint: t("fileSize.hint"), labels: offer.max_file_mb.map((mb) => t("mb", { mb })) },
     { key: "dataTier", title: t("dataSize.title"), hint: t("dataSize.hint"), labels: offer.data_tier.map(dataLabel) },
-    { key: "retention", title: t("retention.title"), hint: t("retention.hint"), labels: offer.retention_days.map((days) => t("days", { days })) },
     { key: "parallel", title: t("parallel.title"), hint: t("parallel.hint"), labels: offer.parallel.map((count) => t("count", { count })) },
   ] as const;
 

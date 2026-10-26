@@ -5,15 +5,11 @@ import HomeModes from "@/components/home/HomeModes";
 import HomeTeam from "@/components/home/HomeTeam";
 import HomeTrust from "@/components/home/HomeTrust";
 import HomeWho from "@/components/home/HomeWho";
-import { getMockReport } from "@/mocks";
 
-export default async function Page() {
-  // PLACEHOLDER numbers for the demo film (verified / total on the stamp) come from the mock Ask report (rep_01).
-  const report = getMockReport("rep_01");
-  if (!report) throw new Error("mock report rep_01 is missing");
+export default function Page() {
   return (
     <main>
-      <HomeHero verified={report.verified_count} total={report.total_claims} />
+      <HomeHero />
       <HomeMarquee />
       <HomeModes />
       <HomeTeam />

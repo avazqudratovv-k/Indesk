@@ -26,8 +26,6 @@ export default function PlanCard({ offer, signedIn, current, onChoose }: PlanCar
     t(runsKey[plan], { runs: offer.runs }),
     t("features.fileSize", { mb: offer.max_file_mb }),
     t("features.csvRows", { rows: offer.csv_rows }),
-    t("features.pdfPages", { pages: offer.pdf_pages }),
-    t("features.retention", { days: offer.retention_days }),
   ];
   const label = current ? t("currentPlan") : t(`cta.${plan}`, { runs: format.number(offer.runs) });
   const headingId = `plan-${plan}`;

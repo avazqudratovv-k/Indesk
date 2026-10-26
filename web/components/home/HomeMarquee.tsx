@@ -1,7 +1,7 @@
 import styles from "./HomeMarquee.module.css";
 
 // Technical keywords, not prose, so they are not translated. Four copies make the -50% loop seamless.
-const line = "CSV · PDF · JPG · pandas · OCR · embeddings · hybrid search · critic · cited claims ·  ";
+const line = "CSV · pandas · sandbox · checks in code · cited claims · verified or not ·  ";
 
 export default function HomeMarquee() {
   return (

@@ -79,7 +79,7 @@
   white-space: nowrap;
 }
 
-.link:hover,
+.link:not(.who):hover,
 .on {
   color: var(--ink);
 }

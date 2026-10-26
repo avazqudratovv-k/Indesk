@@ -10,10 +10,11 @@ export const agentColor: Record<AgentId, string> = {
   cat: "var(--c-cat)",
 };
 
+// Chameleon and Hound are not built yet (ROADMAP): the Home page labels them "Coming later".
+export const agentBuilt: Record<AgentId, boolean> = { owl: true, chameleon: false, beaver: true, hound: false, cat: true };
+
 export const agentPlate: Record<AgentId, string> = { owl: "I", chameleon: "II", beaver: "III", hound: "IV", cat: "V" };
 
-// "Try with an example" opens the mock reports until the cached example exists (ROADMAP 4.7):
-// Ask: the public example from GET /api/example. Check and Compare are still mock reports (rep_02, rep_03) until B1 removes their links.
+// "Try with an example" opens the public example from GET /api/example. Check and Compare have no example yet.
 export const exampleHref = "/reports/example";
-export const exampleReportHref = { ask: "/reports/example", check: "/reports/rep_02", compare: "/reports/rep_03" } as const;
 export const workspaceHref = "/workspace";
