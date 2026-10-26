@@ -1,0 +1,310 @@
+"""The ONE place the backend asks a model. `Gateway.ask` never raises: it returns GatewayOk or
+GatewayError with one fixed outcome. Everything is metadata-only: it logs and stores the model,
+an outcome code, the duration, token counts and the run id, never a prompt, an answer or the key.
+
+Per request: size check, key and chain check, then for each model in order: reserve one cap slot
+(atomic, fail closed), call the client with what is left of the total budget, write one ai_calls
+row, and fall to the next model on 429, 5xx, timeout or any other failure. A model that answers
+with unusable output stops the chain (BAD_OUTPUT); the agent layer owns the one retry.
+
+NOT VERIFIED against real Gemini. Tests use a fake client."""
+
+import logging
+import time
+import uuid
+from collections.abc import Callable
+from datetime import date
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
+
+from app.ai.caps import SessionFactory, reserve_call
+from app.ai.client import ClientFailure, ClientOk, ModelClient
+from app.ai.config import ModelChain, ModelSpec, load_model_chain
+from app.ai.records import record_attempt
+from app.core.clock import utcnow
+from app.core.config import Limits, Settings
+from app.core.enums import AiCallStatus, AiPurpose, CapDecision, GatewayOutcome, ModelFailure
+
+logger = logging.getLogger("indesk.ai")
+
+_CALL_STATUS = {
+    ModelFailure.RATE_LIMITED: AiCallStatus.RATE_LIMITED,
+    ModelFailure.TIMEOUT: AiCallStatus.TIMEOUT,
+    ModelFailure.SERVER_ERROR: AiCallStatus.ERROR,
+    ModelFailure.OTHER: AiCallStatus.ERROR,
+    ModelFailure.BAD_RESPONSE: AiCallStatus.ERROR,
+}
+
+
+class GatewayOk(BaseModel):
+    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
+
+    ok: Literal[True] = True
+    outcome: Literal[GatewayOutcome.OK] = GatewayOutcome.OK
+    text: str = Field(repr=False)
+    parsed: BaseModel | None = Field(
+        default=None, repr=False
+    )  # set when a response model was given
+    model: str
+    attempts: int
+    tokens_in: int
+    tokens_out: int
+    duration_ms: int
+
+
+class GatewayError(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    ok: Literal[False] = False
+    outcome: GatewayOutcome
+    cap_scope: Literal["user", "global"] | None = None  # set with CAP_REACHED
+    attempts: int = 0
+    duration_ms: int = 0
+
+
+GatewayResult = GatewayOk | GatewayError
+
+
+def _utc_today() -> date:
+    return utcnow().date()
+
+
+class Gateway:
+    def __init__(
+        self,
+        *,
+        api_key: SecretStr | None,
+        chain: ModelChain | None,
+        limits: Limits,
+        session_factory: SessionFactory,
+        client: ModelClient | None,
+        clock: Callable[[], float] = time.monotonic,
+        today: Callable[[], date] = _utc_today,
+    ) -> None:
+        self._api_key = api_key
+        self._chain = chain
+        self._limits = limits
+        self._sessions = session_factory
+        self._client = client
+        self._clock = clock
+        self._today = today
+
+    def __repr__(self) -> str:
+        return "Gateway()"
+
+    def ask(
+        self,
+        prompt: str,
+        *,
+        system: str | None = None,
+        purpose: AiPurpose,
+        user_id: uuid.UUID,
+        run_id: uuid.UUID | None = None,
+        response_model: type[BaseModel] | None = None,
+    ) -> GatewayResult:
+        started = self._clock()
+        try:
+            return self._ask(prompt, system, purpose, user_id, run_id, response_model, started)
+        except Exception:  # noqa: BLE001  # the contract is "never raises"
+            logger.error("ai gateway failed code=%s", "AI_GATEWAY_INTERNAL")
+            return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
+
+    # ---- internals ----
+
+    def _ms(self, since: float) -> int:
+        return max(0, int((self._clock() - since) * 1000))
+
+    def _error(
+        self,
+        outcome: GatewayOutcome,
+        started: float,
+        *,
+        attempts: int = 0,
+        cap_scope: Literal["user", "global"] | None = None,
+    ) -> GatewayError:
+        return GatewayError(
+            outcome=outcome, attempts=attempts, cap_scope=cap_scope, duration_ms=self._ms(started)
+        )
+
+    def _ask(
+        self,
+        prompt: str,
+        system: str | None,
+        purpose: AiPurpose,
+        user_id: uuid.UUID,
+        run_id: uuid.UUID | None,
+        response_model: type[BaseModel] | None,
+        started: float,
+    ) -> GatewayResult:
+        if not isinstance(prompt, str) or (system is not None and not isinstance(system, str)):
+            return self._error(GatewayOutcome.BAD_INPUT, started)
+        if len(prompt) + len(system or "") > self._limits.max_prompt_chars:
+            return self._error(GatewayOutcome.BAD_INPUT, started)
+        key = self._api_key
+        if key is None or not key.get_secret_value().strip():
+            return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
+        if self._chain is None or self._client is None:
+            return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
+
+        schema = response_model.model_json_schema() if response_model is not None else None
+        deadline = started + self._chain.total_budget_seconds
+        failures: list[ModelFailure] = []
+        attempts = 0
+        budget_gone = False
+        for number, spec in enumerate(self._chain.chain, start=1):
+            if self._clock() >= deadline:
+                budget_gone = True
+                break
+            decision = reserve_call(
+                self._sessions,
+                user_id=user_id,
+                day=self._today(),
+                per_user=self._limits.daily_calls_per_user,
+                per_day=self._limits.daily_calls_global,
+            )
+            if decision is CapDecision.UNAVAILABLE:
+                return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started, attempts=attempts)
+            if decision is not CapDecision.RESERVED:
+                scope: Literal["user", "global"] = (
+                    "user" if decision is CapDecision.USER_CAP else "global"
+                )
+                return self._error(
+                    GatewayOutcome.CAP_REACHED, started, attempts=attempts, cap_scope=scope
+                )
+            remaining = deadline - self._clock()
+            if remaining <= 0:
+                budget_gone = True
+                break
+            attempts += 1
+            finished = self._attempt(
+                spec, number, min(spec.timeout_seconds, remaining), prompt, system, schema,
+                purpose, user_id, run_id, response_model,
+            )  # fmt: skip
+            if isinstance(finished, ModelFailure):
+                failures.append(finished)
+                if finished is ModelFailure.BAD_RESPONSE:
+                    return self._error(GatewayOutcome.BAD_OUTPUT, started, attempts=attempts)
+                continue
+            if finished is None:
+                return self._error(GatewayOutcome.BAD_OUTPUT, started, attempts=attempts)
+            text, parsed, tokens_in, tokens_out = finished
+            return GatewayOk(
+                text=text, parsed=parsed, model=spec.name, attempts=attempts,
+                tokens_in=tokens_in, tokens_out=tokens_out, duration_ms=self._ms(started),
+            )  # fmt: skip
+        return self._error(self._exhausted(failures, budget_gone), started, attempts=attempts)
+
+    @staticmethod
+    def _exhausted(failures: list[ModelFailure], budget_gone: bool) -> GatewayOutcome:
+        if budget_gone or ModelFailure.TIMEOUT in failures:
+            return GatewayOutcome.TIMEOUT
+        if failures and all(f is ModelFailure.RATE_LIMITED for f in failures):
+            return GatewayOutcome.BUSY
+        return GatewayOutcome.MODEL_UNAVAILABLE
+
+    def _attempt(
+        self,
+        spec: ModelSpec,
+        number: int,
+        timeout: float,
+        prompt: str,
+        system: str | None,
+        schema: dict[str, object] | None,
+        purpose: AiPurpose,
+        user_id: uuid.UUID,
+        run_id: uuid.UUID | None,
+        response_model: type[BaseModel] | None,
+    ) -> ModelFailure | tuple[str, BaseModel | None, int, int] | None:
+        """One request. Returns a ModelFailure to move on, None for unusable output (stop), or
+        (text, parsed, tokens_in, tokens_out). Always writes the ai_calls row."""
+        assert self._client is not None  # noqa: S101  # narrows the type; _ask checked it
+        began = self._clock()
+        try:
+            result = self._client.generate(
+                model=spec.name, prompt=prompt, system=system, response_schema=schema,
+                max_output_tokens=spec.max_output_tokens, thinking_budget=spec.thinking_budget,
+                timeout=timeout,
+            )  # fmt: skip
+        except Exception:  # noqa: BLE001  # a client that raises is just another failure
+            result = ClientFailure(kind=ModelFailure.OTHER)
+        outcome: ModelFailure | tuple[str, BaseModel | None, int, int] | None
+        tokens_in = tokens_out = 0
+        if isinstance(result, ClientFailure):
+            outcome, status = result.kind, _CALL_STATUS[result.kind]
+        elif isinstance(result, ClientOk):
+            tokens_in, tokens_out = result.tokens_in, result.tokens_out
+            parsed = self._usable(result.text, response_model)
+            if parsed is None:
+                outcome, status = None, AiCallStatus.ERROR
+            else:
+                outcome, status = (result.text, parsed[0], tokens_in, tokens_out), AiCallStatus.OK
+        else:  # not a ClientResult at all: garbage from the client
+            outcome, status = None, AiCallStatus.ERROR
+        self._record(spec, number, purpose, user_id, run_id, status, tokens_in, tokens_out, began)
+        return outcome
+
+    @staticmethod
+    def _usable(
+        text: str, response_model: type[BaseModel] | None
+    ) -> tuple[BaseModel | None] | None:
+        """(parsed,) when the text is usable, else None. Strict: no cleaning of the model output."""
+        if not text.strip():
+            return None
+        if response_model is None:
+            return (None,)
+        try:
+            return (response_model.model_validate_json(text),)
+        except ValueError:
+            return None
+
+    def _record(
+        self,
+        spec: ModelSpec,
+        number: int,
+        purpose: AiPurpose,
+        user_id: uuid.UUID,
+        run_id: uuid.UUID | None,
+        status: AiCallStatus,
+        tokens_in: int,
+        tokens_out: int,
+        began: float,
+    ) -> None:
+        """Bookkeeping must never change the result or raise: log a code and move on."""
+        latency = self._ms(began)
+        try:
+            record_attempt(
+                self._sessions, user_id=user_id, run_id=run_id, purpose=purpose,
+                model=spec.name, attempt=number, status=status, tokens_in=tokens_in,
+                tokens_out=tokens_out, latency_ms=latency,
+            )  # fmt: skip
+        except Exception:  # noqa: BLE001
+            logger.error("ai bookkeeping failed code=%s", "AI_RECORD_FAILED")
+        logger.info(
+            "ai model=%s outcome=%s ms=%d tokens_in=%d tokens_out=%d run=%s",
+            spec.name, status.value, latency, tokens_in, tokens_out, run_id or "-",
+        )  # fmt: skip
+
+
+def build_gateway(settings: Settings, session_factory: SessionFactory) -> Gateway:
+    """The production gateway. Under app_env=test the real client is never built, so a test that
+    forgets to inject a fake gets MODEL_UNAVAILABLE instead of a network call. A missing or broken
+    models.toml also gives MODEL_UNAVAILABLE, not a crash."""
+    try:
+        chain: ModelChain | None = load_model_chain()
+    except Exception:  # noqa: BLE001
+        logger.error("ai config failed code=%s", "AI_CONFIG_INVALID")
+        chain = None
+    client: ModelClient | None = None
+    key = settings.gemini_api_key
+    if settings.app_env != "test" and key is not None and key.get_secret_value().strip():
+        from app.ai.real_client import GeminiRestClient  # noqa: PLC0415  # kept out of test paths
+
+        client = GeminiRestClient(key)
+    return Gateway(
+        api_key=key,
+        chain=chain,
+        limits=settings.limits,
+        session_factory=session_factory,
+        client=client,
+    )

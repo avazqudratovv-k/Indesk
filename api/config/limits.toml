@@ -22,6 +22,17 @@ upload_ttl_hours = 24
 # Seconds between expiry sweeps. ROADMAP 3.16 "hourly and daily sweeps".
 sweep_interval_seconds = 3600
 
+# Model calls per UTC day, all users together. Dev default, owner decision for P6; DECISIONS #32 says 1,000 for production
+# and the owner will amend it. Counts every request to a model, fallback attempts included.
+daily_calls_global = 200
+
+# Model calls per UTC day, one user. Dev default, owner decision for P6; DECISIONS #32 says 300 for production.
+daily_calls_per_user = 50
+
+# Longest prompt (system + prompt) the gateway will send, in characters. Owner decision for P6; no doc gives a number.
+# It stops a whole CSV from being sent by mistake: the model only sees column names, a sample and results.
+max_prompt_chars = 40000
+
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
 # the run endpoint will read these.
 [files_per_slot]

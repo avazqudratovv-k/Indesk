@@ -31,6 +31,9 @@ class Limits(BaseModel):
     max_filename_chars: PositiveInt
     upload_ttl_hours: PositiveInt
     sweep_interval_seconds: PositiveInt
+    daily_calls_global: PositiveInt
+    daily_calls_per_user: PositiveInt
+    max_prompt_chars: PositiveInt
     files_per_slot: dict[str, PositiveInt]
 
 

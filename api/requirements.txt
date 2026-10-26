@@ -11,3 +11,4 @@ rq==2.12.0
 argon2-cffi==25.1.0  # Argon2id password hashing (the reference binding, maintained by the Argon2 authors group)
 PyJWT==2.15.1  # signs and verifies the HS256 access token, with the algorithm pinned on decode
 python-multipart==0.0.32  # FastAPI needs it to read the upload form (file + consent); maintained by the Starlette author
+httpx==0.28.1  # the only HTTP client for Gemini (app/ai/real_client.py); already pinned for tests before, now a runtime dependency

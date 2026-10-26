@@ -194,3 +194,33 @@ class SandboxErrorCode(StrEnum):
     OUTPUT_TOO_LARGE = "output_too_large"
     BAD_INPUT = "bad_input"
     UNAVAILABLE = "unavailable"  # set by the client when the service cannot be reached
+
+
+class GatewayOutcome(StrEnum):
+    """What the Gemini gateway returns to its caller. Never an exception, never a model message."""
+
+    OK = "ok"
+    BUSY = "busy"  # every model in the chain answered 429
+    TIMEOUT = "timeout"  # the 35 s budget ran out, or a model timed out and none answered
+    # No key, no client, no model, 5xx answers, or the cap store is down.
+    MODEL_UNAVAILABLE = "model_unavailable"
+    CAP_REACHED = "cap_reached"  # a daily model-call cap; the result says which scope
+    BAD_OUTPUT = "bad_output"  # a model answered, but not with usable output
+    BAD_INPUT = "bad_input"  # the prompt is over the character cap; nothing was sent
+
+
+class ModelFailure(StrEnum):
+    """Why one request to one model failed. Set by the model client, read by the gateway."""
+
+    RATE_LIMITED = "rate_limited"
+    SERVER_ERROR = "server_error"
+    TIMEOUT = "timeout"
+    OTHER = "other"  # any other HTTP status or a transport error
+    BAD_RESPONSE = "bad_response"  # HTTP 200 but unreadable or too large
+
+
+class CapDecision(StrEnum):
+    RESERVED = "reserved"
+    USER_CAP = "user_cap"
+    GLOBAL_CAP = "global_cap"
+    UNAVAILABLE = "unavailable"  # the counter store failed; the gateway fails closed

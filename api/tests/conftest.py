@@ -1,6 +1,7 @@
 import os
 from collections.abc import Callable, Iterator
 
+import httpx
 import pytest
 from alembic import command
 from fastapi.testclient import TestClient
@@ -124,3 +125,27 @@ def make_client(db_connection: Connection) -> Iterator[Callable[..., TestClient]
 @pytest.fixture
 def auth_client(make_client: Callable[..., TestClient], auth_settings: Settings) -> TestClient:
     return make_client(auth_settings)
+
+
+# ---- no real network from httpx, ever ----
+
+
+@pytest.fixture(autouse=True)
+def network_guard(monkeypatch: pytest.MonkeyPatch) -> Iterator[list[str]]:
+    """Block only httpx's REAL network transports. TestClient, MockTransport and urllib (the
+    sandbox tests) are different classes and are not touched. A blocked call is recorded and the
+    test fails at teardown even if the code under test swallowed the error."""
+    blocked: list[str] = []
+
+    def refuse(self: object, request: httpx.Request) -> httpx.Response:
+        blocked.append(request.url.host)
+        raise RuntimeError("real network call blocked by the test suite")
+
+    async def refuse_async(self: object, request: httpx.Request) -> httpx.Response:
+        blocked.append(request.url.host)
+        raise RuntimeError("real network call blocked by the test suite")
+
+    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", refuse)
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", refuse_async)
+    yield blocked
+    assert not blocked, f"a test tried a real network call to {blocked}"
