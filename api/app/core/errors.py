@@ -44,6 +44,7 @@ class ErrorCode(StrEnum):
     RUN_ACTIVE = "RUN_ACTIVE"  # one active run per user
     UPLOAD_NOT_READY = "UPLOAD_NOT_READY"
     TOO_MANY_STREAMS = "TOO_MANY_STREAMS"
+    TOO_MANY_FILES = "TOO_MANY_FILES"  # Ask takes one CSV in v1
     UPLOAD_IN_USE = "UPLOAD_IN_USE"  # an active run still uses the file
 
 

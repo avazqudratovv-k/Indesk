@@ -6,7 +6,6 @@ from pydantic import (
     AwareDatetime,
     Field,
     StringConstraints,
-    field_validator,
     model_validator,
 )
 
@@ -78,8 +77,9 @@ class RunFileIn(ApiModel):
     role: FileRole
 
 
-# Files per mode (web Workspace, DECISIONS #80): Ask up to 5; Check 1 document + up to 4
-# sources; Compare 1 + 1.
+# Files per mode: Check 1 document + up to 4 sources; Compare 1 + 1. Ask takes ONE CSV in v1, but
+# the schema lets up to _MAX_ASK_FILES + 1 files (even a repeated one) through so that the service
+# answers TOO_MANY_FILES instead of a generic validation error.
 _MAX_ASK_FILES = 5
 _MAX_CHECK_SOURCES = 4
 
@@ -94,24 +94,19 @@ class RunCreate(ApiModel):
     ]
     files: Annotated[list[RunFileIn], Field(min_length=1, max_length=_MAX_ASK_FILES + 1)]
 
-    @field_validator("files")
-    @classmethod
-    def _no_repeated_upload(cls, files: list[RunFileIn]) -> list[RunFileIn]:
-        if len({f.upload_id for f in files}) != len(files):
-            raise ValueError("an upload can be used once")
-        return files
-
     @model_validator(mode="after")
     def _roles_match_mode(self) -> Self:
         roles = [f.role for f in self.files]
         count = roles.count
         if self.mode is RunMode.ASK:
-            ok = len(roles) <= _MAX_ASK_FILES and count(FileRole.SUBJECT) == len(roles)
+            ok = count(FileRole.SUBJECT) == len(roles)
         elif self.mode is RunMode.CHECK:
             ok = count(FileRole.SUBJECT) == 1 and count(FileRole.SOURCE) == len(roles) - 1
             ok = ok and count(FileRole.SOURCE) <= _MAX_CHECK_SOURCES
         else:
             ok = len(roles) == 2 and count(FileRole.A) == 1 and count(FileRole.B) == 1
+        if self.mode is not RunMode.ASK and len({f.upload_id for f in self.files}) != len(roles):
+            ok = False  # an upload can be used once (Ask: the service refuses with TOO_MANY_FILES)
         if not ok:
             raise ValueError("file roles do not fit the mode")
         return self

@@ -58,6 +58,7 @@ def test_error_codes_are_the_agreed_list() -> None:
         "RUN_ACTIVE",
         "UPLOAD_NOT_READY",
         "TOO_MANY_STREAMS",
+        "TOO_MANY_FILES",
         "UPLOAD_IN_USE",
     }
 
@@ -95,7 +96,7 @@ def test_each_mode_accepts_its_roles(mode: str, files: list[tuple[str, str]]) ->
     ("mode", "files"),
     [
         ("ask", []),
-        ("ask", [("new", "subject")] * 6),  # more than 5, and the same upload twice is caught too
+        ("ask", [("new", "subject")] * 7),  # more files than the request may carry
         ("ask", [("new", "source")]),
         ("check", [("new", "source")]),
         ("check", [("new", "subject"), ("new", "subject")]),
@@ -113,7 +114,7 @@ def test_wrong_roles_or_counts_are_rejected(mode: str, files: list[tuple[str, st
 def test_the_same_upload_cannot_be_used_twice() -> None:
     same = str(uuid.uuid4())
     with pytest.raises(ValidationError):
-        RunCreate.model_validate(create("ask", [(same, "subject"), (same, "subject")]))
+        RunCreate.model_validate(create("check", [(same, "subject"), (same, "source")]))
 
 
 @pytest.mark.parametrize("question", ["", "   ", "x" * 1001])

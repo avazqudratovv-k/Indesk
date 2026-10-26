@@ -118,9 +118,9 @@ profile_name_chars = 60
 max_stored_result_bytes = 65536
 
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
-# the run endpoint will read these.
+# POST /runs reads these. Ask takes ONE CSV in v1 (more is refused with TOO_MANY_FILES).
 [files_per_slot]
-files = 5
+files = 1
 document = 1
 sources = 4
 fileA = 1

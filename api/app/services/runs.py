@@ -71,7 +71,7 @@ def _check_body(body: RunCreate, limits: Limits) -> None:
     if len(body.question) > limits.max_question_chars:
         raise AppError(422, ErrorCode.VALIDATION_ERROR)
     if len(body.files) > limits.files_per_slot["files"]:
-        raise AppError(422, ErrorCode.VALIDATION_ERROR)
+        raise AppError(422, ErrorCode.TOO_MANY_FILES)
 
 
 def _stored_role(requested: FileRole, position: int) -> FileRole:

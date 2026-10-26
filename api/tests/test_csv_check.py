@@ -24,7 +24,7 @@ def test_limits_come_from_the_config_file_with_the_documented_numbers() -> None:
     assert LIMITS.max_columns == 200  # owner decision for P5
     assert LIMITS.uploads_per_hour == 30  # owner decision for P5
     assert LIMITS.files_per_slot == {
-        "files": 5,
+        "files": 1,
         "document": 1,
         "sources": 4,
         "fileA": 1,

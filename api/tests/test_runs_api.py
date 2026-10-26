@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from app.core import clock
 from app.core.config import Settings
 from app.core.enums import RunOutcome, RunStatus
-from app.db.models import AuditLog, Run, RunFile, Upload
+from app.db.models import AuditLog, Run, RunFile, Upload, UsageDaily, UsageEvent
 from app.main import app
 from app.routers.runs import get_enqueue, get_session_factory
 from app.runs.agents import Finish
@@ -95,6 +95,16 @@ def finish_runs(connection: Connection) -> None:
         db.commit()
 
 
+def counters(connection: Connection) -> list[tuple[Any, ...]]:
+    with db_of(connection) as db:
+        rows = db.execute(
+            select(UsageDaily.scope, UsageDaily.runs, UsageDaily.model_calls).order_by(
+                UsageDaily.scope
+            )
+        )
+        return [tuple(r) for r in rows]
+
+
 def count(connection: Connection, model: Any) -> int:
     with db_of(connection) as db:
         return int(db.scalar(select(func.count()).select_from(model)) or 0)
@@ -172,11 +182,24 @@ def test_another_users_upload_and_a_missing_one_look_the_same(
     assert alice.post(URL, json=body(new_upload(alice))).status_code == 202
 
 
-def test_one_foreign_upload_among_mine_refuses_the_whole_request(
-    alice: TestClient, bob: TestClient, enqueued: list[uuid.UUID]
+def test_a_foreign_upload_is_refused_as_not_found(
+    alice: TestClient, bob: TestClient, enqueued: list[uuid.UUID], db_connection: Connection
 ) -> None:
-    code(alice.post(URL, json=body(new_upload(alice), new_upload(bob))), 404, "NOT_FOUND")
-    assert enqueued == []
+    foreign = new_upload(bob)
+    before = (count(db_connection, UsageEvent), counters(db_connection))
+    code(alice.post(URL, json=body(foreign)), 404, "NOT_FOUND")
+    assert enqueued == [] and count(db_connection, Run) == 0
+    assert (count(db_connection, UsageEvent), counters(db_connection)) == before
+
+
+def test_the_file_count_gate_comes_before_the_ownership_check(
+    alice: TestClient, bob: TestClient, enqueued: list[uuid.UUID], db_connection: Connection
+) -> None:
+    mine, foreign = new_upload(alice), new_upload(bob)
+    before = (count(db_connection, UsageEvent), counters(db_connection))
+    code(alice.post(URL, json=body(mine, foreign)), 422, "TOO_MANY_FILES")
+    assert enqueued == [] and count(db_connection, Run) == 0
+    assert (count(db_connection, UsageEvent), counters(db_connection)) == before
 
 
 @pytest.mark.parametrize(
@@ -230,23 +253,45 @@ def test_file_count_comes_from_config(make_client: MakeClient, tmp_path: Path) -
         13,
     )
     first, second = new_upload(client), new_upload(client)
-    code(client.post(URL, json=body(first, second)), 422, "VALIDATION_ERROR")
+    code(client.post(URL, json=body(first, second)), 422, "TOO_MANY_FILES")
     assert client.post(URL, json=body(first)).status_code == 202
 
 
 def test_six_files_or_a_repeated_file_is_refused(
-    alice: TestClient, db_connection: Connection
+    alice: TestClient, enqueued: list[uuid.UUID], db_connection: Connection
 ) -> None:
     ids = [new_upload(alice) for _ in range(6)]
-    code(alice.post(URL, json=body(*ids)), 422, "VALIDATION_ERROR")
-    code(alice.post(URL, json=body(ids[0], ids[0])), 422, "VALIDATION_ERROR")
-    five = alice.post(URL, json=body(*ids[:5]))
-    assert five.status_code == 202
-    with db_of(db_connection) as db:  # one subject at most per run in the database
+    before = (count(db_connection, Run), count(db_connection, UsageEvent), counters(db_connection))
+    code(alice.post(URL, json=body(*ids)), 422, "TOO_MANY_FILES")
+    code(alice.post(URL, json=body(ids[0], ids[0])), 422, "TOO_MANY_FILES")
+    after = (count(db_connection, Run), count(db_connection, UsageEvent), counters(db_connection))
+    assert after == before and before[:2] == (0, 0) and enqueued == []
+
+
+def test_one_file_is_accepted(alice: TestClient, db_connection: Connection) -> None:
+    response = alice.post(URL, json=body(new_upload(alice)))
+    assert response.status_code == 202
+    with db_of(db_connection) as db:
         roles = db.scalars(
-            select(RunFile.role).where(RunFile.run_id == uuid.UUID(five.json()["id"]))
+            select(RunFile.role).where(RunFile.run_id == uuid.UUID(response.json()["id"]))
         )
-        assert sorted(roles) == ["source"] * 4 + ["subject"]
+        assert list(roles) == ["subject"]
+
+
+def test_two_files_are_refused_without_side_effects(
+    alice: TestClient, enqueued: list[uuid.UUID], db_connection: Connection
+) -> None:
+    first, second = new_upload(alice), new_upload(alice)
+    before = (count(db_connection, UsageEvent), counters(db_connection))
+    code(alice.post(URL, json=body(first, second)), 422, "TOO_MANY_FILES")
+    assert count(db_connection, Run) == 0 and enqueued == []
+    assert (count(db_connection, UsageEvent), counters(db_connection)) == before
+    assert alice.post(URL, json=body(first)).status_code == 202  # nothing was spent or locked
+
+
+def test_zero_files_are_refused(alice: TestClient, db_connection: Connection) -> None:
+    code(alice.post(URL, json=body()), 422, "VALIDATION_ERROR")
+    assert count(db_connection, Run) == 0
 
 
 def test_only_ask_mode_exists_for_now(alice: TestClient) -> None:
