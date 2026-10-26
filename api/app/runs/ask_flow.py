@@ -1,6 +1,6 @@
-"""The real Ask flow (P8a): Owl plans, Beaver computes, the run ends `answered` with NO report
-(Cat and the report come in P9). Replaces UnconfiguredFlow for Ask in app.runs.registry; the dev
-stub still wins in development only.
+"""The real Ask flow: Owl plans (P8a), Beaver computes (P8a), Cat writes and checks the claims and
+the report is saved with the run's end (P9). Replaces UnconfiguredFlow for Ask in
+app.runs.registry; the dev stub still wins in development only.
 
 An Ask with more than one file is refused here, before any agent runs: no file read, no model
 call, no cap slot (only one CSV is analysed; comma-delimited files only, see app.runs.profile).
@@ -19,8 +19,10 @@ from app.core.enums import (
     TraceKey,
 )
 from app.runs.agents import Agent, Finish, FlowInput
-from app.runs.ask_schemas import OwlPlan
+from app.runs.ask_schemas import BeaverPayload, OwlPlan
 from app.runs.beaver import BeaverAgent
+from app.runs.cat import CatAgent
+from app.runs.cat_schemas import CatResult
 from app.runs.owl import OwlAgent
 from app.runs.prompts import new_nonce
 from app.runs.trace import TraceLine, stopped_line
@@ -46,5 +48,13 @@ class AskFlow:
             if not isinstance(plan, OwlPlan):  # cannot happen; fail closed, never guess a plan
                 return _stop(RunReason.INTERNAL_ERROR)
             return BeaverAgent(self._limits, plan, self._nonce)
+        if done == 2:
+            beaver = info.history[1].result.data
+            if not isinstance(beaver, BeaverPayload):  # cannot happen; fail closed
+                return _stop(RunReason.INTERNAL_ERROR)
+            return CatAgent(self._limits, beaver, self._nonce)
+        cat = info.history[2].result.data
+        if not isinstance(cat, CatResult):  # cannot happen; fail closed
+            return _stop(RunReason.INTERNAL_ERROR)
         ready = TraceLine(AgentKey.MANAGER, StepKind.SAY, StepState.DONE, TraceKey.READY)
-        return Finish(RunOutcome.ANSWERED, ready)
+        return Finish(cat.outcome, ready, report=cat.report)

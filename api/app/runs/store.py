@@ -19,6 +19,8 @@ from sqlalchemy.orm import Session
 
 from app.core.enums import RunOutcome, RunReason, RunStatus
 from app.db.models import AgentStep, AiCall, AuditLog, Run
+from app.runs import report_store
+from app.runs.cat_schemas import ReportDraft
 from app.runs.machine import check_finish, counts_as_run, require_run_transition
 from app.runs.trace import TraceLine
 
@@ -153,6 +155,7 @@ def finish_run(
     final: TraceLine | None,
     now: datetime,
     attempt: int = 1,
+    report: ReportDraft | None = None,
 ) -> bool:
     """Finish the run if it is still in `expected`. One transaction: status, closing line, audit
     row. False (and nothing written) when someone else finished it first."""
@@ -175,6 +178,8 @@ def finish_run(
         return False
     if final is not None:
         db.add(_step_row(run_id, owner, _next_seq(db, run_id), final, attempt, None, now))
+    if report is not None:  # same transaction: a reader that sees `finished` sees the report
+        report_store.insert_report(db, run_id, owner, report, now)
     # `target` holds "<run id>:<reason or outcome>": audit_log has no column for the reason.
     db.add(
         AuditLog(

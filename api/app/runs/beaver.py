@@ -44,6 +44,11 @@ from app.runs.prompts import (
 from app.runs.trace import TraceLine
 from app.sandbox_client import SandboxError
 
+# A ranking can only be checked by Cat against other rows (cat_checks: at least 2 rows), so a rank
+# plan always asks Beaver for at least this many, even for "which station has the most" (found in
+# the first P9 live run, where top_n=1 left a correct "most" claim unverified).
+MIN_RANK_ROWS = 5
+
 _SANDBOX_HINTS = {
     SandboxErrorCode.FORBIDDEN: RetryHint.FORBIDDEN,
     SandboxErrorCode.RUNTIME: RetryHint.RUNTIME,
@@ -83,9 +88,10 @@ class BeaverAgent:
             )  # fmt: skip
         )
         hint = self._hint if ctx.attempt > 1 else None
-        pair = build_beaver_prompt(
-            ctx.question, self._plan, profile, nonce=self._nonce(), hint=hint
-        )
+        plan = self._plan
+        if plan.task == "rank" and plan.top_n < MIN_RANK_ROWS:
+            plan = plan.model_copy(update={"top_n": MIN_RANK_ROWS})
+        pair = build_beaver_prompt(ctx.question, plan, profile, nonce=self._nonce(), hint=hint)
         asked = ctx.gateway.ask(
             pair.prompt, system=pair.system, purpose=AiPurpose.COMPUTE, user_id=ctx.user_id,
             run_id=ctx.run_id, response_model=BeaverCode, job_class=JobClass.MAIN,
@@ -129,4 +135,4 @@ class BeaverAgent:
                   rows=len(result.rows)),
             payload,
         )  # fmt: skip
-        return AgentDone(asked.tokens_in, asked.tokens_out, asked.model)
+        return AgentDone(asked.tokens_in, asked.tokens_out, asked.model, data=payload)

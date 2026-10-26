@@ -49,6 +49,7 @@ from app.runs.agents import (
     SandboxRunner,
     StepRecord,
 )
+from app.runs.cat_schemas import ReportDraft
 from app.runs.machine import MAX_ATTEMPTS, IllegalTransition, require_agent_transition
 from app.runs.store import RunGone
 from app.runs.trace import BadTraceLine, TraceLine, stopped_line
@@ -100,7 +101,11 @@ class _Runner:
     # ---- writes ----
 
     def _finish(
-        self, outcome: RunOutcome, reason: RunReason | None, final: TraceLine | None
+        self,
+        outcome: RunOutcome,
+        reason: RunReason | None,
+        final: TraceLine | None,
+        report: ReportDraft | None = None,
     ) -> None:
         with self._db() as db:
             store.finish_run(
@@ -111,6 +116,7 @@ class _Runner:
                 reason=reason,
                 final=final,
                 now=self.deps.now(),
+                report=report,
             )
         logger.info(
             "run %s finished outcome=%s reason=%s steps=%d",
@@ -167,7 +173,7 @@ class _Runner:
         while True:
             step = flow.next(FlowInput(self.run_id, mode, lang, upload_ids, tuple(self.history)))
             if isinstance(step, Finish):
-                self._finish(step.outcome, step.reason, step.final)
+                self._finish(step.outcome, step.reason, step.final, step.report)
                 return
             if not self._drive(step, user_id, mode, lang, upload_ids, deadline):
                 return

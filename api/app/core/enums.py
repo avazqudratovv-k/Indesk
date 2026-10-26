@@ -266,3 +266,27 @@ class TraceKey(StrEnum):
     STEP_STARTED = "stepStarted"  # the executor opens an agent that failed before saying anything
     STEP_FAILED = "stepFailed"
     STOPPED = "stopped"  # the closing line of every run that did not end in a normal answer
+    VERIFY = "verify"  # Cat checks the claims (P9); args: claims, verified
+
+
+class ReportReason(StrEnum):
+    """Why Cat did not verify a claim: a closed code stored in a `critic_note` evidence payload.
+    The browser translates it; no sentence is ever stored (P9)."""
+
+    ROWS_MISMATCH = "rows_mismatch"  # the calculation did not use every row of the file
+    BAD_REFERENCE = "bad_reference"  # a cell reference that does not exist
+    NO_NUMERIC_EVIDENCE = "no_numeric_evidence"  # the claim cites no number
+    LABEL_MISSING = "label_missing"  # the claim does not name the row it cites
+    NUMBER_MISMATCH = "number_mismatch"  # a number in the text is not in the cited cells
+    RANKING_UNCHECKED = "ranking_unchecked"  # "most", "least"...: not the extreme of its column
+
+
+class EvidenceMethod(StrEnum):
+    """How the numbers behind a table were computed: the plan's task word (Owl)."""
+
+    RANK = "rank"
+    AGGREGATE = "aggregate"
+    TREND = "trend"
+    COMPARE_GROUPS = "compare_groups"
+    COUNT = "count"
+    DESCRIBE = "describe"

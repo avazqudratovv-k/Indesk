@@ -91,7 +91,7 @@ def top3_payload(factory: SessionFactory, world: World) -> dict[str, Any]:
 # ---- happy path ----
 
 
-def test_a_good_plan_and_good_code_end_answered_with_a_stored_result_and_no_report(
+def test_a_good_plan_and_good_code_end_answered_with_a_stored_result_and_a_report(
     factory: SessionFactory,
 ) -> None:
     world = make_world(factory, question=QUESTION)
@@ -102,13 +102,16 @@ def test_a_good_plan_and_good_code_end_answered_with_a_stored_result_and_no_repo
     assert (run.status, run.outcome, run.outcome_reason, run.counted) == (
         "finished", "answered", None, True,
     )  # fmt: skip
-    assert keys(factory, world) == ["plan", "dispatch", "readCsv", "runPython", "top3", "ready"]
-    assert [c.model for c in client.calls] == [LIGHT0, MAIN0]  # light for Owl, main for Beaver
+    assert keys(factory, world) == [
+        "plan", "dispatch", "readCsv", "runPython", "top3", "verify", "verify", "ready",
+    ]  # fmt: skip
+    # light for Owl, main for Beaver, main for Cat's writer
+    assert [c.model for c in client.calls] == [LIGHT0, MAIN0, MAIN0]
     assert client.calls[1].max_output_tokens == 8192
-    assert [r.purpose for r in ai_rows(factory)] == ["plan", "compute"]
+    assert [r.purpose for r in ai_rows(factory)] == ["plan", "compute", "extract_claims"]
     assert rig.sandbox.calls == 1
     with factory() as db:
-        assert db.scalar(select(func.count()).select_from(Report)) == 0
+        assert db.scalar(select(func.count()).select_from(Report)) == 1
 
     payload = top3_payload(factory, world)
     assert payload["result"] == {**RESULT_OK, "scalars": {}}
@@ -146,7 +149,8 @@ def test_a_bad_plan_is_retried_once_then_works(factory: SessionFactory, first: A
     )
     run_job(world.run_id, rig.deps)
     assert run_row(factory, world.run_id).outcome == "answered"
-    assert [c.model for c in client.calls] == [LIGHT0, LIGHT0, MAIN0]  # no fallback on bad output
+    # no fallback on bad output
+    assert [c.model for c in client.calls] == [LIGHT0, LIGHT0, MAIN0, MAIN0]
     failure = next(s for s in step_rows(factory, world.run_id) if s.key == "stepFailed")
     assert failure.args == {"reason": "bad_model_output", "attempt": 1}
     assert top3_payload(factory, world)["attempt"] == 1  # Beaver's own attempt
@@ -184,7 +188,7 @@ def test_a_retryable_sandbox_error_retries_once_with_a_fixed_hint(
     run_job(world.run_id, rig.deps)
     assert run_row(factory, world.run_id).outcome == "answered"
     assert rig.sandbox.calls == 2
-    _, first_prompt, second_prompt = client.prompts
+    _, first_prompt, second_prompt, _writer_prompt = client.prompts
     assert HINT_TEXT[hint] in second_prompt and HINT_TEXT[hint] not in first_prompt
     assert "FIRST-ATTEMPT-MARK" not in second_prompt  # the earlier code is never sent back
     assert top3_payload(factory, world)["attempt"] == 2
@@ -536,7 +540,8 @@ def test_injection_in_the_csv_does_not_change_what_runs_or_what_is_traced(
     rig.deps.sandbox = recorder
     run_job(world.run_id, rig.deps)
 
-    assert run_row(factory, world.run_id).outcome == "answered"
+    # "partial": the scripted result says rows_used 204, the hostile file has 1 row (rows_mismatch).
+    assert run_row(factory, world.run_id).outcome == "partial"
     # The sandbox got exactly the scripted code and the whole, unchanged file.
     assert recorder.jobs == [(CODE_OK, hostile)]
     # The prompts held the hostile text only cut short and only inside fenced JSON lines.

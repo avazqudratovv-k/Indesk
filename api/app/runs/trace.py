@@ -27,6 +27,7 @@ ALLOWED_ARGS: Final[Mapping[TraceKey, frozenset[str]]] = {
     TraceKey.STEP_STARTED: frozenset({"attempt"}),
     TraceKey.STEP_FAILED: frozenset({"reason", "attempt"}),
     TraceKey.STOPPED: frozenset({"reason", "stub"}),
+    TraceKey.VERIFY: frozenset({"claims", "verified"}),
 }
 
 

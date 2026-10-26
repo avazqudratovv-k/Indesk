@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from app.ai.gateway import Gateway
 from app.core.enums import AgentKey, RunMode, RunOutcome, RunReason, StepState
+from app.runs.cat_schemas import ReportDraft
 from app.runs.trace import TraceLine
 from app.sandbox_client import SandboxResult
 
@@ -79,6 +80,7 @@ class Finish:
     outcome: RunOutcome
     final: TraceLine
     reason: RunReason | None = None
+    report: ReportDraft | None = None  # saved in the same transaction that finishes the run
 
 
 @dataclass(frozen=True)

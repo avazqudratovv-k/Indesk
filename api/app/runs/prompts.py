@@ -24,6 +24,7 @@ from app.runs.profile import CsvProfile
 
 OWL_PROMPT_VERSION: Final = "owl-1"
 BEAVER_PROMPT_VERSION: Final = "beaver-1"
+CAT_PROMPT_VERSION: Final = "cat-1"
 
 
 def new_nonce() -> str:
@@ -152,3 +153,34 @@ def build_beaver_prompt(
         parts.append(HINT_TEXT[hint])
     parts.append("Reply with the JSON object holding the code.")
     return PromptPair(system, "\n".join(parts))
+
+
+def build_cat_prompt(
+    question: str, language: str, table: dict[str, object], *, nonce: str
+) -> PromptPair:
+    """The writer's prompt: the computed table (cleaned labels, JSON, fenced) and the question. The
+    writer chooses words and cites cells; Cat's code decides what is verified."""
+    system = (
+        "You are the report writer of a small data-analysis team. A calculation has already been "
+        "done on the user's file; you only write about its result table. Reply with one JSON "
+        "object that matches the given schema, and nothing else. Rules: write title, answer, "
+        f"claims, meaning and next steps in {language}. Use only facts that are in TABLE; never "
+        "use your own knowledge. Write 1 to 6 claims; each claim is one short sentence about one "
+        'fact, and claim_cells[i] lists the cells claim_texts[i] relies on, like "r1c1,r1c2" '
+        '(row, column, both counted from 1) or "s1" for the first scalar. Cite at least one '
+        "number cell in every claim. Copy every number exactly from the cited cells (you may use "
+        "thousands separators or round it); never add, subtract, average, convert or estimate a "
+        "new number. Include the name of the row (its text cell) word for word in the claim. Do "
+        "not use words like most, highest, top, least, lowest, 가장, 최대, 최고, 최소, 최저 unless "
+        "the cited number is the largest or smallest in its column of TABLE. Put no numbers in "
+        "next_steps. No markup, no links, no code. " + _data_rules(nonce)
+    )
+    prompt = "\n".join(
+        [
+            "Write the report for this question from the table.",
+            _question_block(question, nonce),
+            _fence("TABLE", nonce, table),
+            "Reply with the report as JSON.",
+        ]
+    )
+    return PromptPair(system, prompt)

@@ -10,7 +10,9 @@ from app.core.enums import (
     ClaimOrigin,
     ClaimStatus,
     Confidence,
+    EvidenceMethod,
     EvidenceType,
+    ReportReason,
     ReportTemplate,
     ReportTypeface,
     RunMode,
@@ -143,6 +145,9 @@ class EvidencePayload(ApiModel):
     rows_used: int | None = None
     table: EvidenceTable | None = None
     chart: EvidenceChart | None = None  # rides on the payload of the D1 table evidence
+    # Closed codes (P9), translated in the browser; never a sentence.
+    reason: ReportReason | None = None  # on a critic_note: why a claim is not verified
+    method: EvidenceMethod | None = None  # on a table: how its numbers were computed
     ko: EvidencePayloadTranslation | None = None
 
 

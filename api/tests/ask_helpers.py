@@ -52,6 +52,24 @@ def plan_answer(tokens_in: int = 10, tokens_out: int = 5, **override: Any) -> St
     return ok(json.dumps({**PLAN, **override}), tokens_in, tokens_out)
 
 
+CLAIMS: dict[str, Any] = {
+    "title": "Synthetic Station 07 had the most riders",
+    "answer": "Synthetic Station 07 had 123,456 riders, the most in the table.",
+    "claim_texts": [
+        "Synthetic Station 07 had the most riders: 123,456.",
+        "Synthetic Station 02 had 100,000 riders.",
+    ],
+    "claim_cells": ["r1c2", "r2c2"],
+    "meaning": "Station 07 is the busiest of the two stations shown.",
+    "next_steps": ["Ask the same question about another month."],
+}
+
+
+def claims_answer(tokens_in: int = 10, tokens_out: int = 5, **override: Any) -> Step:
+    """Cat's writer answer: two claims that check out against RESULT_OK."""
+    return ok(json.dumps({**CLAIMS, **override}), tokens_in, tokens_out)
+
+
 def code_answer(code: str = CODE_OK, tokens_in: int = 10, tokens_out: int = 5) -> Step:
     return ok(json.dumps({"code": code}), tokens_in, tokens_out)
 
@@ -116,7 +134,9 @@ def ask_rig(
     **limit_overrides: int,
 ) -> tuple[Rig, CapturingClient, MemoryStorage]:
     limits = limits_with(**limit_overrides)
-    client = CapturingClient(list(steps))
+    # Cat's writer is the last call of a good run: a default answer follows the scripted steps,
+    # so a test that scripts only Owl and Beaver still reaches a report.
+    client = CapturingClient([*steps, claims_answer()])
     gateway = make_gateway(
         factory, client, chains=load_model_chains(), limits=limits, api_key=api_key
     )

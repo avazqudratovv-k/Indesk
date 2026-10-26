@@ -198,6 +198,9 @@ def main() -> None:
         f"tokens_in={view.get('tokens_in')} tokens_out={view.get('tokens_out')}"
     )
     inspect(run_id)
+    if view.get("report_id"):  # P9: the saved report, as the owner's browser would get it
+        status, report = api.call("GET", f"/reports/{view['report_id']}")
+        dump(f"report (GET /reports/{{id}}, HTTP {status})", report)
 
 
 if __name__ == "__main__":
