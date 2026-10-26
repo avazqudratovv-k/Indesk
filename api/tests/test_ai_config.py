@@ -55,7 +55,7 @@ def test_models_toml_says_what_was_called_live_and_what_was_not() -> None:
 
 def test_new_limits() -> None:
     limits = load_limits()
-    assert (limits.daily_calls_global, limits.daily_calls_per_user) == (200, 50)
+    assert (limits.daily_calls_global, limits.daily_calls_per_user) == (600, 50)
     assert limits.max_prompt_chars == 40000
 
 
