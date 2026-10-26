@@ -43,6 +43,33 @@ describe("errorFromResponse", () => {
   });
 });
 
+describe("P10 codes", () => {
+  it.each([
+    [422, "TOO_MANY_FILES"],
+    [409, "UPLOAD_IN_USE"],
+    [403, "QUOTA_EXHAUSTED"],
+    [429, "DAILY_CAP_USER"],
+    [429, "DAILY_CAP_GLOBAL"],
+    [409, "RUN_ACTIVE"],
+  ])("reads %i %s as its own code", async (status, code) => {
+    expect((await errorFromResponse(res(status, { error: { code } }))).code).toBe(code);
+  });
+
+  const id = "11111111-1111-4111-8111-111111111111";
+
+  it("keeps run_id on RUN_ACTIVE", async () => {
+    const error = await errorFromResponse(res(409, { error: { code: "RUN_ACTIVE", run_id: id } }));
+    expect(error.runId).toBe(id);
+  });
+
+  it("drops a run_id that is not an id, or that comes with another code", async () => {
+    expect((await errorFromResponse(res(409, { error: { code: "RUN_ACTIVE", run_id: "../x" } }))).runId).toBeUndefined();
+    expect((await errorFromResponse(res(409, { error: { code: "RUN_ACTIVE", run_id: 5 } }))).runId).toBeUndefined();
+    expect((await errorFromResponse(res(409, { error: { code: "UPLOAD_IN_USE", run_id: id } }))).runId).toBeUndefined();
+    expect((await errorFromResponse(res(409, { error: { code: "RUN_ACTIVE" } }))).runId).toBeUndefined();
+  });
+});
+
 describe("parseRetryAfter", () => {
   it("accepts whole seconds only, clamped", () => {
     expect(parseRetryAfter("30")).toBe(30);

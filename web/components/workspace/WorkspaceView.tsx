@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useSession } from "@/hooks/use-session";
+import { useUsage } from "@/hooks/use-usage";
+import { freePill } from "@/lib/usage/api";
 import type { RunScenario } from "@/lib/run/mock-run";
 import type { PlanOffer } from "@/lib/types";
 import AskPanel, { type RunSubmission, type RunSummary } from "./AskPanel";
@@ -34,7 +36,13 @@ export default function WorkspaceView({ offers, mockOutcome }: { offers: PlanOff
 
   const plan = session.user?.plan ?? "free";
   const offer = offers.find((entry) => entry.plan === plan);
-  const usage = session.signedIn ? t(`usage.${plan}`, { runs: offer?.runs ?? 0 }) : null;
+  // The Free plan's counts come from GET /api/usage only. Until it answers (or if it fails) the pill names the plan and no number.
+  // Asked again when a run starts or ends, or a run is refused; never on a timer.
+  const serverUsage = useUsage(session.signedIn ? session.user.id : null, `${live.run?.id ?? ""}:${live.run?.done ? "done" : "open"}:${live.failure?.code ?? ""}`);
+  const free = plan === "free" ? serverUsage?.free ?? null : null;
+  const pill = freePill(serverUsage);
+  const freeText = pill.key === "usage.free" ? t(pill.key, pill.values) : t(pill.key);
+  const usage = !session.signedIn ? null : plan === "free" ? freeText : t(`usage.${plan}`, { runs: offer?.runs ?? 0 });
 
   async function onRun(submission: RunSubmission) {
     if (mockMode) {
@@ -95,7 +103,7 @@ export default function WorkspaceView({ offers, mockOutcome }: { offers: PlanOff
             </Link>
           ) : null}
         </div>
-        {session.status === "unknown" ? <p className={styles.sub} role="status">{tCommon("loading")}</p> : session.signedIn ? <AskPanel freeRuns={plan === "free" ? (offer?.runs ?? null) : null} plan={plan} onRun={onRun} submit={mockMode ? undefined : { stage: live.stage, progress: live.progress, fileStatus: live.fileStatus, failure: live.failure, activeRunId: live.activeRunId, onWatchActive: () => void live.watchActive().then(() => setTab("run")), onFileRemoved: live.forgetFile, onDismissFailure: live.clearFailure }} /> : <SignedOutCard />}
+        {session.status === "unknown" ? <p className={styles.sub} role="status">{tCommon("loading")}</p> : session.signedIn ? <AskPanel freeLeft={free ? free.left : null} plan={plan} onRun={onRun} submit={mockMode ? undefined : { stage: live.stage, progress: live.progress, fileStatus: live.fileStatus, failure: live.failure, activeRunId: live.activeRunId, followingRunId: live.run?.id ?? null, onWatchActive: () => void live.watchActive().then(() => setTab("run")), onFileRemoved: live.forgetFile, onDismissFailure: live.clearFailure }} /> : <SignedOutCard />}
       </div>
 
       <div id="ws-panel-run" role="tabpanel" aria-labelledby="ws-tab-run" hidden={tab !== "run"} className={styles.panel}>

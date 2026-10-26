@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/errors";
-import { createRun, getRun, uploadCsv } from "@/lib/run/live/api";
+import { createRun, getActiveRun, getRun, uploadCsv } from "@/lib/run/live/api";
 import { liveReducer, type LiveRun } from "@/lib/run/live/reducer";
 import { clearRunId, readRunId, writeRunId } from "@/lib/run/live/storage";
 import { SubmitError, submitRun, type FileStatus, type SubmitFile } from "@/lib/run/live/submit";
@@ -49,6 +49,19 @@ export function useLiveRun(userId: string | null) {
     };
   }, [userId]);
 
+  // A run of this person that is still going, found once on load (another tab or browser may have started it). No polling.
+  useEffect(() => {
+    if (!userId) return;
+    const controller = new AbortController();
+    getActiveRun(controller.signal).then(
+      (snapshot) => {
+        if (!controller.signal.aborted && snapshot && snapshot.status !== "finished") setActiveRunId(snapshot.id);
+      },
+      () => {}, // no strip when the lookup fails; Run still reports RUN_ACTIVE if it applies
+    );
+    return () => controller.abort();
+  }, [userId]);
+
   // Follow an unfinished run. `attempt` changes when the person presses Reconnect.
   useEffect(() => {
     if (!runId || !following) return;
@@ -90,13 +103,9 @@ export function useLiveRun(userId: string | null) {
         const failed = error instanceof SubmitError ? error : new SubmitError("UNKNOWN", null);
         setFailure({ code: failed.code, fileId: failed.fileId, retryAfter: failed.retryAfter });
         if (failed.code === "RUN_ACTIVE") {
-          const stored = readRunId(userId);
-          if (stored) {
-            getRun(stored).then(
-              (snapshot) => setActiveRunId(snapshot.status === "finished" ? null : snapshot.id),
-              () => {},
-            );
-          }
+          // The error names the run in the way; only if it does not, ask once which run is active.
+          if (failed.runId) setActiveRunId(failed.runId);
+          else getActiveRun().then((snapshot) => setActiveRunId(snapshot && snapshot.status !== "finished" ? snapshot.id : null), () => {});
         }
         return false;
       } finally {
@@ -113,12 +122,13 @@ export function useLiveRun(userId: string | null) {
     try {
       const snapshot = await getRun(activeRunId);
       dispatch({ type: "seed", snapshot });
+      if (userId) writeRunId(userId, snapshot.id);
       setFailure(null);
       setActiveRunId(null);
     } catch {
       setActiveRunId(null);
     }
-  }, [activeRunId]);
+  }, [activeRunId, userId]);
 
   const reconnect = useCallback(() => {
     setConnection("live");

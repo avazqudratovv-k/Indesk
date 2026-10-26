@@ -428,10 +428,11 @@
     "tabAsk": "Ask a question",
     "tabRun": "Agents at work",
     "usage": {
-      "free": "Free plan · {runs, number} free runs",
+      "free": "Free plan · {left, number} of {total, number} free runs left",
       "pro": "Pro plan · {runs, number} runs a month",
       "payg": "Pay as you go · {runs, number} runs",
-      "custom": "Custom plan"
+      "custom": "Custom plan",
+      "freeNoCount": "Free plan"
     },
     "modes": {
       "label": "What do you want to do?",
@@ -463,7 +464,7 @@
       "dropMany": "Drop files here or choose files",
       "dropOne": "Drop a file here or choose a file",
       "choose": "Choose",
-      "help": "CSV files only, up to {mb, number} MB each.",
+      "help": "One CSV file, up to {mb, number} MB.",
       "helpDocument": "A PDF, up to {mb, number} MB.",
       "listLabel": "Added files",
       "empty": "No files added yet.",
@@ -489,7 +490,8 @@
       "slotFull": "{name}: no room left here. You can add {max, plural, one {# file} other {# files}}.",
       "documentMustBePdf": "{name}: the document to check must be a PDF.",
       "sameKind": "{name}: both files must be the same kind (CSV, PDF or image).",
-      "csvOnly": "{name}: PDF and image files are not available yet. Use a CSV file for now."
+      "csvOnly": "{name}: PDF and image files are not available yet. Use a CSV file for now.",
+      "askOneFile": "{name}: Ask takes one CSV file. Remove the current one first."
     },
     "question": {
       "label": "Your question",
@@ -523,7 +525,7 @@
       "ask": "Ask the team",
       "check": "Check the document",
       "compare": "Compare the files",
-      "usesFree": "Uses 1 of your {runs, number} free runs.",
+      "usesFree": "Uses 1 of your {left, number} remaining free {left, plural, one {run} other {runs}}.",
       "usesOther": "Uses 1 run.",
       "need": {
         "files": "Select at least one file to continue.",
@@ -533,7 +535,8 @@
         "question": "Type a question to continue.",
         "tooLong": "Shorten your question to continue.",
         "consent": "Tick the box above to continue."
-      }
+      },
+      "noFreeLeft": "No free runs left."
     },
     "ready": "Your team is ready",
     "info": {
@@ -1018,7 +1021,8 @@
         "head": "We need a better input",
         "body": "Check the file and try again."
       }
-    }
+    },
+    "activeStrip": "You have a run in progress."
   },
   "report": {
     "title": "Report",
@@ -1211,13 +1215,15 @@
     "EMPTY_FILE": "This file is empty.",
     "BAD_CSV": "This file could not be read as a table. Check that it is a normal CSV file.",
     "MODE_NOT_AVAILABLE": "This mode is not available yet.",
-    "DAILY_CAP_USER": "You have reached today's limit. Try again tomorrow.",
-    "DAILY_CAP_GLOBAL": "Indesk is busy today. Please try again tomorrow.",
-    "QUOTA_EXHAUSTED": "You have used all your runs.",
+    "DAILY_CAP_USER": "You've reached today's limit. It resets at midnight UTC (9 a.m. in Seoul). This didn't use one of your free runs.",
+    "DAILY_CAP_GLOBAL": "The demo has reached its limit for today. Please try again tomorrow. This didn't use one of your free runs.",
+    "QUOTA_EXHAUSTED": "You've used all your free runs. Paid plans are only simulated in this demo, so this account can't run more.",
     "NOT_RETRYABLE": "This cannot be retried.",
     "MODEL_UNAVAILABLE": "The AI service isn't available right now. Try again later.",
     "RUN_ACTIVE": "You already have a run in progress.",
     "UPLOAD_NOT_READY": "The file is still being prepared. Try again in a moment.",
-    "TOO_MANY_STREAMS": "Too many windows are following runs. Close one and try again."
+    "TOO_MANY_STREAMS": "Too many windows are following runs. Close one and try again.",
+    "TOO_MANY_FILES": "Ask takes one CSV file. Remove the extra files and try again.",
+    "UPLOAD_IN_USE": "A run is still using this file. Wait for it to finish, then try again."
   }
 }

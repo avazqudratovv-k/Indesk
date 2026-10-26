@@ -2,3 +2,6 @@
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const isRealReportId = (id: string): boolean => uuid.test(id);
+
+// The public example report lives at /reports/example. It is not a UUID, so it can never be a real report id.
+export const EXAMPLE_ID = "example";

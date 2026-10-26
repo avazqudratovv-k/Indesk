@@ -15,9 +15,9 @@ export const QUESTION_COUNTER_FROM = 800;
 // DATA.md `uploads.filename`: "max 255 (rec)"; accepted by DECISIONS #25.
 export const MAX_FILE_NAME_CHARS = 255;
 
-// Files per slot. SPEC.md and DECISIONS give no counts; these are the owner's answers for task 2.5
-// (Ask 5, Check 1 document + 4 sources, Compare exactly 2).
-export const SLOT_MAX: Record<SlotId, number> = { files: 5, document: 1, sources: 4, fileA: 1, fileB: 1 };
+// Files per slot. Ask takes exactly one CSV (DECISIONS: the server answers TOO_MANY_FILES for more; api limits.toml
+// files_per_slot). The Check and Compare counts are the owner's answers for task 2.5 (1 document + 4 sources, exactly 2).
+export const SLOT_MAX: Record<SlotId, number> = { files: 1, document: 1, sources: 4, fileA: 1, fileB: 1 };
 
 export const MODE_SLOTS: Record<WorkspaceMode, SlotId[]> = {
   ask: ["files"],

@@ -36,3 +36,12 @@ export async function getRun(id: string, signal?: AbortSignal): Promise<RunSnaps
   if (!run) throw unexpected();
   return run;
 }
+
+// The person's run that is still going, or null (the API answers 204). Asked on workspace load and after RUN_ACTIVE only.
+export async function getActiveRun(signal?: AbortSignal): Promise<RunSnapshot | null> {
+  const raw = await apiClient().request<unknown>("/api/runs/active", { signal });
+  if (raw === undefined) return null;
+  const run = parseRunSnapshot(raw);
+  if (!run) throw unexpected();
+  return run;
+}

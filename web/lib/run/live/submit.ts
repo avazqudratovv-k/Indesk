@@ -17,18 +17,21 @@ export class SubmitError extends Error {
   readonly code: ApiErrorCode;
   readonly fileId: string | null;
   readonly retryAfter?: number;
-  constructor(code: ApiErrorCode, fileId: string | null, retryAfter?: number) {
+  // Only on RUN_ACTIVE: the run in the way, as the server named it.
+  readonly runId?: string;
+  constructor(code: ApiErrorCode, fileId: string | null, retryAfter?: number, runId?: string) {
     super(code);
     this.name = "SubmitError";
     this.code = code;
     this.fileId = fileId;
     this.retryAfter = retryAfter;
+    this.runId = runId;
   }
 }
 
 function toSubmitError(error: unknown, fileId: string | null): SubmitError {
   if (error instanceof SubmitError) return error;
-  if (error instanceof ApiError) return new SubmitError(error.code, fileId, error.retryAfter);
+  if (error instanceof ApiError) return new SubmitError(error.code, fileId, error.retryAfter, error.runId);
   return new SubmitError("UNKNOWN", fileId);
 }
 

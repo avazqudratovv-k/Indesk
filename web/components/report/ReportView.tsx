@@ -26,7 +26,9 @@ export type RealInfo = { lang: "en" | "ko" | null; note: "en" | "ko" | null };
 
 // The Report (Ask) screen. A mock report (ROADMAP 2.7) says so in the Example banner. A real report (4.4, GET
 // /api/reports/{id}) has no banner, no chart and no code: v1 computes neither (DECISIONS #225).
-export default function ReportView({ bundle, real }: { bundle: ReportBundle; real?: RealInfo }) {
+// `example` marks the public example report from GET /api/example: it is real output, so it uses the real views, and it
+// keeps the Example banner so nobody takes it for an analysis of their own files.
+export default function ReportView({ bundle, real, example = false }: { bundle: ReportBundle; real?: RealInfo; example?: boolean }) {
   const t = useTranslations("report");
   const { report, claims, evidence } = bundle;
   const [view, setView] = useState<ReportViewMode>("simple");
@@ -52,7 +54,7 @@ export default function ReportView({ bundle, real }: { bundle: ReportBundle; rea
   return (
     <ProseLangProvider lang={real?.lang ?? undefined}>
     <main className={styles.main}>
-      {real ? null : <ExampleBanner />}
+      {real && !example ? null : <ExampleBanner />}
       {real?.note ? <p className={styles.langNote}>{t(`langNote.${real.note}`)}</p> : null}
       <ReportPaper report={report} real={Boolean(real)} />
       <div className={styles.toolbar}>

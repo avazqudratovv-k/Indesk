@@ -173,7 +173,7 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, sta
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7.5v5.5M12 16.5v.1" />
             </svg>
-            <span>{t(`errors.${error.code}`, { name: error.name, mb, max: SLOT_MAX[slot] })}</span>
+            <span>{t(error.code === "slotFull" && slot === "files" ? "errors.askOneFile" : `errors.${error.code}`, { name: error.name, mb, max: SLOT_MAX[slot] })}</span>
           </p>
         ))}
       </div>

@@ -101,6 +101,12 @@ describe("submitRun", () => {
     expect(t.deps.create).toHaveBeenCalledTimes(1);
   });
 
+  it("passes the run_id of RUN_ACTIVE on to the screen", async () => {
+    const runId = "11111111-1111-4111-8111-111111111111";
+    const t = setup({ create: vi.fn(async () => { throw new ApiError(409, "RUN_ACTIVE", undefined, runId); }) });
+    await expect(submitRun(t.input([file("a")], "q"), t.deps)).rejects.toMatchObject({ code: "RUN_ACTIVE", runId });
+  });
+
   it("names the file whose upload failed and stops before the run request", async () => {
     const t = setup({ upload: vi.fn(async (f: File) => { if (f.name === "bad.csv") throw new ApiError(422, "BAD_CSV"); return { id: "x", expiresAt: 9_999_999, rowCount: 1 }; }) });
     const error = await submitRun(t.input([file("a"), file("b", "bad.csv"), file("c")], "q"), t.deps).catch((e: unknown) => e);

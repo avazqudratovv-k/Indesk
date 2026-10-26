@@ -30,6 +30,8 @@ export type SubmitState = {
   failure: { code: ApiError["code"]; fileId: string | null; retryAfter?: number } | null;
   // A run of this person that is still going (found after RUN_ACTIVE): offered as "Watch it".
   activeRunId: string | null;
+  // The run the Run tab already follows; the strip is not shown for it.
+  followingRunId: string | null;
   onWatchActive: () => void;
   onFileRemoved: (fileId: string) => void;
   onDismissFailure: () => void;
@@ -39,13 +41,14 @@ type Need = "files" | "document" | "sources" | "both" | "question" | "tooLong" |
 
 // The Ask tab: mode switch, the two cards (files, question), the team strip and the upload info.
 // Everything here is local state. Pressing Run hands a summary to the page; nothing is uploaded or stored.
-export default function AskPanel({ freeRuns, plan, onRun, submit }: { freeRuns: number | null; plan: string; onRun: (submission: RunSubmission) => void; submit?: SubmitState }) {
+export default function AskPanel({ freeLeft, plan, onRun, submit }: { freeLeft: number | null; plan: string; onRun: (submission: RunSubmission) => void; submit?: SubmitState }) {
   const t = useTranslations("workspace");
   const [mode, setMode] = useState<WorkspaceMode>("ask");
   const [questions, setQuestions] = useState<Record<WorkspaceMode, string>>({ ask: "", check: "", compare: "" });
   const [consent, setConsent] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const { slots, errors, add, remove } = useWorkspaceFiles(mode);
+  const showActive = submit !== undefined && submit.activeRunId !== null && submit.failure?.code !== "RUN_ACTIVE" && submit.followingRunId !== submit.activeRunId;
 
   const question = questions[mode];
   const trimmed = question.trim();
@@ -70,7 +73,9 @@ export default function AskPanel({ freeRuns, plan, onRun, submit }: { freeRuns: 
   const busy = submit !== undefined && submit.stage !== "idle";
   const missing = need();
   const busyHint = submit && busy ? (submit.stage === "uploading" ? t("submit.uploading", { done: Math.min(submit.progress.done + 1, submit.progress.total), total: submit.progress.total }) : t("submit.starting")) : null;
-  const hint = busyHint ?? (missing ? t(`run.need.${missing}`) : plan === "free" && freeRuns !== null ? t("run.usesFree", { runs: freeRuns }) : t("run.usesOther"));
+  // freeLeft is null whenever GET /api/usage has not answered (or failed): then the hint names no number.
+  const usesHint = plan === "free" && freeLeft !== null ? (freeLeft > 0 ? t("run.usesFree", { left: freeLeft }) : t("run.noFreeLeft")) : t("run.usesOther");
+  const hint = busyHint ?? (missing ? t(`run.need.${missing}`) : usesHint);
 
   function handleAdd(slot: SlotId, files: File[]) {
     const result = add(slot, files);
@@ -115,6 +120,13 @@ export default function AskPanel({ freeRuns, plan, onRun, submit }: { freeRuns: 
 
   return (
     <div className={styles.panel}>
+      {showActive && submit ? (
+        <div className={styles.problem} role="status">
+          <span>{t("activeStrip")}</span>
+          <Button size="sm" onClick={submit.onWatchActive}>{t("submit.watch")}</Button>
+        </div>
+      ) : null}
+
       <ModeSwitch mode={mode} onChange={setMode} />
 
       <section className={styles.cards}>
