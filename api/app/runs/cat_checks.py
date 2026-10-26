@@ -241,21 +241,38 @@ def resolve(ref: str, view: ResultView) -> Cell | None:
 # therefore "confirm" a ranking that only holds inside those rows.
 _RANK_MAX_EN: Final = re.compile(r"\b(most|highest|largest|top|fastest|busiest)\b", re.IGNORECASE)
 _RANK_MIN_EN: Final = re.compile(r"\b(least|lowest|smallest)\b", re.IGNORECASE)
-_RANK_MAX_KO: Final = ("가장", "최대", "최고")
+_RANK_MAX_KO: Final = ("최대", "최고")
 _RANK_MIN_KO: Final = ("최소", "최저")
-_KO_LESS: Final = ("적은", "낮은", "작은")  # 가장 적은 / 낮은 / 작은 = the least
+# 가장 alone says nothing: the word after it decides. A closed list of whole words and endings, so
+# 가장 적합한 ("the most suitable") is not read as "the fewest".
+_KO_MORE: Final = ("많은", "많이", "많습니다", "많다", "많았", "많아", "높은", "높습니다", "높다",
+                   "높았", "큰", "큽니다", "크다", "크게")  # fmt: skip
+_KO_LESS: Final = ("적은", "적습니다", "적다", "적었", "적어", "낮은", "낮습니다", "낮다", "낮았",
+                   "작은", "작습니다", "작다", "작았")  # fmt: skip
+_KO_SUPERLATIVE: Final = re.compile(r"가장\s*(\S*)")
+UNKNOWN: Final = "unknown"
 
 
 def ranking_directions(text: str) -> set[str]:
+    """{"max"}, {"min"}, both, or UNKNOWN for a 가장 whose next word is not in the closed lists
+    (never guessed: check_claim leaves such a claim unverified)."""
     out: set[str] = set()
     if _RANK_MAX_EN.search(text):
         out.add("max")
     if _RANK_MIN_EN.search(text):
         out.add("min")
     if any(w in text for w in _RANK_MAX_KO):
-        out.add("min" if "가장" in text and any(w in text for w in _KO_LESS) else "max")
+        out.add("max")
     if any(w in text for w in _RANK_MIN_KO):
         out.add("min")
+    for hit in _KO_SUPERLATIVE.finditer(text):
+        word = hit.group(1)
+        if word.startswith(_KO_MORE):
+            out.add("max")
+        elif word.startswith(_KO_LESS):
+            out.add("min")
+        else:
+            out.add(UNKNOWN)
     return out
 
 
@@ -328,8 +345,10 @@ def check_claim(
 
     directions = ranking_directions(text)
     if directions:
-        if len(directions) > 1 or not all(
-            _is_extreme(c, next(iter(directions)), view) for c in numeric
+        if (
+            directions - {"max", "min"}
+            or len(directions) > 1
+            or not all(_is_extreme(c, next(iter(directions)), view) for c in numeric)
         ):
             return _unverified(ReportReason.RANKING_UNCHECKED, shown)
     return Verdict(ClaimStatus.VERIFIED, None, shown)
