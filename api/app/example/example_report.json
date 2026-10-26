@@ -1,0 +1,174 @@
+{
+  "report": {
+    "id": "example",
+    "run_id": "example-run",
+    "owner_id": "00000000-0000-0000-0000-000000000000",
+    "mode": "ask",
+    "lang": "en",
+    "title": "Comparison of Weekday and Weekend Boardings",
+    "summary_json": {
+      "answer": "Weekday boardings surpass Weekend boardings in both average boardings and total boardings, with Weekday recording an average of 22,403.18 across 67,007,915 total boardings, compared to Weekend with an average of 15,235.68 across 16,576,418 total boardings.",
+      "top_rows": [
+        {
+          "label": "Weekday · average boardings",
+          "value": "22,403.18",
+          "status": "verified"
+        },
+        {
+          "label": "Weekday · total boardings",
+          "value": "67,007,915",
+          "status": "verified"
+        },
+        {
+          "label": "Weekend · average boardings",
+          "value": "15,235.68",
+          "status": "verified"
+        },
+        {
+          "label": "Weekend · total boardings",
+          "value": "16,576,418",
+          "status": "verified"
+        }
+      ],
+      "in_short": [
+        {
+          "status": "verified",
+          "text": "Weekday has the highest average boardings at 22,403.18 across a record count of 2,991."
+        },
+        {
+          "status": "verified",
+          "text": "Weekday has the highest total boardings at 67,007,915."
+        },
+        {
+          "status": "verified",
+          "text": "Weekend has the lowest average boardings at 15,235.68 across a record count of 1,088."
+        },
+        {
+          "status": "verified",
+          "text": "Weekend has the lowest total boardings at 16,576,418."
+        }
+      ],
+      "meaning": "Ridership demand is substantially greater on weekdays than on weekends, showing higher averages per record as well as higher total boarding figures.",
+      "next_steps": [
+        "Evaluate service frequencies and capacity allocations between weekdays and weekends.",
+        "Analyze whether peak boarding times during weekdays explain the difference in volume."
+      ]
+    },
+    "confidence": "high",
+    "verified_count": 4,
+    "total_claims": 4,
+    "pdf_key": null,
+    "template": "plain",
+    "typeface": "clean",
+    "text_size": "m",
+    "created_at": "2026-10-26T14:45:51.436384Z",
+    "expires_at": "2099-01-01T00:00:00Z",
+    "deleted_at": null,
+    "purge_at": null,
+    "translations": null
+  },
+  "claims": [
+    {
+      "id": "example-claim-1",
+      "report_id": "example",
+      "n": 1,
+      "text": "Weekday has the highest average boardings at 22,403.18 across a record count of 2,991.",
+      "status": "verified",
+      "origin": "answer",
+      "doc_quote": null,
+      "doc_location": null,
+      "doc_value": null,
+      "computed_value": "22,403.18",
+      "evidence_refs": [
+        "D1"
+      ],
+      "ko": null
+    },
+    {
+      "id": "example-claim-2",
+      "report_id": "example",
+      "n": 2,
+      "text": "Weekday has the highest total boardings at 67,007,915.",
+      "status": "verified",
+      "origin": "answer",
+      "doc_quote": null,
+      "doc_location": null,
+      "doc_value": null,
+      "computed_value": "67,007,915",
+      "evidence_refs": [
+        "D1"
+      ],
+      "ko": null
+    },
+    {
+      "id": "example-claim-3",
+      "report_id": "example",
+      "n": 3,
+      "text": "Weekend has the lowest average boardings at 15,235.68 across a record count of 1,088.",
+      "status": "verified",
+      "origin": "answer",
+      "doc_quote": null,
+      "doc_location": null,
+      "doc_value": null,
+      "computed_value": "15,235.68",
+      "evidence_refs": [
+        "D1"
+      ],
+      "ko": null
+    },
+    {
+      "id": "example-claim-4",
+      "report_id": "example",
+      "n": 4,
+      "text": "Weekend has the lowest total boardings at 16,576,418.",
+      "status": "verified",
+      "origin": "answer",
+      "doc_quote": null,
+      "doc_location": null,
+      "doc_value": null,
+      "computed_value": "16,576,418",
+      "evidence_refs": [
+        "D1"
+      ],
+      "ko": null
+    }
+  ],
+  "evidence": [
+    {
+      "id": "example-evidence-D1",
+      "run_id": "example-run",
+      "step_id": "example-step",
+      "ref": "D1",
+      "type": "table",
+      "file_name": "seoul-subway-ridership.csv",
+      "location": "rows 1–4079",
+      "payload": {
+        "tool": "run_python",
+        "rows_used": 4079,
+        "table": {
+          "headers": [
+            "day type",
+            "average boardings",
+            "total boardings",
+            "record count"
+          ],
+          "rows": [
+            [
+              "Weekday",
+              "22,403.18",
+              "67,007,915",
+              "2,991"
+            ],
+            [
+              "Weekend",
+              "15,235.68",
+              "16,576,418",
+              "1,088"
+            ]
+          ]
+        },
+        "method": "compare_groups"
+      }
+    }
+  ]
+}

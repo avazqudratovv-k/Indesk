@@ -124,7 +124,7 @@ def test_the_evidence_payload_has_only_the_allowed_keys(
     for item in detail["evidence"]:
         assert set(item["payload"]) <= allowed
     assert set(detail["report"]) == {
-        "id", "run_id", "owner_id", "mode", "title", "summary_json", "confidence",
+        "id", "run_id", "owner_id", "mode", "lang", "title", "summary_json", "confidence",
         "verified_count", "total_claims", "pdf_key", "template", "typeface", "text_size",
         "created_at", "expires_at", "deleted_at", "purge_at", "translations",
     }  # fmt: skip

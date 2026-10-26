@@ -12,6 +12,7 @@ from app.core.enums import (
     Confidence,
     EvidenceMethod,
     EvidenceType,
+    Lang,
     ReportReason,
     ReportTemplate,
     ReportTypeface,
@@ -185,6 +186,7 @@ class Report(ApiModel):
     run_id: Id
     owner_id: Id
     mode: RunMode
+    lang: Lang = Lang.EN  # the run's language (runs.lang); additive, so older records stay valid
     title: str
     summary_json: ReportSummary
     confidence: Confidence | None

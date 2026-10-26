@@ -6,12 +6,14 @@ from fastapi import Depends, FastAPI
 from app.core.bodylimit import MULTIPART_OVERHEAD, BodyLimitMiddleware
 from app.core.config import get_settings
 from app.core.errors import register_error_handlers
-from app.routers import auth, health, me, reports, runs, uploads, usage
+from app.example import load_example
+from app.routers import auth, example, health, me, reports, runs, uploads, usage
 from app.routers.deps import check_write_request
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    load_example()  # a bad example file stops startup, so the example can never fail later
     get_settings()  # a bad setting (for example a short AUTH_SECRET in production) stops startup
     yield
 
@@ -39,3 +41,4 @@ app.include_router(uploads.router, prefix="/api")
 app.include_router(runs.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 app.include_router(usage.router, prefix="/api")
+app.include_router(example.router, prefix="/api")

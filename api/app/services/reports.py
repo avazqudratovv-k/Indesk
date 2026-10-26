@@ -8,11 +8,17 @@ from sqlalchemy.orm import Session
 
 from app.core import clock
 from app.core.errors import AppError, ErrorCode
-from app.db.models import Claim, Evidence, Report, User
+from app.db.models import Claim, Evidence, Report, Run, User
 from app.schemas.reports import Claim as ClaimView
 from app.schemas.reports import Evidence as EvidenceView
 from app.schemas.reports import Report as ReportView
 from app.schemas.reports import ReportDetail
+
+
+def report_view(report: Report, lang: str) -> ReportView:
+    """The report as the API shows it. `lang` is not a reports column: it is the run's."""
+    columns = {name: getattr(report, name) for name in ReportView.model_fields if name != "lang"}
+    return ReportView.model_validate({**columns, "lang": lang})
 
 
 def get_report_detail(db: Session, user: User, raw_id: str) -> ReportDetail:
@@ -21,16 +27,19 @@ def get_report_detail(db: Session, user: User, raw_id: str) -> ReportDetail:
         report_id = uuid.UUID(raw_id)
     except ValueError:
         raise not_found from None
-    report = db.scalar(
-        select(Report).where(
+    row = db.execute(
+        select(Report, Run.lang)
+        .join(Run, Run.id == Report.run_id)
+        .where(
             Report.id == report_id,
             Report.owner_id == user.id,
             Report.deleted_at.is_(None),
             Report.expires_at > clock.utcnow(),
         )
-    )
-    if report is None:
+    ).first()
+    if row is None:
         raise not_found
+    report, lang = row
     claims = db.scalars(
         select(Claim)
         .where(Claim.report_id == report.id, Claim.owner_id == user.id)
@@ -42,7 +51,7 @@ def get_report_detail(db: Session, user: User, raw_id: str) -> ReportDetail:
         .order_by(Evidence.ref)
     ).all()
     return ReportDetail(
-        report=ReportView.model_validate(report),
+        report=report_view(report, lang),
         claims=[ClaimView.model_validate(c) for c in claims],
         evidence=[EvidenceView.model_validate(e) for e in evidence],
     )
