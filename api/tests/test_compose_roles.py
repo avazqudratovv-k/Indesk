@@ -36,13 +36,16 @@ def test_mounts_and_the_superuser_url_are_only_in_the_override(compose: dict[str
     assert "TEST_ADMIN_DATABASE_URL" in override["services"]["api"]["environment"]
 
 
-def test_production_skeleton_has_no_mount_and_no_published_database(
+def test_production_file_has_no_source_mount_and_no_published_database(
     compose: dict[str, Any],
 ) -> None:
     prod = load("compose.prod.yaml")
     assert "ports" not in compose["services"]["db"] and "ports" not in prod["services"]["db"]
     assert "ports" not in compose["services"]["redis"]
-    for service in prod["services"].values():
-        assert "volumes" not in service
+    assert "ports" not in prod["services"]["redis"]
+    for name, service in prod["services"].items():
+        for volume in service.get("volumes", []):
+            # Named volumes and the db's read-only role script; never source or compose files.
+            assert not volume.startswith(("./api:", "./web:", "./compose")), (name, volume)
     text = yaml.safe_dump(prod)
     assert "APP_ENV: production" in text and "TEST_ADMIN" not in text

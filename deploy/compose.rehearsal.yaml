@@ -1,0 +1,13 @@
+# local rehearsal only, never on the VPS.
+# Used on the developer's Mac, together with compose.prod.yaml, to watch a scripted run (no Gemini) stream through
+# the production web image. The stub is honoured only in development mode, so this file switches api and worker to it.
+#   docker compose -f compose.prod.yaml -f deploy/compose.rehearsal.yaml --env-file <throwaway env> up -d
+services:
+  api:
+    environment:
+      APP_ENV: development
+      RUNS_DEV_STUB: "1"
+  worker:
+    environment:
+      APP_ENV: development
+      RUNS_DEV_STUB: "1"

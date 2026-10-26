@@ -1,30 +1,251 @@
-# Production skeleton (ROADMAP 5.6 adds nginx and the rest). Use it with an explicit file list so
-# compose.override.yaml is NOT loaded:
-#   docker compose -f compose.yaml -f compose.prod.yaml up -d --build
-# There is no source or compose-file mount here, and the database is not published. Every password
-# is required: with no default, compose refuses to start when one is missing.
-x-prod-env: &prod-env
+# Production stack (ROADMAP 5.6). STANDALONE: it does not extend compose.yaml, so no dev default password,
+# no dev port and no compose.override.yaml can leak in. Always name this file:
+#   docker compose -f compose.prod.yaml <command>
+# (the VPS .env also sets COMPOSE_FILE=compose.prod.yaml, so a bare `docker compose` cannot load the dev files).
+#
+# Built on the server from a git clone, no registry: `docker compose -f compose.prod.yaml build` first, then `up -d`.
+# Only the web container is published, on 127.0.0.1:4100, for the host nginx. Every password and the subnet are
+# required: with no default, compose refuses to start when one is missing.
+#
+# Networks: edge (web <-> api, pinned subnet = TRUSTED_PROXIES), backend (internal: db, redis and everything that
+# talks to them), egress (worker only, so it can reach Gemini), sandbox_net (internal: worker <-> sandbox).
+name: indesk
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-api-env: &api-env
   APP_ENV: production
   DATABASE_URL: postgresql+psycopg://indesk_app:${POSTGRES_APP_PASSWORD:?set POSTGRES_APP_PASSWORD}@db:5432/indesk
+  REDIS_URL: redis://redis:6379/0
+  AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET}
+  ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?set ALLOWED_ORIGINS}
+  TRUSTED_PROXIES: ${EDGE_SUBNET:?set EDGE_SUBNET}
+  RUNS_DEV_STUB: "0"
 
 services:
+  # Only the worker runs the model gateway (app/jobs/runs.py build_deps), so only the worker gets the Gemini key.
   api:
-    environment: *prod-env
+    build:
+      context: ./api
+      target: prod
+    image: indesk-api:local
+    environment: *api-env
     restart: unless-stopped
-  worker:
-    environment: *prod-env
-    restart: unless-stopped
-  scheduler:
-    environment: *prod-env
-    restart: unless-stopped
+    logging: *logging
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev # multipart uploads spool here before they are stored
+    volumes:
+      - uploads:/data/uploads
+    networks:
+      - edge
+      - backend
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    mem_limit: 512m
+    memswap_limit: 512m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # One-shot: applies the migrations as the schema owner, then exits. It gets the migrator's URL only.
   migrate:
+    image: indesk-api:local
+    command: ["alembic", "upgrade", "head"]
     environment:
       MIGRATE_DATABASE_URL: postgresql+psycopg://indesk_migrator:${POSTGRES_MIGRATOR_PASSWORD:?set POSTGRES_MIGRATOR_PASSWORD}@db:5432/indesk
-  db:
+    restart: "no"
+    logging: *logging
+    networks:
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: 256m
+    memswap_limit: 256m
+
+  worker:
+    image: indesk-api:local
+    command: ["python", "-m", "app.jobs.worker"]
     environment:
+      <<: *api-env
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?set GEMINI_API_KEY}
+    restart: unless-stopped
+    logging: *logging
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev
+    volumes:
+      - uploads:/data/uploads
+    networks:
+      - backend
+      - egress # outbound HTTPS to Gemini
+      - sandbox_net # the only service that can reach the sandbox
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      sandbox:
+        condition: service_healthy
+    mem_limit: 768m
+    memswap_limit: 768m
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.jobs.healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # Enqueues the hourly expiry sweep and the stuck-run reaper (RQ CronScheduler). Run exactly one of these.
+  scheduler:
+    image: indesk-api:local
+    command: ["python", "-m", "app.jobs.scheduler"]
+    environment: *api-env
+    restart: unless-stopped
+    logging: *logging
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777,noexec,nosuid,nodev
+    networks:
+      - backend
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    mem_limit: 192m
+    memswap_limit: 192m
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.jobs.scheduler_health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # Runs model-written pandas code. THE CONTAINER IS THE SECURITY BOUNDARY: no network, read-only root, no
+  # capabilities, hard memory/process/CPU limits. The kernel is shared with the host, so this narrows the risk; it
+  # does not remove it. Nothing is mounted and it gets no environment at all. tests/test_compose_sandbox.py checks
+  # this file too.
+  sandbox:
+    build: ./api/sandbox
+    image: indesk-sandbox:local
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 1g
+    memswap_limit: 1g # no swap
+    cpus: 1
+    restart: unless-stopped
+    logging: *logging
+    networks:
+      - sandbox_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  web:
+    build:
+      context: ./web
+      args:
+        API_INTERNAL_URL: http://api:8000 # baked into the /api rewrite at build time
+    image: indesk-web:local
+    environment:
+      API_INTERNAL_URL: http://api:8000
+      NODE_OPTIONS: --max-old-space-size=256
+    restart: unless-stopped
+    logging: *logging
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777,noexec,nosuid,nodev
+      - /app/.next/cache:size=32m,uid=1000,gid=1000
+    ports:
+      - "127.0.0.1:4100:3000" # the only published port; the host nginx proxies to it
+    networks:
+      - edge
+    depends_on:
+      api:
+        condition: service_healthy
+    mem_limit: 384m
+    memswap_limit: 384m
+    healthcheck:
+      # Goes through the /api rewrite to the api container, so it proves the whole proxy path.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: indesk
+      POSTGRES_DB: indesk
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
       POSTGRES_MIGRATOR_PASSWORD: ${POSTGRES_MIGRATOR_PASSWORD:?set POSTGRES_MIGRATOR_PASSWORD}
       POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?set POSTGRES_APP_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Creates the two roles when the volume is first made. Changing a password in .env later does NOT change the
+      # role: use ALTER ROLE (see deploy/RUNBOOK.md).
+      - ./api/db-init:/docker-entrypoint-initdb.d:ro
     restart: unless-stopped
+    logging: *logging
+    networks:
+      - backend
+    mem_limit: 512m
+    memswap_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U indesk -d indesk"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   redis:
+    image: redis:7.4-alpine
+    # No snapshots: queue and rate-limit counters are short-lived, and the reaper recovers lost runs.
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
     restart: unless-stopped
+    logging: *logging
+    networks:
+      - backend
+    mem_limit: 192m
+    memswap_limit: 192m
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  edge:
+    ipam:
+      config:
+        - subnet: ${EDGE_SUBNET:?set EDGE_SUBNET}
+  backend:
+    internal: true # db and redis have no route to the internet
+  egress: {} # worker only
+  sandbox_net:
+    internal: true # no route to the internet or to db, redis and api
+
+volumes:
+  pgdata:
+  uploads:
