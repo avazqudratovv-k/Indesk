@@ -3,7 +3,9 @@ carries nothing internal (Beaver's code, the plan, the payload columns, a real i
 
 import json
 import re
+import sys
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -12,7 +14,7 @@ from fastapi.testclient import TestClient
 from app.ai.gateway import Gateway
 from app.ai.real_client import GeminiRestClient
 from app.db.session import get_db
-from app.example import EXAMPLE_PATH, build_example, load_example
+from app.example import EXAMPLE_FILE_NAME, EXAMPLE_PATH, build_example, load_example
 from app.main import app
 from app.routers.deps import get_redis
 from app.schemas.reports import ReportDetail
@@ -108,7 +110,7 @@ def test_the_builder_drops_every_sentinel() -> None:
         assert sentinel not in text
     assert not FORBIDDEN_KEYS & set(all_keys(built))
     assert built["report"]["pdf_key"] is None
-    assert {e["file_name"] for e in built["evidence"]} == {"seoul-subway-ridership.csv"}
+    assert {e["file_name"] for e in built["evidence"]} == {EXAMPLE_FILE_NAME}
     ReportDetail.model_validate(built)  # still a valid report
 
 
@@ -119,7 +121,7 @@ def test_the_example_file_carries_no_code_plan_payload_or_real_id() -> None:
     assert set(UUID.findall(raw)) == {"00000000-0000-0000-0000-000000000000"}
     for needle in ("run_python(", "groupby", "import pandas", "def ", "SELECT "):
         assert needle not in raw
-    assert {e["file_name"] for e in body["evidence"]} == {"seoul-subway-ridership.csv"}
+    assert {e["file_name"] for e in body["evidence"]} == {EXAMPLE_FILE_NAME}
 
 
 def test_the_example_reads_like_a_finished_english_report() -> None:
@@ -131,3 +133,17 @@ def test_the_example_reads_like_a_finished_english_report() -> None:
     assert all(c.status == "verified" for c in detail.claims)
     labels = [r.label for r in detail.report.summary_json.top_rows or []]
     assert len(labels) == len(set(labels))
+
+
+def test_prompt_versions_skips_steps_without_a_dict_payload() -> None:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from export_example import prompt_versions
+
+    payloads = [
+        None,
+        {"prompt_version": "owl-2"},
+        "x",
+        {"beaver_prompt_version": "beaver-2", "n": 1},
+    ]
+    assert prompt_versions(payloads) == ["beaver-2", "owl-2"]
+    assert prompt_versions([None, None]) == []

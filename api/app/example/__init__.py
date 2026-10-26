@@ -12,10 +12,11 @@ from typing import Any
 from app.schemas.reports import Claim, Evidence, EvidencePayload, Report, ReportDetail
 
 EXAMPLE_PATH = Path(__file__).parent / "example_report.json"
+EXAMPLE_META_PATH = EXAMPLE_PATH.with_name("example_report.meta.json")  # not served; for the owner
 
 EXAMPLE_ID = "example"
 EXAMPLE_OWNER_ID = "00000000-0000-0000-0000-000000000000"  # placeholder; owns nothing real
-EXAMPLE_FILE_NAME = "seoul-subway-ridership.csv"  # the public demo file's name
+EXAMPLE_FILE_NAME = "seoul_subway_2026-09.csv"  # the public demo file's name
 EXAMPLE_EXPIRES_AT = datetime.fromisoformat("2099-01-01T00:00:00+00:00")
 
 # The only evidence-payload keys an example keeps. Beaver's code and the column list stay out.
