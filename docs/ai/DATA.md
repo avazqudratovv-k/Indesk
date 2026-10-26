@@ -1,6 +1,6 @@
 # DATA.md — Indesk
 
-Lives at: `docs/ai/DATA.md`. Last updated 2026-10-25 (report contract as built in ROADMAP 2.7).
+Lives at: `docs/ai/DATA.md`. Last updated 2026-10-26 (report contract as built in ROADMAP 2.7; sections 1 notes "As built" and section 5 added from `api/app` at HEAD b2a13b2).
 
 Database: PostgreSQL + pgvector. Entities, relationships, API operations and one mock record each.
 Field types and limits: the `(rec)` limits are accepted (decided Oct 25). All AI calls go to Google Gemini; model IDs live in a config file (see `DECISIONS.md`).
@@ -85,6 +85,7 @@ run_id; upload_id; role (subject, source, a, b).
 
 ### agent_steps
 id; run_id R; agent R (manager, vision, data, retrieval, critic); seq int R; status R (queued, running, done, skipped, failed, timed_out); attempt int (1 or 2); kind R (plan, tool, result, flag); payload jsonb (structured result: claim, value, method, evidence, confidence, caveats); started_at; finished_at; cost_usd; model text (the Gemini model that finally answered). The model request budget is 35 s including fallbacks; one retry of the step after a failure.
+**As built (P2/P7, DECISIONS #112):** the table `agent_steps` is one row per trace event. Columns: id; run_id; owner_id; seq (from 1, monotonic per run, unique with run_id; it is the SSE event id); agent; kind (`say`, `tool`, `flag`); `state` (not `status`; same values as above); key and args (the trace line, see section 5); tok int; bubble (`owlSplit`, `owlMerge` or null); attempt (1 or 2); payload jsonb (null until Cat and reports exist); started_at; finished_at; cost_usd; model. The kinds `plan` and `result` above were not used.
 
 ### evidence
 id; run_id R; step_id R; ref text R (D1, R1, U1…); type R (table, chart, code, image_boxes, passage, diff, critic_note); file_name R; location text (rows, page, bars); payload jsonb (snapshot, so the report works after the file is deleted). `critic_note` holds Cat's "why" for a flagged claim. The growth chart rides on the payload of the D1 table evidence as `chart` {title, unit, series[{label, value, photo_value}]}; the numbers are computed in code.
@@ -115,10 +116,11 @@ id; report_id R; token_hash R (random token, shown once); created_at R; expires_
 | created_at | ts | yes | retention 90 days |
 
 ### usage_daily (feeds the daily caps)
-day date R; user_id uuid (null = the global row); runs int; model_calls int; est_cost_usd numeric. Unique on (day, user_id). Caps (config, starting values): per user 30 runs and 300 model calls per day; global 100 runs and 1,000 model calls per day; the cached example is excluded. When a cap is reached the run is refused before any model call with outcome `rejected` and reason `daily_cap_user` or `daily_cap_global`, and it does not count as a run.
+day date R; user_id uuid (null = the global row); runs int; model_calls int; est_cost_usd numeric. Unique on (day, user_id). **As built (P2/P6, DECISIONS #113):** one row per `(day, scope)`, scope = `global` or `user:<uuid>`, plus a surrogate id; a CHECK ties scope to user_id. Caps (config, starting values): per user 30 runs and 300 model calls per day; global 100 runs and 1,000 model calls per day; the cached example is excluded. When a cap is reached the run is refused before any model call with outcome `rejected` and reason `daily_cap_user` or `daily_cap_global`, and it does not count as a run.
 
 ### audit_log
 id; user_id; action R; target; ip_hash; created_at R. Retention 90 days.
+**Actions written so far:** `signup`, `login`, `login_failed`, `refresh_reuse`, `logout` (P3); `upload_created`, `upload_swept` (P4); `run_created`, `run_finished` (P7). For `run_finished` the target is `"<run_id>:<reason or outcome>"` (DECISIONS #173); for the others it is an id. No file name, question or content is stored.
 
 ### benchmark_runs
 id; commit_sha R; score int R; total int R; details jsonb.
@@ -166,6 +168,8 @@ Paths are accepted. "Auth" = signed-in user; "Owner" = signed-in user who owns t
 | Custom price | `POST /api/plans/custom/quote` | choices | price (server computed, rounded up, KRW: ₩130 per run, minimum ₩12,000; see DECISIONS #74) | Auth |
 | Demo checkout | `POST /api/checkout` | plan or custom config | simulated payment, subscription | Auth |
 | Try example | `GET /api/example` | none | cached example run and report | Everyone |
+
+Built so far (HEAD b2a13b2; check `api/app/routers/` before relying on this): `POST /api/auth/signup|login|refresh|logout`, `GET /api/me` (no PATCH yet), `POST /api/uploads` (CSV only), `GET /api/uploads` (a bare array), `GET /api/uploads/{id}`, `POST /api/runs` (Ask only; 202; optional `Idempotency-Key`), `GET /api/runs/{id}`, `GET /api/runs/{id}/events` (SSE), `GET /api/health`, `GET /api/ready`. Everything else in the table is not built. Error bodies are `{"error":{"code":"..."}}` (DECISIONS #103).
 
 Rate limits (decided): 5 sign-ups per hour per IP; 30 runs per day per user on paid plans (the plan quota applies first); 30 people searches per minute per user. AI daily caps are in `usage_daily` above. A run refused by a cap returns the reason `daily_cap_user` or `daily_cap_global`.
 
@@ -260,6 +264,61 @@ Display-only demo values; prices are whole KRW (DECISIONS #74). Not a database t
 - `custom` (`CustomPlanOffer`): `runs` {min 10, max 1000, step 10, default 100}, `per_run` 130, `minimum` 12000, and the option lists mirroring `custom_config`: `max_file_mb` [25, 100, 250], `data_tier` ["200k_rows_200_pages", "1m_rows_1000_pages"], `retention_days` [90, 180, 365], `parallel` [1, 3, 5]. The option groups carry no price (#75); only `runs` sets the price.
 - The sign-up form limits (DECISIONS #73): display name 1 to 60, email max 254, password 10 to 128.
 - Cost fields (`runs.cost_usd`, `agent_steps.cost_usd`, `ai_calls.est_cost_usd`, `usage_daily.est_cost_usd`) are internal, in USD, and never shown to users.
+
+## 5. Run, gateway and trace codes (as built, copied from `api/app/core/enums.py` and `api/app/runs/trace.py`)
+Values are fixed codes. The browser translates them; no model text or file name is ever put in one. If code and this section disagree, the code wins and this section is wrong.
+
+### RunReason (`runs.outcome_reason` and the closing trace line)
+Why a run ended without an answer. The first two end with outcome `rejected`, every other reason with outcome `failed` (DECISIONS #166). The web treats `daily_cap_user`, `daily_cap_global` and `model_busy` as "busy today" in P10.
+| Code | Meaning (from the code comments) |
+|---|---|
+| `daily_cap_user` | The user's daily model-call cap was reached |
+| `daily_cap_global` | The global daily model-call cap was reached |
+| `model_busy` | Every model answered 429 |
+| `model_timeout` | The 35 s model budget ran out |
+| `model_unavailable` | No key, no model or 5xx; also: no agents are configured yet |
+| `bad_model_output` | A model answered, but not with usable output |
+| `analysis_failed` | The sandbox could not run the generated code |
+| `sandbox_unavailable` | The sandbox service could not be reached or was busy |
+| `input_unusable` | The prompt was over the character cap, or the sandbox refused the input |
+| `step_cap` | More than 12 agent steps |
+| `run_timeout` | The run passed its time limit (soft 180 s; the reaper's hard limit is 300 s) |
+| `worker_lost` | The reaper found the RQ job gone |
+| `budget_exceeded` | `max_tokens_per_run` (60,000) was passed |
+| `internal_error` | A bug; the user sees a generic failure |
+
+### GatewayOutcome (what `Gateway.ask` returns; it never raises)
+`ok`, `busy`, `timeout`, `model_unavailable`, `cap_reached`, `bad_output`, `bad_input`. `busy` means every model in the chain answered 429. `cap_reached` also names the scope (`user` or `global`). `bad_output` does not fall back to the next model.
+Per-model failure (internal, set by the model client): `rate_limited`, `server_error`, `timeout`, `other`, `bad_response`. Cap decision (internal): `reserved`, `user_cap`, `global_cap`, `unavailable` (the counter store failed; the gateway fails closed).
+Mapping to `ai_calls.status`: `rate_limited` stays `rate_limited`, `timeout` stays `timeout`, every other failure is `error`; a good answer is `ok`.
+Sandbox codes (`SandboxErrorCode`): `timeout`, `memory`, `forbidden`, `runtime`, `output_too_large`, `bad_input`, `unavailable`. How gateway and sandbox codes become run reasons is the table in `api/app/runs/mapping.py`.
+
+### Trace keys (`TraceKey`) and the arguments each may carry
+A trace line is `agent`, `kind`, `state`, `key`, `args`, `tok`, `bubble`. A string argument must match `^[a-z0-9_]{1,40}$`, so a sentence cannot be passed in.
+| Key | Allowed args |
+|---|---|
+| `plan` | `stub`, `files` |
+| `dispatch` | `stub`, `agents` |
+| `readCsv` | `stub`, `rows`, `cols` |
+| `runPython` | `stub`, `attempt` |
+| `top3` | `stub`, `rows` |
+| `merge` | `stub` |
+| `ready` | `stub` |
+| `stepStarted` | `attempt` |
+| `stepFailed` | `reason`, `attempt` |
+| `stopped` | `reason`, `stub` |
+`stepStarted` is used when the executor opens an agent that failed before saying anything. `stopped` is the closing line of every run that did not end in a normal answer. `stub` is true on the scripted development run (the web shows "Simulated run").
+
+### Migrations
+- `0001` initial schema (P2).
+- `0002` one active run per user (P7, additive): a partial unique index `uq_runs_user_id_active` on `runs(user_id) WHERE status <> 'finished'`. A second run start for the same user fails at the database; the API answers 409 `RUN_ACTIVE`. Also enforced by an advisory lock on the user (DECISIONS #164).
+
+### Usage rules for `ai_calls` and `usage_daily`
+- One `ai_calls` row per attempt at one model, written by the gateway after the call. Columns hold model, attempt (1 to 3), purpose, status, tokens in and out, latency. They never hold a prompt, a response, a question or file text. `est_cost_usd` stays 0 until a price table exists (DECISIONS #159). `run_id` and `step_id` are set to null if the run is deleted.
+- Before every attempt the gateway reserves one slot with one SQL upsert per scope on `usage_daily` (`INSERT ... ON CONFLICT DO UPDATE ... WHERE model_calls < cap`): the user row first, then the global row, in one transaction. If either is at its cap the transaction rolls back, so a refused reservation counts nothing. A fallback attempt takes its own slot. If a cap is full the call is not made and the outcome is `cap_reached`. If the counter store fails the outcome is `model_unavailable` (fail closed). See DECISIONS #158.
+- Dev caps are in `api/config/limits.toml`: `daily_calls_per_user` 50 and `daily_calls_global` 200 per UTC day; production values are set at deploy (DECISIONS #160). The `runs` column of `usage_daily` is not written yet (run counting is P10).
+- `tokens_in` and `tokens_out` on a run are summed from `ai_calls`; `max_tokens_per_run` (60,000) stops a run with `budget_exceeded`.
+- Retention of 90 days for `ai_calls`, `usage_events` and `audit_log` has indexes on `created_at` but **no cleanup job yet** (ROADMAP 3.16).
 
 ## summary_json shapes (as built for the Ask report in ROADMAP 2.7; Check and Compare still to confirm at 3.13 and 3.14)
 Taken from `web/mocks/reports.json`. Every shape has `answer`.

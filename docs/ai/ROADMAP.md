@@ -1,6 +1,6 @@
 # ROADMAP.md — Indesk v1
 
-Lives at: `docs/ai/ROADMAP.md`. Last updated 2026-10-25. HEAD e9f7d1e.
+Lives at: `docs/ai/ROADMAP.md`. Last updated 2026-10-26. HEAD b2a13b2.
 UI-first. Order: 1) skeleton, tokens, layout; 2) each screen on mock data (shapes from `DATA.md`); 3) backend features matching `DATA.md`; 4) swap mock for real, one screen at a time; 5) deploy.
 Each item is sized for 1 to 2 work sessions. Check a box only when the item's "done when" is true.
 
@@ -8,10 +8,11 @@ Each item is sized for 1 to 2 work sessions. Check a box only when the item's "d
 - **[A]** core, planned for about Nov 1: the core backend (foundation, first working run, manager and critic, PDF and retrieval), Check, Compare, the full UI, the Gemini gateway and the cached example.
 - **[B]** product layer: build as time allows; until built, those screens stay on mock data.
 - **[C]** Vision (images, scanned PDFs, OCR test): after Nov 1.
-**Order (final, owner-approved 2026-10-25; replaces the earlier order-change note).** Hard date: Nov 1. A clean, full backend comes first; the frontend may lag.
+**Order (final, owner-approved 2026-10-25; replaces the earlier order-change note).** Nov 1 is a soft target (Nov 1 to 3) since 2026-10-26, not a hard date. A clean, full backend comes first; the frontend may lag.
 - Before Nov 1: 2.7 Report (Ask) -> backend slice (3.1 Compose/CI, 3.2 state contract, 3.4 DB, 3.5 auth as small as is clean, 3.6 uploads CSV only, 3.7 sandbox, 3.8 Gemini gateway with the fake client first, 3.9 first real run with 3.3 SSE absorbed, 3.11 critic and report API, 3.10 failure gates with Owl, Beaver and Cat as the working agents) -> 4.1 to 4.4 swap mock to real -> failure cards from 2.15 (failed, not answerable, busy today) -> 5.1 Seoul demo data (the owner checks data.seoul.go.kr) -> 5.6 deploy with HTTPS -> 5.7 README and demo video.
 - After Nov 1, the same URL grows: PDF and Hound (3.12), Check, Compare, then the Tier B screens 2.8, 2.9, 2.12, 2.13, 2.14, 2.16; also Vision (3.20), exports, plans and quotas, email verification.
 - If a day slips, drop first: auth beyond the minimum, then 2.15 polish. The backend core is not dropped.
+- **Where we are (2026-10-26).** Done: P1 to P7 (3.1, 3.2, 3.4 to 3.8, run job and SSE) and web 4.1 to 4.3. Remaining order: **P8a** -> **P8b** -> **P9** -> **4.4** -> **P10** -> **5.x**. Each step is listed below under "Remaining steps".
 
 If time runs out, cut from the bottom: [C] first, then [B] items from the bottom up. Never cut the cached example.
 
@@ -62,17 +63,17 @@ How to work: for each item, Claude writes a prompt, you paste it into a fresh Cl
   - [ ] The film board PNG renders blank, so the Home film is compared against the live design.
 
 ## 3. Backend features (match DATA.md)
-- [ ] **3.1 [A] Compose and CI.** Docker Compose with API, Postgres + pgvector, Redis, RQ worker; CI runs lint and tests. Done when: `docker compose up` gives a healthy API.
-- [ ] **3.2 [A] State contract.** Pydantic models for `AgentState` and the trace event (fields from `DATA.md` `agent_steps`). Done when: tests validate the example records.
-- [ ] **3.3 [A] Dumb stream.** SSE endpoint pushes hardcoded AgentState events on a timer; the run tab reads it instead of the mock timer. Done when: cards turn from waiting to working to done.
-- [ ] **3.4 [A] Database.** SQLAlchemy models and Alembic migrations for all v1 entities, including `ai_calls` and `usage_daily`.
-- [ ] **3.5 [A] Auth.** Sign up, log in, refresh with rotation, log out, `me`; Argon2; short-lived access token in an httpOnly cookie; limit 5 sign-ups per hour per IP; no verification code.
-- [ ] **3.6 [A] Uploads.** Type/size/plan limit checks, consent flag, storage interface on local disk, 24 h expiry sweep, list of file names.
-- [ ] **3.7 [A] Sandbox.** Docker container with no network runs pandas on a CSV and returns JSON. Done when: a malicious script cannot reach the network.
-- [ ] **3.8 [A] Gemini gateway.** One server-side module for every model call: model IDs from a config file (confirm them in Google AI Studio first), the two fallback chains from `DECISIONS.md` #27 and #28, 35 s budget per request, retry on 429 and timeouts by moving to the next model, every call logged to `ai_calls`, per-user and global daily caps from `usage_daily`. Key from `api/.env` only. Done when: tests with a fake client prove the chain order, the time budget and both caps.
-- [ ] **3.9 [A] First real run (free tier, demo data only).** Owl picks a tool, Beaver runs it in the sandbox, steps stream to the UI, cost recorded.
-- [ ] **3.10 [A] Gates and outcomes.** Answerability and quality gates, the six outcomes, skipped/failed/retry states, step cap, budget cap, refusal on a daily cap.
-- [ ] **3.11 [A] Critic and report.** Claims with evidence refs, Cat's verdicts, "VERIFIED x/y", report API. PLANNED, not built (#98): translate action for real reports (one Gemini call on prose fields only, stored under `translations.<locale>`, number check rejects changed numbers); also compute `confidence` (thresholds high/medium/low are not defined yet).
+- [x] **3.1 [A] Compose and CI.** Docker Compose with API, Postgres + pgvector, Redis, RQ worker; CI runs lint and tests. Done when: `docker compose up` gives a healthy API. Built in P1 (bc1cc5e); the scheduler and sandbox services were added in P4 and P5. Decisions #99 to #107.
+- [x] **3.2 [A] State contract.** Pydantic models for `AgentState` and the trace event (fields from `DATA.md` `agent_steps`). Done when: tests validate the example records. Built in P2 (dd680e1); the trace line is in `app/runs/trace.py`. Decisions #108 to #118.
+- [x] **3.3 [A] Dumb stream.** SSE endpoint pushes hardcoded AgentState events on a timer; the run tab reads it instead of the mock timer. Done when: cards turn from waiting to working to done. Absorbed: no separate timer stream was built; the real SSE endpoint came with the run job in P7 (debdb7b), and the run tab reads it since 4.3 (b2a13b2). The scripted agents (`RUNS_DEV_STUB`, development only) fill the role of the dumb stream. Decisions #162 to #173.
+- [x] **3.4 [A] Database.** SQLAlchemy models and Alembic migrations for all v1 entities, including `ai_calls` and `usage_daily`. Built in P2 (dd680e1); migration 0002 (one active run per user) came with P7.
+- [x] **3.5 [A] Auth.** Sign up, log in, refresh with rotation, log out, `me`; Argon2; short-lived access token in an httpOnly cookie; limit 5 sign-ups per hour per IP; no verification code. Built in P3 (fb57432). Decisions #119 to #127.
+- [x] **3.6 [A] Uploads.** Type/size/plan limit checks, consent flag, storage interface on local disk, 24 h expiry sweep, list of file names. Built in P4 (b91b346), CSV only; the upload rate limit and max columns came in P5. The malware scan (ClamAV) is not built. Decisions #128 to #138.
+- [x] **3.7 [A] Sandbox.** Docker container with no network runs pandas on a CSV and returns JSON. Done when: a malicious script cannot reach the network. Built in P5 (13bca05). Decisions #139 to #153. The sandbox is best-effort isolation (shared kernel, #147); the SECURITY.md pass (5.4) still has to check it.
+- [x] **3.8 [A] Gemini gateway.** One server-side module for every model call: model IDs from a config file (confirm them in Google AI Studio first), the two fallback chains from `DECISIONS.md` #27 and #28, 35 s budget per request, retry on 429 and timeouts by moving to the next model, every call logged to `ai_calls`, per-user and global daily caps from `usage_daily`. Key from `api/.env` only. Done when: tests with a fake client prove the chain order, the time budget and both caps. Built in P6 (ed12345), decisions #154 to #161. The model names in `models.toml` are not verified and nothing has run against real Gemini (see P8b).
+- [ ] **3.9 [A] First real run (free tier, demo data only).** Owl picks a tool, Beaver runs it in the sandbox, steps stream to the UI, cost recorded. Split into P8a (agents and tests with the fake gateway) and P8b (live smoke test); the run job, state machine and SSE already exist (P7).
+- [ ] **3.10 [A] Gates and outcomes.** (Part of P9; the step cap, one retry, token budget and the daily-cap refusal already exist from P7.) Answerability and quality gates, the six outcomes, skipped/failed/retry states, step cap, budget cap, refusal on a daily cap.
+- [ ] **3.11 [A] Critic and report.** (P9.) Claims with evidence refs, Cat's verdicts, "VERIFIED x/y", report API. PLANNED, not built (#98): translate action for real reports (one Gemini call on prose fields only, stored under `translations.<locale>`, number check rejects changed numbers); also compute `confidence` (thresholds high/medium/low are not defined yet).
 - [ ] **3.12 [A] PDF and Hound.** Text extraction, chunking, Gemini embeddings (confirm the model and vector size first), keyword + semantic search, cited passages.
 - [ ] **3.13 [A] Check a document.** Claim extraction, per-claim verdicts, "not checked" list.
 - [ ] **3.14 [A] Compare.** Column alignment, differences, could-not-compare notes.
@@ -83,11 +84,20 @@ How to work: for each item, Claude writes a prompt, you paste it into a fresh Cl
 - [ ] **3.19 [A] Benchmark.** 50 questions (including Check and Compare) in CI, score saved to `benchmark_runs`. Runs against a fake model client in CI and against real Gemini only by hand, so CI never spends the daily cap.
 - [ ] **3.20 [C] Vision (after Nov 1).** Image moderation gate, OCR test on 4 to 5 photos per language (Korean, Japanese, Russian, Uzbek) against the three candidates, OCR with confidence, Gemini vision fallback. Done when: the test table is written into `DECISIONS.md`.
 
+## Remaining steps (added 2026-10-26)
+Names used in commits and in STATE. Each is sized for one to two sessions. Check a box only when its "done when" is true.
+- [ ] **P8a [A] Owl and Beaver (fake gateway).** Prompts and structured output for Owl (plan) and Beaver (pandas code through the sandbox), the agents wired into the executor, tests against the fake gateway and a synthetic demo CSV. Done when: a run on the synthetic CSV ends `answered` or `partial` in tests, with trace lines, and no real model is called. (Covers the agent half of 3.9.)
+- [ ] **P8b [A] Live smoke test.** Run `scripts/list_models.py` with the real key and fix `models.toml`; run one real Ask on the Seoul CSV by hand (free tier, public data only). Done when: the model names are confirmed, the run completes or fails with a clear reason, and the result is written in STATE and DECISIONS (resolves OPEN 2 and 4 in DECISIONS). (Finishes 3.9.)
+- [ ] **P9 [A] Cat and the report API.** Cat's verdicts, claims with evidence refs, "VERIFIED x/y", confidence thresholds, gates and the six outcomes, `GET /api/reports/{id}`; the translate action stays PLANNED (#98). Done when: tests prove a claim without evidence is never `verified` and the report API checks ownership. (3.10 and 3.11.)
+- [ ] **4.4 [A] Report (Ask) on the real API.** See item 4.4. Remove the line "Results appear in the report (not connected yet)".
+- [ ] **P10 [A] Quotas, busy today and deploy hardening.** Plan quota and counting (free runs, "Uses 1 of your 2 free runs"), `daily_cap_user`, `daily_cap_global` and `model_busy` shown as "busy today" (2.15), restore the counting tags (#195), split DB roles (#118), remove the `compose.yaml` mount from the api service (#152), retry endpoint if the copy still promises it. Done when: the deploy checklist in STATE has no open API or Compose item.
+- [ ] **5.x [A] Deploy section.** After P10: 5.1 Seoul demo data, 5.2 cached example, 5.3 stress tests, 5.4 security pass, 5.5 paid tier, 5.6 deploy, 5.7 README and demo video (see section 5; the order in "Order (final)" above still puts 5.1, 5.6 and 5.7 first when time is short).
+
 ## 4. Swap mock to real (per screen)
 Do in this order. For each: replace mock reads with API calls, keep the mock as a test fixture, check loading, empty and error states.
-- [ ] **4.1 [A] Log in and Sign up.**
-- [ ] **4.2 [A] Workspace Ask tab (real upload and run start).**
-- [ ] **4.3 [A] Run tab (real SSE).**
+- [x] **4.1 [A] Log in and Sign up.** Built in a5461cd (with 4.2). Decisions #174 to #183.
+- [x] **4.2 [A] Workspace Ask tab (real upload and run start).** Built in a5461cd (real auth, Log out, disabled Check and Compare) and finished in b2a13b2 (upload and run start). Ask only; CSV only.
+- [x] **4.3 [A] Run tab (real SSE).** Built in b2a13b2. Decisions #184 to #197. EventSource was checked in Chrome only.
 - [ ] **4.4 [A] Report (Ask).** PLANNED, not built (#98): "Translate to <other language>" button, result labelled "AI translation", shown when the report language differs from the site language.
 - [ ] **4.5 [A] Check report.**
 - [ ] **4.6 [A] Compare report.**

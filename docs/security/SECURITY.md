@@ -1,6 +1,6 @@
 # SECURITY.md — Indesk (first draft)
 
-Lives at: `docs/security/SECURITY.md`. Last updated 2026-10-25. Everything here is **Planned**. Nothing is built yet.
+Lives at: `docs/security/SECURITY.md`. Last updated 2026-10-26 (HEAD b2a13b2). Sections 1 to 5 were written on 2026-10-25 and are still mostly **Planned**. Section 6 and 7 below describe what is built; each control says whether a test exists. **Built is not the same as verified:** the tests named here were not re-run in the docs batch of 2026-10-26, and nothing was checked against a deployed server. Unless a line says "test exists", read it as not verified.
 
 ## 1. The three most realistic ways someone could misuse Indesk
 ### 1. A poisoned file (prompt injection, malware, harmful content)
@@ -64,12 +64,59 @@ Files and extracted text are sent to Google Gemini to be answered. The privacy t
 ## 5. Rules for the build process
 - Never put API keys or passwords in prompts or chat.
 - Claude Code never reads, prints or edits `.env` files.
-- Database users get minimum rights (the API user cannot drop tables; the sandbox has no database access).
+- Database users get minimum rights (the API user cannot drop tables; the sandbox has no database access). **Not true today:** the API connects as the Postgres superuser until P10 (see section 8). The sandbox has no database access: it gets no environment at all (a test, `tests/test_compose_sandbox.py`, checks `compose.yaml`).
 - `.env` is in `.gitignore` from the first commit.
 
-## 6. Items for the security pass (ROADMAP 5.4)
-Both are **not verified** yet.
-- Production builds ignore the `dev_session` cookie: plant the cookie against a production build and confirm the app still treats the visitor as signed out (DECISIONS #67).
+## 6. Auth and sessions as built (P3, web 4.1 and 4.2)
+Replaces the earlier `dev_session` item. The `dev_session` cookie and the mock session no longer exist (DECISIONS #179); there is nothing left to plant.
+- **Passwords:** Argon2id (`argon2-cffi`). Unknown email, wrong password and a deleted user each verify one hash and return the same 401 `INVALID_CREDENTIALS`, so the answer and the work done do not reveal whether an account exists (#122).
+- **Tokens:** a short-lived access token (15 minutes) and a refresh token (30 days), both in httpOnly, SameSite=Lax cookies; `Secure` when `APP_ENV=production`. The refresh token is stored only as a hash. Each refresh rotates the token; using an old one again revokes the whole family and writes `refresh_reuse` to the audit log (#123).
+- **After logout** the access token stays valid until it expires, up to 15 minutes (#125). Accepted for the demo.
+- **Two tabs** that refresh at the same moment can end the session (#126). The web uses a Web Locks lock and a BroadcastChannel to avoid it (#177). Not tested in Safari or Firefox.
+- **Browser storage:** no token is ever in localStorage or sessionStorage. Only a boolean hint (`indesk_signed_in_hint`) and, for the live run, the run id (a UUID, keyed by user id, cleared on log out) are stored (#178, #185).
+- **Same origin:** the browser talks only to its own origin through a rewrite of `/api`; there is no CORS (#174).
+- **CSRF:** every write request needs an allow-listed Origin (or Referer) and a JSON or multipart body (403 `ORIGIN_NOT_ALLOWED`, 415 `UNSUPPORTED_TYPE`), as an app-wide dependency (#119). `ALLOWED_ORIGINS` must be set to the public origin at deploy.
+- **Hashed identifiers:** IP and email hashes in the audit log and in rate-limit keys are HMAC-SHA256 keyed with `AUTH_SECRET` (#124). `AUTH_SECRET` must be at least 32 characters; in production the API will not start without it (#106).
+- **Client IP:** `X-Forwarded-For` is believed only from a peer listed in `TRUSTED_PROXIES` (#120). If the proxy is not listed, every visitor shares one rate-limit bucket.
+- **Route list:** the OpenAPI and docs routes are off (#107). Errors are codes, not messages (#103).
+- **Ownership:** a run or upload that is missing, expired or belongs to someone else gives the same 404. Composite foreign keys also make the database refuse a run that uses another user's upload (#116).
+- Tests exist in `api/tests/test_auth.py`, `test_uploads.py`, `test_runs_api.py` and `test_db_models.py`; **not re-run** in this batch.
+
+## 7. Sandbox, gateway, rate limits and the Redis test guard (as built)
+### Sandbox (P5)
+- **What the boundary is:** the sandbox container. It has no network (`sandbox_net` is `internal` and shared only with the worker), a read-only root, `cap_drop: ALL`, `no-new-privileges`, limits on processes, memory and CPU, no ports, no volumes and no environment variables. Each job runs in a fresh subprocess with 5 s of CPU time and a 10 s wall clock; every descendant is killed afterwards. The result comes back over a length-prefixed pipe with a 1 MB cap; stdout and stderr are discarded. At most 2 jobs run at once, a third gets 503 (#139 to #145).
+- **What it is not:** the AST allow-list is defense in depth only and is not the boundary. The container shares the host kernel, so the isolation is **best-effort**. This document, the README and the UI must not call it "unbreakable" or "100% safe" (#147).
+- `SANDBOX_TEST_MODE` (switches the AST check off for tests) exists only in `compose.sandbox-test.yaml`; deploy uses `compose.yaml` only (#146).
+- Tests exist (`test_sandbox_ast.py`, `test_sandbox_procs.py`, `test_compose_sandbox.py`, and `-m sandbox` tests in a Linux CI job). A real "malicious script cannot reach the network" check on the deployed stack is **not verified** (ROADMAP 5.4).
+### Gemini gateway (P6)
+- One module (`app/ai`) makes every model call, with plain `httpx`. The key is `GEMINI_API_KEY` in `api/.env`, read as a `SecretStr`, sent only in the `x-goog-api-key` header, and never put in a URL, a log line, a result or a prompt (#154).
+- It logs and stores metadata only: model, tokens, status, latency. No prompt, answer, question or file text (#159).
+- Daily caps are atomic SQL upserts on `usage_daily`; if the counter store fails the call is refused (fail closed) (#158). Dev values: 50 calls per user and 200 global per day; production values are set at deploy (#160). Prompts over 40,000 characters are refused.
+- **Not verified:** nothing has run against real Gemini; model names are unchecked (#155, #161). Tests use a fake client and never spend the cap.
+### Rate limits (fixed windows in Redis; if Redis is down the request is refused, fail closed)
+- Sign-ups: 5 per hour per IP. Log-ins: 10 per 15 minutes per IP and email. Uploads: 30 per hour per user, counted after the body is parsed (#149). Run requests: 20 per hour per user, plus one active run per user (database index) and at most 3 open event streams per user.
+- Upload bodies are cut off at the file limit plus 64 KB while they arrive (#151). The upload limit is 5 MB, 5,000 rows and 200 columns.
+- Not built: the 30 runs per day on paid plans and the people-search limit (no such features yet).
+### Redis test guard (P7)
+- Tests use Redis database 15 only. A guard fails the suite at start if the test URL is database 0 and refuses a connection pool for any other database, so a test cannot flush the dev queue or reset dev rate limits (#172). Never run `FLUSHDB` on production.
+### Runs
+- Run limits: soft timeout 180 s, job kill 240 s, hard limit 300 s, 60,000 tokens, step cap 12, one retry (#167). A run that dies is ended by the reaper (#168). Failures are fixed reason codes, never model messages (#166).
+
+## 8. Known gaps
+- **Superuser database role (deploy blocker).** The API connects as the Postgres superuser `indesk` until P10. It must become a limited app role plus a separate migrator role, with a test that the app role cannot `DROP TABLE` (#118).
+- **Shared kernel.** The sandbox shares the host kernel; a kernel escape is not ruled out (#147).
+- **No malware scan.** ClamAV is not built; uploads stay `moderation=pending` and are never marked `passed` (#132, #138). No image moderation (Tier C).
+- **`compose.yaml` is mounted into the `api` container** for a test; remove it before deploy (#152).
+- **Access token lives up to 15 minutes after logout** (#125).
+- **No retention cleanup yet** for `ai_calls`, `usage_events` and `audit_log` (90 days) and no report retention (ROADMAP 3.16).
+- **Reports, sharing, people search and payments are not built**, so their access rules in section 1 and 3 are still plans.
+- **SSE stream** lacks `Cache-Control: no-transform`; `TOO_MANY_STREAMS` is shown as an anonymous error (STATE, API gaps).
+- The deploy checklist in `STATE.md` lists the remaining settings (proxy list, origins, Secure cookies, nginx buffering).
+
+## 9. Items for the security pass (ROADMAP 5.4)
+All **not verified** yet.
+- Plant a `dev_session` cookie against a production build: no longer needed, the cookie code was removed. Instead confirm `/dev/*` still returns 404 in production (DECISIONS #67) and `?mockOutcome` is ignored (#82).
+- Walk through sections 6 to 8 against the deployed stack: cookies are `Secure`, the proxy list is right, the app role cannot drop tables, the sandbox cannot reach the network or the other services, the key never appears in the browser or in logs.
 - The demo checkout makes no network request and stores nothing when card details are typed: with the network panel open and storage inspected (cookies, local and session storage, URL), type a card and finish or decline the payment; confirm no request carries the values and nothing is stored (DECISIONS #77).
 
 ## OPEN questions in this file

@@ -1,6 +1,6 @@
 # DECISIONS.md — Indesk
 
-Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 decisions; "Oct 19" marks the early decisions, approximate. "Rejected" lists only alternatives we actually discussed; "none discussed" means we did not compare options. `OPEN:` marks what is still undecided, with my recommendation.
+Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 decisions (the build log from #99 uses the Oct 26 docs date); "Oct 19" marks the early decisions, approximate. "Rejected" lists only alternatives we actually discussed; "none discussed" means we did not compare options. `OPEN:` marks what is still undecided, with my recommendation.
 
 ## Product
 | # | Date | Decision | Why | Rejected alternatives |
@@ -45,7 +45,7 @@ Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 dec
 | 29 | Oct 25 | `gemini-4-argon` only as an optional escalation when Beaver and Cat disagree; off by default; paid tier only | Strongest model but not on the free tier; price rises Dec 1, 2026 | Using it by default |
 | 30 | Oct 25 | Model IDs live in a config file, not in code. Confirm each ID in Google AI Studio before the first call (the IDs were read from the official pricing page and third-party lists) | Models change often | Hard-coded names |
 | 31 | Oct 25 | Time budget: 35 s per model request, shared across the whole fallback chain. A model that errors, hits a rate limit (HTTP 429) or runs out of its slice passes the request to the next model. If all fail, the agent shows "Failed" with Retry | Within the 30 to 40 s the user asked for | Fixed 45 s per step |
-| 32 | Oct 25 | Per-user daily cap: 30 runs and 300 model calls. Global daily cap: 100 runs and 1,000 model calls (the cached example is excluded). Starting values in config; tune after reading the project's real limits at aistudio.google.com/rate-limit | The free tier has per-project limits that Google no longer lists in one table | No caps |
+| 32 | Oct 25 | Per-user daily cap: 30 runs and 300 model calls. Global daily cap: 100 runs and 1,000 model calls (the cached example is excluded). Starting values in config; tune after reading the project's real limits at aistudio.google.com/rate-limit. **Dev values are lower since P6 (#160): 50 model calls per user and 200 global; the production values are set at deploy.** | The free tier has per-project limits that Google no longer lists in one table | No caps |
 | 33 | Oct 25 | Free tier only while developing, with public demo data only. Move to the paid tier (billing on, $20 monthly limit) before anyone uploads their own files | Google's pricing page says free-tier content is used to improve Google's products; paid is not | Using real files on the free tier |
 | 34 | Oct 25 | Embeddings: a Gemini embedding model. Model ID and vector size are decided at the backend step (ROADMAP 3.12), not now (Oct 25). Plan: pick the current Gemini embedding model in AI Studio, store the vector size in config, and keep BGE-M3 (local) only as a comparison test | "Gemini for all AI features" | BGE-M3 as the main choice |
 | 35 | Oct 24 | Compute in code: pandas on the whole file; the model sees column names, a sample and results | Reliable on big files | Sending whole files to the model |
@@ -77,7 +77,7 @@ Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 dec
 | 57 | Oct 25 | Roadmap is UI-first: skeleton and tokens, then each screen on mock data, then backend, then swap mock to real, then deploy | See the product early; screens define the data | Backend first |
 | 58 | Oct 19 | Working method: Claude writes prompts for Claude Code; no secrets in prompts; `.env` never read by Claude Code; minimum database rights | Security and control | none discussed |
 | 66 | Oct 25 | Locale comes from the `NEXT_LOCALE` cookie, no URL prefix (next-intl without i18n routing) | Simple routes; matches the routes in DESIGN.md | Locale in the URL |
-| 67 | Oct 25 | The mock session (`dev_session` cookie) is ignored in production builds; `/dev/*` pages return 404 in production | The deployed demo must never fake a sign-in | none discussed |
+| 67 | Oct 25 | **The `dev_session` part is superseded by #179 (cookie removed in 4.1/4.2); the `/dev/*` 404 rule still holds.** The mock session (`dev_session` cookie) is ignored in production builds; `/dev/*` pages return 404 in production | The deployed demo must never fake a sign-in | none discussed |
 | 68 | Oct 25 | Mock files use the shape `{ "_note", "records" }` so invented values can be marked as placeholders | Honesty about what is real | none discussed |
 | 78 | Oct 25 | Working agreement: UI changes are verified with the `indesk-verify` skill (headless Chrome by script, never the Chrome extension: screenshots matrix, measured sizes and contrast, scroll and click checks, lint, typecheck, build). Screen prompts never edit docs/; docs are updated in separate batched prompts | Repeatable checks; the extension was not reliable; fewer doc conflicts | Chrome extension checks; docs edited in every screen prompt |
 
@@ -95,7 +95,7 @@ Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 dec
 | 70 | Oct 25 | Mobile navbar (below 761 px) is not sticky and scrolls away with the page. The board's mast is sticky at every width, so this is a deliberate deviation. From 761 px up it stays sticky. On /login and /signup on mobile the navbar's Log in and Sign up buttons are hidden (logo, language menu and theme toggle stay) | User choice; more room on small screens | Board: sticky at every width |
 | 71 | Oct 25 | Mobile bottom tab bar is a floating pill (replaces the board's full-width bar): the active tab is a chip with icon and label, inactive tabs are icon only with aria-labels, icons use the same colour token as the theme toggle, 44 px targets, safe-area aware, hidden from 761 px. The tab lists of #62 are unchanged (signed in: Home, Workspace, My, Plans; signed out: Home, Workspace, Plans) | User choice | Board's full-width bar |
 | 72 | Oct 25 | Logo behaviour (from the user's logo file): the mark tilts -8deg over .5s on hover (hover-capable devices only), on keyboard focus-visible, and on tap/click (a tap class for 600 ms). The link still navigates home. The wordmark is hidden below 761 px as on the board. Reduced motion: no transition | User's logo file | none discussed |
-| 73 | Oct 25 | Auth screens (2.2, 2.3) deviate from the board: no Google or GitHub buttons or divider, no terms checkbox; a display name field is added (1 to 60 characters); password 10 to 128 characters (the board says 10; 128 is the added maximum); email max 254; headings and buttons read "Sign up" / "Log in" (ko 회원가입 / 로그인); "Reports kept for 7 days" is corrected to 30 days (Free plan). The submit is fake: in dev builds it sets `dev_session=in` and goes to /workspace; in production it shows "This demo has no accounts yet…" and signs nobody in (see #67) | Email and password only, no social login (#50); SPEC sign-up needs a display name; retention follows #15 | Board's social buttons and terms box |
+| 73 | Oct 25 | Auth screens (2.2, 2.3) deviate from the board: no Google or GitHub buttons or divider, no terms checkbox; a display name field is added (1 to 60 characters); password 10 to 128 characters (the board says 10; 128 is the added maximum); email max 254; headings and buttons read "Sign up" / "Log in" (ko 회원가입 / 로그인); "Reports kept for 7 days" is corrected to 30 days (Free plan). The submit is fake: in dev builds it sets `dev_session=in` and goes to /workspace; in production it shows "This demo has no accounts yet…" and signs nobody in (see #67). **The fake submit is superseded by #179: the forms call the real API; the fields and limits stay.** | Email and password only, no social login (#50); SPEC sign-up needs a display name; retention follows #15 | Board's social buttons and terms box |
 | 74 | Oct 25 | Plans (2.4) shows prices in KRW only, in English and Korean, formatted with `Intl.NumberFormat`. Supersedes the USD prices of #18 in currency (#18 is kept). Prices: Free ₩0; Pro ₩12,000 per month (50 runs); Pay as you go ₩6,500 for 20 runs; Custom ₩130 per run with a ₩12,000 minimum. Internal cost fields (`cost_usd`) stay in USD and are never shown to users | Owner decision; Korean audience | USD prices (#18) |
 | 75 | Oct 25 | Plans option groups (largest file, data size, retention, parallel runs) are shown as on the board but change no price. The board's "+₩" extras are not defined in SPEC or decisions, so they are hidden and only the number of runs sets the price. Revisit in section 3 together with the backend limits (do not advertise a limit the backend does not enforce). Signed-out visitors pressing a paid button go to /login | No invented prices | Inventing extra prices |
 | 76 | Oct 25 | Plans corrections to the board to match SPEC: Free reports kept 30 days (board said 7); Pro shows "Reports kept for 90 days" instead of "PDF export and priority queue" (priority queue is not in SPEC, exports are not Pro-only); Pay as you go shows "kept 60 days"; the enforcement item "Email verification and a bot check" is replaced by "Sign-ups are limited per hour" (no email verification until after deploy, #22). The usage simulator is client-only demo state (no storage, no network) and is marked as a demo | Copy must match what the product does | Board wording |
@@ -120,7 +120,146 @@ Lives at: `docs/ai/DECISIONS.md`. Dates: exact for Oct 22, Oct 24 and Oct 25 dec
 | 97 | Oct 25 | Report cards use the board's glass look: translucent card with blur and the shadow tokens; new token `--report-shadow` (commit e9f7d1e) | Match the board's cards | The earlier build's plain bordered `--card` surface (not recorded why it was changed beyond the board) |
 | 98 | Oct 25 | Mock report prose follows the site language for rep_01 and rep_04 (commit e0dd7f6, ROADMAP 2.7b). `translations.ko` on the report holds `title` and the prose of `summary_json` (`answer`, `top_rows[].label`, `in_short[].text`, `meaning`, `next_steps[]`); `ko.text` on each claim; `payload.ko` on evidence (`title`, `body`, `table.headers`, `table.rows`, `chart.title`, `chart.series[].label`). Numbers, units, station names, document quotes, file names, tool names and code are never translated. `top_rows`, `in_short`, `series` and table rows pair with the English record by position, so values and statuses stay in the English record. The Korean was written by Claude and is not reviewed by a native speaker. `web/scripts/check-report-numbers.mjs` compares the digits of en and ko (88 fields at this commit). Supersedes #93. **PLANNED, NOT BUILT:** real reports get a "Translate to <other language>" action when the report language differs from the site language: one Gemini call translating only the prose fields, stored with the report under `translations.<locale>`, labelled "AI translation", and the same number check rejects any translation whose numbers differ. Planned for 3.11 (API) and 4.4 (UI); priority after the failure cards (2.15) and before polish only; dropped first if a day slips. Until then a real report is in the language of the question | Owner decision: a Korean visitor opening the example report from Home should not see half-English | English-only mock prose (the earlier #93) |
 
+## Build log: backend and web swap (decisions #99 to #197)
+Added in docs batch 8 (2026-10-26) for the work in commits bc1cc5e to b2a13b2. Dates show the day these were written down; the work itself was done Oct 25 and 26. Where a reason was not given, the cell says "not recorded". Numbers and names were checked against the code in `api/` and `web/` on this date.
+
+### P1: Compose, health, config, worker, CI (bc1cc5e)
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 99 | Oct 26 | Python 3.12 runs only inside Docker; the host Python is not used for the API | Same version in dev, CI and deploy | not recorded |
+| 100 | Oct 26 | Sync SQLAlchemy 2.0 with psycopg 3 (`psycopg==3.3.6`) | not recorded | Async SQLAlchemy |
+| 101 | Oct 26 | `compose.yaml` lives at the repo root. Only the API is published, on `127.0.0.1:8000`; db and redis stay inside the Compose network | Nothing else should be reachable from the host network | Publishing db or redis ports |
+| 102 | Oct 26 | The code is baked into the image, so a code change needs `docker compose up --build` | not recorded | Bind-mounting the source |
+| 103 | Oct 26 | Every API error is `{"error":{"code":"..."}}`; the code is an `ErrorCode` value, never a message or a stack trace (AGENTS.md rule) | The browser translates the code | Raw framework error bodies |
+| 104 | Oct 26 | Secrets in settings are `SecretStr`, so they do not print in logs or error output | Key and secret hygiene | Plain strings |
+| 105 | Oct 26 | `/api/ready` answers `{"status":"ready"}` when the database and Redis answer, otherwise 503 `NOT_READY`. `/api/health` is the cheap liveness check | not recorded | not recorded |
+| 106 | Oct 26 | `AUTH_SECRET` (at least 32 characters) replaces the earlier name `JWT_SECRET`. In production the API refuses to start without it | The secret also keys the HMACs (#124), not only a token | `JWT_SECRET` |
+| 107 | Oct 26 | The OpenAPI and docs routes are switched off (`docs_url`, `redoc_url`, `openapi_url` are `None`) | Do not publish the route list of a demo | Leaving `/docs` on |
+
+### P2: State contract, database models, first migration (dd680e1)
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 108 | Oct 26 | Every closed list (plan, mode, outcome, agent key, step state and so on) is defined once in `app/core/enums.py` and used for both the database CHECK constraints and the schemas | A value cannot exist in one layer and not in the other | A list per layer |
+| 109 | Oct 26 | Ids in the API schemas are strings (UUID text) | Matches the web types | UUID objects in JSON models |
+| 110 | Oct 26 | Response schemas forbid unknown fields (`extra="forbid"`) | A field added by mistake fails a test instead of leaking | Ignoring extras |
+| 111 | Oct 26 | The owner column is `user_id` on `runs` and `uploads`, and `owner_id` on the other tables (`run_files`, `agent_steps`, `reports` and so on) | not recorded | One name everywhere |
+| 112 | Oct 26 | `agent_steps` has the column `state` (not `status`) and the kinds `say`, `tool`, `flag`. It also carries `key`, `args`, `tok` and `bubble` for the trace line. This changes the `agent_steps` row in DATA.md, which is updated | The step row is the trace event the run tab draws | `status` and the kinds plan, tool, result, flag |
+| 113 | Oct 26 | `usage_daily` is keyed by `(day, scope)` where scope is `global` or `user:<uuid>`; a CHECK ties scope to `user_id` | One atomic upsert per scope for the cap check (#158) | A unique key on `(day, user_id)` with a null user for the global row |
+| 114 | Oct 26 | `refresh_tokens.revoked_at` marks a revoked token; reuse revokes the family | DATA.md already lists the field | not recorded |
+| 115 | Oct 26 | `claims.ko` (JSONB) holds the Korean claim text, as in the mocks (#98) | Same shape as the web mocks | not recorded |
+| 116 | Oct 26 | Composite foreign keys carry the owner (for example `run_files` to `runs(id, user_id)`), so the database refuses a run that uses another user's upload | Ownership is enforced by the schema as well as by the code | Checks in code only |
+| 117 | Oct 26 | The contract test fixtures in `api/tests/fixtures/` are copies of the web mocks | The API shapes are tested against what the UI already renders | Fixtures written by hand |
+| 118 | Oct 26 | The API connects to Postgres as the superuser `indesk`. **Deploy blocker**, fixed in P10 with split roles (see STATE "Deploy checklist"). It breaks the rule in `.claude/rules/security.md` and SECURITY.md section 5 ("the API user cannot drop tables") until then | Time; the dev database holds only demo data | not recorded |
+
+### P3: Auth (fb57432)
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 119 | Oct 26 | The Origin and content-type check is an app-wide dependency (`check_write_request`): a write request needs an allow-listed Origin (or Referer), else 403 `ORIGIN_NOT_ALLOWED`; a body must be JSON or multipart, else 415 `UNSUPPORTED_TYPE`. Cookies are also SameSite=Lax | A route added later cannot forget the check | A check per route |
+| 120 | Oct 26 | `X-Forwarded-For` is believed only when the socket peer is in `TRUSTED_PROXIES`; it is read from the right, and the first address that is not a trusted proxy is the client | A client must not choose its own IP for the rate limit | Always trusting the header |
+| 121 | Oct 26 | A handle is a slug of the display name (at most 20 characters) plus `-` and 6 random hex characters | Unique without a retry loop; stays inside the 30 character limit | not recorded |
+| 122 | Oct 26 | Unknown email, wrong password and a deleted user all verify one Argon2 hash (a dummy hash when there is no user) and return the same 401 `INVALID_CREDENTIALS` | No account guessing by answer or by timing | Different errors |
+| 123 | Oct 26 | Refresh tokens rotate on every use. Using an old token again revokes the whole family and writes the audit action `refresh_reuse` | Detects a stolen token (#50) | Non-rotating tokens |
+| 124 | Oct 26 | IP and email hashes (audit log, rate-limit keys) are HMAC-SHA256 keyed with `AUTH_SECRET` | A plain hash of an IP or email can be reversed by guessing | Unkeyed SHA-256 |
+| 125 | Oct 26 | The access token (15 minutes) stays valid until it expires after logout; only the refresh token is revoked. Accepted for the demo | A stateless access token has no revocation list | A server-side token list |
+| 126 | Oct 26 | Two tabs that refresh at the same moment can kill the session, because rotation is strict and the second use looks like reuse (#123). The web side reduces this in 4.2 (#177); the API side is not changed | Strict rotation is the safer default | A grace window for the old token |
+| 127 | Oct 26 | The web form calls its field `name`; the API field is `display_name`. The mapping is in `web/lib/auth/api.ts` | The sign-up screen came first (#73) | Renaming either side |
+
+### P4: Uploads (b91b346)
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 128 | Oct 26 | Product limits live in `api/config/limits.toml`; every number names its source doc. The web still has its own copies of some of them (see STATE) | One place for the server; supersedes the "one source" wish of #79 for the server side only | Numbers in code |
+| 129 | Oct 26 | `python-multipart==0.0.32` is pinned. Added because FastAPI needs it to read the upload form | Dependency rule in AGENTS.md | not recorded |
+| 130 | Oct 26 | Upload refusals: 413 `FILE_TOO_LARGE` for size, 415 for type (`UNSUPPORTED_TYPE`, `TYPE_MISMATCH`), 422 for everything else (`CONSENT_REQUIRED`, `EMPTY_FILE`, `BAD_CSV`, `TOO_MANY_ROWS`, `TOO_MANY_COLUMNS`) | Clear status per kind of refusal | not recorded |
+| 131 | Oct 26 | The `scheduler` Compose service runs the RQ `CronScheduler`; run exactly one of it. It enqueues the hourly expiry sweep (and, from P7, the reaper) | Two schedulers would enqueue every job twice | A cron job in the worker |
+| 132 | Oct 26 | A CSV that passes the structure check is stored with `status=ready` and `moderation=pending`. Never `passed`, because no malware or content scan exists | An honest status | Setting `passed` |
+| 133 | Oct 26 | `sha256` is the hash of the stored UTF-8 bytes. A cp949 (EUC-KR) upload is transcoded to UTF-8 first; `size` stays what the user sent | Seoul open data is often cp949 | Rejecting cp949 |
+| 134 | Oct 26 | Strict CSV shape: the bytes must decode (UTF-8 with BOM, else cp949), the delimiter is detected (comma, tab or semicolon), and the row and column limits hold. The exact row-width rule is in `csv_check.py` | Beaver can trust the file | Lenient parsing |
+| 135 | Oct 26 | A filename that is empty after cleaning is refused | not recorded | Inventing a name |
+| 136 | Oct 26 | `GET /api/uploads` returns a bare array of uploads, not an object | Matches the web mock list | `{ "records": [...] }` |
+| 137 | Oct 26 | Audit actions for uploads are `upload_created` and `upload_swept`. Rows hold the user and the upload id only, never the filename | Metadata only | not recorded |
+| 138 | Oct 26 | The ClamAV malware scan (#39) is **not built**. Uploads stay `moderation=pending` (#132) | Time | not recorded |
+
+### P5: Sandbox, upload rate limit, scheduler healthcheck (13bca05)
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 139 | Oct 26 | The sandbox container is the security boundary. The AST allow-list in `ast_check.py` is defense in depth only | An allow-list on Python code is hard to make complete | Relying on the AST check |
+| 140 | Oct 26 | The sandbox has its own image with exactly pinned `pandas==3.1.0` and `numpy==2.5.4` (and their dependencies) and nothing else | Small attack surface | Reusing the API image |
+| 141 | Oct 26 | Container hardening in `compose.yaml`: read-only root, tmpfs `/tmp` (noexec, nosuid, nodev), `cap_drop: ALL`, `no-new-privileges`, `pids_limit`, memory and CPU limits, no ports, no volumes, no environment variables | Implements #40 | not recorded |
+| 142 | Oct 26 | `sandbox_net` is an `internal` network shared only by the worker and the sandbox. The API, db and redis cannot be reached from it, and it has no route to the internet | The sandbox needs no network | A shared default network |
+| 143 | Oct 26 | Each job runs in a fresh subprocess. After a job, every descendant is found through `/proc` and killed; the server is a child subreaper, so re-parented processes are also collected | Code that forks must not outlive its job | Killing only the process group |
+| 144 | Oct 26 | A job returns its result over a length-prefixed pipe with a size cap (1 MB of serialized result, 64 KB each of stdout and stderr, which are thrown away) | The job cannot flood the server | Reading stdout |
+| 145 | Oct 26 | At most 2 jobs run at once; a third gets HTTP 503, which the client maps to the sandbox code `unavailable` | Bounded memory | Queueing inside the sandbox |
+| 146 | Oct 26 | `SANDBOX_TEST_MODE` (lets a request switch the AST check off to test the container limits alone) exists only in `compose.sandbox-test.yaml`. Deploy uses `compose.yaml` only. A test fails if the variable appears in `compose.yaml` | The production sandbox must always run the AST check | A flag in `compose.yaml` |
+| 147 | Oct 26 | The sandbox shares the host kernel, so its isolation is described as best-effort. Docs and the UI never say "unbreakable" or "100% safe" | Honest wording | not recorded |
+| 148 | Oct 26 | `max_columns` is 200. The header line is read as a stream and refused over 64 KB (`TOO_MANY_COLUMNS` or `BAD_CSV`) before the whole file is read | A one-line file with millions of columns must not exhaust memory | Counting columns after a full parse |
+| 149 | Oct 26 | Upload rate limit: 30 per hour per user, fixed window in Redis, counted after the body is parsed. If Redis is down the upload is refused with 503 (fail closed) | SECURITY.md risk 2; the number is an owner decision | Counting before the body is read |
+| 150 | Oct 26 | The `scheduler` service has a healthcheck (`app.jobs.scheduler_health`) | A dead scheduler stops the sweep silently | not recorded |
+| 151 | Oct 26 | Body size limits as built: `POST /api/uploads` is cut off at `max_file_bytes + 64 KB` (BodyLimitMiddleware, 413). The sandbox's own request body cap is 12 MB (`MAX_BODY_BYTES`, base64 of up to 8 MiB of CSV plus the code). There is no 12 MB cap on the API | The multipart parser would copy a huge body to disk before route code runs | not recorded |
+| 152 | Oct 26 | `compose.yaml` and `compose.sandbox-test.yaml` are mounted read-only into the `api` container so `tests/test_compose_sandbox.py` can check the hardening. **Remove the mount or move it to a test override in P10** | Test convenience; the mount should not exist in deploy | not recorded |
+| 153 | Oct 26 | CI has a Linux job `sandbox` that builds the sandbox image in test mode and runs `pytest -m sandbox` | The limits only mean something on Linux | Running them on macOS only |
+
+### P6: Gemini gateway (ed12345)
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 154 | Oct 26 | The gateway uses plain `httpx` (`httpx==0.28.1`), not the Google SDK. The key is sent only in the `x-goog-api-key` header, never in a URL, a log line or a result | Fewer dependencies; the key cannot leak through a URL | The Google SDK |
+| 155 | Oct 26 | `api/config/models.toml` holds the chain: `gemini-2.5-flash`, then `gemini-2.5-flash-lite`; total budget 35 s (#31); at most 3 entries. The names are **NOT verified** against a real key until `scripts/list_models.py` is run. This chain differs from the `gemini-3.x` chains of #27 and #28; see OPEN question 4 | #30: confirm IDs before the first call | not recorded |
+| 156 | Oct 26 | The gateway never raises. It returns `GatewayOk` or `GatewayError` with one outcome: `ok`, `busy`, `timeout`, `model_unavailable`, `cap_reached`, `bad_output`, `bad_input` | Callers handle a closed list | Exceptions |
+| 157 | Oct 26 | `busy` only when every model in the chain answered 429. `bad_output` does not fall back to the next model; the agent layer owns the one retry (#42) | A bad answer is not a model outage | Falling back on bad output |
+| 158 | Oct 26 | The daily caps are SQL upserts on `usage_daily` (`INSERT ... ON CONFLICT DO UPDATE ... WHERE count < cap`), one slot per attempt, so fallback attempts count. If the counter store fails, the call is refused with `model_unavailable` (fail closed) | Atomic under concurrent runs | Read, then write |
+| 159 | Oct 26 | `ai_calls` stores model, attempt, status, token counts and latency only: no prompt, no response, no question. `est_cost_usd` stays 0 until a price table exists (see #74) | AGENTS.md: metadata only | Estimating cost now |
+| 160 | Oct 26 | Dev daily caps are 50 model calls per user and 200 globally (`limits.toml`). This **supersedes the values of #32 for development**; production values are set at deploy (#32 says 300 and 1,000 calls). `max_prompt_chars` is 40,000 | Dev values are lower so the free tier lasts | Using the #32 numbers in dev |
+| 161 | Oct 26 | `scripts/list_models.py` is the only code meant to be run by hand against the real API. Nothing has run against real Gemini yet | #33 and AGENTS.md: tests use the fake client | not recorded |
+
+### P7: Runs, state machine, SSE (debdb7b)
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 162 | Oct 26 | One state machine module (`app/runs/machine.py`) owns the run and agent step transitions | Implements #37 | Transitions spread over agents |
+| 163 | Oct 26 | Finishing a run is a compare-and-set on the status. The closing event, the `finished` status and the audit row are written in one transaction | A finished run never lacks its closing event | Separate writes |
+| 164 | Oct 26 | One active run per user: an advisory lock on the user plus a partial unique index `uq_runs_user_id_active` on `runs(user_id) WHERE status <> 'finished'` (migration 0002, additive). A second start answers 409 `RUN_ACTIVE` | The database enforces it even if the code is wrong | Check in code only |
+| 165 | Oct 26 | `Idempotency-Key` on `POST /api/runs` is optional. The key is stored in Redis for 24 hours with the run id and a fingerprint of the request; the same key with the same request replays the run; the same key with a different request is refused with 422 `VALIDATION_ERROR` | A double click or a retry must not start two runs | Required key |
+| 166 | Oct 26 | A failed run ends with a fixed `RunReason` code (see DATA.md). The two daily caps end as outcome `rejected`; every other reason ends as `failed`. P10 shows `daily_cap_user`, `daily_cap_global` and `model_busy` as "busy today" | The browser translates the code; a capped run does not count (DATA.md `runs.counted`) | Free-text reasons |
+| 167 | Oct 26 | Run limits (`limits.toml`): soft timeout 180 s, job kill 240 s, reaper hard limit 300 s, stream cap 330 s, `max_tokens_per_run` 60,000 (stands in for the $0.05 cap until a price table exists), step cap 12, one retry. Also `runs_per_hour` 20 and `max_question_chars` 1,000 | Each deadline is above the one before it | not recorded |
+| 168 | Oct 26 | The reaper runs every 60 s. It ends a run as `worker_lost` only when the run is past a 30 s grace and its RQ job is gone or ended and is not queued. A run past the hard limit ends as `run_timeout` | A busy worker is not a dead worker | Failing every old run |
+| 169 | Oct 26 | In Ask, the request may send up to five files all with role `subject`; the first is stored as `subject` and the rest as `source`, because the database allows one `subject` per run | The request contract stays as the web sends it | Changing the contract |
+| 170 | Oct 26 | `RUNS_DEV_STUB` (setting `runs_dev_stub`) runs scripted agents with no Gemini. It is honoured only when `APP_ENV` is `development`, and it is never set in `compose.yaml` (a test checks). Same idea as the removed web dev session (#67) | Watch a run end to end before the real agents exist | Always-on stub |
+| 171 | Oct 26 | SSE reads from the database, not from memory. The event id is the step `seq`, so `Last-Event-ID` resumes. A finished run whose `done` the client already has gets 204 (EventSource stops). A ping comment every 15 s; at most 3 streams per user (the fourth gets 429 `TOO_MANY_STREAMS`) | Survives a dropped connection and a worker restart | In-memory fan-out |
+| 172 | Oct 26 | The test suite uses Redis database 15 only. A guard fails the suite at start if the test URL points at database 0, and refuses a connection pool for any other database | A dev worker listens on database 0; a test must never flush it | Trusting the URL |
+| 173 | Oct 26 | The `run_finished` audit row's `target` is `"<run_id>:<reason or outcome>"` | `audit_log` has no column for the reason | A new column |
+
+### Web 4.1 and 4.2: real auth (a5461cd)
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 174 | Oct 26 | The web calls the API through a same-origin rewrite of `/api` (`API_INTERNAL_URL` in `next.config.ts`; nginx does the same in production). No CORS | Cookies stay same-origin | CORS with credentials |
+| 175 | Oct 26 | Auth cookies are httpOnly and SameSite=Lax; `Secure` is set when `APP_ENV` is `production` | Matches #50 | Tokens in browser storage |
+| 176 | Oct 26 | Session state is `signedIn`, `signedOut` or `unknown` (before the first answer) | The page must not flash the wrong state | A boolean |
+| 177 | Oct 26 | Refresh is single-flight per tab, plus a Web Locks lock and a BroadcastChannel across tabs, so two tabs do not rotate the same token (see #126) | Strict rotation (#123) | A grace window on the server |
+| 178 | Oct 26 | Only a boolean hint (`indesk_signed_in_hint` in localStorage) says "this browser signed in". It is not a token and grants nothing | Decides whether one refresh call is worth trying | Storing a token |
+| 179 | Oct 26 | The `dev_session` cookie, the "Dev session" pill, `DevSessionSwitch` and the mock session helper are removed. **Supersedes #67 (dev_session part; the `/dev/*` pages rule is unchanged) and #73 (the fake submit)**; sign-up and log-in now call the API | The mock session had a purpose only before the backend | Keeping a dev switch |
+| 180 | Oct 26 | Signed-in navbar: a plain-text "Log out" and the display name from 960 px, with smaller padding from 761 to 959 px. Deviation from the boards, whose avatar badge was a dev-only element | Space at mid widths | The avatar badge |
+| 181 | Oct 26 | Check and Compare modes are disabled and labelled "Coming soon"; the boards have no disabled look | Only Ask is real in v1 (#10, ROADMAP order) | Hiding the modes |
+| 182 | Oct 26 | `/my` and `/people` redirect to log in when signed out (`RequireAuth`). `/workspace` keeps its signed-out card. The example report stays public | Private pages need a session; the example does not | Redirecting everything |
+| 183 | Oct 26 | Vitest (`5.0.5`) and vite (`8.3.5`) are pinned exactly. First test runner in `web/` (`npm test`) | AGENTS.md: pin new dependencies; the runner was due with the first real logic | not recorded |
+
+### Web 4.3: Ask on the real API (b2a13b2)
+| # | Date | Decision | Why | Rejected alternatives |
+|---|---|---|---|---|
+| 184 | Oct 26 | Only Ask is wired. Files upload when Run is pressed, not when they are picked | The upload needs the consent flag from the same click | Upload on pick |
+| 185 | Oct 26 | The current run id (UUID only) is kept in localStorage under a key that includes the user id, and is cleared on log out | A reload resumes the run without a "get active run" endpoint (STATE, API gaps) | Keeping the id in memory |
+| 186 | Oct 26 | The EventSource handler deduplicates events by `seq`, limits reconnects, and tries one refresh when the stream is refused | A dropped connection must not repeat or loop | Unlimited reconnects |
+| 187 | Oct 26 | `compress: false` in `next.config.ts`, because Next's gzip buffers the proxied SSE stream (measured with `web/scripts/check-sse-proxy.mjs`). nginx compression with `proxy_buffering off` for the SSE route is a deploy item | Events must arrive line by line | Default compression |
+| 188 | Oct 26 | A run with `stub=true` shows a "Simulated run" banner | Never pass a script off as an analysis | No banner |
+| 189 | Oct 26 | Agent mapping: manager = Owl, vision = Chameleon, data = Beaver, retrieval = Hound, critic = Cat. An unknown trace key shows a generic line | New keys must not crash the screen | Throwing on an unknown key |
+| 190 | Oct 26 | The end card is a flat purple primary, like the board | Match the board | A gradient |
+| 191 | Oct 26 | D1: a non-CSV file in Ask is refused with "not available yet" (extends #80, which listed CSV, PDF, JPG, PNG) | PDF and images are not built | Accepting the file and failing later |
+| 192 | Oct 26 | D2: the agent detail panes show real trace lines instead of mock artifacts. The line "Results appear in the report (not connected yet)" is removed in 4.4 | Artifacts need Cat and reports (P9) | Mock artifacts on real runs |
+| 193 | Oct 26 | D3: a "Simulated run" banner replaces the Demo banner for stub runs (#82 still applies to the example run) | See #188 | Reusing the Demo banner |
+| 194 | Oct 26 | D4: no Replay button and no EXAMPLE stamp on real runs; the Example tags on the tiles are dropped | They describe the scripted example, not real runs | Keeping them |
+| 195 | Oct 26 | D5: the board's counting tags are not shown beside real runs. Only "This didn't use one of your free runs" is shown on rejected runs. Restore the rest in P10 | Counting is mock until quotas exist (P10) | Showing mock counts |
+| 196 | Oct 26 | D6: the dropzone help text says CSV only. Restore the PDF and image wording when they ship | Copy must match what works (SPEC section 8) | The board's text |
+| 197 | Oct 26 | D7: a new "Not available yet" group lists PDFs and photos in "What you can upload". The chips are red; a neutral style is on the polish list (STATE) | Tells the visitor what comes later | Hiding them |
+
 ## OPEN questions in this file
 1. Gemini embedding model ID and vector size (#34), decided at ROADMAP 3.12.
 2. Confirm every Gemini model ID in Google AI Studio before the first real call (#30).
 3. ~~Decision #93 versus the `translations.ko` work~~ Closed: the owner kept the Korean text; #98 replaces #93.
+4. Which model chain is the real one? `api/config/models.toml` holds `gemini-2.5-flash` then `gemini-2.5-flash-lite` (#155), while #27 and #28 and AGENTS.md name `gemini-3.x` chains and two job classes (light and main). The file has one chain for all jobs. Decide after `scripts/list_models.py` has been run with the real key.

@@ -1,6 +1,6 @@
 # SPEC.md — Indesk
 
-Lives at: `docs/ai/SPEC.md`. Working name: **Indesk** (earlier "Insight Desk"). Status: design finished (FINAL DESIGN PROJECT 2), no code yet. Last updated 2026-10-25.
+Lives at: `docs/ai/SPEC.md`. Working name: **Indesk** (earlier "Insight Desk"). Status: design finished (FINAL DESIGN PROJECT 2); the backend foundation and the Ask run are built, the agents and reports are not (see `STATE.md`). Last updated 2026-10-26.
 Rule used in this file: only what we decided. Anything not decided is marked `OPEN:` with a recommendation.
 
 ## 1. The problem
@@ -109,7 +109,7 @@ There is **no admin role** in v1. Operate through the database and logs.
 | README next steps: cross-file contradiction alerts, saved questions re-run on new data, data-quality check | Decided to document only |
 
 ## 6. Constraints
-- **Deadline:** about 2026-11-01 (two weeks from 2026-10-18); 12 to 14 hours a day planned. Only Tier A is promised for that date.
+- **Deadline:** a soft target of 2026-11-01 to 2026-11-03 (since 2026-10-26; it was a hard date before); 12 to 14 hours a day planned. Only Tier A is aimed at that date.
 - **Budget:** $0 while developing on the Gemini free tier. After moving to the paid tier, a **$20 monthly limit** until deploy. Per-run cost caps (estimated at paid prices, tracked even on the free tier): Ask about $0.05, Check about $0.12, Compare about $0.08.
 - **AI provider:** Google Gemini only, key only on the server. **Free-tier warning:** Google's pricing page says free-tier content is used to improve Google's products; paid tier is not. So while on the free tier, use only the public Seoul demo data and test files, never real private files. Move to the paid tier before recruiters or anyone else upload their own files. The move happens before the link is shared with anyone (decided Oct 25).
 - **Must-learn (first AI project):** FastAPI, pandas, computer vision/OCR, NLP, RAG, LLMs, agent orchestration. The user wants to understand each step.
@@ -138,6 +138,20 @@ Every sentence on a public page that promises something must be backed by a buil
 - "Images work" must be true by deploy. **IN CONFLICT (2026-10-25):** the Report shows photo-of-chart claims as Example, and Vision (ROADMAP 3.20) is after Nov 1. To be decided at the deploy checklist: change the copy or change the line. Not decided here.
 - "Every number links to the row or page it came from" must be true or be removed.
 - "This run was not used up" must be true or be removed.
+
+Status of each claim as of 2026-10-26 (HEAD b2a13b2). "Copy" is the English text in `web/messages/en.json`. A claim is "true" only when a test or a real run showed it; none of the lines below is true yet unless it says so.
+- "Passwords are hashed with Argon2": built in P3 (Argon2id, `argon2-cffi`). Tests exist in `api/tests/test_auth.py`; not re-run in this docs batch.
+- "Sign-ups are limited per hour": built in P3 (5 per hour per IP). The limit only works per visitor when `TRUSTED_PROXIES` covers the proxy at deploy (STATE, Deploy checklist).
+- "Sandbox: no network, 5 s CPU limit": built in P5 (`CPU_SECONDS = 5`, internal network). Needs the Linux CI job `sandbox` and the security pass (ROADMAP 5.4) to count as verified. Say "best-effort isolation", never "unbreakable" (DECISIONS #147).
+- "Originals are deleted after 24 h": the expiry sweep was built in P4 (hourly, `upload_swept`). Keep the copy. Depends on the scheduler service running (exactly one) and on a deploy check that the sweep ran.
+- "A failed agent is never hidden: it shows Failed and can be retried" (Copy, run tab "How each agent can end"): **not true yet.** There is no retry endpoint; the run itself retries each step once on its own (DECISIONS #42). Build the endpoint or remove "and can be retried".
+- "Every claim comes with its proof" (Copy, Ask description): **true only after Cat and the reports exist (P9 and 4.4).** Today a real run has no claims or evidence.
+- "Free plan, 2 free runs", "2 free runs · no card needed" and "Uses 1 of your 2 free runs": **mock until P10.** The server has no plan quota or run counting yet.
+- "PDF up to 10 pages", "a photo of a chart or a PDF" (Home hero lede), "Five animal agents" (Home hero, plans): **not true for the Nov 1 scope.** Nov 1 is CSV only with Owl, Beaver and Cat. Change the copy at deploy, or ship PDF, Hound and Chameleon first.
+- "Reports kept for 30 days" (and 60 and 90 by plan): **no retention job yet** (ROADMAP 3.16). Reports do not exist yet either.
+- "Images work": stays **IN CONFLICT** (see above). Vision is Tier C and the Ask tab now refuses images ("Not available yet").
+- The "How each agent can end" panel on the run tab must read as an example of possible endings, not as what happened in this run.
+- "Every number links to the row or page it came from": not built (needs P9 evidence).
 
 ## OPEN questions in this file
 None. (The paid-tier switch happens before the link is shared; hosting is the user's existing VPS with an sslip.io hostname.)
