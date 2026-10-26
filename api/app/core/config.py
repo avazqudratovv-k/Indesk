@@ -50,6 +50,12 @@ class Limits(BaseModel):
     sse_poll_seconds: PositiveFloat
     sse_ping_seconds: PositiveFloat
     sse_max_seconds: PositiveFloat
+    # Ask agents (P8a).
+    profile_sample_rows: PositiveInt
+    profile_sample_columns: PositiveInt
+    profile_cell_chars: PositiveInt
+    profile_name_chars: PositiveInt
+    max_stored_result_bytes: PositiveInt
 
 
 def load_limits(path: Path = LIMITS_FILE) -> Limits:

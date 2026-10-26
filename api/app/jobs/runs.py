@@ -18,6 +18,7 @@ from app.runs.executor import RunDeps, run_job
 from app.runs.reaper import reap
 from app.runs.registry import select_flow
 from app.sandbox_client import run_pandas
+from app.storage import LocalDiskStorage
 
 logger = logging.getLogger("indesk.runs")
 
@@ -35,6 +36,7 @@ def build_deps(settings: Settings | None = None) -> RunDeps:
         sandbox=run_pandas,
         limits=settings.limits,
         flow_factory=lambda mode: select_flow(settings, RunMode(mode)),
+        storage=LocalDiskStorage(settings.storage_dir),
     )
 
 

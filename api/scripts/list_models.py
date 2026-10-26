@@ -4,7 +4,7 @@
 
 This is the ONLY code that may be run by hand against the real API. It prints names, never the key,
 a URL or a response body. On a failure it prints only the HTTP status or the exception class.
-It also says whether each model in config/models.toml is in the list."""
+It also says whether each model in the light and main chains of config/models.toml is listed."""
 
 import os
 import sys
@@ -16,7 +16,7 @@ from pydantic import SecretStr
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # so `app` imports from /app/scripts
 
-from app.ai.config import load_model_chain  # noqa: E402
+from app.ai.config import load_model_chains  # noqa: E402
 from app.ai.real_client import ListError, list_text_models  # noqa: E402
 
 
@@ -40,13 +40,15 @@ def main(
     for name in result.names:
         out(f"  {name}")
     try:
-        wanted = [spec.name for spec in load_model_chain().chain]
+        chains = load_model_chains()
     except Exception:  # noqa: BLE001
         out("config/models.toml could not be read.")
         return 1
-    out("config/models.toml chain:")
-    for name in wanted:
-        out(f"  {name}: {'listed' if name in result.names else 'NOT LISTED, fix models.toml'}")
+    for label, chain in (("light", chains.light), ("main", chains.main)):
+        out(f"config/models.toml {label} chain:")
+        for spec in chain.chain:
+            verdict = "listed" if spec.name in result.names else "NOT LISTED, fix models.toml"
+            out(f"  {spec.name}: {verdict}")
     return 0
 
 

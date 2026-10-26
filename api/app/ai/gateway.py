@@ -2,10 +2,11 @@
 GatewayError with one fixed outcome. Everything is metadata-only: it logs and stores the model,
 an outcome code, the duration, token counts and the run id, never a prompt, an answer or the key.
 
-Per request: size check, key and chain check, then for each model in order: reserve one cap slot
-(atomic, fail closed), call the client with what is left of the total budget, write one ai_calls
-row, and fall to the next model on 429, 5xx, timeout or any other failure. A model that answers
-with unusable output stops the chain (BAD_OUTPUT); the agent layer owns the one retry.
+Per request: size check, key and chain check (the light or the main chain, by job class), then
+for each model in order: reserve one cap slot (atomic, fail closed), call the client with what is
+left of the total budget, write one ai_calls row, and fall to the next model on 429, 5xx, timeout
+or any other failure. A model that answers with unusable output stops the chain (BAD_OUTPUT);
+the agent layer owns the one retry.
 
 NOT VERIFIED against real Gemini. Tests use a fake client."""
 
@@ -20,11 +21,18 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 from app.ai.caps import SessionFactory, reserve_call
 from app.ai.client import ClientFailure, ClientOk, ModelClient
-from app.ai.config import ModelChain, ModelSpec, load_model_chain
+from app.ai.config import ModelChains, ModelSpec, load_model_chains
 from app.ai.records import record_attempt
 from app.core.clock import utcnow
 from app.core.config import Limits, Settings
-from app.core.enums import AiCallStatus, AiPurpose, CapDecision, GatewayOutcome, ModelFailure
+from app.core.enums import (
+    AiCallStatus,
+    AiPurpose,
+    CapDecision,
+    GatewayOutcome,
+    JobClass,
+    ModelFailure,
+)
 
 logger = logging.getLogger("indesk.ai")
 
@@ -34,6 +42,19 @@ _CALL_STATUS = {
     ModelFailure.SERVER_ERROR: AiCallStatus.ERROR,
     ModelFailure.OTHER: AiCallStatus.ERROR,
     ModelFailure.BAD_RESPONSE: AiCallStatus.ERROR,
+}
+
+
+# The chain a request uses when the caller does not name a job class (DECISIONS #27, #28).
+PURPOSE_CLASS: dict[AiPurpose, JobClass] = {
+    AiPurpose.ROUTE: JobClass.LIGHT,
+    AiPurpose.PLAN: JobClass.LIGHT,
+    AiPurpose.PICK: JobClass.LIGHT,
+    AiPurpose.EXTRACT_CLAIMS: JobClass.LIGHT,
+    AiPurpose.COMPUTE: JobClass.MAIN,
+    AiPurpose.VISION: JobClass.MAIN,
+    AiPurpose.CRITIC: JobClass.MAIN,
+    AiPurpose.EMBED: JobClass.LIGHT,
 }
 
 
@@ -75,7 +96,7 @@ class Gateway:
         self,
         *,
         api_key: SecretStr | None,
-        chain: ModelChain | None,
+        chains: ModelChains | None,
         limits: Limits,
         session_factory: SessionFactory,
         client: ModelClient | None,
@@ -83,7 +104,7 @@ class Gateway:
         today: Callable[[], date] = _utc_today,
     ) -> None:
         self._api_key = api_key
-        self._chain = chain
+        self._chains = chains
         self._limits = limits
         self._sessions = session_factory
         self._client = client
@@ -92,6 +113,17 @@ class Gateway:
 
     def __repr__(self) -> str:
         return "Gateway()"
+
+    def is_configured(self) -> bool:
+        """True when a key, the chains and a client exist, so a request could be sent. Callers use
+        it to fail early, before they do work that only a model answer would need."""
+        key = self._api_key
+        return (
+            key is not None
+            and bool(key.get_secret_value().strip())
+            and self._chains is not None
+            and self._client is not None
+        )
 
     def ask(
         self,
@@ -102,10 +134,14 @@ class Gateway:
         user_id: uuid.UUID,
         run_id: uuid.UUID | None = None,
         response_model: type[BaseModel] | None = None,
+        job_class: JobClass | None = None,
     ) -> GatewayResult:
         started = self._clock()
+        job_class = job_class or PURPOSE_CLASS.get(purpose, JobClass.MAIN)
         try:
-            return self._ask(prompt, system, purpose, user_id, run_id, response_model, started)
+            return self._ask(
+                prompt, system, purpose, user_id, run_id, response_model, job_class, started
+            )
         except Exception:  # noqa: BLE001  # the contract is "never raises"
             logger.error("ai gateway failed code=%s", "AI_GATEWAY_INTERNAL")
             return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
@@ -135,6 +171,7 @@ class Gateway:
         user_id: uuid.UUID,
         run_id: uuid.UUID | None,
         response_model: type[BaseModel] | None,
+        job_class: JobClass,
         started: float,
     ) -> GatewayResult:
         if not isinstance(prompt, str) or (system is not None and not isinstance(system, str)):
@@ -144,15 +181,16 @@ class Gateway:
         key = self._api_key
         if key is None or not key.get_secret_value().strip():
             return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
-        if self._chain is None or self._client is None:
+        if self._chains is None or self._client is None:
             return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
+        chain = self._chains.for_class(job_class)
 
         schema = response_model.model_json_schema() if response_model is not None else None
-        deadline = started + self._chain.total_budget_seconds
+        deadline = started + chain.total_budget_seconds
         failures: list[ModelFailure] = []
         attempts = 0
         budget_gone = False
-        for number, spec in enumerate(self._chain.chain, start=1):
+        for number, spec in enumerate(chain.chain, start=1):
             if self._clock() >= deadline:
                 budget_gone = True
                 break
@@ -291,10 +329,10 @@ def build_gateway(settings: Settings, session_factory: SessionFactory) -> Gatewa
     forgets to inject a fake gets MODEL_UNAVAILABLE instead of a network call. A missing or broken
     models.toml also gives MODEL_UNAVAILABLE, not a crash."""
     try:
-        chain: ModelChain | None = load_model_chain()
+        chains: ModelChains | None = load_model_chains()
     except Exception:  # noqa: BLE001
         logger.error("ai config failed code=%s", "AI_CONFIG_INVALID")
-        chain = None
+        chains = None
     client: ModelClient | None = None
     key = settings.gemini_api_key
     if settings.app_env != "test" and key is not None and key.get_secret_value().strip():
@@ -303,7 +341,7 @@ def build_gateway(settings: Settings, session_factory: SessionFactory) -> Gatewa
         client = GeminiRestClient(key)
     return Gateway(
         api_key=key,
-        chain=chain,
+        chains=chains,
         limits=settings.limits,
         session_factory=session_factory,
         client=client,

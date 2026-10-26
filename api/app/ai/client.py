@@ -36,7 +36,7 @@ class ModelClient(Protocol):
         system: str | None,
         response_schema: dict[str, Any] | None,
         max_output_tokens: int,
-        thinking_budget: int,
+        thinking_budget: int | None,
         timeout: float,
     ) -> ClientResult:
         """One request to one model. `timeout` is a hard limit on the whole attempt in seconds."""

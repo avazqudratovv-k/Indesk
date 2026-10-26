@@ -78,6 +78,23 @@ sse_ping_seconds = 15
 # A stream closes after this many seconds; the browser reconnects with Last-Event-ID. Above run_hard_limit_seconds.
 sse_max_seconds = 330
 
+# --- Ask agents (P8a) ---
+
+# What the model sees of the CSV. Owner-approved proposal for P8a; no doc gives numbers. The CSV is untrusted data,
+# so the model gets column names, dtypes, a few cut-down sample rows and nothing else.
+# Sample rows shown to the model.
+profile_sample_rows = 5
+# Columns shown in the sample (every column name is still listed).
+profile_sample_columns = 30
+# Longest cell shown, in characters; longer cells are cut.
+profile_cell_chars = 40
+# Longest column name shown, in characters; longer names are cut (code then cannot use them: a limitation).
+profile_name_chars = 60
+
+# Largest computed result stored in agent_steps.payload, in bytes of JSON. DATA.md agent_steps.payload. A bigger result
+# fails the run (analysis_failed) instead of being cut, because Cat cannot verify a cut value. The sandbox itself allows 1 MiB.
+max_stored_result_bytes = 65536
+
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
 # the run endpoint will read these.
 [files_per_slot]

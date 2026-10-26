@@ -10,6 +10,8 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Protocol
 
+from pydantic import BaseModel
+
 from app.ai.gateway import Gateway
 from app.core.enums import AgentKey, RunMode, RunOutcome, RunReason, StepState
 from app.runs.trace import TraceLine
@@ -20,6 +22,10 @@ Emit = Callable[..., None]  # emit(line: TraceLine, payload: BaseModel | None = 
 
 class SandboxRunner(Protocol):
     def __call__(self, code: str, csv_bytes: bytes, /) -> SandboxResult: ...
+
+
+def _no_upload(upload_id: uuid.UUID, /) -> bytes | None:
+    return None
 
 
 @dataclass(frozen=True)
@@ -34,6 +40,10 @@ class AgentContext:
     gateway: Gateway
     sandbox: SandboxRunner
     emit: Emit
+    # The stored bytes of an upload that is attached to THIS run and owned by the run's user;
+    # None for any other upload, a deleted one, or a storage failure. The only way to read a file.
+    read_upload: Callable[[uuid.UUID], bytes | None] = _no_upload
+    question: str = field(default="", repr=False)  # the user's text: never log it
 
 
 @dataclass(frozen=True)
@@ -41,6 +51,7 @@ class AgentDone:
     tokens_in: int = 0
     tokens_out: int = 0
     model: str | None = None
+    data: BaseModel | None = None  # handed to the flow (not stored, not sent): e.g. Owl's plan
 
 
 @dataclass(frozen=True)

@@ -172,6 +172,13 @@ class AiPurpose(StrEnum):
     EMBED = "embed"
 
 
+class JobClass(StrEnum):
+    """Which model chain a request uses (DECISIONS #27, #28): light jobs or main reasoning."""
+
+    LIGHT = "light"
+    MAIN = "main"
+
+
 class AiCallStatus(StrEnum):
     OK = "ok"
     RATE_LIMITED = "rate_limited"

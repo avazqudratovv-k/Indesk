@@ -1,22 +1,58 @@
-# Gemini models the gateway tries, in order (ROADMAP 3.8). It moves to the next one on 429, 5xx or timeout.
+# Gemini models the gateway tries, in order, for each job class (ROADMAP 3.8, DECISIONS #27 and #28).
+# It moves to the next entry on 429, 5xx or timeout.
+#   light: route, plan, pick-and-quote, claim extraction.
+#   main:  Beaver code, Chameleon vision, Cat verdicts.
 #
-# UNVERIFIED: these names have not been checked against a real key. Run
+# UNVERIFIED: none of these names has been checked against a real key. Run
 #   docker compose run --rm api python scripts/list_models.py
 # first, and fix any name it does not list. Nothing here has run against real Gemini.
 #
-# No Pro models. At most 3 entries (ai_calls.attempt is 1 to 3).
+# Per entry, all changeable here without code:
+#   timeout_seconds, max_output_tokens, thinking_budget.
+# thinking_budget may be left out: then no thinking field is sent and the model uses its default.
+# 0 is sent as 0. UNVERIFIED for gemini-3.x: those models may not accept `thinkingBudget` at all
+# (they may use a thinking level instead); if the first real call fails with HTTP 400, that is the
+# first thing to check, and it is one change in app/ai/real_client.py.
+# Thinking tokens may count against max_output_tokens (true for gemini-2.5, UNVERIFIED for 3.x),
+# so a small max_output_tokens plus thinking can cut an answer short.
+#
+# No Pro models. At most 3 entries per chain (ai_calls.attempt is 1 to 3).
 
 # Seconds for the whole chain, all attempts together. Each attempt gets what is left.
 total_budget_seconds = 35
 
-[[chain]]
-name = "gemini-2.5-flash"
+[[light]]
+name = "gemini-3.5-flash-lite"
+timeout_seconds = 12
+max_output_tokens = 2048
+thinking_budget = 0
+
+[[light]]
+name = "gemini-3.1-flash-lite"
+timeout_seconds = 12
+max_output_tokens = 2048
+thinking_budget = 0
+
+[[light]]
+name = "gemini-3.8-flash"
 timeout_seconds = 20
-max_output_tokens = 4096
+max_output_tokens = 2048
+thinking_budget = 0
+
+[[main]]
+name = "gemini-3.8-flash"
+timeout_seconds = 20
+max_output_tokens = 8192
 thinking_budget = 1024
 
-[[chain]]
-name = "gemini-2.5-flash-lite"
+[[main]]
+name = "gemini-3.6-flash"
+timeout_seconds = 20
+max_output_tokens = 8192
+thinking_budget = 1024
+
+[[main]]
+name = "gemini-3.5-flash-lite"
 timeout_seconds = 12
-max_output_tokens = 4096
+max_output_tokens = 8192
 thinking_budget = 0

@@ -14,9 +14,10 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
+from functools import partial
 
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import case, select
 from sqlalchemy.orm import Session
 
 from app.ai.caps import SessionFactory
@@ -25,6 +26,7 @@ from app.core import clock
 from app.core.config import Limits
 from app.core.enums import (
     AgentKey,
+    FileRole,
     RunMode,
     RunOutcome,
     RunReason,
@@ -50,6 +52,7 @@ from app.runs.agents import (
 from app.runs.machine import MAX_ATTEMPTS, IllegalTransition, require_agent_transition
 from app.runs.store import RunGone
 from app.runs.trace import BadTraceLine, TraceLine, stopped_line
+from app.storage import Storage, StorageError
 
 logger = logging.getLogger("indesk.runs")
 
@@ -63,6 +66,7 @@ class RunDeps:
     sandbox: SandboxRunner
     limits: Limits
     flow_factory: Callable[[RunMode], Flow]
+    storage: Storage | None = None  # where uploads live; without it no agent can read a file
     monotonic: Callable[[], float] = time.monotonic
     now: Callable[[], datetime] = clock.utcnow
 
@@ -86,6 +90,7 @@ class _Runner:
         self.tracker = _Tracker()
         self.invocations = 0
         self.history: list[StepRecord] = []
+        self.question = ""
 
     @contextmanager
     def _db(self) -> Iterator[Session]:
@@ -142,11 +147,15 @@ class _Runner:
             if run is None:  # cannot happen after a claim; do not crash a worker over it
                 return
             mode, lang, user_id = RunMode(run.mode), run.lang, run.user_id
+            self.question = run.question
             upload_ids = tuple(
                 db.scalars(
                     select(RunFile.upload_id)
                     .where(RunFile.run_id == self.run_id)
-                    .order_by(RunFile.upload_id)
+                    # The subject file first, so an agent that uses one file uses that one.
+                    .order_by(
+                        case((RunFile.role == FileRole.SUBJECT, 0), else_=1), RunFile.upload_id
+                    )
                 )
             )
             usable = self._uploads_usable(db, upload_ids)
@@ -200,6 +209,8 @@ class _Runner:
                 upload_ids=upload_ids, attempt=attempt, deadline=deadline,
                 gateway=self.deps.gateway, sandbox=self.deps.sandbox,
                 emit=lambda line, payload=None, _a=attempt: self._emit(line, _a, payload),
+                read_upload=partial(self._read_upload, user_id),
+                question=self.question,
             )  # fmt: skip
             result = self._call(agent, ctx)
             with self._db() as db:
@@ -226,6 +237,33 @@ class _Runner:
                 self._stop(result.reason, result.outcome)
                 return False
             attempt += 1
+
+    def _read_upload(self, user_id: uuid.UUID, upload_id: uuid.UUID) -> bytes | None:
+        """The bytes of an upload, only if it is attached to THIS run, owned by the run's user,
+        ready and not deleted. Anything else is None (no reason given, nothing logged)."""
+        storage = self.deps.storage
+        if storage is None:
+            return None
+        with self._db() as db:
+            key = db.scalar(
+                select(Upload.storage_key)
+                .join(RunFile, RunFile.upload_id == Upload.id)
+                .where(
+                    RunFile.run_id == self.run_id,
+                    RunFile.owner_id == user_id,
+                    Upload.id == upload_id,
+                    Upload.user_id == user_id,
+                    Upload.status == UploadStatus.READY,
+                    Upload.deleted_at.is_(None),
+                    Upload.storage_key.is_not(None),
+                )
+            )
+        if key is None:
+            return None
+        try:
+            return storage.get(key)
+        except StorageError:
+            return None
 
     def _call(self, agent: Agent, ctx: AgentContext) -> AgentDone | AgentFailed:
         try:

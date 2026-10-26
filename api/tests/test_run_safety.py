@@ -27,6 +27,7 @@ from app.main import app
 from app.routers.runs import get_enqueue, get_session_factory
 from app.runs import registry, stub
 from app.runs.agents import AgentContext, AgentDone, AgentResult, Finish
+from app.runs.ask_flow import AskFlow
 from app.runs.executor import run_job
 from app.runs.lang import detect_lang
 from app.runs.registry import UnconfiguredFlow, select_flow
@@ -134,7 +135,7 @@ def test_the_stub_runs_only_in_development_with_the_flag(
     env: str, flag: bool, stubbed: bool
 ) -> None:
     flow = select_flow(settings_with(env, flag), RunMode.ASK)
-    assert isinstance(flow, StubFlow if stubbed else UnconfiguredFlow)
+    assert isinstance(flow, StubFlow if stubbed else AskFlow)  # Ask has real agents since P8a
 
 
 def test_a_stub_flag_in_production_is_logged_once_and_ignored(

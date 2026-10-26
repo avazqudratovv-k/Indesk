@@ -65,8 +65,8 @@ def make_world(
         if status is RunStatus.FINISHED:
             values["outcome"] = "answered"
         run = make_run(db, owner, **values)
-        for up in ups:
-            make_run_file(db, run, up)
+        for index, up in enumerate(ups):  # one subject per run, the rest sources (DECISIONS #169)
+            make_run_file(db, run, up, role="subject" if index == 0 else "source")
         if created_ago:
             run.created_at = clock.utcnow() - timedelta(seconds=created_ago)
             if status is RunStatus.RUNNING:

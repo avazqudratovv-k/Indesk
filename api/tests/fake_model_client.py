@@ -55,7 +55,7 @@ def timed_out(elapsed: float) -> Step:
 class Call:
     model: str
     max_output_tokens: int
-    thinking_budget: int
+    thinking_budget: int | None
     timeout: float
     has_schema: bool
     prompt_chars: int
@@ -77,7 +77,7 @@ class FakeClient:
         system: str | None,
         response_schema: dict[str, Any] | None,
         max_output_tokens: int,
-        thinking_budget: int,
+        thinking_budget: int | None,
         timeout: float,
     ) -> ClientResult:
         self.calls.append(

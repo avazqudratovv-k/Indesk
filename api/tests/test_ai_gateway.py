@@ -169,7 +169,7 @@ def test_missing_or_empty_key(factory: SessionFactory, user: uuid.UUID, key: str
 def test_no_client_and_no_chain(factory: SessionFactory, user: uuid.UUID) -> None:
     no_client = make_gateway(factory, None)
     no_chain = Gateway(
-        api_key=SecretStr(API_KEY), chain=None, limits=limits_with(),
+        api_key=SecretStr(API_KEY), chains=None, limits=limits_with(),
         session_factory=factory, client=FakeClient([ok()]),
     )  # fmt: skip
     for gateway in (no_client, no_chain):

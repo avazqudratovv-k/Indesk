@@ -93,6 +93,18 @@ def test_request_shape_and_key_in_header_only() -> None:
     assert result == ClientOk(text="hello", tokens_in=3, tokens_out=6)  # thinking tokens count out
 
 
+def test_a_none_thinking_budget_sends_no_thinking_field() -> None:
+    seen: list[dict[str, Any]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return json_response(GOOD)
+
+    generate(make(handler), thinking_budget=None)
+    assert "thinkingConfig" not in seen[0]["generationConfig"]
+    assert seen[0]["generationConfig"]["maxOutputTokens"] == 4096
+
+
 def test_a_zero_thinking_budget_is_still_sent() -> None:
     seen: list[dict[str, Any]] = []
 
@@ -277,17 +289,18 @@ def test_script_says_clearly_when_the_key_is_missing() -> None:
         assert code == 2 and "GEMINI_API_KEY is not set" in out
 
 
-def test_script_prints_names_and_checks_the_chain() -> None:
+def test_script_prints_names_and_checks_both_chains() -> None:
     models = [
-        {"name": "models/gemini-2.5-flash", "supportedGenerationMethods": ["generateContent"]}
+        {"name": "models/gemini-3.8-flash", "supportedGenerationMethods": ["generateContent"]}
     ]
     code, out = run_script(
         {"GEMINI_API_KEY": API_KEY},
         httpx.MockTransport(lambda r: json_response({"models": models})),
     )
     assert code == 0 and API_KEY not in out
-    assert "gemini-2.5-flash: listed" in out
-    assert "gemini-2.5-flash-lite: NOT LISTED" in out
+    assert "light chain:" in out and "main chain:" in out
+    assert out.count("gemini-3.8-flash: listed") == 2  # it sits in both chains
+    assert "gemini-3.5-flash-lite: NOT LISTED" in out
 
 
 def test_script_error_output_is_status_only() -> None:

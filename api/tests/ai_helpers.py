@@ -9,7 +9,7 @@ from sqlalchemy import Connection, select
 from sqlalchemy.orm import Session
 
 from app.ai.caps import SessionFactory
-from app.ai.config import ModelChain, load_model_chain
+from app.ai.config import ModelChain, ModelChains, ModelSpec
 from app.ai.gateway import Gateway
 from app.core.config import Limits, load_limits
 from app.db.models import AiCall, UsageDaily
@@ -17,6 +17,17 @@ from tests.factories import make_user
 from tests.fake_model_client import API_KEY, FakeClient, FakeClock
 
 DAY = date(2026, 10, 26)
+
+# The chain most tests use for BOTH job classes. It is not the file's chain: the file's chains are
+# tested on their own (test_ai_chains.py), so a change of model names there breaks nothing else.
+PRIMARY, FALLBACK = "gemini-2.5-flash", "gemini-2.5-flash-lite"
+TEST_CHAIN = ModelChain(
+    total_budget_seconds=35,
+    chain=[
+        ModelSpec(name=PRIMARY, timeout_seconds=20, max_output_tokens=4096, thinking_budget=1024),
+        ModelSpec(name=FALLBACK, timeout_seconds=12, max_output_tokens=4096, thinking_budget=0),
+    ],
+)
 
 
 def factory_for(connection: Connection) -> SessionFactory:
@@ -36,7 +47,7 @@ def limits_with(**overrides: int) -> Limits:
 
 
 def chain_with(**overrides: Any) -> ModelChain:
-    return ModelChain(**{**load_model_chain().model_dump(), **overrides})
+    return ModelChain(**{**TEST_CHAIN.model_dump(), **overrides})
 
 
 def make_gateway(
@@ -46,6 +57,7 @@ def make_gateway(
     clock: FakeClock | None = None,
     limits: Limits | None = None,
     chain: ModelChain | None = None,
+    chains: ModelChains | None = None,
     api_key: str | None = API_KEY,
     day: date = DAY,
 ) -> Gateway:
@@ -54,7 +66,7 @@ def make_gateway(
         client.clock = clock
     return Gateway(
         api_key=SecretStr(api_key) if api_key is not None else None,
-        chain=chain if chain is not None else load_model_chain(),
+        chains=chains or ModelChains(light=chain or TEST_CHAIN, main=chain or TEST_CHAIN),
         limits=limits or limits_with(),
         session_factory=factory,
         client=client,
