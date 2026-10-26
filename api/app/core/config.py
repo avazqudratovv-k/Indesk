@@ -26,7 +26,8 @@ class Limits(BaseModel):
 
     max_file_bytes: PositiveInt
     max_rows: PositiveInt
-    max_columns: PositiveInt | None = None  # unset until the owner decides (no doc gives a number)
+    max_columns: PositiveInt | None = None  # None only in tests; the config file sets it
+    uploads_per_hour: PositiveInt
     max_filename_chars: PositiveInt
     upload_ttl_hours: PositiveInt
     sweep_interval_seconds: PositiveInt
@@ -59,6 +60,8 @@ class Settings(BaseSettings):
     allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:3000"]
     # Comma-separated IPs or CIDRs of reverse proxies whose X-Forwarded-For is believed.
     trusted_proxies: Annotated[list[str], NoDecode] = []
+    # Where the sandbox service listens (only the worker shares a network with it).
+    sandbox_url: str = "http://sandbox:8080"
     # Where uploaded files live. A named volume shared by the api and the worker.
     storage_dir: Path = Path("/data/uploads")
     limits: Limits = Field(default_factory=load_limits)

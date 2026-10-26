@@ -7,6 +7,7 @@ import unicodedata
 from dataclasses import dataclass
 from itertools import islice
 from pathlib import PurePosixPath
+from typing import BinaryIO
 
 from app.core.config import Limits
 from app.core.errors import AppError, ErrorCode
@@ -33,6 +34,8 @@ _DELIMITERS = (",", "\t", ";")
 _DELIMITER_SAMPLE_ROWS = 20
 # Seoul open data is often saved as cp949 (EUC-KR); decoded only after UTF-8 fails.
 _ENCODINGS = ("utf-8-sig", "cp949")  # utf-8-sig reads plain UTF-8 too and drops a BOM
+HEADER_MAX_BYTES = 64 * 1024  # a longer header line is refused without reading the rest
+_HEADER_CHUNK = 8 * 1024
 
 
 @dataclass(frozen=True)
@@ -124,6 +127,56 @@ def _is_blank(row: list[str]) -> bool:
     return not any(cell.strip() for cell in row)
 
 
+def _header_width(header: bytes) -> int:
+    """Columns of one header line. The delimiter is not known yet (it needs the first rows), so the
+    one that gives the most columns is used; parse_rows then counts again with the real one."""
+    try:
+        text = decode_to_text(header)
+    except AppError:
+        return 0  # not decodable: the full parse refuses it with the usual code
+    widths = []
+    for delimiter in _DELIMITERS:
+        try:
+            row = next(csv.reader(io.StringIO(text), delimiter=delimiter), [])
+        except csv.Error:
+            continue
+        widths.append(len(row))
+    return max(widths, default=0)
+
+
+def read_header(stream: BinaryIO, limits: Limits) -> bytes:
+    """Read from the stream up to the end of the header line and return the bytes read (the caller
+    puts them back in front of the rest). Too many columns, or a header line over 64 KB, is refused
+    before the rest of the file is read. A newline inside quotes does not end the header."""
+    cap = min(HEADER_MAX_BYTES, limits.max_file_bytes + 1)
+    head = b""
+    scanned = 0  # bytes of `head` already looked at for the end of the line
+    quotes = 0
+    while True:
+        chunk = stream.read(min(_HEADER_CHUNK, cap + 1 - len(head)))
+        if not chunk:
+            break  # end of file inside the header: the caller's size and shape checks decide
+        head += chunk
+        while scanned < len(head):
+            byte = head[scanned : scanned + 1]
+            scanned += 1
+            if byte == b'"':
+                quotes += 1
+            elif byte in (b"\n", b"\r") and quotes % 2 == 0:
+                return _check_header(head[:scanned], limits, head)
+        if len(head) > cap:
+            if len(head) > limits.max_file_bytes:
+                return head  # over the size limit anyway: the caller answers 413
+            raise _refuse(422, ErrorCode.BAD_CSV)  # no end of line within 64 KB
+    return _check_header(head, limits, head)
+
+
+def _check_header(line: bytes, limits: Limits, head: bytes) -> bytes:
+    if limits.max_columns is not None and _header_width(line) > limits.max_columns:
+        raise _refuse(422, ErrorCode.TOO_MANY_COLUMNS)
+    return head
+
+
 def parse_rows(text: str, limits: Limits) -> tuple[int, int]:
     """Stream the rows once and return (data rows, columns). The header sets the width and every
     row must match it; a row that does not is a broken file, not something to guess about."""
@@ -134,7 +187,7 @@ def parse_rows(text: str, limits: Limits) -> tuple[int, int]:
             raise _refuse(422, ErrorCode.BAD_CSV)
         width = len(header)
         if limits.max_columns is not None and width > limits.max_columns:
-            raise _refuse(422, ErrorCode.BAD_CSV)
+            raise _refuse(422, ErrorCode.TOO_MANY_COLUMNS)
         rows = 0
         for row in reader:
             if _is_blank(row):

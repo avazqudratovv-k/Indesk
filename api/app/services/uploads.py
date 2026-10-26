@@ -36,8 +36,11 @@ def create_csv_upload(
     stream: BinaryIO,
     ip_hash: str,
 ) -> Upload:
-    """Checks in order: size, empty, declared type, content sniff, encoding, CSV shape."""
-    data = stream.read(limits.max_file_bytes + 1)  # never the whole oversized body
+    """Checks in order: header, size, empty, declared type, content sniff, encoding, CSV shape."""
+    # Too many columns is refused here, before the rest of the body is read.
+    head = csv_check.read_header(stream, limits)
+    # Never the whole oversized body.
+    data = head + stream.read(max(0, limits.max_file_bytes + 1 - len(head)))
     if len(data) > limits.max_file_bytes:
         raise AppError(413, ErrorCode.FILE_TOO_LARGE)
     if not data:

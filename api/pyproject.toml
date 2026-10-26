@@ -10,7 +10,7 @@ select = ["E", "F", "I", "B", "UP", "S"]
 known-third-party = ["alembic"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "S105", "S106"]  # fake hashes and keys in test data
+"tests/**" = ["S101", "S105", "S106", "S108", "S310"]  # fake hashes, /tmp paths, fixed test URLs
 "alembic/versions/*" = ["E501"]  # generated column lists
 
 [tool.mypy]
@@ -18,5 +18,13 @@ python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
 
+[[tool.mypy.overrides]]
+# pandas and numpy live in the sandbox image only (api/sandbox/requirements.txt); yaml has no stubs.
+module = ["pandas", "numpy", "yaml"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Sandbox tests need the sandbox service; run them with `pytest -m sandbox` (see api/README.md).
+addopts = "-m 'not sandbox'"
+markers = ["sandbox: needs the sandbox service running in test mode (compose.sandbox-test.yaml)"]

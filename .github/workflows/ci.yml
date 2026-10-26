@@ -49,6 +49,20 @@ jobs:
       - run: mypy .
       - run: pytest
 
+  # Builds the sandbox image in test mode and runs the tests that need the running service.
+  sandbox:
+    runs-on: ubuntu-latest
+    env:
+      COMPOSE_FILE: compose.yaml:compose.sandbox-test.yaml
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build --wait sandbox redis
+      - run: docker compose run --rm --build worker pytest -m sandbox -q
+      - if: failure()
+        run: docker compose logs sandbox
+      - if: always()
+        run: docker compose down -v
+
   web:
     runs-on: ubuntu-latest
     defaults:

@@ -1,0 +1,6 @@
+# Only what pandas needs. Exact versions (cp312 wheels checked); the sandbox image installs nothing else.
+pandas==3.1.0
+numpy==2.5.4
+python-dateutil==3.0.0  # pandas dependency
+six==1.17.0  # python-dateutil dependency
+tzdata==2026.5  # pandas dependency

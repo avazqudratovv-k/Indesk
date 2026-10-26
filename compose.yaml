@@ -16,6 +16,9 @@ services:
     environment: *api-env
     volumes:
       - uploads:/data/uploads
+      # Read-only copies for tests/test_compose_sandbox.py, which checks the sandbox hardening.
+      - ./compose.yaml:/compose/compose.yaml:ro
+      - ./compose.sandbox-test.yaml:/compose/compose.sandbox-test.yaml:ro
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
@@ -39,6 +42,9 @@ services:
     environment: *api-env
     volumes:
       - uploads:/data/uploads
+    networks:
+      - default
+      - sandbox_net # the only service that can reach the sandbox
     depends_on:
       redis:
         condition: service_healthy
@@ -60,6 +66,40 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.jobs.scheduler_health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Runs model-written pandas code (ROADMAP 3.7). THE CONTAINER IS THE SECURITY BOUNDARY: no network,
+  # read-only root, no capabilities, hard memory/process/CPU limits. The kernel is shared with the
+  # host, so this narrows the risk; it does not remove it. Nothing is mounted and it gets no
+  # environment at all: no env_file, no DATABASE_URL, no AUTH_SECRET. tests/test_compose_sandbox.py
+  # fails if any of that changes.
+  sandbox:
+    build: ./api/sandbox
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 3g
+    memswap_limit: 3g # no swap
+    cpus: 2
+    restart: unless-stopped
+    networks:
+      - sandbox_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   db:
     image: pgvector/pgvector:pg17
@@ -82,6 +122,11 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+networks:
+  # No route to the internet or to db, redis and api. Shared only by the worker and the sandbox.
+  sandbox_net:
+    internal: true
 
 volumes:
   pgdata:

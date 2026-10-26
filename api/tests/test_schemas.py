@@ -46,6 +46,7 @@ def test_error_codes_are_the_agreed_list() -> None:
         "UNSUPPORTED_TYPE",
         "TYPE_MISMATCH",
         "TOO_MANY_ROWS",
+        "TOO_MANY_COLUMNS",
         "EMPTY_FILE",
         "BAD_CSV",
         "MODE_NOT_AVAILABLE",

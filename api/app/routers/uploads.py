@@ -2,9 +2,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 
-from app.core import clock
+from app.core import clock, ratelimit
 from app.core.errors import AppError, ErrorCode
-from app.routers.deps import AppSettings, CurrentUser, Db, IpHash
+from app.routers.deps import AppSettings, CurrentUser, Db, IpHash, RedisDep
 from app.schemas.users import Upload
 from app.services import uploads as service
 from app.storage import LocalDiskStorage, Storage
@@ -28,9 +28,14 @@ def create_upload(
     storage: StorageDep,
     user: CurrentUser,
     ip_hash: IpHash,
+    redis: RedisDep,
     file: Annotated[UploadFile, File()],
     consent: Annotated[str, Form()] = "",
 ) -> Upload:
+    # Every attempt of a signed-in user counts, accepted or not. Redis down: refused (503).
+    ratelimit.hit(
+        redis, f"rl:upload:{user.id}", settings.limits.uploads_per_hour, ratelimit.UPLOAD_WINDOW
+    )
     if consent != CONSENT_VALUE:
         raise AppError(422, ErrorCode.CONSENT_REQUIRED)
     upload = service.create_csv_upload(

@@ -9,6 +9,7 @@ from app.core.errors import AppError, ErrorCode
 
 SIGNUP_LIMIT, SIGNUP_WINDOW = 5, 60 * 60  # per client IP
 LOGIN_LIMIT, LOGIN_WINDOW = 10, 15 * 60  # per client IP + email
+UPLOAD_WINDOW = 60 * 60  # per user; the number of uploads is `uploads_per_hour` in limits.toml
 
 
 @lru_cache

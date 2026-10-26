@@ -7,8 +7,11 @@ max_file_bytes = 5242880
 # Most data rows (header not counted) in a CSV, Free plan. DATA.md uploads.row_count.
 max_rows = 5000
 
-# max_columns is NOT SET on purpose: no doc gives a number (open question in the P4 report).
-# While it is unset the column count is not limited. Add `max_columns = <n>` once the owner decides.
+# Most columns in a CSV, Free plan. Owner decision for P5 (no doc gives a number).
+max_columns = 200
+
+# Uploads one user may attempt per hour (fixed window in Redis). Owner decision for P5; SECURITY.md risk 2.
+uploads_per_hour = 30
 
 # Longest display filename in characters. DATA.md uploads.filename "max 255 (rec)", accepted by DECISIONS #25.
 max_filename_chars = 255

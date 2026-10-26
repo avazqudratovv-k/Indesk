@@ -8,14 +8,16 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from starlette.types import Message, Receive, Scope, Send
 
 from app.core import clock
 from app.core.bodylimit import BodyLimitMiddleware
-from app.core.config import Settings, load_limits
+from app.core.config import Settings, get_settings, load_limits
 from app.db.models import AuditLog, Upload
+from app.main import app
 from tests.conftest import TEST_AUTH_SECRET, _test_redis_url
 from tests.test_auth import MakeClient, signup
 
@@ -239,7 +241,7 @@ def test_too_many_rows_and_columns_and_ragged(
     client = signed_in(make_client, small_settings, "shape@example.com", 12)
     err(post(client, b"a,b\n" + b"1,2\n" * 6), 422, "TOO_MANY_ROWS")
     assert post(client, b"a,b\n" + b"1,2\n" * 5).status_code == 201
-    err(post(client, b"a,b,c,d,e\n1,2,3,4,5\n"), 422, "BAD_CSV")
+    err(post(client, b"a,b,c,d,e\n1,2,3,4,5\n"), 422, "TOO_MANY_COLUMNS")
     err(post(client, b"a,b,c\n1,2,3\n4,5\n"), 422, "BAD_CSV")
     err(post(client, b"a,b\n1,2,3\n"), 422, "BAD_CSV")
     assert len(stored_files(small_settings)) == 1  # a refusal never leaves a file
@@ -388,3 +390,65 @@ def test_body_limit_middleware_counts_real_bytes_not_the_header() -> None:
     assert liar[0]["status"] == 413
     declared = asyncio.run(_call(app, [b"x"], [(b"content-length", b"11")]))
     assert declared[0]["status"] == 413
+
+
+# ---- max columns and the upload rate limit ----
+
+
+def wide_csv(columns: int) -> bytes:
+    return (
+        ",".join(f"c{i}" for i in range(columns)) + "\n" + ",".join(["1"] * columns) + "\n"
+    ).encode()
+
+
+def test_too_many_columns_is_422_and_stores_nothing(
+    make_client: MakeClient, settings: Settings
+) -> None:
+    client = signed_in(make_client, settings, "wide@example.com", 40)
+    columns = settings.limits.max_columns or 0
+    assert columns == 200
+    assert post(client, wide_csv(columns)).status_code == 201
+    err(post(client, wide_csv(columns + 1)), 422, "TOO_MANY_COLUMNS")
+    assert len(stored_files(settings)) == 1
+
+
+def test_the_31st_upload_in_an_hour_is_429_with_retry_after(
+    make_client: MakeClient, settings: Settings
+) -> None:
+    assert settings.limits.uploads_per_hour == 30
+    client = signed_in(make_client, settings, "busy@example.com", 41)
+    for _ in range(30):
+        assert post(client).status_code == 201
+    blocked = post(client)
+    err(blocked, 429, "RATE_LIMITED")
+    assert 0 < int(blocked.headers["retry-after"]) <= 3600
+    other = signed_in(make_client, settings, "calm@example.com", 42)
+    assert post(other).status_code == 201  # the limit is per user
+
+
+def test_refused_attempts_count_too(make_client: MakeClient, tmp_path: Path) -> None:
+    settings = settings_for(tmp_path, uploads_per_hour=3)
+    client = signed_in(make_client, settings, "bad@example.com", 43)
+    err(post(client, consent=None), 422, "CONSENT_REQUIRED")
+    err(post(client, b"", name="empty.csv"), 422, "EMPTY_FILE")
+    err(post(client, name="x.png", mime="image/png"), 415, "UNSUPPORTED_TYPE")
+    err(post(client), 429, "RATE_LIMITED")
+
+
+def test_signed_out_attempts_do_not_count(make_client: MakeClient, tmp_path: Path) -> None:
+    settings = settings_for(tmp_path, uploads_per_hour=2)
+    client = signed_in(make_client, settings, "out@example.com", 44)
+    anonymous = make_client(settings, peer=("203.0.113.45", 50000))
+    for _ in range(5):
+        err(post(anonymous), 401, "UNAUTHENTICATED")
+    assert post(client).status_code == 201
+    assert post(client).status_code == 201
+
+
+def test_redis_down_refuses_the_upload(make_client: MakeClient, tmp_path: Path) -> None:
+    settings = settings_for(tmp_path)
+    client = signed_in(make_client, settings, "down@example.com", 46)
+    down = settings.model_copy(update={"redis_url": SecretStr("redis://127.0.0.1:1/0")})
+    app.dependency_overrides[get_settings] = lambda: down
+    err(post(client), 503, "NOT_READY")
+    assert stored_files(settings) == []

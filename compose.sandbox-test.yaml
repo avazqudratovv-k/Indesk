@@ -1,0 +1,8 @@
+# Test override for the sandbox: lets a request switch the AST check off, so the container limits
+# can be tested on their own. NEVER part of the default stack. Use:
+#   docker compose -f compose.yaml -f compose.sandbox-test.yaml up -d --build sandbox
+#   docker compose -f compose.yaml -f compose.sandbox-test.yaml run --rm worker pytest -m sandbox
+services:
+  sandbox:
+    environment:
+      SANDBOX_TEST_MODE: "1"

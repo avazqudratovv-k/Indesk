@@ -1,3 +1,5 @@
+import io
+
 import pytest
 
 from app.core.config import load_limits
@@ -19,7 +21,8 @@ def test_limits_come_from_the_config_file_with_the_documented_numbers() -> None:
     assert LIMITS.max_filename_chars == 255  # DATA.md uploads.filename
     assert LIMITS.upload_ttl_hours == 24  # DATA.md uploads.expires_at
     assert LIMITS.sweep_interval_seconds == 3600  # ROADMAP 3.16
-    assert LIMITS.max_columns is None  # no doc gives it: an open question
+    assert LIMITS.max_columns == 200  # owner decision for P5
+    assert LIMITS.uploads_per_hour == 30  # owner decision for P5
     assert LIMITS.files_per_slot == {
         "files": 5,
         "document": 1,
@@ -122,7 +125,7 @@ def test_rows_columns_and_shape_rules() -> None:
         refused(csv_check.check_csv, b"a,b\n1,2\n3,4\n5,6\n7,8\n", small).code
         == ErrorCode.TOO_MANY_ROWS
     )
-    assert refused(csv_check.check_csv, b"a,b,c\n1,2,3\n", small).code == ErrorCode.BAD_CSV
+    assert refused(csv_check.check_csv, b"a,b,c\n1,2,3\n", small).code == ErrorCode.TOO_MANY_COLUMNS
     assert refused(csv_check.check_csv, b"a,b\n1,2\n3\n", small).code == ErrorCode.BAD_CSV  # ragged
     assert refused(csv_check.check_csv, b"a,b\n1,2,3\n", small).code == ErrorCode.BAD_CSV
     assert refused(csv_check.check_csv, b"a,b\n", small).code == ErrorCode.EMPTY_FILE  # header only
@@ -132,9 +135,89 @@ def test_rows_columns_and_shape_rules() -> None:
     )  # open quote
 
 
-def test_the_column_limit_is_off_while_the_config_leaves_it_unset() -> None:
+def test_the_column_limit_is_off_when_it_is_unset() -> None:
+    off = LIMITS.model_copy(update={"max_columns": None})
     header = ",".join(f"c{i}" for i in range(500)).encode()
     assert (
-        csv_check.check_csv(header + b"\n" + b",".join([b"1"] * 500) + b"\n", LIMITS).column_count
+        csv_check.check_csv(header + b"\n" + b",".join([b"1"] * 500) + b"\n", off).column_count
         == 500
     )
+
+
+def wide(columns: int, *, rows: int = 1, sep: str = ",") -> bytes:
+    header = sep.join(f"c{i}" for i in range(columns))
+    return (header + "\n" + (sep.join(["1"] * columns) + "\n") * rows).encode()
+
+
+def test_200_columns_pass_and_201_are_refused() -> None:
+    assert csv_check.check_csv(wide(200), LIMITS).column_count == 200
+    assert refused(csv_check.check_csv, wide(201), LIMITS).code == ErrorCode.TOO_MANY_COLUMNS
+
+
+class Counting(io.BytesIO):
+    """A stream that remembers how many bytes were taken from it."""
+
+    taken = 0
+
+    def read(self, size: int | None = -1) -> bytes:
+        data = super().read(size)
+        self.taken += len(data)
+        return data
+
+
+def test_the_header_is_checked_before_the_rest_of_the_file_is_read() -> None:
+    stream = Counting(wide(201, rows=2000))  # about 700 KB
+    assert refused(csv_check.read_header, stream, LIMITS).code == ErrorCode.TOO_MANY_COLUMNS
+    assert stream.taken < 20_000
+
+
+def test_read_header_returns_the_bytes_it_read_so_nothing_is_lost() -> None:
+    data = wide(5, rows=10)
+    stream = io.BytesIO(data)
+    head = csv_check.read_header(stream, LIMITS)
+    assert data.startswith(head) and head.endswith(b"\n")
+    assert head + stream.read() == data
+
+
+@pytest.mark.parametrize("sep", [",", ";", "\t"])
+def test_header_check_works_for_every_delimiter(sep: str) -> None:
+    refusal = refused(csv_check.read_header, io.BytesIO(wide(201, sep=sep)), LIMITS)
+    assert refusal.code == ErrorCode.TOO_MANY_COLUMNS
+    assert csv_check.read_header(io.BytesIO(wide(200, sep=sep)), LIMITS)
+
+
+def test_a_header_longer_than_one_chunk_is_counted_across_chunks() -> None:
+    long_names = ",".join(f"{'n' * 100}{i}" for i in range(201)).encode() + b"\n1\n"
+    assert len(long_names) > 8 * 1024  # more than one read
+    assert refused(csv_check.read_header, io.BytesIO(long_names), LIMITS).code == (
+        ErrorCode.TOO_MANY_COLUMNS
+    )
+
+
+def test_header_line_over_64_kb_is_refused_without_reading_on() -> None:
+    stream = Counting(b"a" * 1_000_000)
+    assert refused(csv_check.read_header, stream, LIMITS).code == ErrorCode.BAD_CSV
+    assert stream.taken <= csv_check.HEADER_MAX_BYTES + 8 * 1024
+    assert csv_check.read_header(io.BytesIO(b"a" * 100), LIMITS) == b"a" * 100  # no newline, short
+
+
+def test_a_newline_inside_quotes_does_not_end_the_header() -> None:
+    cells = ",".join(f'"c{i}\nx"' for i in range(201)).encode() + b"\n1\n"
+    assert refused(csv_check.read_header, io.BytesIO(cells), LIMITS).code == (
+        ErrorCode.TOO_MANY_COLUMNS
+    )
+
+
+def test_a_cp949_header_is_decoded_like_the_full_parse() -> None:
+    korean = ",".join(f"역{i}" for i in range(201)).encode("cp949") + b"\n1\n"
+    assert refused(csv_check.read_header, io.BytesIO(korean), LIMITS).code == (
+        ErrorCode.TOO_MANY_COLUMNS
+    )
+    fine = ",".join(f"역{i}" for i in range(3)).encode("cp949") + b"\n1,2,3\n"
+    assert csv_check.read_header(io.BytesIO(fine), LIMITS) == fine
+    bom = b"\xef\xbb\xbf" + wide(200)
+    assert csv_check.read_header(io.BytesIO(bom), LIMITS) == bom
+
+
+def test_an_empty_stream_is_left_to_the_empty_file_check() -> None:
+    assert csv_check.read_header(io.BytesIO(b""), LIMITS) == b""

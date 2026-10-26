@@ -182,3 +182,15 @@ class AiCallStatus(StrEnum):
 class UsageKind(StrEnum):
     RUN = "run"
     CREDIT_PURCHASE = "credit_purchase"
+
+
+class SandboxErrorCode(StrEnum):
+    """Fixed outcomes of a sandbox job. The sandbox never returns a traceback or a message."""
+
+    TIMEOUT = "timeout"
+    MEMORY = "memory"
+    FORBIDDEN = "forbidden"
+    RUNTIME = "runtime"
+    OUTPUT_TOO_LARGE = "output_too_large"
+    BAD_INPUT = "bad_input"
+    UNAVAILABLE = "unavailable"  # set by the client when the service cannot be reached
