@@ -1,6 +1,6 @@
 # SECURITY.md — Indesk (first draft)
 
-Lives at: `docs/security/SECURITY.md`. Last updated 2026-10-26 (HEAD b2a13b2). Sections 1 to 5 were written on 2026-10-25 and are still mostly **Planned**. Section 6 and 7 below describe what is built; each control says whether a test exists. **Built is not the same as verified:** the tests named here were not re-run in the docs batch of 2026-10-26, and nothing was checked against a deployed server. Unless a line says "test exists", read it as not verified.
+Lives at: `docs/security/SECURITY.md`. Last updated 2026-10-26 (HEAD 5c12875). Sections 1 to 5 were written on 2026-10-25 and are still mostly **Planned**. Section 6 and 7 below describe what is built; each control says whether a test exists. **Built is not the same as verified:** the tests named here were not re-run in the docs batch of 2026-10-26, and nothing was checked against a deployed server. Unless a line says "test exists", read it as not verified.
 
 ## 1. The three most realistic ways someone could misuse Indesk
 ### 1. A poisoned file (prompt injection, malware, harmful content)
@@ -98,6 +98,11 @@ Replaces the earlier `dev_session` item. The `dev_session` cookie and the mock s
 - Upload bodies are cut off at the file limit plus 64 KB while they arrive (#151). The upload limit is 5 MB, 5,000 rows and 200 columns.
 - CSV upload validation now tolerates trailing empty cells (#211): extra cells after the header's width are allowed only if every extra cell is empty and every data row has the same cell count; a non-empty extra cell, a short row, mixed widths, different extra counts or an empty cell in the middle is still `BAD_CSV`. Covered by tests (reported for P8b; not re-run in this batch). No control changed status.
 - Not built: the 30 runs per day on paid plans and the people-search limit (no such features yet).
+### Reports and Cat (P9, DECISIONS #219 to #229)
+- **Untrusted result strings:** strings that come from CSV cells are cleaned and capped before any prompt, instruction-like labels become "(removed)", claim text with markup, links or control characters is rejected, and text is rendered as plain text (#223). Covered by tests reported for P9; not re-run here.
+- **Owner-only report access:** `GET /api/reports/{id}` checks ownership on the server; another user's, a missing, an expired and a deleted report give the same 404, and no session gives 401 (#227). Test reported for P9.
+- **Leak test:** an HTTP-level test checks that `GET /runs/{id}`, the SSE stream and `GET /reports/{id}` contain none of the sentinel code or plan strings (#227). Reported for P9.
+- No control changed status in this docs batch.
 ### Redis test guard (P7)
 - Tests use Redis database 15 only. A guard fails the suite at start if the test URL is database 0 and refuses a connection pool for any other database, so a test cannot flush the dev queue or reset dev rate limits (#172). Never run `FLUSHDB` on production.
 ### Runs
@@ -110,7 +115,7 @@ Replaces the earlier `dev_session` item. The `dev_session` cookie and the mock s
 - **`compose.yaml` is mounted into the `api` container** for a test; remove it before deploy (#152).
 - **Access token lives up to 15 minutes after logout** (#125).
 - **No retention cleanup yet** for `ai_calls`, `usage_events` and `audit_log` (90 days) and no report retention (ROADMAP 3.16).
-- **Reports, sharing, people search and payments are not built**, so their access rules in section 1 and 3 are still plans.
+- **Sharing, people search and payments are not built**, so their access rules in section 1 and 3 are still plans. Owner-only report reads exist (P9, section 7).
 - **SSE stream** lacks `Cache-Control: no-transform`; `TOO_MANY_STREAMS` is shown as an anonymous error (STATE, API gaps).
 - The deploy checklist in `STATE.md` lists the remaining settings (proxy list, origins, Secure cookies, nginx buffering).
 

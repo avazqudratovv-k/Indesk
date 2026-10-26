@@ -5,18 +5,19 @@
 #
 # Verified live (P8b): all six names are listed for the key, and four real runs worked. To re-check:
 #   docker compose run --rm api python scripts/list_models.py
-# NOT yet called: the third light entry (gemini-3.8-flash, thinking_budget 0) and the second main
-# entry (gemini-3.6-flash, thinking_budget 1024). A probe of each is planned in P9.
+# Every chain entry has now been called live (P9): gemini-3.8-flash, thinking_budget 0 and
+# gemini-3.6-flash, thinking_budget 1024 both returned HTTP 200. NOT yet called: nothing in the chains.
 #
 # Per entry, all changeable here without code:
 #   timeout_seconds, max_output_tokens, thinking_budget OR thinking_level (not both).
 # Verified live (P8b): gemini-3.5-flash-lite answers HTTP 400 to thinkingBudget 0 and works with
 # thinkingLevel "minimal"; gemini-3.1-flash-lite accepts budget 0; gemini-3.8-flash accepts budget
 # 1024 and does not support "minimal". The thinkingLevel request shape was confirmed by live 200
-# responses. Not verified: budget 0 on gemini-3.8-flash, budget 1024 on gemini-3.6-flash.
+# responses. Also live in P9: budget 0 on gemini-3.8-flash and budget 1024 on gemini-3.6-flash.
+# Not verified: whether thinking tokens count against max_output_tokens on 3.x.
 # thinking_budget may be left out: then no thinking field is sent and the model uses its default.
 # 0 is sent as 0.
-# Thinking tokens may count against max_output_tokens (true for gemini-2.5, UNVERIFIED for 3.x),
+# Thinking tokens may count against max_output_tokens (true for gemini-2.5; not checked for 3.x),
 # so a small max_output_tokens plus thinking can cut an answer short.
 #
 # No Pro models. At most 3 entries per chain (ai_calls.attempt is 1 to 3).

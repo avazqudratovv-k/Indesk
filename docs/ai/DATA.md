@@ -303,6 +303,7 @@ A trace line is `agent`, `kind`, `state`, `key`, `args`, `tok`, `bubble`. A stri
 | `runPython` | `stub`, `attempt` |
 | `top3` | `stub`, `rows` |
 | `merge` | `stub` |
+| `verify` | `claims`, `verified` |
 | `ready` | `stub` |
 | `stepStarted` | `attempt` |
 | `stepFailed` | `reason`, `attempt` |
