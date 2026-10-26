@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
 
 from app.core import clock, ratelimit
 from app.core.errors import AppError, ErrorCode
@@ -54,6 +54,12 @@ def create_upload(
 @router.get("", response_model=list[Upload])
 def list_uploads(db: Db, user: CurrentUser) -> list[Upload]:
     return [Upload.model_validate(u) for u in service.list_uploads(db, user, clock.utcnow())]
+
+
+@router.delete("/{upload_id}", status_code=204)
+def delete_upload(upload_id: str, db: Db, storage: StorageDep, user: CurrentUser) -> Response:
+    service.delete_upload(db, storage, user, upload_id, clock.utcnow())
+    return Response(status_code=204)
 
 
 @router.get("/{upload_id}", response_model=Upload)

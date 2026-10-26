@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -15,9 +16,12 @@ target_metadata = Base.metadata
 
 
 def _database_url() -> str:
-    # Tests point Alembic at their own database with set_main_option; else the app's setting.
+    # Tests point Alembic at their own database with set_main_option. Otherwise the migrator's URL
+    # (compose `migrate` service), then the app's setting (CI and plain setups).
     return (
-        config.get_main_option("sqlalchemy.url") or get_settings().database_url.get_secret_value()
+        config.get_main_option("sqlalchemy.url")
+        or os.environ.get("MIGRATE_DATABASE_URL")
+        or get_settings().database_url.get_secret_value()
     )
 
 

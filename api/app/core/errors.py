@@ -44,6 +44,7 @@ class ErrorCode(StrEnum):
     RUN_ACTIVE = "RUN_ACTIVE"  # one active run per user
     UPLOAD_NOT_READY = "UPLOAD_NOT_READY"
     TOO_MANY_STREAMS = "TOO_MANY_STREAMS"
+    UPLOAD_IN_USE = "UPLOAD_IN_USE"  # an active run still uses the file
 
 
 _CODES = {
@@ -55,22 +56,34 @@ _CODES = {
 class AppError(Exception):
     """Raised anywhere in a request to answer with {"error": {"code": ...}}. Carries no message."""
 
-    def __init__(self, status: int, code: ErrorCode, headers: dict[str, str] | None = None) -> None:
+    def __init__(
+        self,
+        status: int,
+        code: ErrorCode,
+        headers: dict[str, str] | None = None,
+        *,
+        extra: dict[str, str] | None = None,
+    ) -> None:
         super().__init__(code.value)
         self.status = status
         self.code = code
         self.headers = headers
+        self.extra = extra  # additive fields of the error body, such as run_id on RUN_ACTIVE
 
 
 def error_response(
-    status: int, code: ErrorCode | str, headers: dict[str, str] | None = None
+    status: int,
+    code: ErrorCode | str,
+    headers: dict[str, str] | None = None,
+    extra: dict[str, str] | None = None,
 ) -> JSONResponse:
-    return JSONResponse(status_code=status, content={"error": {"code": str(code)}}, headers=headers)
+    content = {"error": {"code": str(code), **(extra or {})}}
+    return JSONResponse(status_code=status, content=content, headers=headers)
 
 
 async def _app_error(_: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, AppError)  # noqa: S101  # narrows the handler type for mypy
-    return error_response(exc.status, exc.code, exc.headers)
+    return error_response(exc.status, exc.code, exc.headers, exc.extra)
 
 
 async def _http_error(_: Request, exc: Exception) -> JSONResponse:

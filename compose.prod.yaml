@@ -1,0 +1,30 @@
+# Production skeleton (ROADMAP 5.6 adds nginx and the rest). Use it with an explicit file list so
+# compose.override.yaml is NOT loaded:
+#   docker compose -f compose.yaml -f compose.prod.yaml up -d --build
+# There is no source or compose-file mount here, and the database is not published. Every password
+# is required: with no default, compose refuses to start when one is missing.
+x-prod-env: &prod-env
+  APP_ENV: production
+  DATABASE_URL: postgresql+psycopg://indesk_app:${POSTGRES_APP_PASSWORD:?set POSTGRES_APP_PASSWORD}@db:5432/indesk
+
+services:
+  api:
+    environment: *prod-env
+    restart: unless-stopped
+  worker:
+    environment: *prod-env
+    restart: unless-stopped
+  scheduler:
+    environment: *prod-env
+    restart: unless-stopped
+  migrate:
+    environment:
+      MIGRATE_DATABASE_URL: postgresql+psycopg://indesk_migrator:${POSTGRES_MIGRATOR_PASSWORD:?set POSTGRES_MIGRATOR_PASSWORD}@db:5432/indesk
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_MIGRATOR_PASSWORD: ${POSTGRES_MIGRATOR_PASSWORD:?set POSTGRES_MIGRATOR_PASSWORD}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?set POSTGRES_APP_PASSWORD}
+    restart: unless-stopped
+  redis:
+    restart: unless-stopped

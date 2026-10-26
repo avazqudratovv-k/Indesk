@@ -1,0 +1,14 @@
+# Dev only. `docker compose` loads this file on its own next to compose.yaml; production does not
+# (compose.prod.yaml is used with an explicit -f list).
+services:
+  api:
+    environment:
+      # Tests drop and create their own databases, which the app role may not do. The superuser URL
+      # is used only by tests/db_helpers.py and exists only here, never in compose.yaml.
+      TEST_ADMIN_DATABASE_URL: postgresql+psycopg://indesk:${POSTGRES_PASSWORD:-indesk_dev_password}@db:5432/indesk
+    volumes:
+      # Read-only copies for tests/test_compose_sandbox.py, which checks the sandbox hardening.
+      - ./compose.yaml:/compose/compose.yaml:ro
+      - ./compose.sandbox-test.yaml:/compose/compose.sandbox-test.yaml:ro
+      - ./compose.prod.yaml:/compose/compose.prod.yaml:ro
+      - ./compose.override.yaml:/compose/compose.override.yaml:ro

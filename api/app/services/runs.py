@@ -112,6 +112,12 @@ def _lock_uploads(db: Session, user: User, body: RunCreate, now: datetime) -> No
             raise AppError(409, ErrorCode.UPLOAD_NOT_READY)
 
 
+def _run_active(run_id: uuid.UUID | None) -> AppError:
+    """409 RUN_ACTIVE; the body names the run in the way, so the browser needs no local copy."""
+    extra = {"run_id": str(run_id)} if run_id is not None else None
+    return AppError(409, ErrorCode.RUN_ACTIVE, extra=extra)
+
+
 def _refuse(db: Session, status: int, code: ErrorCode) -> NoReturn:
     """Roll back the whole admission (a counter bumped a moment ago goes with it), then refuse."""
     db.rollback()
@@ -182,9 +188,11 @@ def create_run(
             db.rollback()
             return replayed, False
     _lock_uploads(db, user, body, now)
-    if store.active_run(db, user.id) is not None:
+    active = store.active_run(db, user.id)
+    if active is not None:
+        active_id = active.id
         db.rollback()
-        raise AppError(409, ErrorCode.RUN_ACTIVE)
+        raise _run_active(active_id)
     _admit(db, limits, user, now)
 
     run = Run(
@@ -228,7 +236,8 @@ def create_run(
         db.rollback()
         _forget(redis, marker)
         if getattr(getattr(error.orig, "diag", None), "constraint_name", None) == ACTIVE_INDEX:
-            raise AppError(409, ErrorCode.RUN_ACTIVE) from None
+            active = store.active_run(db, user.id)  # the winner of the race
+            raise _run_active(active.id if active else None) from None
         raise
     except Exception:
         db.rollback()
@@ -256,6 +265,11 @@ def get_run(db: Session, user: User, raw_id: str) -> Run:
     if run is None:
         raise not_found
     return run
+
+
+def get_active_run(db: Session, user: User) -> Run | None:
+    """The caller's run that has not finished, if any."""
+    return store.active_run(db, user.id)
 
 
 def forget_key(redis: Redis, user_id: uuid.UUID, key: str | None) -> None:

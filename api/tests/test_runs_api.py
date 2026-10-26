@@ -73,7 +73,10 @@ def body(
 
 def code(response: Any, status: int, expected: str) -> None:
     assert response.status_code == status, response.text
-    assert response.json() == {"error": {"code": expected}}
+    error = response.json()["error"]
+    assert error["code"] == expected
+    # RUN_ACTIVE alone carries a run id; every other error body is the code and nothing else.
+    assert set(error) == {"code"} | ({"run_id"} if expected == "RUN_ACTIVE" else set())
 
 
 def db_of(connection: Connection) -> Session:

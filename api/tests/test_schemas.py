@@ -58,6 +58,7 @@ def test_error_codes_are_the_agreed_list() -> None:
         "RUN_ACTIVE",
         "UPLOAD_NOT_READY",
         "TOO_MANY_STREAMS",
+        "UPLOAD_IN_USE",
     }
 
 

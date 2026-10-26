@@ -1,10 +1,14 @@
 # Dev stack. Only the API is published on the host (127.0.0.1:8000); db and redis stay inside the network.
-# POSTGRES_PASSWORD below is a dev-only default. Real secrets go in api/.env (ignored by git), never here.
+# The password defaults below are dev-only. Real secrets go in api/.env (ignored by git), never here.
+# Three database logins: `indesk` (superuser, db healthcheck only), `indesk_migrator` (owns the
+# schema, used by the one-shot `migrate` service) and `indesk_app` (rows only, used by api, worker
+# and scheduler). compose.override.yaml adds the dev-only mounts; compose.prod.yaml is the production
+# skeleton.
 name: indesk
 
 x-api-env: &api-env
   APP_ENV: development
-  DATABASE_URL: postgresql+psycopg://indesk:${POSTGRES_PASSWORD:-indesk_dev_password}@db:5432/indesk
+  DATABASE_URL: postgresql+psycopg://indesk_app:${POSTGRES_APP_PASSWORD:-indesk_app_dev_password}@db:5432/indesk
   REDIS_URL: redis://redis:6379/0
 
 services:
@@ -16,12 +20,11 @@ services:
     environment: *api-env
     volumes:
       - uploads:/data/uploads
-      # Read-only copies for tests/test_compose_sandbox.py, which checks the sandbox hardening.
-      - ./compose.yaml:/compose/compose.yaml:ro
-      - ./compose.sandbox-test.yaml:/compose/compose.sandbox-test.yaml:ro
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
       redis:
@@ -32,6 +35,18 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  # One-shot: applies the migrations as the schema owner, then exits. api, worker and scheduler wait
+  # for it. It gets the migrator's URL only: no env_file, no Gemini key, no Redis.
+  migrate:
+    build: ./api
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      MIGRATE_DATABASE_URL: postgresql+psycopg://indesk_migrator:${POSTGRES_MIGRATOR_PASSWORD:-indesk_migrator_dev_password}@db:5432/indesk
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
 
   worker:
     build: ./api
@@ -46,6 +61,8 @@ services:
       - default
       - sandbox_net # the only service that can reach the sandbox
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
     healthcheck:
@@ -64,6 +81,8 @@ services:
         required: false
     environment: *api-env
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
     healthcheck:
@@ -107,8 +126,12 @@ services:
       POSTGRES_USER: indesk
       POSTGRES_DB: indesk
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-indesk_dev_password}
+      POSTGRES_MIGRATOR_PASSWORD: ${POSTGRES_MIGRATOR_PASSWORD:-indesk_migrator_dev_password}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:-indesk_app_dev_password}
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # Creates the two roles when the volume is first made (needs `down -v` to run again).
+      - ./api/db-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U indesk -d indesk"]
       interval: 5s

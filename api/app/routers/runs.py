@@ -75,6 +75,14 @@ def create_run(
     return RunCreated(id=str(run.id), status=run.status)
 
 
+@router.get("/active", response_model=RunView, responses={204: {"description": "No active run"}})
+def get_active_run(db: Db, user: CurrentUser) -> RunView | Response:
+    run = service.get_active_run(db, user)
+    if run is None:
+        return Response(status_code=204)
+    return RunView.model_validate(run)
+
+
 @router.get("/{run_id}", response_model=RunView)
 def get_run(run_id: str, db: Db, user: CurrentUser) -> RunView:
     return RunView.model_validate(service.get_run(db, user, run_id))
@@ -115,6 +123,6 @@ def run_events(
     return StreamingResponse(
         body,
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
         background=BackgroundTask(on_close),
     )

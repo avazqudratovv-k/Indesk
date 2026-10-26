@@ -23,6 +23,7 @@ logger = logging.getLogger("indesk.uploads")
 
 AUDIT_UPLOAD_CREATED = "upload_created"
 AUDIT_UPLOAD_SWEPT = "upload_swept"
+AUDIT_UPLOAD_DELETED = "upload_deleted"
 
 
 def create_csv_upload(
@@ -112,6 +113,48 @@ def get_upload(db: Session, user: User, raw_id: str, now: datetime) -> Upload:
     if upload is None:
         raise not_found
     return upload
+
+
+def delete_upload(db: Session, storage: Storage, user: User, raw_id: str, now: datetime) -> None:
+    """The owner removes an upload. The stored file goes, the row stays (name, type, size) with
+    status deleted, as for the sweep. Someone else's, a missing, an expired and a malformed id all
+    give the same 404. The row is locked first, so a run being created at the same moment either
+    sees the file gone or makes this answer 409."""
+    not_found = AppError(404, ErrorCode.NOT_FOUND)
+    try:
+        upload_id = uuid.UUID(raw_id)
+    except ValueError:
+        raise not_found from None
+    upload = db.scalar(
+        select(Upload)
+        .where(
+            Upload.id == upload_id,
+            Upload.user_id == user.id,
+            Upload.deleted_at.is_(None),
+            Upload.expires_at > now,
+        )
+        .with_for_update(of=Upload)
+    )
+    if upload is None:
+        raise not_found
+    running = exists().where(
+        RunFile.upload_id == upload.id, RunFile.run_id == Run.id, Run.status != RunStatus.FINISHED
+    )
+    if db.scalar(select(running)):
+        db.rollback()
+        raise AppError(409, ErrorCode.UPLOAD_IN_USE)
+    try:
+        if upload.storage_key is not None:
+            storage.delete(upload.storage_key)
+    except StorageError:
+        db.rollback()
+        logger.error("delete: could not delete the file of upload %s", upload.id)
+        raise AppError(500, ErrorCode.INTERNAL) from None
+    upload.storage_key = None
+    upload.status = UploadStatus.DELETED
+    upload.deleted_at = now
+    db.add(AuditLog(user_id=user.id, action=AUDIT_UPLOAD_DELETED, target=str(upload.id)))
+    db.commit()
 
 
 @dataclass(frozen=True)

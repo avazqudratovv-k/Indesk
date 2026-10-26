@@ -147,7 +147,7 @@ def test_events_arrive_in_order_and_the_stream_closes_on_done(
     response = alice.get(f"/api/runs/{world.run_id}/events")
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/event-stream")
-    assert response.headers["cache-control"] == "no-cache"
+    assert response.headers["cache-control"] == "no-cache, no-transform"
     assert response.headers["x-accel-buffering"] == "no"
     events, _ = parse(response.text)
     assert [(e["id"], e["event"]) for e in events] == [

@@ -22,9 +22,10 @@ class ApiModel(BaseModel):
 
 class ErrorBody(BaseModel):
     code: ErrorCode
+    run_id: str | None = None  # only on RUN_ACTIVE: the run that is in the way
 
 
 class ErrorResponse(BaseModel):
-    """The one error format: {"error": {"code": "..."}}."""
+    """The one error format: {"error": {"code": "..."}}; RUN_ACTIVE adds run_id."""
 
     error: ErrorBody
