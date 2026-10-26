@@ -31,6 +31,7 @@ export default function OutcomeCards({ real = false }: { real?: boolean }) {
           <li key={outcome.id} className={styles.card}>
             <div className={styles.top}>
               <span className={`${styles.label} ${styles[outcome.tone]}`}>{t(`live.outcomes.${outcome.id}.label`)}</span>
+              <span className={styles.example}>{t("live.outcomes.exampleTag")}</span>
               {real && (outcome.counted || outcome.id === "failed") ? null : <span className={styles.count}>{outcome.counted ? t("live.outcomes.counted") : t("live.outcomes.notCounted")}</span>}
             </div>
             <div className={styles.head}>{t(`live.outcomes.${outcome.id}.head`)}</div>

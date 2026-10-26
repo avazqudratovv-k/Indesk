@@ -9,7 +9,7 @@ import { SubmitError, submitRun, type FileStatus, type SubmitFile } from "@/lib/
 import type { UploadedFile } from "@/lib/run/live/types";
 import { browserWatchDeps, watchRun } from "@/lib/run/live/watch";
 
-export type Connection = "live" | "lost" | "signedOut";
+export type Connection = "live" | "lost" | "signedOut" | "tooManyStreams";
 export type SubmitStage = "idle" | "uploading" | "starting";
 export type SubmitFailure = { code: SubmitError["code"]; fileId: string | null; retryAfter?: number };
 
@@ -75,7 +75,7 @@ export function useLiveRun(userId: string | null) {
           if (userId) clearRunId(userId);
           dispatch({ type: "clear" });
         },
-        onLost: ({ signedOut }) => setConnection(signedOut ? "signedOut" : "lost"),
+        onLost: ({ signedOut, tooManyStreams }) => setConnection(signedOut ? "signedOut" : tooManyStreams ? "tooManyStreams" : "lost"),
       },
       browserWatchDeps((id) => getRun(id)),
     );

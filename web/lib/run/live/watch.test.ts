@@ -216,3 +216,26 @@ describe("watchRun", () => {
     second.close();
   });
 });
+
+describe("stream limit", () => {
+  it("says so when the server refuses because too many streams are open", async () => {
+    const t = setup();
+    t.deps.probeStreamLimit = vi.fn(async () => true);
+    watchRun(RUN, t.handlers, t.deps);
+    t.sources[0].giveUp();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(t.handlers.onLost).toHaveBeenCalledWith({ signedOut: false, tooManyStreams: true });
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(t.sources).toHaveLength(1);
+  });
+
+  it("keeps retrying as before when the probe finds no limit", async () => {
+    const t = setup();
+    t.deps.probeStreamLimit = vi.fn(async () => false);
+    watchRun(RUN, t.handlers, t.deps);
+    t.sources[0].giveUp();
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(t.handlers.onLost).not.toHaveBeenCalled();
+    expect(t.sources).toHaveLength(2);
+  });
+});

@@ -412,7 +412,7 @@
   },
   "workspace": {
     "title": "What would you like to know?",
-    "sub": "Pick the files, ask in your own words, and watch the team work.",
+    "sub": "Pick your CSV file, ask in your own words, and watch the team work.",
     "tabsLabel": "Workspace steps",
     "tabAsk": "Ask a question",
     "tabRun": "Agents at work",
@@ -429,9 +429,9 @@
       "check": "Check a document",
       "compare": "Compare",
       "intro": {
-        "ask": "Ask anything your files can answer. Every claim comes with its proof.",
+        "ask": "Ask anything your CSV can answer. Every number comes from your file; claims that can't be matched are marked.",
         "check": "Upload a document and the data behind it. We find every checkable claim and test it.",
-        "compare": "Two files of the same kind. We show what changed, with proof."
+        "compare": "Two files of the same kind. We show what changed."
       },
       "soon": "Coming soon"
     },
@@ -450,9 +450,9 @@
       "fileB": "File B"
     },
     "upload": {
-      "dropMany": "Drop files here or choose files",
       "dropOne": "Drop a file here or choose a file",
       "choose": "Choose",
+      "sampleLink": "Download the sample file (CSV)",
       "help": "One CSV file, up to {mb, number} MB.",
       "helpDocument": "A PDF, up to {mb, number} MB.",
       "listLabel": "Added files",
@@ -471,7 +471,7 @@
       "statusReady": "Uploaded, deleted from our servers on {when}"
     },
     "errors": {
-      "type": "{name}: only CSV, PDF, JPG and PNG files work.",
+      "type": "{name}: only CSV files work.",
       "empty": "{name}: the file is empty.",
       "tooBig": "{name}: larger than {mb, number} MB.",
       "nameTooLong": "{name}: the file name is too long (255 characters at most).",
@@ -484,23 +484,27 @@
     },
     "question": {
       "label": "Your question",
-      "placeholder": "Type a question about your files…",
+      "placeholder": "For example: Which station has the most total boardings in September 2026?",
       "focusPlaceholder": "For example: which stations changed the most?",
       "counter": "{count, number} / {max, number}",
       "tooLong": "Your question is {over, number} characters over the limit of {max, number}.",
       "chipsLabel": "Example questions",
       "chips": [
         {
-          "text": "Which stations grew fastest?",
-          "full": "Which stations grew fastest since 2019, and does the chart agree?"
+          "text": "Which station has the most boardings?",
+          "full": "Which station has the most total boardings in September 2026?"
         },
         {
-          "text": "Does the chart match the data?",
-          "full": "Does the chart in the photo match the numbers in the CSV?"
+          "text": "Boardings per line",
+          "full": "What are the total boardings for each line?"
         },
         {
-          "text": "What does the report say about growth?",
-          "full": "What does the PDF report say about ridership growth?"
+          "text": "Compare weekdays and weekends: average total boardings per day",
+          "full": "Compare weekdays and weekends: average total boardings per day"
+        },
+        {
+          "text": "Which day was busiest?",
+          "full": "Which day had the most total boardings?"
         }
       ]
     },
@@ -528,6 +532,7 @@
       "noFreeLeft": "No free runs left."
     },
     "ready": "Your team is ready",
+    "sampleSource": "Source: Seoul Metropolitan Government, Korail, Airport Railroad (Seoul Open Data Plaza), KOGL Type 1",
     "info": {
       "title": "What you can upload",
       "note": "The numbers are computed over the whole file, and the model only reads column names, a sample and the results.",
@@ -596,7 +601,8 @@
         "skipped": "Skipped",
         "failed": "Failed",
         "flagged": "{count, number} flagged",
-        "didNotRun": "Did not run"
+        "didNotRun": "Did not run",
+        "comingLater": "Coming later"
       },
       "feedTitle": "Live trace",
       "feedEmpty": "The team is starting…",
@@ -647,8 +653,8 @@
         "readyPartial": "Partial report ready. 2 claims marked as unverified."
       },
       "ends": {
-        "title": "How each agent can end",
-        "sub": "Only the agents a question needs are woken. A failed agent is never hidden: it shows Failed and can be retried.",
+        "title": "Example: how an agent can end",
+        "sub": "These cards show the possible states. They are not from a real run. A failed agent is never hidden: it shows Failed.",
         "listLabel": "Example agent states",
         "lines": {
           "done": "Finished its part.",
@@ -659,8 +665,9 @@
         }
       },
       "outcomes": {
-        "title": "How a run can end",
-        "sub": "Every run ends in exactly one of these outcomes. Nothing fails silently, and the model's own memory is never used to fill a gap. These cards are examples.",
+        "title": "Example: how a run can end",
+        "sub": "Every run ends in exactly one of these outcomes. Nothing fails silently, and the model's own memory is never used to fill a gap. These cards are examples, not from a real run.",
+        "exampleTag": "Example",
         "counted": "Counts as a run",
         "notCounted": "Not counted",
         "answered": {
@@ -670,8 +677,8 @@
         },
         "partial": {
           "label": "Partial",
-          "head": "Hound found no passages",
-          "body": "4 of 6 statements are verified. The 2 that need passages from the PDF are marked unverified."
+          "head": "Some claims could not be matched",
+          "body": "4 of 6 statements are verified. The 2 that could not be matched to your file are marked unverified."
         },
         "notAnswerable": {
           "label": "Not answerable",
@@ -684,8 +691,8 @@
         },
         "needsBetterInput": {
           "label": "Needs better input",
-          "head": "This photo is too blurry to read",
-          "body": "We could not find text we can trust. Try a sharper photo, or upload the original file."
+          "head": "This file is hard to read",
+          "body": "We could not find a table we can trust. Check the file, or upload the original CSV."
         },
         "rejected": {
           "label": "Not accepted",
@@ -734,12 +741,14 @@
         "flagged": "Flagged",
         "waiting": "Waiting",
         "failed": "Failed",
-        "didNotRun": "Did not run"
+        "didNotRun": "Did not run",
+        "comingLater": "Coming later"
       },
       "states": {
         "waiting": "Waiting for this agent to start…",
         "failed": "No answer after 35 s and one retry.",
-        "didNotRun": "This agent did not run, because the run ended before its turn."
+        "didNotRun": "This agent did not run, because the run ended before its turn.",
+        "comingLater": "This agent is not built yet. It is coming later."
       },
       "handover": {
         "title": "Hands over to the report",
@@ -894,6 +903,7 @@
         "body": "The run may still be going. Reconnect to keep watching.",
         "button": "Reconnect",
         "signedOut": "Your session has ended. Log in again to see this run.",
+        "tooManyStreams": "Too many tabs or windows are following runs at once. Close the others, then reconnect. The run may still be going.",
         "login": "Log in"
       },
       "detail": {
@@ -1017,7 +1027,8 @@
     "title": "Report",
     "exampleBanner": {
       "title": "Example report",
-      "body": "Not an analysis of your files. The claims, numbers and sources below are sample data."
+      "body": "<tag>Example report:</tag> a real run on the public Seoul subway file (September 2026), not on your files.",
+      "source": "Source: Seoul Metropolitan Government, Korail, Airport Railroad (Seoul Open Data Plaza), KOGL Type 1"
     },
     "paper": {
       "small": "Final answer · Example report",
@@ -1211,7 +1222,7 @@
     "MODEL_UNAVAILABLE": "The AI service isn't available right now. Try again later.",
     "RUN_ACTIVE": "You already have a run in progress.",
     "UPLOAD_NOT_READY": "The file is still being prepared. Try again in a moment.",
-    "TOO_MANY_STREAMS": "Too many windows are following runs. Close one and try again.",
+    "TOO_MANY_STREAMS": "Too many tabs or windows are following runs at once. Close the others, then reconnect.",
     "TOO_MANY_FILES": "Ask takes one CSV file. Remove the extra files and try again.",
     "UPLOAD_IN_USE": "A run is still using this file. Wait for it to finish, then try again."
   }

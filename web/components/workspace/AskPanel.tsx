@@ -12,6 +12,7 @@ import ConsentBox from "./ConsentBox";
 import FileSlot from "./FileSlot";
 import ModeSwitch from "./ModeSwitch";
 import QuestionBox from "./QuestionBox";
+import SampleFile from "./SampleFile";
 import TeamReady from "./TeamReady";
 import UploadInfo from "./UploadInfo";
 import { useWorkspaceFiles } from "./use-workspace-files";
@@ -99,12 +100,13 @@ export default function AskPanel({ freeLeft, plan, onRun, submit }: { freeLeft: 
     onRun({ mode, fileCount, question: trimmed, files: slotIds.flatMap((id) => slots[id]) });
   }
 
-  const slot = (id: SlotId, extra: { title?: string; documentOnly?: boolean } = {}) => (
+  const slot = (id: SlotId, extra: { title?: string; documentOnly?: boolean; csvOnly?: boolean } = {}) => (
     <FileSlot
       key={id}
       slot={id}
       title={extra.title}
       documentOnly={extra.documentOnly}
+      csvOnly={extra.csvOnly}
       items={slots[id]}
       errors={errors[id]}
       statuses={submit?.fileStatus}
@@ -132,7 +134,12 @@ export default function AskPanel({ freeLeft, plan, onRun, submit }: { freeLeft: 
       <section className={styles.cards}>
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>{t(stepFiles)}</h2>
-          {mode === "ask" ? slot("files") : null}
+          {mode === "ask" ? (
+            <>
+              {slot("files", { csvOnly: true })}
+              <SampleFile />
+            </>
+          ) : null}
           {mode === "check" ? (
             <>
               {slot("document", { title: t("slots.document"), documentOnly: true })}

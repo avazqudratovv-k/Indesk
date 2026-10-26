@@ -105,7 +105,7 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
       ) : null}
       <RunHeader ref={heading} title={run.question} finished={finished} onBack={onBack} real={{ mark }} />
       <RunTiles key={run.id} toolCalls={toolCalls} tokens={sumTokens(events, step)} agentsDone={countAgentsDone(agents)} agentCount={RUN_AGENTS.length} finished={finished} real={{ startMs: run.createdAt ?? run.startedAt, endMs: run.finishedAt }} />
-      {lost ? <RunNotice signedOut={connection === "signedOut"} onReconnect={onReconnect} /> : null}
+      {lost ? <RunNotice cause={connection === "signedOut" ? "signedOut" : connection === "tooManyStreams" ? "tooManyStreams" : "lost"} onReconnect={onReconnect} /> : null}
       {card ? <RunEndCard card={card} reportId={run.done?.reportId ?? null} headingRef={endHeading} onChange={onBack} /> : null}
       {!finished && !lost && events.length === 0 ? (
         <p className={styles.note} role="status">
@@ -118,8 +118,8 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
             <h2 className={styles.h2}>{t("live.stageTitle")}</h2>
             <span className={styles.note}>{t("live.stageNote")}</span>
           </div>
-          <TeamStage agents={agents} events={events} step={step} reportReady={reportReady} scenario="answered" finished={finished} showStamp={false} />
-          <AgentTimeline agents={agents} reportReady={reportReady} finished={finished} />
+          <TeamStage agents={agents} events={events} step={step} reportReady={reportReady} scenario="answered" finished={finished} showStamp={false} real />
+          <AgentTimeline agents={agents} reportReady={reportReady} finished={finished} real />
         </div>
         <LiveTrace events={events} step={step} note={simulated ? t("real.simulatedTraceNote") : t("real.traceNote")} />
       </section>

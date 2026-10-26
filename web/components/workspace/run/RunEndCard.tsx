@@ -58,15 +58,15 @@ export default function RunEndCard({ card, reportId, headingRef, onChange }: Pro
 }
 
 // The stream was lost, or the session ended while following a run. The run itself may still be going.
-export function RunNotice({ signedOut, onReconnect }: { signedOut: boolean; onReconnect: () => void }) {
+export function RunNotice({ cause, onReconnect }: { cause: "lost" | "signedOut" | "tooManyStreams"; onReconnect: () => void }) {
   const t = useTranslations("workspace");
   return (
     <div className={styles.notice} role="alert">
       <div className={styles.noticeText}>
         <b>{t("real.lost.title")}</b>
-        <span>{signedOut ? t("real.lost.signedOut") : t("real.lost.body")}</span>
+        <span>{cause === "signedOut" ? t("real.lost.signedOut") : cause === "tooManyStreams" ? t("real.lost.tooManyStreams") : t("real.lost.body")}</span>
       </div>
-      {signedOut ? <Button href="/login">{t("real.lost.login")}</Button> : <Button onClick={onReconnect}>{t("real.lost.button")}</Button>}
+      {cause === "signedOut" ? <Button href="/login">{t("real.lost.login")}</Button> : <Button onClick={onReconnect}>{t("real.lost.button")}</Button>}
     </div>
   );
 }

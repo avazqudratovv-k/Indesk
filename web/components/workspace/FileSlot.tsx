@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type DragEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import type { FileStatus } from "@/lib/run/live/submit";
-import { ACCEPT_ATTRIBUTE, extensionOf, formatSize, MAX_FILE_BYTES, SLOT_MAX, type FileError, type SlotFile, type SlotId } from "@/lib/workspace/validate";
+import { ACCEPT_ATTRIBUTE, CSV_ACCEPT_ATTRIBUTE, extensionOf, formatSize, MAX_FILE_BYTES, SLOT_MAX, type FileError, type SlotFile, type SlotId } from "@/lib/workspace/validate";
 import styles from "./FileSlot.module.css";
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
   items: SlotFile[];
   errors: FileError[];
   documentOnly?: boolean;
+  csvOnly?: boolean;
   // Real upload state per file id (Ask runs), and whether the list may change right now (uploads in progress).
   statuses?: Record<string, FileStatus>;
   locked?: boolean;
@@ -23,7 +24,7 @@ const kindColor = { csv: "var(--c-cham)", pdf: "var(--c-cat)", image: "var(--c-b
 
 // One upload area with its list of added files. Single-file slots (document, file A, file B) swap the drop area
 // for the file once it is added. Files stay in the browser: this component never reads their contents.
-export default function FileSlot({ slot, title, items, errors, documentOnly, statuses, locked, onAdd, onRemove }: Props) {
+export default function FileSlot({ slot, title, items, errors, documentOnly, csvOnly, statuses, locked, onAdd, onRemove }: Props) {
   const t = useTranslations("workspace");
   const format = useFormatter();
   const ids = useId();
@@ -141,7 +142,7 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, sta
             className={styles.input}
             type="file"
             multiple={!single}
-            accept={documentOnly ? ".pdf,application/pdf" : ACCEPT_ATTRIBUTE}
+            accept={documentOnly ? ".pdf,application/pdf" : csvOnly ? CSV_ACCEPT_ATTRIBUTE : ACCEPT_ATTRIBUTE}
             aria-labelledby={`${dropId}-label`}
             aria-describedby={helpId}
             onChange={(event) => {
@@ -155,7 +156,7 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, sta
             <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
           </svg>
           <span id={`${dropId}-label`} className={styles.dropTitle}>
-            {single ? t("upload.dropOne") : t("upload.dropMany")}
+            {t("upload.dropOne")}
           </span>
           <span id={helpId} className={styles.help}>
             {documentOnly ? t("upload.helpDocument", { mb }) : t("upload.help", { mb })}

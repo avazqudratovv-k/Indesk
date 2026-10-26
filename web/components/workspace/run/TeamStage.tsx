@@ -4,6 +4,7 @@ import { useScrollable } from "@/lib/use-scrollable";
 import { agentColor } from "@/components/home/agents";
 import { deriveFlow, owlBubble, type AgentView, type RunAgent, type RunEvent, type RunScenario } from "@/lib/run/mock-run";
 import AgentSprite from "./AgentSprite";
+import Chip from "@/components/ui/Chip";
 import { endedKey } from "./agent-status";
 import styles from "./TeamStage.module.css";
 
@@ -37,13 +38,15 @@ type Props = {
   finished: boolean;
   // The board's "EXAMPLE 5/6" stamp belongs to the scripted demo only; real runs turn it off.
   showStamp?: boolean;
+  // Real runs: Chameleon and Hound are not built, so they read "Coming later" instead of "Did not run".
+  real?: boolean;
 };
 
 // The board's "The team" map (desktop, 761 px and up): a contour-line map with a scale bar and compass, five agent
 // cards joined by dotted connectors that turn solid as work is handed over, envelopes travelling along them, speech
 // bubbles, a Report node and, at the end, a stamp. Purely visual (the map is aria-hidden): the same state is in the timeline list. Where the card is narrower than the
 // map its box scrolls sideways, and only then is it a labelled tab stop.
-export default function TeamStage({ agents, events, step, reportReady, scenario, finished, showStamp = true }: Props) {
+export default function TeamStage({ agents, events, step, reportReady, scenario, finished, showStamp = true, real = false }: Props) {
   const t = useTranslations("workspace");
   const home = useTranslations("home.team");
   const flow = deriveFlow(agents, reportReady);
@@ -87,11 +90,11 @@ export default function TeamStage({ agents, events, step, reportReady, scenario,
 
         {ORDER.map((id, index) => {
           const view = agents[id];
-          const key = endedKey(view, finished);
+          const key = endedKey(id, view, finished, real);
           const [x, y, h] = POS[id];
           const bubble = id === "owl" ? (bubbleOwl ? t(`live.bubbles.${bubbleOwl}`) : "") : view.state === "working" ? t(`live.bubbles.${id}`) : "";
           const bad = key === "flagged" || key === "failed";
-          const idle = key === "didNotRun" ? "waiting" : key;
+          const idle = key === "didNotRun" || key === "comingLater" ? "waiting" : key;
           const pool = view.state === "working" ? 1 : bad ? 0.7 : view.state === "done" ? 0.4 : 0;
           const live = view.state === "working" ? "on" : view.state === "waiting" ? "dim" : "";
           const bob = id === "owl" ? !!bubble : view.state === "working";
@@ -124,7 +127,9 @@ export default function TeamStage({ agents, events, step, reportReady, scenario,
                 <span className={styles.name}>
                   {home(`${id}.name`)} · {home(`${id}.role`)}
                 </span>
-                <span className={styles.status}>{key === "flagged" ? t("live.status.flagged", { count: view.flags }) : t(`live.status.${key}`)}</span>
+                <span className={styles.status}>
+                  {key === "comingLater" ? <Chip tone="soon">{t("live.status.comingLater")}</Chip> : key === "flagged" ? t("live.status.flagged", { count: view.flags }) : t(`live.status.${key}`)}
+                </span>
               </span>
               {id !== "owl" && view.state === "working" ? (
                 <svg className={styles.spinner} width="18" height="18" viewBox="0 0 34 34">

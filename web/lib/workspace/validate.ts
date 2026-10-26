@@ -39,6 +39,9 @@ const MIME_BY_EXTENSION: Record<string, readonly string[]> = {
 
 export const ACCEPT_ATTRIBUTE = ".csv,.pdf,.jpg,.jpeg,.png,text/csv,application/pdf,image/jpeg,image/png";
 
+// Ask reads CSV only for now; the other types are on the "Not available yet" list.
+export const CSV_ACCEPT_ATTRIBUTE = ".csv,text/csv";
+
 export type FileErrorCode =
   | "type"
   | "empty"

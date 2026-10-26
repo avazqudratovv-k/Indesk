@@ -1,4 +1,4 @@
-import { ApiError } from "@/lib/api/errors";
+import { ApiError, errorFromResponse } from "@/lib/api/errors";
 import { parseDone, parseStep } from "./parse";
 import type { LiveDone, LiveStep, RunSnapshot } from "./types";
 
@@ -20,6 +20,9 @@ export type WatchDeps = {
   getRun: (id: string) => Promise<RunSnapshot>;
   setTimer: (callback: () => void, ms: number) => unknown;
   clearTimer: (handle: unknown) => void;
+  // Asks the events URL once for its HTTP status (EventSource hides it). True when the server refused because this
+  // person already follows too many runs (TOO_MANY_STREAMS). Optional: without it the cause stays unknown.
+  probeStreamLimit?: (runId: string) => Promise<boolean>;
   // Waits before reopening after the Nth failure (index 0 is the first). Its length is the cap on reopenings.
   backoffMs: readonly number[];
 };
@@ -32,7 +35,7 @@ export type WatchHandlers = {
   // The run is not ours or not there any more.
   onGone: () => void;
   // The stream could not be kept; `signedOut` is true when the server said the session is over.
-  onLost: (why: { signedOut: boolean }) => void;
+  onLost: (why: { signedOut: boolean; tooManyStreams?: boolean }) => void;
 };
 
 export type Watcher = { close: () => void };
@@ -94,6 +97,13 @@ export function watchRun(runId: string, handlers: WatchHandlers, deps: WatchDeps
       }
       // Network or server trouble: treated like a still-running run that we could not reach.
     }
+    if (deps.probeStreamLimit && (await deps.probeStreamLimit(runId).catch(() => false))) {
+      if (closed) return;
+      finish();
+      handlers.onLost({ signedOut: false, tooManyStreams: true });
+      return;
+    }
+    if (closed) return;
     if (reopenings >= deps.backoffMs.length) return lost(false);
     const wait = deps.backoffMs[reopenings];
     reopenings += 1;
@@ -150,10 +160,23 @@ function parseJson(data: unknown): unknown {
 
 export const defaultBackoffMs: readonly number[] = [1000, 2000, 4000, 8000, 15000];
 
+// One request to the events URL, read only for its status; an accepted stream is closed at once.
+async function probeStreamLimit(runId: string): Promise<boolean> {
+  const controller = new AbortController();
+  try {
+    const response = await fetch(`/api/runs/${encodeURIComponent(runId)}/events`, { headers: { Accept: "text/event-stream" }, signal: controller.signal });
+    if (response.ok) return false;
+    return (await errorFromResponse(response)).code === "TOO_MANY_STREAMS";
+  } finally {
+    controller.abort();
+  }
+}
+
 export function browserWatchDeps(getRun: WatchDeps["getRun"]): WatchDeps {
   return {
     createSource: (url) => new EventSource(url),
     getRun,
+    probeStreamLimit,
     setTimer: (callback, ms) => setTimeout(callback, ms),
     clearTimer: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
     backoffMs: defaultBackoffMs,

@@ -9,6 +9,7 @@ type Props = {
   finished: boolean;
   selected: RunAgent;
   idPrefix: string;
+  real?: boolean;
   onPick: (agent: RunAgent) => void;
 };
 
@@ -17,7 +18,7 @@ export const panelId = (prefix: string) => `${prefix}-panel`;
 
 // WAI-ARIA tabs for the five agents: one tab stop (roving tabindex), Left/Right/Home/End move and select, and one
 // tabpanel (owned by AgentWork) that the selected tab controls. The status word is read out with the name.
-export default function AgentTabs({ agents, finished, selected, idPrefix, onPick }: Props) {
+export default function AgentTabs({ agents, finished, selected, idPrefix, real = false, onPick }: Props) {
   const t = useTranslations("workspace");
   const home = useTranslations("home.team");
   const refs = useRef<Partial<Record<RunAgent, HTMLButtonElement | null>>>({});
@@ -35,7 +36,7 @@ export default function AgentTabs({ agents, finished, selected, idPrefix, onPick
   return (
     <div className={styles.list} role="tablist" aria-label={t("artifacts.tabsLabel")}>
       {RUN_AGENTS.map((agent, index) => {
-        const status = tabStatus(agents[agent], finished);
+        const status = tabStatus(agent, agents[agent], finished, real);
         const on = agent === selected;
         return (
           <button

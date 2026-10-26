@@ -28,6 +28,7 @@ export default function AgentEndings() {
         {examples.map(([agent, state]) => (
           <li key={agent} className={styles.card}>
             <AgentRing agent={agent} state={state} />
+            <span className={styles.example}>{t("live.outcomes.exampleTag")}</span>
             <div className={styles.name}>{home(`${agent}.name`)}</div>
             <span className={`${styles.pill} ${styles[state]}`}>{t(`live.status.${state}`)}</span>
             <p className={styles.line}>{t(`live.ends.lines.${state}`)}</p>

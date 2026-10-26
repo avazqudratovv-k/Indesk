@@ -28,7 +28,7 @@ export default function RealAgentWork({ agents, events, finished, reportId }: Pr
   const prefix = useId();
   const [pinned, setPinned] = useState<RunAgent | null>(null);
   const selected = pinned ?? autoAgent(events, agents, finished);
-  const status = tabStatus(agents[selected], finished);
+  const status = tabStatus(selected, agents[selected], finished, true);
   const lines = events.filter((event) => event.agent === selected);
 
   return (
@@ -46,7 +46,7 @@ export default function RealAgentWork({ agents, events, finished, reportId }: Pr
           </button>
         ) : null}
       </div>
-      <AgentTabs agents={agents} finished={finished} selected={selected} idPrefix={prefix} onPick={setPinned} />
+      <AgentTabs agents={agents} finished={finished} selected={selected} idPrefix={prefix} real onPick={setPinned} />
       <div id={panelId(prefix)} role="tabpanel" aria-labelledby={tabId(prefix, selected)} tabIndex={0} className={work.panel}>
         {lines.length > 0 ? (
           <ol className={styles.lines} aria-label={t("real.detail.linesLabel")}>
@@ -56,6 +56,8 @@ export default function RealAgentWork({ agents, events, finished, reportId }: Pr
               </li>
             ))}
           </ol>
+        ) : status === "comingLater" ? (
+          <p className={work.state}>{t("artifacts.states.comingLater")}</p>
         ) : status === "didNotRun" ? (
           <p className={work.state}>{t("artifacts.states.didNotRun")}</p>
         ) : (

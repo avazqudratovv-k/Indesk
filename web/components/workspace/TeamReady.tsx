@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { agentIds } from "@/components/home/agents";
+import { agentBuilt, agentIds } from "@/components/home/agents";
 import styles from "./TeamReady.module.css";
 
 export default function TeamReady() {
@@ -10,7 +10,7 @@ export default function TeamReady() {
     <section className={styles.ready}>
       <div className={styles.title}>{t("ready")}</div>
       <ul className={styles.team}>
-        {agentIds.map((id) => (
+        {agentIds.filter((id) => agentBuilt[id]).map((id) => (
           <li key={id} className={styles.agent}>
             <Image src={`/workspace/agent-${id}.png`} alt="" width={48} height={48} />
             {home(`${id}.name`)}

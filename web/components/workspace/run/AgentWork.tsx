@@ -37,7 +37,7 @@ export default function AgentWork({ agents, events, step, scenario, finished }: 
   const [pinned, setPinned] = useState<RunAgent | null>(null);
   const selected = pinned ?? autoAgent(events, step, finished, agents, scenario);
   const artifacts = useMemo(() => deriveArtifacts(events, step, scenario), [events, step, scenario]);
-  const status = tabStatus(agents[selected], finished);
+  const status = tabStatus(selected, agents[selected], finished);
 
   return (
     <section className={styles.sec} aria-labelledby={`${prefix}-title`}>

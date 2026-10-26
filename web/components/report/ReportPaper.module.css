@@ -53,6 +53,11 @@
   -webkit-text-fill-color: var(--report-ink);
 }
 
+/* Display only: the stored title is untouched. Korean has no letter case, so it is unaffected. */
+.title::first-letter {
+  text-transform: uppercase;
+}
+
 .answer {
   max-width: 680px;
   margin: 0 0 22px;

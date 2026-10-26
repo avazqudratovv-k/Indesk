@@ -81,6 +81,13 @@
   color: var(--ink2);
 }
 
+.example {
+  font: 700 11px var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
 .count {
   font: 500 12px var(--mono);
   color: var(--mute);
