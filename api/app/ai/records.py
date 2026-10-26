@@ -1,9 +1,10 @@
-"""One ai_calls row per model request. Metadata only: never a prompt, an answer or a cost."""
+"""One ai_calls row per model request. Metadata only: never a prompt, an answer or a cost.
+failure_kind is a closed code, never a response body, a URL or a key."""
 
 import uuid
 
 from app.ai.caps import SessionFactory
-from app.core.enums import AiCallStatus, AiPurpose
+from app.core.enums import AiCallStatus, AiPurpose, FailureKind
 from app.db.models import AiCall
 
 
@@ -19,6 +20,7 @@ def record_attempt(
     tokens_in: int,
     tokens_out: int,
     latency_ms: int,
+    failure_kind: FailureKind | None = None,
 ) -> None:
     """May raise; the gateway catches it. est_cost_usd is left at its default 0 (Decision #74)."""
     with session_factory() as db, db.begin():
@@ -33,5 +35,6 @@ def record_attempt(
                 tokens_in=tokens_in,
                 tokens_out=tokens_out,
                 latency_ms=latency_ms,
+                failure_kind=failure_kind.value if failure_kind else None,
             )
         )

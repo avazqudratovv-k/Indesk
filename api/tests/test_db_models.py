@@ -450,6 +450,7 @@ def test_ai_calls_hold_metadata_only() -> None:
         "tokens_out",
         "est_cost_usd",
         "latency_ms",
+        "failure_kind",
         "created_at",
     }
 

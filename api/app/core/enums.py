@@ -216,6 +216,22 @@ class GatewayOutcome(StrEnum):
     BAD_INPUT = "bad_input"  # the prompt is over the character cap; nothing was sent
 
 
+class FailureKind(StrEnum):
+    """Why one model request failed, as stored in ai_calls.failure_kind. A closed code: never a
+    response body, a URL, a header or a key. Set by the model client, filled in by the gateway."""
+
+    HTTP_400 = "http_400"
+    HTTP_401 = "http_401"
+    HTTP_403 = "http_403"
+    HTTP_404 = "http_404"
+    HTTP_4XX = "http_4xx"  # any other 4xx except 429 (that one is status rate_limited)
+    HTTP_5XX = "http_5xx"
+    TRANSPORT = "transport"  # the request could not be made or the connection broke
+    BAD_JSON = "bad_json"  # HTTP 200 but the body is unreadable or has no text
+    TOO_LARGE = "too_large"  # HTTP 200 but the body is over the size limit
+    OTHER = "other"
+
+
 class ModelFailure(StrEnum):
     """Why one request to one model failed. Set by the model client, read by the gateway."""
 

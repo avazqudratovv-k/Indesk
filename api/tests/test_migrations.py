@@ -48,10 +48,10 @@ def test_upgrade_downgrade_upgrade_on_an_empty_database() -> None:
     assert tables(url) == EXPECTED_TABLES
 
 
-def test_there_are_two_migrations_and_one_head() -> None:
+def test_there_are_three_migrations_and_one_head() -> None:
     script = ScriptDirectory.from_config(alembic_config("postgresql+psycopg://unused/unused"))
-    assert len(list(script.walk_revisions())) == 2
-    assert script.get_heads() == ["0002"]
+    assert len(list(script.walk_revisions())) == 3
+    assert script.get_heads() == ["0003"]
 
 
 def test_later_tables_are_not_created_yet() -> None:
@@ -64,4 +64,4 @@ def test_models_and_migration_agree(migrated_engine: Engine) -> None:
     with migrated_engine.connect() as conn:
         diff = compare_metadata(MigrationContext.configure(conn), Base.metadata)
         assert diff == []
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0002"
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar() == "0003"

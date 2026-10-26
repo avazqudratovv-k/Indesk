@@ -9,7 +9,7 @@ import json
 import re
 import uuid
 from datetime import datetime
-from typing import Final
+from typing import Final, NoReturn
 
 from redis import Redis
 from redis.exceptions import RedisError
@@ -19,10 +19,19 @@ from sqlalchemy.orm import Session
 
 from app.core import clock
 from app.core.config import Limits
-from app.core.enums import FileRole, Moderation, RunMode, RunStatus, UploadMime, UploadStatus
+from app.core.enums import (
+    CapDecision,
+    FileRole,
+    Moderation,
+    Plan,
+    RunMode,
+    RunStatus,
+    UploadMime,
+    UploadStatus,
+)
 from app.core.errors import AppError, ErrorCode
 from app.db.models import AuditLog, Run, RunFile, Upload, User
-from app.runs import store
+from app.runs import quota, store
 from app.runs.lang import detect_lang
 from app.schemas.runs import RunCreate
 
@@ -103,6 +112,43 @@ def _lock_uploads(db: Session, user: User, body: RunCreate, now: datetime) -> No
             raise AppError(409, ErrorCode.UPLOAD_NOT_READY)
 
 
+def _refuse(db: Session, status: int, code: ErrorCode) -> NoReturn:
+    """Roll back the whole admission (a counter bumped a moment ago goes with it), then refuse."""
+    db.rollback()
+    raise AppError(status, code)
+
+
+def _admit(db: Session, limits: Limits, user: User, now: datetime) -> None:
+    """The run-level gates, in order: the Free plan's total free runs, the daily run caps (user,
+    then site), then a look at the model-call caps. Nothing is written unless all pass; the slot
+    taken here is committed with the run itself, and given back if the run ends busy or capped."""
+    if user.plan == Plan.FREE and quota.free_runs_used(db, user.id) >= limits.free_runs:
+        _refuse(db, 403, ErrorCode.QUOTA_EXHAUSTED)
+    day = clock.quota_day(now)
+    reserved = quota.reserve_run(
+        db,
+        user_id=user.id,
+        day=day,
+        per_user=limits.daily_runs_per_user,
+        per_day=limits.daily_runs_global,
+    )
+    if reserved is CapDecision.USER_CAP:
+        _refuse(db, 429, ErrorCode.DAILY_CAP_USER)
+    if reserved is CapDecision.GLOBAL_CAP:
+        _refuse(db, 429, ErrorCode.DAILY_CAP_GLOBAL)
+    calls = quota.calls_cap_reached(
+        db,
+        user_id=user.id,
+        day=day,
+        per_user=limits.daily_calls_per_user,
+        per_day=limits.daily_calls_global,
+    )
+    if calls is CapDecision.USER_CAP:
+        _refuse(db, 429, ErrorCode.DAILY_CAP_USER)
+    if calls is CapDecision.GLOBAL_CAP:
+        _refuse(db, 429, ErrorCode.DAILY_CAP_GLOBAL)
+
+
 def _replay(db: Session, redis: Redis, user: User, key: str, body: RunCreate) -> Run | None:
     try:
         raw = redis.get(_idem_key(user.id, key))
@@ -139,8 +185,10 @@ def create_run(
     if store.active_run(db, user.id) is not None:
         db.rollback()
         raise AppError(409, ErrorCode.RUN_ACTIVE)
+    _admit(db, limits, user, now)
 
     run = Run(
+        created_at=now,  # the day of the run counter is taken from this, and given back on this day
         user_id=user.id,
         question=body.question,
         mode=body.mode,

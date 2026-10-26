@@ -17,9 +17,10 @@ from sqlalchemy import func, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core import clock
 from app.core.enums import RunOutcome, RunReason, RunStatus
 from app.db.models import AgentStep, AiCall, AuditLog, Run
-from app.runs import report_store
+from app.runs import quota, report_store
 from app.runs.cat_schemas import ReportDraft
 from app.runs.machine import check_finish, counts_as_run, require_run_transition
 from app.runs.trace import TraceLine
@@ -158,10 +159,11 @@ def finish_run(
     report: ReportDraft | None = None,
 ) -> bool:
     """Finish the run if it is still in `expected`. One transaction: status, closing line, audit
-    row. False (and nothing written) when someone else finished it first."""
+    row, the quota event of a counted run, and the refund of a busy or capped one. False (and
+    nothing written) when someone else finished it first."""
     require_run_transition(expected, RunStatus.FINISHED)
     check_finish(outcome, reason)
-    owner = db.execute(
+    claimed = db.execute(
         update(Run)
         .where(Run.id == run_id, Run.status == expected)
         .values(
@@ -171,11 +173,17 @@ def finish_run(
             counted=counts_as_run(outcome),
             finished_at=now,
         )
-        .returning(Run.user_id)
-    ).scalar()
-    if owner is None:
+        .returning(Run.user_id, Run.created_at)
+    ).first()
+    if claimed is None:
         db.rollback()
         return False
+    owner, created_at = claimed
+    if counts_as_run(outcome):
+        quota.record_used_run(db, owner, run_id)  # the Free plan's count, in this transaction
+    if outcome is RunOutcome.REJECTED or reason is RunReason.MODEL_BUSY:
+        # "Busy today" is not the user's run: the daily run slot taken at POST /runs goes back.
+        quota.release_run(db, user_id=owner, day=clock.quota_day(created_at))
     if final is not None:
         db.add(_step_row(run_id, owner, _next_seq(db, run_id), final, attempt, None, now))
     if report is not None:  # same transaction: a reader that sees `finished` sees the report

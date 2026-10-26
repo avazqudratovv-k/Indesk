@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from app.ai.client import ClientFailure, ClientOk, ClientResult
-from app.core.enums import ModelFailure
+from app.core.enums import FailureKind, ModelFailure
 
 API_KEY = "AIzaSy-FAKE-TEST-KEY-0123456789"  # not a real key
 
@@ -35,8 +35,8 @@ def ok(text: str = "{}", tokens_in: int = 10, tokens_out: int = 5, elapsed: floa
     return Step(ClientOk(text=text, tokens_in=tokens_in, tokens_out=tokens_out), elapsed=elapsed)
 
 
-def fail(kind: ModelFailure, elapsed: float = 0.0) -> Step:
-    return Step(ClientFailure(kind=kind), elapsed=elapsed)
+def fail(kind: ModelFailure, elapsed: float = 0.0, detail: FailureKind | None = None) -> Step:
+    return Step(ClientFailure(kind=kind, detail=detail), elapsed=elapsed)
 
 
 def rate_limited() -> Step:

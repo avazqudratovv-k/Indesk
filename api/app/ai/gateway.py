@@ -23,12 +23,13 @@ from app.ai.caps import SessionFactory, reserve_call
 from app.ai.client import ClientFailure, ClientOk, ModelClient
 from app.ai.config import ModelChains, ModelSpec, load_model_chains
 from app.ai.records import record_attempt
-from app.core.clock import utcnow
+from app.core.clock import quota_day
 from app.core.config import Limits, Settings
 from app.core.enums import (
     AiCallStatus,
     AiPurpose,
     CapDecision,
+    FailureKind,
     GatewayOutcome,
     JobClass,
     ModelFailure,
@@ -87,8 +88,12 @@ class GatewayError(BaseModel):
 GatewayResult = GatewayOk | GatewayError
 
 
-def _utc_today() -> date:
-    return utcnow().date()
+# What a failure means when the client did not name a cause (a fake client, or an old code path).
+_DEFAULT_KIND = {
+    ModelFailure.SERVER_ERROR: FailureKind.HTTP_5XX,
+    ModelFailure.OTHER: FailureKind.OTHER,
+    ModelFailure.BAD_RESPONSE: FailureKind.BAD_JSON,
+}
 
 
 class Gateway:
@@ -101,7 +106,7 @@ class Gateway:
         session_factory: SessionFactory,
         client: ModelClient | None,
         clock: Callable[[], float] = time.monotonic,
-        today: Callable[[], date] = _utc_today,
+        today: Callable[[], date] = quota_day,
     ) -> None:
         self._api_key = api_key
         self._chains = chains
@@ -268,8 +273,10 @@ class Gateway:
             result = ClientFailure(kind=ModelFailure.OTHER)
         outcome: ModelFailure | tuple[str, BaseModel | None, int, int] | None
         tokens_in = tokens_out = 0
+        failure_kind: FailureKind | None = None
         if isinstance(result, ClientFailure):
             outcome, status = result.kind, _CALL_STATUS[result.kind]
+            failure_kind = result.detail or _DEFAULT_KIND.get(result.kind)
         elif isinstance(result, ClientOk):
             tokens_in, tokens_out = result.tokens_in, result.tokens_out
             parsed = self._usable(result.text, response_model)
@@ -279,7 +286,18 @@ class Gateway:
                 outcome, status = (result.text, parsed[0], tokens_in, tokens_out), AiCallStatus.OK
         else:  # not a ClientResult at all: garbage from the client
             outcome, status = None, AiCallStatus.ERROR
-        self._record(spec, number, purpose, user_id, run_id, status, tokens_in, tokens_out, began)
+        self._record(
+            spec,
+            number,
+            purpose,
+            user_id,
+            run_id,
+            status,
+            tokens_in,
+            tokens_out,
+            began,
+            failure_kind,
+        )
         return outcome
 
     @staticmethod
@@ -307,6 +325,7 @@ class Gateway:
         tokens_in: int,
         tokens_out: int,
         began: float,
+        failure_kind: FailureKind | None = None,
     ) -> None:
         """Bookkeeping must never change the result or raise: log a code and move on."""
         latency = self._ms(began)
@@ -314,7 +333,7 @@ class Gateway:
             record_attempt(
                 self._sessions, user_id=user_id, run_id=run_id, purpose=purpose,
                 model=spec.name, attempt=number, status=status, tokens_in=tokens_in,
-                tokens_out=tokens_out, latency_ms=latency,
+                tokens_out=tokens_out, latency_ms=latency, failure_kind=failure_kind,
             )  # fmt: skip
         except Exception:  # noqa: BLE001
             logger.error("ai bookkeeping failed code=%s", "AI_RECORD_FAILED")

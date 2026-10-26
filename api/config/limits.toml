@@ -78,6 +78,28 @@ sse_ping_seconds = 15
 # A stream closes after this many seconds; the browser reconnects with Last-Event-ID. Above run_hard_limit_seconds.
 sse_max_seconds = 330
 
+# --- Run quotas (P10a) ---
+# PLACEHOLDERS: the owner replaces these after reading the real Google rate-limit page (aistudio.google.com/rate-limit).
+#
+# HOW THE CAPS INTERACT. Two kinds of daily cap exist and both use the UTC day (app.core.clock.quota_day):
+#   - run caps (below): checked once, at POST /runs, before the run is created. Refused with DAILY_CAP_USER / DAILY_CAP_GLOBAL.
+#   - model-call caps (daily_calls_per_user / daily_calls_global above): checked by the gateway before every model request.
+# A real Ask run makes about 3 model calls (Owl, Beaver, Cat; measured on 20 real runs in the dev database, none needed a
+# fallback), and up to 5 when a retry or a fallback model is used. So with the values in this file:
+#   - per user: 10 runs x 3 calls = 30 calls, under the 50-call cap. The RUN cap (daily_runs_per_user) binds first.
+#   - whole site: 200 calls / 3 = about 66 runs, far under the 200-run cap. The CALL cap (daily_calls_global) binds first.
+# When you raise one number, raise the other with it: calls needed = runs x 3 to 5.
+
+# Runs one user may start per UTC day. A run that ends rejected (a cap) or model_busy gives its slot back.
+daily_runs_per_user = 10
+
+# Runs the whole site may start per UTC day. Same refund rule.
+daily_runs_global = 200
+
+# Answered or partial runs a Free-plan user gets in total, not per day (DATA.md usage_events; DECISIONS #195).
+# Counted from usage_events. Failed, rejected, busy and not-answerable runs do not use one.
+free_runs = 2
+
 # --- Ask agents (P8a) ---
 
 # What the model sees of the CSV. Owner-approved proposal for P8a; no doc gives numbers. The CSV is untrusted data,

@@ -5,7 +5,7 @@ from decimal import Decimal
 from sqlalchemy import CheckConstraint, ForeignKey, Index, Numeric, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.enums import AiCallStatus, AiPurpose, UsageKind
+from app.core.enums import AiCallStatus, AiPurpose, FailureKind, UsageKind
 from app.db.base import Base, created_at_col, enum_check, uuid_pk
 
 
@@ -34,6 +34,8 @@ class AiCall(Base):
         Numeric(10, 6), default=Decimal(0), server_default=text("0")
     )
     latency_ms: Mapped[int] = mapped_column(default=0, server_default=text("0"))
+    # A closed code (FailureKind) for a failed request, so the cause of a fallback is not hidden.
+    failure_kind: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[created_at_col]
 
     __table_args__ = (
@@ -44,6 +46,7 @@ class AiCall(Base):
         CheckConstraint("est_cost_usd >= 0", name="est_cost_usd"),
         enum_check("purpose", AiPurpose, "purpose"),
         enum_check("status", AiCallStatus, "status"),
+        enum_check("failure_kind", FailureKind, "failure_kind"),  # NULL passes a CHECK
     )
 
 
@@ -93,6 +96,14 @@ class UsageEvent(Base):
         Index("ix_usage_events_user_id_created_at", "user_id", "created_at"),
         Index("ix_usage_events_created_at", "created_at"),
         Index("ix_usage_events_run_id", "run_id"),
+        # One quota row per run: finishing twice cannot count a run twice. NULL run ids (a deleted
+        # run) are distinct, so they never collide.
+        Index(
+            "uq_usage_events_run_id_run",
+            "run_id",
+            unique=True,
+            postgresql_where=text("kind = 'run'"),
+        ),
         CheckConstraint("amount > 0", name="amount"),
         enum_check("kind", UsageKind, "kind"),
     )

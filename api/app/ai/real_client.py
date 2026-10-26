@@ -21,7 +21,7 @@ import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 from app.ai.client import ClientFailure, ClientOk, ClientResult
-from app.core.enums import ModelFailure
+from app.core.enums import FailureKind, ModelFailure
 
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 MAX_BODY_BYTES = 1024 * 1024  # about 1 MB; a reply that big is not an answer we want
@@ -76,9 +76,9 @@ def _parse_answer(body: bytes) -> ClientResult:
             usage.get("thoughtsTokenCount")
         )
     except (ValueError, KeyError, IndexError, TypeError, AttributeError):
-        return ClientFailure(kind=ModelFailure.BAD_RESPONSE)
+        return ClientFailure(kind=ModelFailure.BAD_RESPONSE, detail=FailureKind.BAD_JSON)
     if not text.strip():
-        return ClientFailure(kind=ModelFailure.BAD_RESPONSE)
+        return ClientFailure(kind=ModelFailure.BAD_RESPONSE, detail=FailureKind.BAD_JSON)
     return ClientOk(text=text, tokens_in=tokens_in, tokens_out=tokens_out)
 
 
@@ -90,6 +90,23 @@ def _status_failure(status: int) -> ModelFailure | None:
     if status >= 500:
         return ModelFailure.SERVER_ERROR
     return ModelFailure.OTHER
+
+
+def _status_detail(status: int) -> FailureKind | None:
+    """The stored cause of a non-200 answer. 429 has none: its call status already says it."""
+    if status == 429:
+        return None
+    named = {
+        400: FailureKind.HTTP_400,
+        401: FailureKind.HTTP_401,
+        403: FailureKind.HTTP_403,
+        404: FailureKind.HTTP_404,
+    }
+    if status in named:
+        return named[status]
+    if status >= 500:
+        return FailureKind.HTTP_5XX
+    return FailureKind.HTTP_4XX if 400 <= status < 500 else FailureKind.OTHER
 
 
 class GeminiRestClient:
@@ -172,14 +189,15 @@ class GeminiRestClient:
             ):
                 failure = _status_failure(response.status_code)
                 if failure is not None:
-                    return ClientFailure(kind=failure)
+                    return ClientFailure(kind=failure, detail=_status_detail(response.status_code))
                 body = _read_bounded(response, deadline=deadline, mono=self._mono, stop=stop)
         except httpx.TimeoutException:
             return ClientFailure(kind=ModelFailure.TIMEOUT)
         except Exception:  # noqa: BLE001  # any transport error; its text could hold the URL
-            return ClientFailure(kind=ModelFailure.OTHER)
+            return ClientFailure(kind=ModelFailure.OTHER, detail=FailureKind.TRANSPORT)
         if isinstance(body, ModelFailure):
-            return ClientFailure(kind=body)
+            too_large = body is ModelFailure.BAD_RESPONSE
+            return ClientFailure(kind=body, detail=FailureKind.TOO_LARGE if too_large else None)
         return _parse_answer(body)
 
 

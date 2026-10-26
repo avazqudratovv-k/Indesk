@@ -6,7 +6,7 @@ from fastapi import Depends, FastAPI
 from app.core.bodylimit import MULTIPART_OVERHEAD, BodyLimitMiddleware
 from app.core.config import get_settings
 from app.core.errors import register_error_handlers
-from app.routers import auth, health, me, reports, runs, uploads
+from app.routers import auth, health, me, reports, runs, uploads, usage
 from app.routers.deps import check_write_request
 
 
@@ -38,3 +38,4 @@ app.include_router(me.router, prefix="/api")
 app.include_router(uploads.router, prefix="/api")
 app.include_router(runs.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
+app.include_router(usage.router, prefix="/api")

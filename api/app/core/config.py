@@ -8,6 +8,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    NonNegativeInt,
     PositiveFloat,
     PositiveInt,
     SecretStr,
@@ -50,6 +51,10 @@ class Limits(BaseModel):
     sse_poll_seconds: PositiveFloat
     sse_ping_seconds: PositiveFloat
     sse_max_seconds: PositiveFloat
+    # Run quotas (P10a). PLACEHOLDERS: the owner replaces them after reading Google's rate limits.
+    daily_runs_per_user: PositiveInt
+    daily_runs_global: PositiveInt
+    free_runs: NonNegativeInt
     # Ask agents (P8a).
     profile_sample_rows: PositiveInt
     profile_sample_columns: PositiveInt
