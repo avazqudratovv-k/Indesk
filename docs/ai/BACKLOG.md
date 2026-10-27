@@ -12,7 +12,24 @@
 
 ## Ideas
 - [x] ~~Add an additive `lang` field to the report~~ Done in P10b (#254); the web still has to use it (ROADMAP 5.1)
-- [ ] `TOO_MANY_STREAMS` (429) handling in the web: EventSource cannot read an error body (#260) — priority: not set
+- [x] ~~`TOO_MANY_STREAMS` (429) handling in the web~~ Done in P11 B2 with a probe request (#264)
 - [ ] Retry endpoint for a failed agent (`POST /runs/{id}/steps/{step}/retry`, DATA.md) — priority: not set (#260)
 - [ ] `ai_calls.est_cost_usd`: still 0; wire it only if internal monitoring needs it (#217, #260) — priority: not set
 - [ ] Korean example report for `GET /api/example` (only English exists, #253) — priority: not set
+
+## After the first deploy (added 2026-10-27, priorities not set)
+- [ ] Off-box backup copy (backups stay on the same machine today, #270)
+- [ ] Report purge job: `expires_at` only hides a report, the row and its evidence stay
+- [ ] Remove `retention_days` from the offer types (the web no longer shows it, #263)
+- [ ] The sign-up limit (5 per hour per IP) blocks repeated browser checks: add a test-user fixture
+- [ ] File picker and copy for Check and Compare, before those modes ship
+- [ ] Delete the mock-only strings and the mock report code
+- [ ] Cat lane: the third claim is clipped at 390 px on the Home film
+- [ ] Fonts are loaded from Google at runtime (privacy and speed)
+- [ ] Repeat the `X-Forwarded-For` check after Next upgrades
+- [ ] Run a maximum-size CSV against the 1 GB sandbox
+- [ ] Optional nginx rate limit in front of the app
+- [ ] Email verification (ROADMAP 5.8)
+- [ ] README note: "weekday" includes public holidays in the September data
+- [ ] Title casing at the source (Owl) instead of the display-only CSS capital (#264)
+- [ ] A "My reports" list and an account page (Tier B)

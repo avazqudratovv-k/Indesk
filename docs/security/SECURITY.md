@@ -1,6 +1,6 @@
 # SECURITY.md — Indesk (first draft)
 
-Lives at: `docs/security/SECURITY.md`. Last updated 2026-10-27 (HEAD 43dd394; the superuser role item is closed by migration 0004, the role split and the role test; owner-only `DELETE /uploads/{id}` added). Sections 1 to 5 were written on 2026-10-25 and are still mostly **Planned**. Section 6 and 7 below describe what is built; each control says whether a test exists. **Built is not the same as verified:** the tests named here were not re-run in the docs batch of 2026-10-26, and nothing was checked against a deployed server. Unless a line says "test exists", read it as not verified.
+Lives at: `docs/security/SECURITY.md`. Last updated 2026-10-27 (HEAD 12a069a; first deploy; the `compose.yaml` mount and the SSE `no-transform` items are closed; three controls are verified on the live server, see section 7a). Sections 1 to 5 were written on 2026-10-25 and are still mostly **Planned**. Section 6 and 7 below describe what is built; each control says whether a test exists. **Built is not the same as verified:** the tests named here were not re-run in the docs batch of 2026-10-26, and nothing was checked against a deployed server. Unless a line says "test exists", read it as not verified.
 
 ## 1. The three most realistic ways someone could misuse Indesk
 ### 1. A poisoned file (prompt injection, malware, harmful content)
@@ -106,26 +106,34 @@ Replaces the earlier `dev_session` item. The `dev_session` cookie and the mock s
 ### Upload delete (P10c, DECISIONS #257)
 - `DELETE /api/uploads/{id}` is owner only. Another user's or a missing upload gives 404; an upload used by an active run gives 409 `UPLOAD_IN_USE`. The stored object is removed, the row is kept as deleted, and an audit row is written. Tested in P10c as reported; not re-run in this batch except as part of the full api suite run at the end of it.
 - No other control changed status in this docs batch.
+### 7a. The deployed stack (P12, first deploy 2026-10-27)
+Checked by hand on https://indesk.76-13-198-17.sslip.io, as reported by the owner. No automated test covers these on the live server, and nothing was re-run in this docs batch.
+- **Verified on the live server:** `Secure` and `HttpOnly` on both cookies over HTTPS; the real proxy chain (host nginx overwrites `X-Forwarded-For`, `TRUSTED_PROXIES` is the pinned edge subnet, #269); the run stream through nginx arrives live, line by line.
+- **Config tests (CI):** `tests/test_compose_prod.py` checks `compose.prod.yaml` (as named in the P12 commit; not re-run line by line here).
+- **Not verified:** sandbox network isolation on the deployed stack (a malicious script cannot reach the network); the role split on the live database; that the Gemini key never appears in logs on the server.
+- Only `web` is published (127.0.0.1:4100); db and redis sit on an internal network; the Gemini key reaches the worker only (#268).
 ### Redis test guard (P7)
 - Tests use Redis database 15 only. A guard fails the suite at start if the test URL is database 0 and refuses a connection pool for any other database, so a test cannot flush the dev queue or reset dev rate limits (#172). Never run `FLUSHDB` on production.
 ### Runs
 - Run limits: soft timeout 180 s, job kill 240 s, hard limit 300 s, 60,000 tokens, step cap 12, one retry (#167). A run that dies is ended by the reaper (#168). Failures are fixed reason codes, never model messages (#166).
 
 ## 8. Known gaps
-- ~~**Superuser database role (deploy blocker).**~~ **Closed in P10c (be59343).** Migration 0004 and the role split: `indesk_migrator` owns the database and runs DDL; `indesk_app` has SELECT, INSERT, UPDATE, DELETE only, no CREATE, no TRUNCATE, and cannot read `alembic_version` (#118, #255). The role test proves DROP, ALTER, CREATE and TRUNCATE fail for the app role. Still not verified on a deployed stack (`compose.prod.yaml` is a skeleton and was only checked with `docker compose config`).
+- ~~**Superuser database role (deploy blocker).**~~ **Closed in P10c (be59343).** Migration 0004 and the role split: `indesk_migrator` owns the database and runs DDL; `indesk_app` has SELECT, INSERT, UPDATE, DELETE only, no CREATE, no TRUNCATE, and cannot read `alembic_version` (#118, #255). The role test proves DROP, ALTER, CREATE and TRUNCATE fail for the app role. The production stack (`compose.prod.yaml`, P12) is deployed; the role test exists (#255) but the role split on the live server was not separately checked.
 - **Shared kernel.** The sandbox shares the host kernel; a kernel escape is not ruled out (#147).
 - **No malware scan.** ClamAV is not built; uploads stay `moderation=pending` and are never marked `passed` (#132, #138). No image moderation (Tier C).
-- **`compose.yaml` is mounted into the `api` container** for a test; remove it before deploy (#152).
+- ~~**`compose.yaml` is mounted into the `api` container** for a test.~~ **Closed** (#152, #256): the mounts live in `compose.override.yaml` (dev only), and `compose.prod.yaml` is standalone and has none (#268).
 - **Access token lives up to 15 minutes after logout** (#125).
 - **No retention cleanup yet** for `ai_calls`, `usage_events` and `audit_log` (90 days) and no report retention (ROADMAP 3.16).
 - **Sharing, people search and payments are not built**, so their access rules in section 1 and 3 are still plans. Owner-only report reads exist (P9, section 7).
-- **SSE stream** lacks `Cache-Control: no-transform`; `TOO_MANY_STREAMS` is shown as an anonymous error (STATE, API gaps).
-- The deploy checklist in `STATE.md` lists the remaining settings (proxy list, origins, Secure cookies, nginx buffering).
+- ~~**SSE stream** lacks `Cache-Control: no-transform`.~~ **Closed** (#257): the stream sends `no-cache, no-transform`, and nginx has no buffering or gzip on the events route (#269). `TOO_MANY_STREAMS` is now named in the web by a probe request (#264).
+- **Open sign-up without email verification** is accepted at launch. The run caps, the 3 free runs per account and the owner's monthly spend limit in Google AI Studio are the guard. Email verification is ROADMAP 5.8 (#273).
+- **Backups keep deleted data for up to 7 days** (daily dump, 7 kept, on the same machine, #270). The privacy text must say so. There is no off-box copy yet (BACKLOG).
+- The deploy checklist in `STATE.md` lists what was set at deploy.
 
 ## 9. Items for the security pass (ROADMAP 5.4)
 All **not verified** yet.
 - Plant a `dev_session` cookie against a production build: no longer needed, the cookie code was removed. Instead confirm `/dev/*` still returns 404 in production (DECISIONS #67) and `?mockOutcome` is ignored (#82).
-- Walk through sections 6 to 8 against the deployed stack: cookies are `Secure`, the proxy list is right, the app role cannot drop tables, the sandbox cannot reach the network or the other services, the key never appears in the browser or in logs.
+- Walk through sections 6 to 8 against the deployed stack (cookies and the proxy chain are done, 7a): ~~cookies are `Secure`, the proxy list is right,~~ the app role cannot drop tables, the sandbox cannot reach the network or the other services, the key never appears in the browser or in logs.
 - The demo checkout makes no network request and stores nothing when card details are typed: with the network panel open and storage inspected (cookies, local and session storage, URL), type a card and finish or decline the payment; confirm no request carries the values and nothing is stored (DECISIONS #77).
 
 ## OPEN questions in this file

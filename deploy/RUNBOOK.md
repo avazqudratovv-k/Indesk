@@ -160,6 +160,14 @@ systemctl reload nginx
 curl -sI https://ticketzy.uz
 ```
 
+Do the same for every other site's URL on this server (for example its API host, like `https://api.ticketzy.uz`), one command per site:
+
+```
+curl -sI https://<other site's URL>
+```
+
+Each must answer as it did before step 8.
+
 ## 10. HTTPS
 
 ```
@@ -295,6 +303,8 @@ git pull
 docker compose -f compose.prod.yaml build
 ```
 
+**Warning: `build` alone restarts nothing.** The old containers keep running the old code until you run the next command. Do not skip it.
+
 ```
 docker compose -f compose.prod.yaml up -d
 ```
@@ -319,8 +329,16 @@ git checkout <previous commit>
 docker compose -f compose.prod.yaml build
 ```
 
+Remember: `build` alone restarts nothing.
+
 ```
 docker compose -f compose.prod.yaml up -d
+```
+
+When the rollback is over (or after you fix the problem and want to update again), go back to the branch. Without this the server stays on a detached commit and the next `git pull` fails:
+
+```
+git checkout main
 ```
 
 ## Logs
@@ -367,25 +385,39 @@ docker compose -f compose.prod.yaml up -d
 
 ## Switch to indesk.uz
 
+Two rules, because the server's nginx file for Indesk has been changed by certbot (it added the 443 part and the redirect):
+- Do NOT copy `deploy/nginx/indesk.conf` over `/etc/nginx/conf.d/indesk.conf`. That erases the certbot lines and HTTPS stops working.
+- Do NOT edit `deploy/nginx/indesk.conf` inside the repo folder on the server. It makes `git pull` fail on the next update.
+
+The simple, safe path: edit `server_name` in the installed file `/etc/nginx/conf.d/indesk.conf` directly, in both server blocks, and let certbot extend the existing certificate with `--expand`. The repo file stays untouched.
+
 1. In the domain's DNS, add an A record `indesk.uz` pointing to `76.13.198.17`. Wait until it resolves.
 
 ```
 dig +short indesk.uz
 ```
 
-2. Change `server_name` in the nginx file to list both names.
+2. Back up nginx and take the checksum of the other site's file (as in step 7).
 
 ```
-nano deploy/nginx/indesk.conf
+cp -a /etc/nginx /root/nginx-backup-$(date +%Y%m%d-%H%M)
 ```
 
-The line becomes: `server_name indesk.76-13-198-17.sslip.io indesk.uz;`
+```
+md5sum /etc/nginx/conf.d/ticketzy.conf
+```
 
-3. Take the checksum and the nginx backup again (steps 7), copy the file, test and reload.
+3. Open the installed file.
 
 ```
-cp deploy/nginx/indesk.conf /etc/nginx/conf.d/indesk.conf
+nano /etc/nginx/conf.d/indesk.conf
 ```
+
+There are two `server` blocks (port 443 and the port 80 redirect). In BOTH, change the line so it lists both names, keeping everything else as it is:
+
+`server_name indesk.76-13-198-17.sslip.io indesk.uz;`
+
+4. Test and reload.
 
 ```
 nginx -t
@@ -395,23 +427,47 @@ nginx -t
 systemctl reload nginx
 ```
 
-4. Get the certificate for the new name.
+5. Get one certificate that covers both names. Name both hosts, and keep `--expand`:
 
 ```
-certbot --nginx -d indesk.uz
+certbot --nginx -d indesk.76-13-198-17.sslip.io -d indesk.uz --expand
 ```
 
-5. Allow both origins in `.env` while people still use the old address: `ALLOWED_ORIGINS=https://indesk.76-13-198-17.sslip.io,https://indesk.uz`
+6. Allow both origins in `.env` while people still use the old address: `ALLOWED_ORIGINS=https://indesk.76-13-198-17.sslip.io,https://indesk.uz`
 
 ```
 nano .env
 ```
 
-6. Recreate the services so they read the new value. No rebuild is needed: the web image has no host name in it, and the browser always calls its own origin.
+7. Recreate the services so they read the new value. No rebuild is needed: the web image has no host name in it, and the browser always calls its own origin.
 
 ```
 docker compose -f compose.prod.yaml up -d
 ```
 
-7. Check `https://indesk.uz`: sign up, upload and run one question. Later, remove the old host from `ALLOWED_ORIGINS` and run the same `up -d` again.
-8. Check the Ticketzy checksum and `curl -sI https://ticketzy.uz` again (steps 11).
+8. Check `https://indesk.uz`: sign up, upload and run one question. Later, remove the old host from `ALLOWED_ORIGINS` and run the same `up -d` again.
+9. Check the Ticketzy checksum again. It must be identical to step 2.
+
+```
+md5sum /etc/nginx/conf.d/ticketzy.conf
+```
+
+10. Check every other site's URL on this server still answers (as in step 9 above):
+
+```
+curl -sI https://ticketzy.uz
+```
+
+If something goes wrong, restore the backup from step 2 (use its real folder name), then test and reload:
+
+```
+cp -a /root/nginx-backup-<date>/. /etc/nginx/
+```
+
+```
+nginx -t
+```
+
+```
+systemctl reload nginx
+```
