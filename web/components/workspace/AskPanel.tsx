@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import DemoNotice from "@/components/ui/DemoNotice";
 import { apiErrorKey, retryMinutes, ApiError } from "@/lib/api/errors";
@@ -18,6 +18,9 @@ import TeamReady from "./TeamReady";
 import UploadInfo from "./UploadInfo";
 import { useWorkspaceFiles } from "./use-workspace-files";
 import styles from "./AskPanel.module.css";
+
+// Nothing else writes the saved choice while the page is open, so there is nothing to subscribe to.
+const subscribeNever = () => () => {};
 
 export type RunSummary = { mode: WorkspaceMode; fileCount: number; question: string };
 
@@ -52,7 +55,16 @@ export default function AskPanel({ userId, freeLeft, plan, onRun, submit }: { us
   const [announcement, setAnnouncement] = useState("");
   const { slots, errors, add, remove } = useWorkspaceFiles(mode);
   // Whether the sample is on offer: off after the person removed it (kept per user) or chose a file of their own (this visit only).
-  const [sampleOn, setSampleOn] = useState(() => !readSampleDismissed(userId));
+  // The saved choice is read through useSyncExternalStore: while hydrating React uses the server snapshot (null), so the
+  // first client render equals the server render (a hidden card of the same height), then switches to the browser value
+  // before the next paint. Local changes (remove, own file, use sample) win over it, so it needs no subscription.
+  const saved = useSyncExternalStore(
+    subscribeNever,
+    () => !readSampleDismissed(userId),
+    () => null,
+  );
+  const [changed, setSampleOn] = useState<boolean | null>(null);
+  const sampleOn = changed ?? saved;
   const [preparing, setPreparing] = useState(false);
   const [sampleFailed, setSampleFailed] = useState(false);
   const sampleFile = useRef<SlotFile | null>(null);
@@ -61,7 +73,9 @@ export default function AskPanel({ userId, freeLeft, plan, onRun, submit }: { us
   const question = questions[mode];
   const trimmed = question.trim();
   const slotIds = MODE_SLOTS[mode];
-  const sampleActive = mode === "ask" && sampleOn && slots.files.length === 0;
+  // sampleShown: the card takes its place (hidden while sampleOn is still null). sampleActive: it counts as the file to run.
+  const sampleShown = mode === "ask" && sampleOn !== false && slots.files.length === 0;
+  const sampleActive = sampleShown && sampleOn === true;
   const fileCount = slotIds.reduce((sum, id) => sum + slots[id].length, 0) + (sampleActive ? 1 : 0);
 
   function need(): Need | null {
@@ -89,7 +103,7 @@ export default function AskPanel({ userId, freeLeft, plan, onRun, submit }: { us
   function handleAdd(slot: SlotId, files: File[]) {
     const result = add(slot, files);
     // A file of their own replaces the pending sample (nothing was uploaded for it, so nothing is lost).
-    if (slot === "files" && result.added.length > 0 && sampleOn) setSampleOn(false);
+    if (slot === "files" && result.added.length > 0 && sampleOn !== false) setSampleOn(false);
     const parts: string[] = [];
     if (result.added.length === 1) parts.push(t("upload.announceAddedOne", { name: result.added[0] }));
     else if (result.added.length > 1) parts.push(t("upload.announceAddedMany", { count: result.added.length }));
@@ -176,9 +190,13 @@ export default function AskPanel({ userId, freeLeft, plan, onRun, submit }: { us
           <h2 className={styles.cardTitle}>{t(stepFiles)}</h2>
           {mode === "ask" ? (
             <>
-              {sampleActive ? <SampleFile attached locked={busy} onRemove={removeSample} onUse={useSample} /> : null}
+              {sampleShown ? (
+                <div className={sampleOn === null ? styles.samplePending : undefined} aria-hidden={sampleOn === null || undefined} inert={sampleOn === null || undefined}>
+                  <SampleFile attached locked={busy} onRemove={removeSample} onUse={useSample} />
+                </div>
+              ) : null}
               {slot("files", { csvOnly: true })}
-              {!sampleActive && slots.files.length === 0 ? <SampleFile attached={false} locked={busy} onRemove={removeSample} onUse={useSample} /> : null}
+              {!sampleShown && slots.files.length === 0 ? <SampleFile attached={false} locked={busy} onRemove={removeSample} onUse={useSample} /> : null}
             </>
           ) : null}
           {mode === "check" ? (
@@ -213,8 +231,9 @@ export default function AskPanel({ userId, freeLeft, plan, onRun, submit }: { us
               key={mode}
               value={question}
               onChange={(value) => setQuestions((all) => ({ ...all, [mode]: value }))}
-              placeholder={mode === "ask" ? (sampleActive ? t("question.placeholder") : t("question.placeholderOwn")) : t("question.focusPlaceholder")}
-              chips={sampleActive}
+              placeholder={mode === "ask" ? (sampleShown ? t("question.placeholder") : t("question.placeholderOwn")) : t("question.focusPlaceholder")}
+              chips={sampleShown}
+              chipsHidden={sampleOn === null}
             />
           )}
           <div className={styles.runBar}>

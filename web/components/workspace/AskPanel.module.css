@@ -145,3 +145,8 @@
   font-size: 14px;
   line-height: 1.45;
 }
+
+/* The sample card before the saved choice is known: keeps its height, shows nothing (no flash for people who removed it). */
+.samplePending {
+  visibility: hidden;
+}

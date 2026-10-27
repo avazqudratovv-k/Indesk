@@ -12,10 +12,12 @@ type Props = {
   onChange: (value: string) => void;
   placeholder: string;
   chips?: boolean;
+  // Keeps the chips' space but shows nothing (the page does not yet know whether to offer them).
+  chipsHidden?: boolean;
 };
 
 // Question textarea with the board's example chips. The text is trimmed and limited to 1,000 characters when a run starts.
-export default function QuestionBox({ value, onChange, placeholder, chips }: Props) {
+export default function QuestionBox({ value, onChange, placeholder, chips, chipsHidden }: Props) {
   const t = useTranslations("workspace");
   const ids = useId();
   const area = useRef<HTMLTextAreaElement>(null);
@@ -53,7 +55,7 @@ export default function QuestionBox({ value, onChange, placeholder, chips }: Pro
         ) : null}
       </div>
       {examples.length > 0 ? (
-        <div className={styles.chips} role="group" aria-label={t("question.chipsLabel")}>
+        <div className={styles.chips} role="group" aria-label={t("question.chipsLabel")} style={chipsHidden ? { visibility: "hidden" } : undefined} aria-hidden={chipsHidden || undefined} inert={chipsHidden || undefined}>
           {examples.map((chip) => (
             <button
               key={chip.text}
