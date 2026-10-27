@@ -230,9 +230,15 @@ def test_a_missing_extension_stops_the_migration_with_a_clear_message(database_u
     """The migrator cannot create pgvector (only a superuser can); the migration says what to do."""
     url = recreate_database("indesk_test_migrations", vector=False)
     admin = create_engine(admin_url().set(database="postgres"), isolation_level="AUTOCOMMIT")
-    with admin.connect() as conn:
-        conn.execute(text(f"ALTER DATABASE indesk_test_migrations OWNER TO {MIGRATOR}"))  # noqa: S608
-    admin.dispose()
-    config = alembic_config(as_role(url, MIGRATOR).render_as_string(hide_password=False))
-    with pytest.raises(Exception, match="CREATE EXTENSION vector"):
-        command.upgrade(config, "head")
+    try:
+        with admin.connect() as conn:
+            conn.execute(text(f"ALTER DATABASE indesk_test_migrations OWNER TO {MIGRATOR}"))  # noqa: S608
+        config = alembic_config(as_role(url, MIGRATOR).render_as_string(hide_password=False))
+        with pytest.raises(Exception, match="CREATE EXTENSION vector"):
+            command.upgrade(config, "head")
+    finally:
+        # The module fixture drops the roles it made (CI has none); a role that still owns a
+        # database cannot be dropped, so this database must not outlive the test.
+        with admin.connect() as conn:
+            conn.execute(text('DROP DATABASE IF EXISTS "indesk_test_migrations" WITH (FORCE)'))
+        admin.dispose()
