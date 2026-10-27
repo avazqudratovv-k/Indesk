@@ -10,6 +10,11 @@ Hound's search payload (mode, pages, scores; no passage text), the embedding row
 the estimated cost, and the report's claims with doc_quote / doc_location / doc_value. The owner runs
 it live in P14b; nothing here has run against real Gemini.
 
+--reset-quota (dev helper): before the run, deletes the smoke account's own `run` usage_events and
+its own rl:login / rl:signup / rl:run Redis keys (its IP and email only), so repeated calibration
+runs are not stopped by the free-run total or the hourly limits. It refuses to do anything unless
+APP_ENV=development. It does not touch usage_daily (the daily caps), other users or other keys.
+
 It logs in as one throwaway user (signing it up the first time; signup is limited to 5 per hour per
 IP) and reuses that user's upload of the same file name while it is still stored. It posts the run,
 follows it until it ends, then prints the outcome, the trace lines, one row per model call (model,
@@ -25,9 +30,11 @@ prints a prompt: prompts are not stored anywhere."""
 import argparse
 import http.cookiejar
 import json
+import socket
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 from pathlib import Path
@@ -35,10 +42,14 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # so `app` imports from /app/scripts
 
-from sqlalchemy import text  # noqa: E402
+from sqlalchemy import delete, select, text  # noqa: E402
 from sqlalchemy.orm import Session  # noqa: E402
 
-from app.core.config import get_settings  # noqa: E402
+from app.core.config import Settings, get_settings  # noqa: E402
+from app.core.enums import UsageKind  # noqa: E402
+from app.core.ratelimit import redis_client  # noqa: E402
+from app.core.security import keyed_hash  # noqa: E402
+from app.db.models import UsageEvent, User  # noqa: E402
 from app.db.session import get_engine  # noqa: E402
 
 ORIGIN = "http://localhost:3000"  # an allow-listed origin: writes are refused without one
@@ -133,6 +144,47 @@ def follow(api: Api, run_id: str) -> dict[str, Any]:
     sys.exit("the run did not finish in time")
 
 
+def own_ip(api_base: str) -> str | None:
+    """The address the API sees for this script: the local address of a UDP socket aimed at the API
+    host (nothing is sent). None when it cannot be worked out."""
+    host = urllib.parse.urlsplit(api_base).hostname or "localhost"
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+            probe.connect((host, 9))
+            return str(probe.getsockname()[0])
+    except OSError:
+        return None
+
+
+def reset_quota(settings: Settings, db: Session, redis: Any, ip: str | None) -> list[str]:
+    """Dev only: clear what stops the smoke account from running again. Refuses (SystemExit with a
+    message) in any environment but development, before touching anything. Returns what it did."""
+    if settings.app_env != "development":
+        sys.exit(
+            f"--reset-quota refused: APP_ENV is {settings.app_env!r}, it only works in development."
+        )
+    if settings.auth_secret is None:
+        sys.exit("--reset-quota needs the auth secret to compute the Redis keys.")
+    secret = settings.auth_secret.get_secret_value()
+    done: list[str] = []
+    keys: list[str] = list(redis.scan_iter(match=f"rl:login:*:{keyed_hash(secret, EMAIL)}"))
+    if ip is not None:
+        keys.append(f"rl:signup:{keyed_hash(secret, ip)}")
+    user_id = db.scalar(select(User.id).where(User.email == EMAIL))
+    if user_id is not None:
+        keys.append(f"rl:run:{user_id}")
+        gone = db.scalars(
+            delete(UsageEvent)
+            .where(UsageEvent.user_id == user_id, UsageEvent.kind == UsageKind.RUN.value)
+            .returning(UsageEvent.id)
+        ).all()
+        db.commit()
+        done.append(f"usage_events (run) deleted: {len(gone)}")
+    removed = redis.delete(*keys) if keys else 0
+    done.append(f"redis rate-limit keys deleted: {removed}")
+    return done
+
+
 def dump(title: str, value: Any) -> None:
     print(f"\n--- {title}")
     print(value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, indent=2))
@@ -178,6 +230,11 @@ def inspect(run_id: str) -> None:
             continue
         if "matched" in payload and "mode" in payload:
             dump(f"Hound search (step {seq}, {key})", payload)
+            print(
+                f"cosines (raw, kept passages): {payload.get('cosines')} | "
+                f"top cosine before the floor: {payload.get('top_cosine')} | "
+                f"fused scores: {payload.get('scores')}"
+            )
         if "plan" in payload:
             dump(f"Owl plan (step {seq}, {key})", payload["plan"])
         if "code" in payload:
@@ -193,7 +250,16 @@ def main() -> None:
     parser.add_argument("csv", type=Path, help="a .csv or a .pdf file")
     parser.add_argument("--question", required=True)
     parser.add_argument("--api", default="http://api:8000/api")
+    parser.add_argument(
+        "--reset-quota", action="store_true", help="dev only: clear the smoke account's quota first"
+    )
     args = parser.parse_args()
+    if args.reset_quota:
+        settings = get_settings()
+        with Session(get_engine(settings.database_url.get_secret_value())) as db:
+            redis = redis_client(settings.redis_url.get_secret_value())
+            for line in reset_quota(settings, db, redis, own_ip(args.api)):
+                print(f"reset-quota: {line}")
     api = Api(args.api)
     sign_in(api)
     upload_id = find_or_upload(api, args.csv)

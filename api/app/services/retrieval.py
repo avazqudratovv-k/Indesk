@@ -69,6 +69,9 @@ class Passage:
     text: str
     # 0 to 1: the fused score relative to the best possible one (first in both lists).
     score: float
+    # The raw cosine similarity of the chunk to the question (0 to 1), apart from the fused score;
+    # None when the chunk came from the word search alone, or the search had no embedding.
+    cosine: float | None = None
 
 
 @dataclass(frozen=True)
@@ -77,6 +80,9 @@ class SearchOutcome:
     mode: Literal["hybrid", "keyword"]
     embed_tokens: int = 0  # embedding tokens this search used (the gateway's own count)
     cap: GatewayError | None = None  # set when a daily cap stopped the embedding: the run stops
+    # The best cosine of any chunk, before the similarity floor (None without an embedding): what
+    # the floor is tuned against.
+    top_cosine: float | None = None
 
 
 @dataclass(frozen=True)
@@ -245,7 +251,11 @@ def fuse(
 
 
 def _fetch(
-    db: Session, run_id: uuid.UUID, user_id: uuid.UUID, scored: list[tuple[uuid.UUID, float]]
+    db: Session,
+    run_id: uuid.UUID,
+    user_id: uuid.UUID,
+    scored: list[tuple[uuid.UUID, float]],
+    cosines: dict[uuid.UUID, float],
 ) -> list[Passage]:
     if not scored:
         return []
@@ -258,7 +268,9 @@ def _fetch(
     ).all()
     by_id = {r[0]: r for r in rows}
     return [
-        Passage(cid, by_id[cid][1], by_id[cid][2], by_id[cid][3], by_id[cid][4], score)
+        Passage(
+            cid, by_id[cid][1], by_id[cid][2], by_id[cid][3], by_id[cid][4], score, cosines.get(cid)
+        )
         for cid, score in scored
         if cid in by_id
     ]
@@ -327,6 +339,7 @@ def search(
     the search is by words only)."""
     terms = query_terms(question)
     vector_hits: list[tuple[uuid.UUID, float]] = []
+    cosines: dict[uuid.UUID, float] = {}  # every hit, before the floor
     tokens = 0
     mode: Literal["hybrid", "keyword"] = "keyword"
     if model is not None:
@@ -352,6 +365,7 @@ def search(
                     hits = _vector_hits(
                         db, run_id, user_id, model, asked.vectors[0], limits.retrieval_vector_k
                     )
+                cosines = {cid: round(sim, 4) for cid, sim in hits}
                 vector_hits = [h for h in hits if h[1] >= limits.retrieval_min_similarity]
                 mode = "hybrid"
     with session_factory() as db:
@@ -360,5 +374,6 @@ def search(
     text_ids = [cid for cid, text in text_rows if _term_hits(text, terms) >= need]
     fused = fuse([cid for cid, _ in vector_hits], text_ids, limits.retrieval_rrf_k)
     with session_factory() as db:
-        passages = _fetch(db, run_id, user_id, fused[: limits.retrieval_keep])
-    return SearchOutcome(passages, mode, tokens)
+        passages = _fetch(db, run_id, user_id, fused[: limits.retrieval_keep], cosines)
+    top = max(cosines.values()) if cosines else None
+    return SearchOutcome(passages, mode, tokens, top_cosine=top)

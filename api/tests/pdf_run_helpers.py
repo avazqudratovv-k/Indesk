@@ -91,6 +91,7 @@ def writer_answer(
 ) -> Step:
     """The writer's answer: one claim per quote."""
     body = {
+        "found": True,
         "title": "Hapjeong had the largest rise",
         "answer": "Hapjeong station rose the most.",
         "claim_texts": texts
@@ -100,6 +101,23 @@ def writer_answer(
         "claim_values": values if values is not None else [""] * len(quotes),
         "meaning": "The rise is large.",
         "next_steps": ["Ask about another station."],
+        **override,
+    }
+    return ok(json.dumps(body), tokens_in, tokens_out)
+
+
+def not_found_answer(tokens_in: int = 10, tokens_out: int = 5, **override: Any) -> Step:
+    """The writer's answer when the passages do not answer the question: found false, no claims."""
+    body = {
+        "found": False,
+        "title": "Not in the document",
+        "answer": "The document does not answer this question.",
+        "claim_texts": [],
+        "claim_quotes": [],
+        "claim_pages": [],
+        "claim_values": [],
+        "meaning": "",
+        "next_steps": [],
         **override,
     }
     return ok(json.dumps(body), tokens_in, tokens_out)

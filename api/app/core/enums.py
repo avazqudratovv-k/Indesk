@@ -299,7 +299,7 @@ class TraceKey(StrEnum):
     VERIFY = "verify"  # Cat checks the claims (P9); args: claims, verified
     # Hound (P14a part 2). Keys and args follow the web mock (messages workspace.live.events).
     SEARCH = "search"  # args: pages, matched (+ mode)
-    BEST_PASSAGE = "bestPassage"  # args: page, score
+    BEST_PASSAGE = "bestPassage"  # args: page, score, similarity
     SEARCH_FAILED = "searchFailed"  # args: reason, attempt
 
 

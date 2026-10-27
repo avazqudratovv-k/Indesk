@@ -22,6 +22,7 @@ from tests.pdf_run_helpers import (
     INJECTION,
     PAGES,
     make_pdf_world,
+    not_found_answer,
     pdf_rig,
     writer_answer,
 )
@@ -134,6 +135,90 @@ def test_no_passage_means_not_answerable_and_no_writer_call(factory: SessionFact
     ]
     with factory() as db:
         assert db.scalar(select(func.count()).select_from(Report)) == 0
+
+
+# ---- the passages do not answer the question (found false) ----
+
+
+def assert_not_answerable_without_report(factory: SessionFactory, world: World) -> None:
+    run = run_row(factory, world.run_id)
+    assert (run.status, run.outcome, run.counted) == ("finished", "not_answerable", False)
+    with factory() as db:
+        assert db.scalar(select(func.count()).select_from(Report)) == 0
+        assert db.scalar(select(func.count()).select_from(Claim)) == 0
+
+
+def test_found_false_ends_not_answerable_with_no_claims_and_no_report(
+    factory: SessionFactory,
+) -> None:
+    world = make_pdf_world(factory, question="What is the capital of France?")
+    rig, client = pdf_rig(factory, world, not_found_answer())
+    run_job(world.run_id, rig.deps)
+    assert_not_answerable_without_report(factory, world)
+    assert len(client.calls) == 1  # the writer was asked once; no retry, no second call
+    verify = [s for s in step_rows(factory, world.run_id) if s.key == "verify"][-1]
+    assert (verify.state, verify.args) == ("done", {"claims": 0, "verified": 0})
+    assert verify.payload is not None
+    assert verify.payload["prompt_version"] == "pdf-writer-2" and verify.payload["verdicts"] == []
+
+
+def test_found_false_wins_even_if_the_writer_still_sent_claims(factory: SessionFactory) -> None:
+    world = make_pdf_world(factory)
+    rig, _ = pdf_rig(
+        factory, world,
+        writer_answer([GOOD_QUOTE], [2], found=False, answer="The document does not say."),
+    )  # fmt: skip
+    run_job(world.run_id, rig.deps)
+    assert_not_answerable_without_report(factory, world)  # background claims are never shown
+
+
+def test_found_true_with_no_claims_is_not_answerable_too(factory: SessionFactory) -> None:
+    world = make_pdf_world(factory)
+    rig, _ = pdf_rig(factory, world, not_found_answer(found=True))
+    run_job(world.run_id, rig.deps)
+    assert_not_answerable_without_report(factory, world)
+
+
+def test_the_writer_prompt_asks_for_found_and_no_background_claims(
+    factory: SessionFactory,
+) -> None:
+    world = make_pdf_world(factory)
+    rig, client = pdf_rig(factory, world, not_found_answer())
+    run_job(world.run_id, rig.deps)
+    system = next(t for t, p in zip(client.systems, client.prompts, strict=True) if "PASSAGES" in p)
+    assert "found to false" in system and "Background facts" in system
+
+
+# ---- the cosine similarity in the Hound trace ----
+
+
+def test_hound_reports_the_raw_cosine_apart_from_the_fused_score(factory: SessionFactory) -> None:
+    world = make_pdf_world(factory)
+    rig, _ = pdf_rig(factory, world, writer_answer([GOOD_QUOTE], [2]))
+    run_job(world.run_id, rig.deps)
+    best = next(s for s in step_rows(factory, world.run_id) if s.key == "bestPassage")
+    assert 0 < best.args["similarity"] <= 1 and best.args["similarity"] != best.args["score"]
+    payload = best.payload
+    assert payload is not None and len(payload["cosines"]) == payload["matched"]
+    assert payload["cosines"][0] == best.args["similarity"]
+    assert payload["top_cosine"] is not None and payload["top_cosine"] >= max(
+        c for c in payload["cosines"] if c is not None
+    )  # the top is read before the floor
+    assert payload["scores"] != payload["cosines"]
+
+
+def test_a_word_search_only_passage_has_no_cosine(factory: SessionFactory) -> None:
+    world = make_pdf_world(factory)
+    rig, _ = pdf_rig(
+        factory, world, writer_answer([GOOD_QUOTE], [2]),
+        embed_steps=[server_error(), server_error()],
+    )  # fmt: skip
+    run_job(world.run_id, rig.deps)
+    best = next(s for s in step_rows(factory, world.run_id) if s.key == "bestPassage")
+    assert "similarity" not in best.args
+    assert best.payload is not None
+    assert best.payload["cosines"] == [None] * best.payload["matched"]
+    assert best.payload["top_cosine"] is None
 
 
 # ---- the embedding fails ----

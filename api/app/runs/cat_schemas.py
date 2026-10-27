@@ -58,21 +58,26 @@ class ClaimsOut(BaseModel):
 class PdfClaimsOut(BaseModel):
     """The writer's answer about a PDF: FLAT parallel lists, one entry per claim. claim_quotes[i] is
     copied word for word from the passage on page claim_pages[i] (pages count from 1);
-    claim_values[i] is the figure the quote gives, or "" when it has none."""
+    claim_values[i] is the figure the quote gives, or "" when it has none.
+
+    `found` is false when the passages do not answer the question: then there are NO claims (the
+    lists are empty) and the run ends not_answerable. A slip in either direction (found false with
+    claims, found true with none) is not rejected: it also ends not_answerable, claims unread."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    found: bool
     title: Annotated[str, StringConstraints(min_length=1, max_length=120)]
     answer: Annotated[str, StringConstraints(min_length=1, max_length=600)]
     claim_texts: list[Annotated[str, StringConstraints(min_length=1, max_length=240)]] = Field(
-        min_length=1, max_length=MAX_CLAIMS
+        max_length=MAX_CLAIMS
     )
     claim_quotes: list[Annotated[str, StringConstraints(max_length=300)]] = Field(
-        min_length=1, max_length=MAX_CLAIMS
+        max_length=MAX_CLAIMS
     )
-    claim_pages: list[int] = Field(min_length=1, max_length=MAX_CLAIMS)
+    claim_pages: list[int] = Field(max_length=MAX_CLAIMS)
     claim_values: list[Annotated[str, StringConstraints(max_length=60)]] = Field(
-        min_length=1, max_length=MAX_CLAIMS
+        max_length=MAX_CLAIMS
     )
     meaning: Annotated[str, StringConstraints(max_length=500)]
     next_steps: list[Annotated[str, StringConstraints(max_length=200)]] = Field(max_length=3)

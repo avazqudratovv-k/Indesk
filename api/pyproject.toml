@@ -23,6 +23,11 @@ plugins = ["pydantic.mypy"]
 module = ["pandas", "numpy", "yaml", "pypdf"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+# reportlab is a dev-only dependency for scripts/make_demo_pdf.py; its stubs are not pinned here.
+module = ["reportlab", "reportlab.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # Sandbox tests need the sandbox service; run them with `pytest -m sandbox` (see api/README.md).

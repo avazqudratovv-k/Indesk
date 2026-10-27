@@ -42,16 +42,23 @@ class HoundAgent:
         )  # fmt: skip
         if found.cap is not None:
             return failure_from_gateway(found.cap)
-        passages = [HoundPassage(page=p.page, text=p.text, score=p.score) for p in found.passages]
+        passages = [
+            HoundPassage(page=p.page, text=p.text, score=p.score, cosine=p.cosine)
+            for p in found.passages
+        ]
         payload = HoundPayload(
             mode=found.mode, matched=len(passages), pages=[p.page for p in passages],
-            scores=[p.score for p in passages], embed_tokens=found.embed_tokens,
+            scores=[p.score for p in passages], cosines=[p.cosine for p in passages],
+            top_cosine=found.top_cosine, embed_tokens=found.embed_tokens,
         )  # fmt: skip
         if passages:
             best = passages[0]
+            args: dict[str, int | float] = {"page": best.page, "score": best.score}
+            if best.cosine is not None:
+                args["similarity"] = best.cosine
             closing = TraceLine(
                 AgentKey.RETRIEVAL, StepKind.SAY, StepState.DONE, TraceKey.BEST_PASSAGE,
-                {"page": best.page, "score": best.score}, tok=found.embed_tokens,
+                args, tok=found.embed_tokens,
             )  # fmt: skip
         else:
             closing = TraceLine(

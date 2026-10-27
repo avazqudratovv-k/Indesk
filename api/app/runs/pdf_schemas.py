@@ -20,7 +20,8 @@ class HoundPassage(BaseModel):
 
     page: int
     text: str
-    score: float
+    score: float  # the fused rank score, 0 to 1
+    cosine: float | None = None  # the raw cosine similarity; None for a word-search-only passage
 
 
 class HoundResult(BaseModel):
@@ -44,4 +45,6 @@ class HoundPayload(BaseModel):
     matched: int
     pages: list[int]
     scores: list[float]
+    cosines: list[float | None]  # raw cosine of each kept passage, apart from the fused scores
+    top_cosine: float | None  # the best cosine of any chunk, before the similarity floor
     embed_tokens: int

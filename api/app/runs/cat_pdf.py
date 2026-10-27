@@ -1,7 +1,10 @@
 """Cat for a PDF. ONE writer call on the main chain (flat parallel lists, PdfClaimsOut), no executor
 retry (like Cat on a CSV); then the checks are code (cat_pdf_checks).
 
-No passages from Hound: no model call, the run ends `not_answerable`.
+No passages from Hound: no model call, the run ends `not_answerable`. The writer also says
+`found: false` (no claims) when the passages do not answer the question: same ending, no report.
+The answer text is never searched for "not in the document" wording (that would depend on the
+language): a found true with claims is trusted; the prompt and the Hound floor carry the rest.
 
 NOT VERIFIED against real Gemini: tested with the fake client."""
 
@@ -68,6 +71,13 @@ class CatPdfAgent:
             return dataclasses.replace(failure_from_gateway(asked), retryable=False)
         if not isinstance(asked.parsed, PdfClaimsOut):
             return AgentFailed(RunReason.BAD_MODEL_OUTPUT)
+        tokens = asked.tokens_in + asked.tokens_out
+        if not asked.parsed.found or not asked.parsed.claim_texts:  # does not answer: no report
+            ctx.emit(_line(StepState.DONE, tok=tokens, claims=0, verified=0), self._payload([]))
+            return AgentDone(
+                asked.tokens_in, asked.tokens_out, asked.model,
+                data=CatResult(outcome=RunOutcome.NOT_ANSWERABLE, report=None),
+            )  # fmt: skip
         with factory() as db:
             pages = retrieval.load_pages(db, ctx.run_id, ctx.user_id, hound.upload_id)
         built = build_pdf_report(asked.parsed, pages, hound.page_count, ctx.question)
@@ -76,7 +86,7 @@ class CatPdfAgent:
         draft, records = built
         ctx.emit(
             _line(
-                StepState.DONE, tok=asked.tokens_in + asked.tokens_out, claims=draft.total_claims,
+                StepState.DONE, tok=tokens, claims=draft.total_claims,
                 verified=draft.verified_count,
             ),
             self._payload(records),

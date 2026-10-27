@@ -25,7 +25,7 @@ from app.runs.profile import CsvProfile
 OWL_PROMPT_VERSION: Final = "owl-2"
 BEAVER_PROMPT_VERSION: Final = "beaver-2"
 CAT_PROMPT_VERSION: Final = "cat-2"
-PDF_WRITER_PROMPT_VERSION: Final = "pdf-writer-1"
+PDF_WRITER_PROMPT_VERSION: Final = "pdf-writer-2"
 
 
 def new_nonce() -> str:
@@ -205,8 +205,12 @@ def build_pdf_writer_prompt(
         "searched the user's PDF; you only write about the passages it found. Reply with one JSON "
         "object that matches the given schema, and nothing else. Rules: write title, answer, "
         f"claims, meaning and next steps in {language}. Use only facts that are in PASSAGES; never "
-        "use your own knowledge. If PASSAGES does not answer the question, write only what it does "
-        "say. Write 1 to 6 claims; each claim is one short sentence about one fact. For claim i: "
+        "use your own knowledge. First decide whether PASSAGES answers the question. If it does "
+        "not, set found to false, write NO claims (claim_texts, claim_quotes, claim_pages and "
+        "claim_values are empty lists), and let answer say in one sentence that the document does "
+        "not answer the question. Background facts that do not answer the question are not claims: "
+        "never offer them instead. If it does answer, set found to true and write 1 to 6 claims "
+        "that answer the question; each claim is one short sentence about one fact. For claim i: "
         "claim_quotes[i] is copied word for word from one passage (at most 300 characters; join "
         "separate parts of the same passage with ... if needed; never change, translate or "
         "complete the words), claim_pages[i] is the page number of that passage as given in "

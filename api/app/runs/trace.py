@@ -29,9 +29,10 @@ ALLOWED_ARGS: Final[Mapping[TraceKey, frozenset[str]]] = {
     TraceKey.STOPPED: frozenset({"reason", "stub"}),
     TraceKey.VERIFY: frozenset({"claims", "verified"}),
     # Hound: pages = pages of the document, matched = passages kept, mode = hybrid or keyword
-    # (a search by words alone, after the embedding failed), page and score = the best passage.
+    # (a search by words alone, after the embedding failed); page, score (fused rank) and
+    # similarity (raw cosine, left out when the passage came from words alone) = the best passage.
     TraceKey.SEARCH: frozenset({"pages", "matched", "mode"}),
-    TraceKey.BEST_PASSAGE: frozenset({"page", "score"}),
+    TraceKey.BEST_PASSAGE: frozenset({"page", "score", "similarity"}),
     TraceKey.SEARCH_FAILED: frozenset({"reason", "attempt"}),
 }
 
