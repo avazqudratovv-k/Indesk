@@ -138,7 +138,8 @@ def test_bad_requests_are_400_with_a_fixed_code() -> None:
 def test_a_second_parse_is_refused_at_once_while_one_runs() -> None:
     """One parse slot. While a slow parse runs, a second one is answered `unavailable`
     (PARSER_BUSY in the API) without waiting. (A pandas run is another container, never held up.)"""
-    slow = build_pdf([[""]], content=bomb_content(100_000))  # heavy, but far under the 5 s CPU limit
+    # heavy, but far under the 5 s CPU limit
+    slow = build_pdf([[""]], content=bomb_content(100_000))
     outcome: dict[str, Any] = {}
 
     def run_slow() -> None:
