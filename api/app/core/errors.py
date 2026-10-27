@@ -69,7 +69,7 @@ class AppError(Exception):
         code: ErrorCode,
         headers: dict[str, str] | None = None,
         *,
-        extra: dict[str, str] | None = None,
+        extra: dict[str, str | int] | None = None,
     ) -> None:
         super().__init__(code.value)
         self.status = status
@@ -82,7 +82,7 @@ def error_response(
     status: int,
     code: ErrorCode | str,
     headers: dict[str, str] | None = None,
-    extra: dict[str, str] | None = None,
+    extra: dict[str, str | int] | None = None,
 ) -> JSONResponse:
     content = {"error": {"code": str(code), **(extra or {})}}
     return JSONResponse(status_code=status, content=content, headers=headers)

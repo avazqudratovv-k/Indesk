@@ -17,7 +17,7 @@ def refused(call: object, *args: object) -> AppError:
 
 def test_limits_come_from_the_config_file_with_the_documented_numbers() -> None:
     assert LIMITS.max_file_bytes == 5 * 1024 * 1024  # DECISIONS #79
-    assert LIMITS.max_rows == 5000  # DATA.md uploads.row_count, Free
+    assert LIMITS.max_rows == 20000  # limits.toml, Free (raised from 5,000)
     assert LIMITS.max_filename_chars == 255  # DATA.md uploads.filename
     assert LIMITS.upload_ttl_hours == 24  # DATA.md uploads.expires_at
     assert LIMITS.sweep_interval_seconds == 3600  # ROADMAP 3.16
@@ -121,10 +121,12 @@ def test_rows_columns_and_shape_rules() -> None:
     small = LIMITS.model_copy(update={"max_rows": 3, "max_columns": 2})
     ok = csv_check.check_csv(b"a,b\n1,2\n\n3,4\n", small)  # a blank line is not a row
     assert ok.row_count == 2
-    assert (
-        refused(csv_check.check_csv, b"a,b\n1,2\n3,4\n5,6\n7,8\n", small).code
-        == ErrorCode.TOO_MANY_ROWS
-    )
+    over = refused(csv_check.check_csv, b"a,b\n1,2\n3,4\n5,6\n7,8\n", small)
+    assert over.code == ErrorCode.TOO_MANY_ROWS
+    assert over.extra == {"rows": 4, "max": 3}
+    # The error names the real row count (blank lines not counted), not the limit plus one.
+    many = refused(csv_check.check_csv, b"a,b\n" + b"1,2\n\n" * 9, small)
+    assert many.extra == {"rows": 9, "max": 3}
     assert refused(csv_check.check_csv, b"a,b,c\n1,2,3\n", small).code == ErrorCode.TOO_MANY_COLUMNS
     assert refused(csv_check.check_csv, b"a,b\n1,2\n3\n", small).code == ErrorCode.BAD_CSV  # ragged
     assert refused(csv_check.check_csv, b"a,b\n1,2,3\n", small).code == ErrorCode.BAD_CSV

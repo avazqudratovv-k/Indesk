@@ -114,7 +114,7 @@ def _lock_uploads(db: Session, user: User, body: RunCreate, now: datetime) -> No
 
 def _run_active(run_id: uuid.UUID | None) -> AppError:
     """409 RUN_ACTIVE; the body names the run in the way, so the browser needs no local copy."""
-    extra = {"run_id": str(run_id)} if run_id is not None else None
+    extra: dict[str, str | int] | None = {"run_id": str(run_id)} if run_id is not None else None
     return AppError(409, ErrorCode.RUN_ACTIVE, extra=extra)
 
 

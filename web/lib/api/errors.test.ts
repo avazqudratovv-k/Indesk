@@ -70,6 +70,28 @@ describe("P10 codes", () => {
   });
 });
 
+describe("TOO_MANY_ROWS counts", () => {
+  it("keeps the rows and the limit the server sent", async () => {
+    const error = await errorFromResponse(res(422, { error: { code: "TOO_MANY_ROWS", rows: 25000, max: 20000 } }));
+    expect(error.code).toBe("TOO_MANY_ROWS");
+    expect(error.rowLimit).toEqual({ rows: 25000, max: 20000 });
+  });
+
+  it("drops counts that are not whole numbers, or that come with another code", async () => {
+    expect((await errorFromResponse(res(422, { error: { code: "TOO_MANY_ROWS", rows: "9", max: 20000 } }))).rowLimit).toBeUndefined();
+    expect((await errorFromResponse(res(422, { error: { code: "TOO_MANY_ROWS", rows: 1.5, max: 20000 } }))).rowLimit).toBeUndefined();
+    expect((await errorFromResponse(res(422, { error: { code: "TOO_MANY_ROWS" } }))).rowLimit).toBeUndefined();
+    expect((await errorFromResponse(res(422, { error: { code: "BAD_CSV", rows: 5, max: 4 } }))).rowLimit).toBeUndefined();
+  });
+
+  it("has a detail message in English and Korean that uses the three values", () => {
+    for (const messages of [en, ko]) {
+      const text = (messages.apiErrors as Record<string, string>).TOO_MANY_ROWS_DETAIL;
+      for (const name of ["{name}", "{rows, number}", "{max, number}"]) expect(text).toContain(name);
+    }
+  });
+});
+
 describe("parseRetryAfter", () => {
   it("accepts whole seconds only, clamped", () => {
     expect(parseRetryAfter("30")).toBe(30);

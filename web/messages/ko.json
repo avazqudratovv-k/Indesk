@@ -279,7 +279,7 @@
     "free": [
       "무료 분석 실행, 한 번만 제공",
       "파일당 최대 5MB",
-      "CSV 최대 5,000행"
+      "CSV 최대 20,000행"
     ],
     "trustTitle": "보안 방식",
     "trust": [
@@ -1222,6 +1222,7 @@
     "FILE_TOO_LARGE": "파일이 너무 큽니다.",
     "TYPE_MISMATCH": "CSV 파일이 아닌 것 같습니다.",
     "TOO_MANY_ROWS": "행이 너무 많은 파일입니다.",
+    "TOO_MANY_ROWS_DETAIL": "{name}: 행이 {rows, number}개입니다. 최대 {max, number}개까지 가능합니다.",
     "TOO_MANY_COLUMNS": "열이 너무 많은 파일입니다.",
     "EMPTY_FILE": "비어 있는 파일입니다.",
     "BAD_CSV": "표로 읽을 수 없는 파일입니다. 일반 CSV 파일인지 확인하세요.",

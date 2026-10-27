@@ -4,8 +4,10 @@
 # Largest upload in bytes, Free plan: 5 MB. DECISIONS #79 (replaces the 2 MB in the old DATA.md); DATA.md uploads.size.
 max_file_bytes = 5242880
 
-# Most data rows (header not counted) in a CSV, Free plan. DATA.md uploads.row_count.
-max_rows = 5000
+# Most data rows (header not counted) in a CSV, Free plan. Raised from 5,000 on 2026-10-27: the model sees only
+# column names and a sample, so rows cost no tokens; the 5 MB file cap above still bounds the work. The web copy
+# (messages, plans.json) states the same number.
+max_rows = 20000
 
 # Most columns in a CSV, Free plan. Owner decision for P5 (no doc gives a number).
 max_columns = 200

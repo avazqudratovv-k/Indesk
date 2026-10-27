@@ -11,7 +11,7 @@ import { browserWatchDeps, watchRun } from "@/lib/run/live/watch";
 
 export type Connection = "live" | "lost" | "signedOut" | "tooManyStreams";
 export type SubmitStage = "idle" | "uploading" | "starting";
-export type SubmitFailure = { code: SubmitError["code"]; fileId: string | null; retryAfter?: number };
+export type SubmitFailure = { code: SubmitError["code"]; fileId: string | null; retryAfter?: number; rowLimit?: SubmitError["rowLimit"] };
 
 // The real run of the Ask tab: starting it (uploads, then POST /api/runs), following it over the event stream, and
 // finding it again after a reload or in another tab. The run id is the only thing kept in localStorage.
@@ -101,7 +101,7 @@ export function useLiveRun(userId: string | null) {
         return true;
       } catch (error) {
         const failed = error instanceof SubmitError ? error : new SubmitError("UNKNOWN", null);
-        setFailure({ code: failed.code, fileId: failed.fileId, retryAfter: failed.retryAfter });
+        setFailure({ code: failed.code, fileId: failed.fileId, retryAfter: failed.retryAfter, rowLimit: failed.rowLimit });
         if (failed.code === "RUN_ACTIVE") {
           // The error names the run in the way; only if it does not, ask once which run is active.
           if (failed.runId) setActiveRunId(failed.runId);

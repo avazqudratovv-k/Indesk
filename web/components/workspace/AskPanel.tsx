@@ -29,7 +29,7 @@ export type SubmitState = {
   stage: "idle" | "uploading" | "starting";
   progress: { done: number; total: number };
   fileStatus: Record<string, FileStatus>;
-  failure: { code: ApiError["code"]; fileId: string | null; retryAfter?: number } | null;
+  failure: { code: ApiError["code"]; fileId: string | null; retryAfter?: number; rowLimit?: ApiError["rowLimit"] } | null;
   // A run of this person that is still going (found after RUN_ACTIVE): offered as "Watch it".
   activeRunId: string | null;
   // The run the Run tab already follows; the strip is not shown for it.
@@ -257,7 +257,8 @@ function SubmitProblem({ submit, failure, names }: { submit: SubmitState; failur
   const key = apiErrorKey(error);
   const base = failure.code === "RATE_LIMITED" && failure.retryAfter !== undefined ? t("submit.tooSoon", { minutes: retryMinutes(error) }) : tErrors(key);
   const name = failure.fileId ? names[failure.fileId] : undefined;
-  const text = failure.code === "RUN_ACTIVE" ? (submit.activeRunId ? t("submit.activeRunWatch") : t("submit.activeRun")) : name ? t("submit.fileError", { name, message: base }) : base;
+  // The server's counts, not a number of ours: without them (or without a file name) the generic line is used.
+  const text = failure.code === "RUN_ACTIVE" ? (submit.activeRunId ? t("submit.activeRunWatch") : t("submit.activeRun")) : failure.code === "TOO_MANY_ROWS" && name && failure.rowLimit ? tErrors("TOO_MANY_ROWS_DETAIL", { name, rows: failure.rowLimit.rows, max: failure.rowLimit.max }) : name ? t("submit.fileError", { name, message: base }) : base;
   return (
     <div className={styles.problem} role="alert">
       <span>{text}</span>

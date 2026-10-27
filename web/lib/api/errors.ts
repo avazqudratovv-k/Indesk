@@ -35,6 +35,8 @@ export const knownCodes = [
 
 export type ApiErrorCode = (typeof knownCodes)[number];
 
+export type RowLimit = { rows: number; max: number };
+
 export class ApiError extends Error {
   readonly status: number;
   readonly code: ApiErrorCode;
@@ -42,19 +44,26 @@ export class ApiError extends Error {
   readonly retryAfter?: number;
   // Only on RUN_ACTIVE: the run that is in the way (additive field of the error body, DECISIONS #257).
   readonly runId?: string;
+  // Only on TOO_MANY_ROWS: the rows the server counted and the limit it applied (additive fields of the error body).
+  readonly rowLimit?: RowLimit;
 
-  constructor(status: number, code: ApiErrorCode, retryAfter?: number, runId?: string) {
+  constructor(status: number, code: ApiErrorCode, retryAfter?: number, runId?: string, rowLimit?: RowLimit) {
     super(code);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
     this.retryAfter = retryAfter;
     this.runId = runId;
+    this.rowLimit = rowLimit;
   }
 }
 
 export function networkError(): ApiError {
   return new ApiError(0, "NETWORK");
+}
+
+function isCount(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
 const runIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -85,17 +94,20 @@ export async function errorFromResponse(response: Response): Promise<ApiError> {
   const retryAfter = parseRetryAfter(response.headers.get("Retry-After"));
   let code: ApiErrorCode | undefined;
   let runId: string | undefined;
+  let rowLimit: RowLimit | undefined;
   try {
     const body: unknown = await response.json();
-    const error = (body as { error?: { code?: unknown; run_id?: unknown } } | null)?.error;
+    const error = (body as { error?: { code?: unknown; run_id?: unknown; rows?: unknown; max?: unknown } } | null)?.error;
     const raw = error?.code;
     if (typeof raw === "string" && (knownCodes as readonly string[]).includes(raw)) code = raw as ApiErrorCode;
     // The id is kept only for RUN_ACTIVE and only when it looks like an id; it is used in a request path later.
     if (code === "RUN_ACTIVE" && typeof error?.run_id === "string" && runIdPattern.test(error.run_id)) runId = error.run_id;
+    // The counts come from the server and are shown as given; anything that is not a whole number is dropped.
+    if (code === "TOO_MANY_ROWS" && isCount(error?.rows) && isCount(error?.max)) rowLimit = { rows: error.rows, max: error.max };
   } catch {
     // Not JSON (for example a proxy error page): use the status.
   }
-  return new ApiError(response.status, code ?? codeFromStatus(response.status), retryAfter, runId);
+  return new ApiError(response.status, code ?? codeFromStatus(response.status), retryAfter, runId, rowLimit);
 }
 
 // Key under `apiErrors` in the message files. A usable Retry-After picks the "wait" wording.

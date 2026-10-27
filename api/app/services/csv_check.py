@@ -206,7 +206,12 @@ def parse_rows(text: str, limits: Limits) -> tuple[int, int]:
                 raise _refuse(422, ErrorCode.BAD_CSV)  # some rows have extra cells: damaged
             rows += 1
             if rows > limits.max_rows:
-                raise _refuse(422, ErrorCode.TOO_MANY_ROWS)
+                # Over the limit: only count the rest (the file size cap bounds this), so the
+                # error can name the real number of rows.
+                rows += sum(1 for later in reader if not _is_blank(later))
+                raise AppError(
+                    422, ErrorCode.TOO_MANY_ROWS, extra={"rows": rows, "max": limits.max_rows}
+                )
     except csv.Error:
         raise _refuse(422, ErrorCode.BAD_CSV) from None
     if rows == 0:

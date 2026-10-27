@@ -438,3 +438,62 @@ def test_a_third_concurrent_job_gets_503_and_the_client_says_unavailable() -> No
     assert isinstance(third, SandboxError)
     assert third.code is SandboxErrorCode.UNAVAILABLE
     assert all(isinstance(r, SandboxError) and r.code is SandboxErrorCode.TIMEOUT for r in results)
+
+
+# ---- the largest allowed CSV ----
+
+
+def big_csv(rows: int = 20000, target_bytes: int = 5 * 1000 * 1000) -> bytes:
+    """Nine columns, one long free-text column, sized to about the 5 MB upload cap."""
+    header = "date,line,station,direction,boardings,alightings,fare,passengers_note,code"
+    lines = [header]
+    fixed = len(header) + 1 + rows * 60  # the other eight columns take about 60 bytes a row
+    note_len = max(1, (target_bytes - fixed) // rows)
+    for i in range(rows):
+        note = (f"note {i} " * 40)[:note_len]
+        lines.append(
+            f"2026-09-{i % 28 + 1:02d},{i % 9 + 1},Station {i % 300},{'up' if i % 2 else 'down'},"
+            f"{(i * 37) % 9000},{(i * 53) % 9000},{1250 + i % 7 * 50}.5,{note},C{i % 977}"
+        )
+    return ("\n".join(lines) + "\n").encode()
+
+
+# Typical generated code (groupby, sum, mean, sort), then the process's own CPU and memory peaks.
+BIG_JOB = """
+import resource
+top = (
+    df.groupby('station')['boardings'].sum().sort_values(ascending=False).head(10).to_dict()
+)
+by_line = df.groupby('line').agg(total=('boardings', 'sum'), avg=('alightings', 'mean'))
+daily = df.groupby('date')['fare'].mean().sort_values().head(5).to_dict()
+usage = resource.getrusage(resource.RUSAGE_SELF)
+peak_vm = 0
+for line in open('/proc/self/status'):
+    if line.startswith('VmPeak:'):
+        peak_vm = int(line.split()[1])
+result = {
+    'rows': int(len(df)),
+    'top': top,
+    'lines': int(len(by_line)),
+    'daily': daily,
+    'cpu_s': usage.ru_utime + usage.ru_stime,
+    'rss_mib': usage.ru_maxrss / 1024,
+    'vm_peak_mib': peak_vm / 1024,
+}
+"""
+
+
+def test_the_largest_allowed_csv_fits_the_sandbox_with_a_clear_margin() -> None:
+    data = big_csv()
+    assert 4_800_000 < len(data) <= 5 * 1024 * 1024
+    answer = submit(BIG_JOB, data, ast=False)  # AST off only so the job can read its own usage
+    assert answer["ok"] is True, answer
+    result = answer["result"]
+    print(
+        f"\nbig csv: {len(data)} bytes, {result['rows']} rows, wall {answer['wall']:.2f}s, "
+        f"cpu {result['cpu_s']:.2f}s, rss {result['rss_mib']:.0f} MiB, "
+        f"vm peak {result['vm_peak_mib']:.0f} MiB"
+    )
+    assert result["rows"] == 20000
+    assert result["cpu_s"] < 2.5  # half the 5 s CPU limit
+    assert result["vm_peak_mib"] < 640  # half the 1280 MiB address-space limit

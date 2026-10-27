@@ -238,7 +238,9 @@ def test_too_many_rows_and_columns_and_ragged(
     make_client: MakeClient, small_settings: Settings
 ) -> None:
     client = signed_in(make_client, small_settings, "shape@example.com", 12)
-    err(post(client, b"a,b\n" + b"1,2\n" * 6), 422, "TOO_MANY_ROWS")
+    too_many = post(client, b"a,b\n" + b"1,2\n" * 6)
+    assert too_many.status_code == 422
+    assert too_many.json() == {"error": {"code": "TOO_MANY_ROWS", "rows": 6, "max": 5}}
     assert post(client, b"a,b\n" + b"1,2\n" * 5).status_code == 201
     err(post(client, b"a,b,c,d,e\n1,2,3,4,5\n"), 422, "TOO_MANY_COLUMNS")
     err(post(client, b"a,b,c\n1,2,3\n4,5\n"), 422, "BAD_CSV")

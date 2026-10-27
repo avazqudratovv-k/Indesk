@@ -1,4 +1,4 @@
-import { ApiError, type ApiErrorCode } from "@/lib/api/errors";
+import { ApiError, type ApiErrorCode, type RowLimit } from "@/lib/api/errors";
 import type { CreateRunBody } from "./api";
 import type { UploadedFile } from "./types";
 
@@ -19,19 +19,22 @@ export class SubmitError extends Error {
   readonly retryAfter?: number;
   // Only on RUN_ACTIVE: the run in the way, as the server named it.
   readonly runId?: string;
-  constructor(code: ApiErrorCode, fileId: string | null, retryAfter?: number, runId?: string) {
+  // Only on TOO_MANY_ROWS: what the server counted and its limit.
+  readonly rowLimit?: RowLimit;
+  constructor(code: ApiErrorCode, fileId: string | null, retryAfter?: number, runId?: string, rowLimit?: RowLimit) {
     super(code);
     this.name = "SubmitError";
     this.code = code;
     this.fileId = fileId;
     this.retryAfter = retryAfter;
     this.runId = runId;
+    this.rowLimit = rowLimit;
   }
 }
 
 function toSubmitError(error: unknown, fileId: string | null): SubmitError {
   if (error instanceof SubmitError) return error;
-  if (error instanceof ApiError) return new SubmitError(error.code, fileId, error.retryAfter, error.runId);
+  if (error instanceof ApiError) return new SubmitError(error.code, fileId, error.retryAfter, error.runId, error.rowLimit);
   return new SubmitError("UNKNOWN", fileId);
 }
 

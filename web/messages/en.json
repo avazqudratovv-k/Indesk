@@ -279,7 +279,7 @@
     "free": [
       "Free analysis runs, a one-time allowance",
       "Files up to 5 MB each",
-      "CSV up to 5,000 rows"
+      "CSV up to 20,000 rows"
     ],
     "trustTitle": "How we protect you",
     "trust": [
@@ -1222,6 +1222,7 @@
     "FILE_TOO_LARGE": "This file is too large.",
     "TYPE_MISMATCH": "This file does not look like a CSV file.",
     "TOO_MANY_ROWS": "This file has too many rows.",
+    "TOO_MANY_ROWS_DETAIL": "{name} has {rows, number} rows. The limit is {max, number} rows.",
     "TOO_MANY_COLUMNS": "This file has too many columns.",
     "EMPTY_FILE": "This file is empty.",
     "BAD_CSV": "This file could not be read as a table. Check that it is a normal CSV file.",
