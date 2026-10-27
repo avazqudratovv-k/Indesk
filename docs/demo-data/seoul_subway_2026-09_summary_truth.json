@@ -1,0 +1,373 @@
+{
+  "source_file": "seoul_subway_2026-09.csv",
+  "note": "Page numbers are the same in the ko and en PDFs. Holidays are counted as weekdays.",
+  "scope": {
+    "rows": {
+      "value": 4079,
+      "method": "count of data rows",
+      "pages": [
+        2,
+        8
+      ]
+    },
+    "days": {
+      "value": 30,
+      "method": "distinct 사용일자",
+      "pages": [
+        2
+      ]
+    },
+    "first_day": {
+      "value": "2026-09-01",
+      "method": "min 사용일자",
+      "pages": [
+        2
+      ]
+    },
+    "last_day": {
+      "value": "2026-09-30",
+      "method": "max 사용일자",
+      "pages": [
+        2
+      ]
+    },
+    "unique_station_names": {
+      "value": 128,
+      "method": "distinct 역명 over all lines",
+      "pages": [
+        2
+      ]
+    },
+    "line_station_pairs": {
+      "value": 136,
+      "method": "distinct (노선명, 역명) pairs",
+      "pages": [
+        2
+      ]
+    }
+  },
+  "totals": {
+    "boardings_all_lines": {
+      "value": 83584333,
+      "method": "sum 승차총승객수 over all rows",
+      "pages": [
+        3
+      ]
+    },
+    "alightings_all_lines": {
+      "value": 83508679,
+      "method": "sum 하차총승객수 over all rows",
+      "pages": [
+        3
+      ]
+    }
+  },
+  "by_line": {
+    "1호선": {
+      "boardings": {
+        "value": 8321795,
+        "method": "sum 승차총승객수 where 노선명=1호선",
+        "pages": [
+          3,
+          8
+        ]
+      },
+      "alightings": {
+        "value": 8134134,
+        "method": "sum 하차총승객수 where 노선명=1호선",
+        "pages": [
+          3,
+          8
+        ]
+      },
+      "rows": {
+        "value": 300,
+        "method": "row count where 노선명=1호선",
+        "pages": [
+          8
+        ]
+      },
+      "stations": {
+        "value": 10,
+        "method": "distinct 역명 where 노선명=1호선",
+        "pages": [
+          8
+        ]
+      }
+    },
+    "2호선": {
+      "boardings": {
+        "value": 41527060,
+        "method": "sum 승차총승객수 where 노선명=2호선",
+        "pages": [
+          3,
+          8
+        ]
+      },
+      "alightings": {
+        "value": 42098204,
+        "method": "sum 하차총승객수 where 노선명=2호선",
+        "pages": [
+          3,
+          8
+        ]
+      },
+      "rows": {
+        "value": 1500,
+        "method": "row count where 노선명=2호선",
+        "pages": [
+          8
+        ]
+      },
+      "stations": {
+        "value": 50,
+        "method": "distinct 역명 where 노선명=2호선",
+        "pages": [
+          8
+        ]
+      }
+    },
+    "3호선": {
+      "boardings": {
+        "value": 16110645,
+        "method": "sum 승차총승객수 where 노선명=3호선",
+        "pages": [
+          3,
+          8
+        ]
+      },
+      "alightings": {
+        "value": 15882510,
+        "method": "sum 하차총승객수 where 노선명=3호선",
+        "pages": [
+          3,
+          8
+        ]
+      },
+      "rows": {
+        "value": 1019,
+        "method": "row count where 노선명=3호선",
+        "pages": [
+          8
+        ]
+      },
+      "stations": {
+        "value": 34,
+        "method": "distinct 역명 where 노선명=3호선",
+        "pages": [
+          8
+        ]
+      }
+    },
+    "7호선": {
+      "boardings": {
+        "value": 17624833,
+        "method": "sum 승차총승객수 where 노선명=7호선",
+        "pages": [
+          3,
+          8
+        ]
+      },
+      "alightings": {
+        "value": 17393831,
+        "method": "sum 하차총승객수 where 노선명=7호선",
+        "pages": [
+          3,
+          8
+        ]
+      },
+      "rows": {
+        "value": 1260,
+        "method": "row count where 노선명=7호선",
+        "pages": [
+          8
+        ]
+      },
+      "stations": {
+        "value": 42,
+        "method": "distinct 역명 where 노선명=7호선",
+        "pages": [
+          8
+        ]
+      }
+    }
+  },
+  "top10_stations_by_boardings": [
+    {
+      "value": {
+        "rank": 1,
+        "station": "서울역",
+        "boardings": 2450051
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "value": {
+        "rank": 2,
+        "station": "잠실(송파구청)",
+        "boardings": 2273958
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "value": {
+        "rank": 3,
+        "station": "강남",
+        "boardings": 2243659
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "value": {
+        "rank": 4,
+        "station": "홍대입구",
+        "boardings": 2136519
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "value": {
+        "rank": 5,
+        "station": "고속터미널",
+        "boardings": 2119968
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "value": {
+        "rank": 6,
+        "station": "성수",
+        "boardings": 1660526
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "value": {
+        "rank": 7,
+        "station": "시청",
+        "boardings": 1617838
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "value": {
+        "rank": 8,
+        "station": "신림",
+        "boardings": 1613465
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "value": {
+        "rank": 9,
+        "station": "구로디지털단지",
+        "boardings": 1585813
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    },
+    {
+      "value": {
+        "rank": 10,
+        "station": "건대입구",
+        "boardings": 1570094
+      },
+      "method": "sum 승차총승객수 grouped by 역명, sorted desc",
+      "pages": [
+        4
+      ]
+    }
+  ],
+  "weekday_weekend": {
+    "weekday_days": {
+      "value": 22,
+      "method": "days Monday to Friday, holidays included",
+      "pages": [
+        5
+      ]
+    },
+    "weekday_total_boardings": {
+      "value": 67007915,
+      "method": "sum of daily boardings on weekdays",
+      "pages": [
+        5
+      ]
+    },
+    "weekday_avg_boardings_per_day": {
+      "value": 3045814.32,
+      "method": "weekday_total / weekday_days, 2 decimals",
+      "pages": [
+        5
+      ]
+    },
+    "weekend_days": {
+      "value": 8,
+      "method": "days Saturday and Sunday",
+      "pages": [
+        5
+      ]
+    },
+    "weekend_total_boardings": {
+      "value": 16576418,
+      "method": "sum of daily boardings on weekend days",
+      "pages": [
+        5
+      ]
+    },
+    "weekend_avg_boardings_per_day": {
+      "value": 2072052.25,
+      "method": "weekend_total / weekend_days, 2 decimals",
+      "pages": [
+        5
+      ]
+    }
+  },
+  "busiest_quietest_day": {
+    "busiest_day": {
+      "value": {
+        "date": "2026-09-18",
+        "boardings": 3426814
+      },
+      "method": "max of daily boardings over all lines",
+      "pages": [
+        6
+      ]
+    },
+    "quietest_day": {
+      "value": {
+        "date": "2026-09-25",
+        "boardings": 1127485
+      },
+      "method": "min of daily boardings over all lines",
+      "pages": [
+        6
+      ]
+    }
+  }
+}
