@@ -55,13 +55,33 @@ class ModelChain(BaseModel):
         return self
 
 
+class EmbedSpec(BaseModel):
+    """The one embedding model. No chain of models: only retries on this one (P14a part 2)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    name: str = Field(pattern=MODEL_NAME_PATTERN)
+    timeout_seconds: PositiveFloat
+    dimensions: PositiveInt
+    attempts: int = Field(ge=1, le=3)  # ai_calls.attempt is 1 to 3
+    batch_size: int = Field(ge=1, le=100)  # the API takes at most 100 texts in one batch
+
+
+class EmbedChain(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    total_budget_seconds: PositiveFloat
+    spec: EmbedSpec
+
+
 class ModelChains(BaseModel):
-    """One chain per job class (light, main)."""
+    """One chain per job class (light, main), and the embedding model (None: not configured)."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     light: ModelChain
     main: ModelChain
+    embed: EmbedChain | None = None
 
     def for_class(self, job_class: JobClass) -> ModelChain:
         return self.light if job_class is JobClass.LIGHT else self.main
@@ -73,6 +93,7 @@ class _ModelsFile(BaseModel):
     total_budget_seconds: PositiveFloat
     light: list[ModelSpec] = Field(min_length=1, max_length=3)
     main: list[ModelSpec] = Field(min_length=1, max_length=3)
+    embed: list[EmbedSpec] = Field(default_factory=list, max_length=1)  # one model, no chain
 
 
 def load_model_chains(path: Path = MODELS_FILE) -> ModelChains:
@@ -81,4 +102,9 @@ def load_model_chains(path: Path = MODELS_FILE) -> ModelChains:
     return ModelChains(
         light=ModelChain(total_budget_seconds=raw.total_budget_seconds, chain=raw.light),
         main=ModelChain(total_budget_seconds=raw.total_budget_seconds, chain=raw.main),
+        embed=(
+            EmbedChain(total_budget_seconds=raw.total_budget_seconds, spec=raw.embed[0])
+            if raw.embed
+            else None
+        ),
     )

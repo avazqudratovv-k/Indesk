@@ -63,6 +63,19 @@ jobs:
       - if: always()
         run: docker compose down -v
 
+  # Builds the PDF parser service and runs the tests that need it. They run in the api container,
+  # the only one on parse_net (the worker, which the sandbox job uses, is not).
+  parser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build --wait parser db redis
+      - run: docker compose run --rm --build api pytest -m parser -q
+      - if: failure()
+        run: docker compose logs parser
+      - if: always()
+        run: docker compose down -v
+
   web:
     runs-on: ubuntu-latest
     defaults:

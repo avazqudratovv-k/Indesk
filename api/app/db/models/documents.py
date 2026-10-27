@@ -5,8 +5,8 @@ so the cascade alone never fires). `chunks.embedding` is filled during a run (pa
 at upload."""
 
 import uuid
-from typing import Any
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     CheckConstraint,
     Computed,
@@ -16,9 +16,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import TSVECTOR
-from sqlalchemy.dialects.postgresql.base import ischema_names
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.types import UserDefinedType
 
 from app.db.base import Base, created_at_col, uuid_pk
 
@@ -26,23 +24,6 @@ from app.db.base import Base, created_at_col, uuid_pk
 # outputDimensionality. NOT VERIFIED against the live model; if it cannot return 768, a follow-up
 # migration changes the column before any production data exists.
 EMBEDDING_DIM = 768
-
-
-class VectorType(UserDefinedType[list[float]]):
-    """pgvector's `vector(N)` without the pgvector Python package (no new dependency yet: part 1
-    never
-        reads or writes a vector). Registered below so reflection and autogenerate know the type."""
-
-    cache_ok = True
-
-    def __init__(self, dim: int) -> None:
-        self.dim = dim
-
-    def get_col_spec(self, **kw: Any) -> str:
-        return f"vector({self.dim})"
-
-
-ischema_names["vector"] = VectorType
 
 
 class DocumentPage(Base):
@@ -81,7 +62,7 @@ class Chunk(Base):
     tsv: Mapped[str | None] = mapped_column(
         TSVECTOR, Computed("to_tsvector('simple', text)", persisted=True)
     )
-    embedding: Mapped[list[float] | None] = mapped_column(VectorType(EMBEDDING_DIM))
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIM))
     embedding_model: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[created_at_col]
 
@@ -107,4 +88,4 @@ class Chunk(Base):
     )
 
 
-__all__ = ["EMBEDDING_DIM", "Chunk", "DocumentPage", "VectorType"]
+__all__ = ["EMBEDDING_DIM", "Chunk", "DocumentPage"]

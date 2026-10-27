@@ -37,6 +37,27 @@ class ClientFailure(BaseModel):
 ClientResult = ClientOk | ClientFailure
 
 
+class EmbedOk(BaseModel):
+    """One vector per text, in the order of the texts. The client has checked the count and size."""
+
+    model_config = ConfigDict(frozen=True)
+
+    vectors: list[list[float]] = Field(repr=False)
+    tokens_in: NonNegativeInt = 0
+
+
+EmbedResult = EmbedOk | ClientFailure
+
+
+def estimate_tokens(texts: list[str]) -> int:
+    """A rough input-token count for a cost estimate, used when the API reports none. NOT
+    MEASURED: ASCII counts a quarter token a character, any other character one token (an upper
+    bound for Korean and Japanese)."""
+    ascii_chars = sum(1 for text in texts for ch in text if ch.isascii())
+    other = sum(len(text) for text in texts) - ascii_chars
+    return -(-ascii_chars // 4) + other
+
+
 class ModelClient(Protocol):
     def generate(
         self,
@@ -51,4 +72,17 @@ class ModelClient(Protocol):
         thinking_level: str | None = None,
     ) -> ClientResult:
         """One request to one model. `timeout` is a hard limit on the whole attempt in seconds."""
+        ...
+
+    def embed(
+        self,
+        *,
+        model: str,
+        texts: list[str],
+        task_type: str,
+        dimensions: int,
+        timeout: float,
+    ) -> EmbedResult:
+        """One batch request to one embedding model. `task_type` is RETRIEVAL_DOCUMENT or
+        RETRIEVAL_QUERY. A wrong vector count or size is a BAD_RESPONSE failure."""
         ...

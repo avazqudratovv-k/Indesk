@@ -17,13 +17,18 @@ from app.core.enums import (
     StepKind,
     StepState,
     TraceKey,
+    UploadMime,
 )
 from app.runs.agents import Agent, Finish, FlowInput
 from app.runs.ask_schemas import BeaverPayload, OwlPlan
 from app.runs.beaver import BeaverAgent
 from app.runs.cat import CatAgent
+from app.runs.cat_pdf import CatPdfAgent
 from app.runs.cat_schemas import CatResult
+from app.runs.hound import HoundAgent
 from app.runs.owl import OwlAgent
+from app.runs.owl_pdf import OwlPdfAgent
+from app.runs.pdf_schemas import HoundResult
 from app.runs.prompts import new_nonce
 from app.runs.trace import TraceLine, stopped_line
 
@@ -40,6 +45,11 @@ class AskFlow:
     def next(self, info: FlowInput) -> Agent | Finish:
         if len(info.upload_ids) != 1:
             return _stop(RunReason.INPUT_UNUSABLE)
+        mime = info.upload_mimes[0] if info.upload_mimes else UploadMime.CSV
+        if mime is UploadMime.PDF:
+            return self._pdf_next(info)
+        if mime is not UploadMime.CSV:  # the API only lets CSV and PDF in; fail closed
+            return _stop(RunReason.INPUT_UNUSABLE)
         done = len(info.history)
         if done == 0:
             return OwlAgent(self._limits, self._nonce)
@@ -53,6 +63,24 @@ class AskFlow:
             if not isinstance(beaver, BeaverPayload):  # cannot happen; fail closed
                 return _stop(RunReason.INTERNAL_ERROR)
             return CatAgent(self._limits, beaver, self._nonce)
+        cat = info.history[2].result.data
+        if not isinstance(cat, CatResult):  # cannot happen; fail closed
+            return _stop(RunReason.INTERNAL_ERROR)
+        ready = TraceLine(AgentKey.MANAGER, StepKind.SAY, StepState.DONE, TraceKey.READY)
+        return Finish(cat.outcome, ready, report=cat.report)
+
+    def _pdf_next(self, info: FlowInput) -> Agent | Finish:
+        """Owl (code) -> Hound -> Cat (writer, then checks). Three steps, no Owl model call."""
+        done = len(info.history)
+        if done == 0:
+            return OwlPdfAgent()
+        if done == 1:
+            return HoundAgent(self._limits)
+        hound = info.history[1].result.data
+        if not isinstance(hound, HoundResult):  # cannot happen; fail closed
+            return _stop(RunReason.INTERNAL_ERROR)
+        if done == 2:
+            return CatPdfAgent(self._limits, hound, self._nonce)
         cat = info.history[2].result.data
         if not isinstance(cat, CatResult):  # cannot happen; fail closed
             return _stop(RunReason.INTERNAL_ERROR)

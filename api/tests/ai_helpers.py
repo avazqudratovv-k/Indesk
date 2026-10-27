@@ -9,7 +9,7 @@ from sqlalchemy import Connection, select
 from sqlalchemy.orm import Session
 
 from app.ai.caps import SessionFactory
-from app.ai.config import ModelChain, ModelChains, ModelSpec
+from app.ai.config import EmbedChain, EmbedSpec, ModelChain, ModelChains, ModelSpec
 from app.ai.gateway import Gateway
 from app.core.config import Limits, load_limits
 from app.db.models import AiCall, UsageDaily
@@ -30,6 +30,14 @@ TEST_CHAIN = ModelChain(
 )
 
 
+TEST_EMBED = EmbedChain(
+    total_budget_seconds=35,
+    spec=EmbedSpec(
+        name="test-embed", timeout_seconds=10, dimensions=768, attempts=2, batch_size=32
+    ),
+)
+
+
 def factory_for(connection: Connection) -> SessionFactory:
     def build() -> Session:
         return Session(bind=connection, join_transaction_mode="create_savepoint")
@@ -42,7 +50,7 @@ def new_user(factory: SessionFactory) -> uuid.UUID:
         return make_user(db).id
 
 
-def limits_with(**overrides: int) -> Limits:
+def limits_with(**overrides: float) -> Limits:
     return Limits(**{**load_limits().model_dump(), **overrides})
 
 
@@ -66,7 +74,8 @@ def make_gateway(
         client.clock = clock
     return Gateway(
         api_key=SecretStr(api_key) if api_key is not None else None,
-        chains=chains or ModelChains(light=chain or TEST_CHAIN, main=chain or TEST_CHAIN),
+        chains=chains
+        or ModelChains(light=chain or TEST_CHAIN, main=chain or TEST_CHAIN, embed=TEST_EMBED),
         limits=limits or limits_with(),
         session_factory=factory,
         client=client,

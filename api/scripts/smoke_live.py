@@ -4,6 +4,12 @@ database. Run it inside the compose network (the API is reached as http://api:80
     docker compose run --rm api python scripts/smoke_live.py tests/fixtures/seoul_live.csv \
         --question "Which station has the most boardings?"
 
+PDF mode (P14a part 2): give a .pdf file and the same command. The file goes up as application/pdf,
+the run goes through Owl (code), Hound (embeddings + search) and the writer, and the output adds
+Hound's search payload (mode, pages, scores; no passage text), the embedding rows of ai_calls with
+the estimated cost, and the report's claims with doc_quote / doc_location / doc_value. The owner runs
+it live in P14b; nothing here has run against real Gemini.
+
 It logs in as one throwaway user (signing it up the first time; signup is limited to 5 per hour per
 IP) and reuses that user's upload of the same file name while it is still stored. It posts the run,
 follows it until it ends, then prints the outcome, the trace lines, one row per model call (model,
@@ -42,6 +48,10 @@ POLL_SECONDS = 2.0
 MAX_WAIT_SECONDS = 150.0
 
 
+def mime_of(name: str) -> str:
+    return "application/pdf" if name.lower().endswith(".pdf") else "text/csv"
+
+
 class Api:
     def __init__(self, base: str) -> None:
         self.base = base.rstrip("/")
@@ -77,7 +87,7 @@ class Api:
             f'--{boundary}\r\nContent-Disposition: form-data; name="consent"\r\n\r\ntrue\r\n'.encode(),
             (
                 f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{name}"\r\n'
-                "Content-Type: text/csv\r\n\r\n"
+                f"Content-Type: {mime_of(name)}\r\n\r\n"
             ).encode(),
             data,
             f"\r\n--{boundary}--\r\n".encode(),
@@ -152,6 +162,12 @@ def inspect(run_id: str) -> None:
     print(
         f"calls={len(calls)} tokens_in={sum(c[4] for c in calls)} tokens_out={sum(c[5] for c in calls)}"
     )
+    embeds = [c for c in calls if c[0] == "embed"]
+    if embeds:  # PDF runs: embedding tokens are outside max_tokens_per_run and have their own cap
+        print(
+            f"embed calls={len(embeds)} embed_tokens={sum(c[4] for c in embeds)} "
+            f"embed_cost_usd={sum(c[7] for c in embeds)} (estimate, price from docs, not measured)"
+        )
     print("\n--- trace lines (agent_steps)")
     for seq, agent, kind, state, key, args, attempt, model, _ in steps:
         print(
@@ -160,6 +176,8 @@ def inspect(run_id: str) -> None:
     for seq, _agent, _kind, _state, key, _args, _attempt, _model, payload in steps:
         if not payload:
             continue
+        if "matched" in payload and "mode" in payload:
+            dump(f"Hound search (step {seq}, {key})", payload)
         if "plan" in payload:
             dump(f"Owl plan (step {seq}, {key})", payload["plan"])
         if "code" in payload:
@@ -172,7 +190,7 @@ def inspect(run_id: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("csv", type=Path)
+    parser.add_argument("csv", type=Path, help="a .csv or a .pdf file")
     parser.add_argument("--question", required=True)
     parser.add_argument("--api", default="http://api:8000/api")
     args = parser.parse_args()

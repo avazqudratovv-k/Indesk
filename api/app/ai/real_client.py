@@ -12,6 +12,7 @@ Safety rules kept here:
 - No exception text, URL or response body is ever kept or logged: only a fixed failure kind."""
 
 import json
+import math
 import threading
 import time
 from collections.abc import Callable
@@ -20,11 +21,20 @@ from typing import Any
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
-from app.ai.client import ClientFailure, ClientOk, ClientResult
+from app.ai.client import (
+    ClientFailure,
+    ClientOk,
+    ClientResult,
+    EmbedOk,
+    EmbedResult,
+    estimate_tokens,
+)
 from app.core.enums import FailureKind, ModelFailure
 
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 MAX_BODY_BYTES = 1024 * 1024  # about 1 MB; a reply that big is not an answer we want
+# A batch of vectors is bigger than text: 32 vectors of 768 floats is about 350 KB of JSON.
+EMBED_MAX_BODY_BYTES = 2 * 1024 * 1024
 LIST_TIMEOUT_SECONDS = 20.0
 LIST_MAX_PAGES = 10
 
@@ -37,18 +47,23 @@ def _declared_length(response: httpx.Response) -> int | None:
 
 
 def _read_bounded(
-    response: httpx.Response, *, deadline: float, mono: Callable[[], float], stop: threading.Event
+    response: httpx.Response,
+    *,
+    deadline: float,
+    mono: Callable[[], float],
+    stop: threading.Event,
+    max_bytes: int = MAX_BODY_BYTES,
 ) -> bytes | ModelFailure:
-    """Read the body, giving up at the deadline (TIMEOUT) or past MAX_BODY_BYTES (BAD_RESPONSE)."""
+    """Read the body, giving up at the deadline (TIMEOUT) or past `max_bytes` (BAD_RESPONSE)."""
     declared = _declared_length(response)
-    if declared is not None and declared > MAX_BODY_BYTES:
+    if declared is not None and declared > max_bytes:
         return ModelFailure.BAD_RESPONSE
     body = bytearray()
     for chunk in response.iter_bytes():
         if stop.is_set() or mono() > deadline:
             return ModelFailure.TIMEOUT
         body += chunk
-        if len(body) > MAX_BODY_BYTES:
+        if len(body) > max_bytes:
             return ModelFailure.BAD_RESPONSE
     if mono() > deadline:
         return ModelFailure.TIMEOUT
@@ -80,6 +95,29 @@ def _parse_answer(body: bytes) -> ClientResult:
     if not text.strip():
         return ClientFailure(kind=ModelFailure.BAD_RESPONSE, detail=FailureKind.BAD_JSON)
     return ClientOk(text=text, tokens_in=tokens_in, tokens_out=tokens_out)
+
+
+def _bad_response() -> ClientFailure:
+    return ClientFailure(kind=ModelFailure.BAD_RESPONSE, detail=FailureKind.BAD_JSON)
+
+
+def _parse_embeddings(body: bytes, *, texts: list[str], dimensions: int) -> EmbedResult:
+    """Vectors from a batchEmbedContents answer. One vector per text, each exactly `dimensions`
+    numbers, or it is a BAD_RESPONSE (a vector of the wrong size would corrupt the stored column).
+    The token count is the API's own when it gives one (field name unverified), else an estimate."""
+    try:
+        data = json.loads(body)
+        entries = data["embeddings"]
+        vectors = [[float(x) for x in entry["values"]] for entry in entries]
+        usage = data.get("usageMetadata") or {}
+        tokens = _count(usage.get("promptTokenCount")) or _count(usage.get("totalTokenCount"))
+    except (ValueError, KeyError, IndexError, TypeError, AttributeError):
+        return _bad_response()
+    if len(vectors) != len(texts) or any(len(v) != dimensions for v in vectors):
+        return _bad_response()
+    if any(not math.isfinite(x) for v in vectors for x in v):
+        return _bad_response()
+    return EmbedOk(vectors=vectors, tokens_in=tokens or estimate_tokens(texts))
 
 
 def _status_failure(status: int) -> ModelFailure | None:
@@ -153,15 +191,56 @@ class GeminiRestClient:
         if system:
             payload["systemInstruction"] = {"parts": [{"text": system}]}
         url = f"{self._base_url}/models/{model}:generateContent"
-        return self._run_with_deadline(url, json.dumps(payload).encode(), timeout)
+        result = self._run_with_deadline(
+            url, json.dumps(payload).encode(), timeout, _parse_answer, MAX_BODY_BYTES
+        )
+        return result  # type: ignore[return-value]  # the parser above only builds a ClientResult
 
-    def _run_with_deadline(self, url: str, payload: bytes, timeout: float) -> ClientResult:
+    def embed(
+        self,
+        *,
+        model: str,
+        texts: list[str],
+        task_type: str,
+        dimensions: int,
+        timeout: float,
+    ) -> EmbedResult:
+        """batchEmbedContents: one request, one vector per text. The key goes in the header only."""
+        payload = {
+            "requests": [
+                {
+                    "model": f"models/{model}",
+                    "content": {"parts": [{"text": text}]},
+                    "taskType": task_type,
+                    "outputDimensionality": dimensions,
+                }
+                for text in texts
+            ]
+        }
+        url = f"{self._base_url}/models/{model}:batchEmbedContents"
+
+        def parse(body: bytes) -> EmbedResult:
+            return _parse_embeddings(body, texts=texts, dimensions=dimensions)
+
+        result = self._run_with_deadline(
+            url, json.dumps(payload).encode(), timeout, parse, EMBED_MAX_BODY_BYTES
+        )
+        return result  # type: ignore[return-value]  # `parse` above only builds an EmbedResult
+
+    def _run_with_deadline(
+        self,
+        url: str,
+        payload: bytes,
+        timeout: float,
+        parse: Callable[[bytes], ClientResult | EmbedResult],
+        max_bytes: int,
+    ) -> ClientResult | EmbedResult:
         """Run the attempt in a worker thread and stop waiting at the deadline."""
-        outcome: list[ClientResult] = []
+        outcome: list[ClientResult | EmbedResult] = []
         stop = threading.Event()
 
         def work() -> None:
-            outcome.append(self._attempt(url, payload, timeout, stop))
+            outcome.append(self._attempt(url, payload, timeout, stop, parse, max_bytes))
 
         try:
             worker = threading.Thread(target=work, daemon=True)
@@ -175,8 +254,14 @@ class GeminiRestClient:
         return outcome[0] if outcome else ClientFailure(kind=ModelFailure.OTHER)
 
     def _attempt(
-        self, url: str, payload: bytes, timeout: float, stop: threading.Event
-    ) -> ClientResult:
+        self,
+        url: str,
+        payload: bytes,
+        timeout: float,
+        stop: threading.Event,
+        parse: Callable[[bytes], ClientResult | EmbedResult],
+        max_bytes: int,
+    ) -> ClientResult | EmbedResult:
         deadline = self._mono() + timeout
         headers = {
             "x-goog-api-key": self._api_key.get_secret_value(),
@@ -190,7 +275,9 @@ class GeminiRestClient:
                 failure = _status_failure(response.status_code)
                 if failure is not None:
                     return ClientFailure(kind=failure, detail=_status_detail(response.status_code))
-                body = _read_bounded(response, deadline=deadline, mono=self._mono, stop=stop)
+                body = _read_bounded(
+                    response, deadline=deadline, mono=self._mono, stop=stop, max_bytes=max_bytes
+                )
         except httpx.TimeoutException:
             return ClientFailure(kind=ModelFailure.TIMEOUT)
         except Exception:  # noqa: BLE001  # any transport error; its text could hold the URL
@@ -198,7 +285,7 @@ class GeminiRestClient:
         if isinstance(body, ModelFailure):
             too_large = body is ModelFailure.BAD_RESPONSE
             return ClientFailure(kind=body, detail=FailureKind.TOO_LARGE if too_large else None)
-        return _parse_answer(body)
+        return parse(body)
 
 
 # ---- listing models, for scripts/list_models.py only ----
@@ -216,12 +303,12 @@ class ListError(BaseModel):
     label: str = Field(description="'HTTP <status>', an exception class name, or a fixed phrase")
 
 
-def _page_names(body: bytes) -> tuple[list[str], str | None]:
+def _page_names(body: bytes, method: str) -> tuple[list[str], str | None]:
     data = json.loads(body)
     names: list[str] = []
     for entry in data.get("models", []):
         methods = entry.get("supportedGenerationMethods", [])
-        if "generateContent" in methods and isinstance(entry.get("name"), str):
+        if method in methods and isinstance(entry.get("name"), str):
             names.append(entry["name"].removeprefix("models/"))
     token = data.get("nextPageToken")
     return names, token if isinstance(token, str) and token else None
@@ -230,11 +317,13 @@ def _page_names(body: bytes) -> tuple[list[str], str | None]:
 def list_text_models(
     api_key: SecretStr,
     *,
+    method: str = "generateContent",
     transport: httpx.BaseTransport | None = None,
     monotonic: Callable[[], float] = time.monotonic,
 ) -> ListOk | ListError:
-    """Names of the models this key can use for text generation. Never raises; on failure the
-    label is only an HTTP status, an exception class name or a fixed phrase."""
+    """Names of the models this key can use with `method` ("generateContent" for text,
+    "embedContent" for embeddings). Never raises; on failure the label is only an HTTP status,
+    an exception class name or a fixed phrase."""
     deadline = monotonic() + LIST_TIMEOUT_SECONDS
     headers = {"x-goog-api-key": api_key.get_secret_value()}
     names: list[str] = []
@@ -255,7 +344,7 @@ def list_text_models(
                     return ListError(
                         label="timeout" if body is ModelFailure.TIMEOUT else "bad response"
                     )
-                page, token = _page_names(body)
+                page, token = _page_names(body, method)
                 names += page
                 if token is None:
                     break

@@ -60,3 +60,16 @@ name = "gemini-3.5-flash-lite"
 timeout_seconds = 12
 max_output_tokens = 8192
 thinking_level = "minimal"
+
+# Embeddings (P14a part 2): ONE model, retries on the SAME model only, never another model. Vectors from
+# two different models cannot be compared, so a fallback model would break search on stored vectors.
+# NOT VERIFIED live: the owner checks this id with `python scripts/list_models.py --embed` in P14b.
+#   dimensions: asked from the model as outputDimensionality; must equal the vector(768) column.
+#   attempts:   tries on the same model for one batch (1 to 3), inside the total budget above.
+#   batch_size: texts per request. Kept small so the answer stays under the 2 MB body limit.
+[[embed]]
+name = "gemini-embedding-2"
+timeout_seconds = 20
+dimensions = 768
+attempts = 2
+batch_size = 32

@@ -34,6 +34,7 @@ from app.core.enums import (
     StepKind,
     StepState,
     TraceKey,
+    UploadMime,
     UploadStatus,
 )
 from app.db.models import Run, RunFile, Upload
@@ -56,6 +57,9 @@ from app.runs.trace import BadTraceLine, TraceLine, stopped_line
 from app.storage import Storage, StorageError
 
 logger = logging.getLogger("indesk.runs")
+
+# Hound's failure line has its own key in the web mock (searchFailed); the other agents share one.
+_FAILED_KEY = {AgentKey.RETRIEVAL: TraceKey.SEARCH_FAILED}
 
 
 @dataclass
@@ -165,13 +169,18 @@ class _Runner:
                 )
             )
             usable = self._uploads_usable(db, upload_ids)
+            mime_rows = db.execute(select(Upload.id, Upload.mime).where(Upload.id.in_(upload_ids)))
+            mime_of: dict[uuid.UUID, str] = {row[0]: row[1] for row in mime_rows}
+            mimes = tuple(UploadMime(mime_of[u]) for u in upload_ids if u in mime_of)
         if not usable:
             self._stop(RunReason.INPUT_UNUSABLE)
             return
         flow = self.deps.flow_factory(mode)
         deadline = self.deps.monotonic() + self.deps.limits.run_timeout_seconds
         while True:
-            step = flow.next(FlowInput(self.run_id, mode, lang, upload_ids, tuple(self.history)))
+            step = flow.next(
+                FlowInput(self.run_id, mode, lang, upload_ids, tuple(self.history), mimes)
+            )
             if isinstance(step, Finish):
                 self._finish(step.outcome, step.reason, step.final, step.report)
                 return
@@ -216,7 +225,8 @@ class _Runner:
                 gateway=self.deps.gateway, sandbox=self.deps.sandbox,
                 emit=lambda line, payload=None, _a=attempt: self._emit(line, _a, payload),
                 read_upload=partial(self._read_upload, user_id),
-                question=self.question,
+                question=self.question, session_factory=self.deps.session_factory,
+                monotonic=self.deps.monotonic,
             )  # fmt: skip
             result = self._call(agent, ctx)
             with self._db() as db:
@@ -296,7 +306,8 @@ class _Runner:
                 attempt,
             )  # fmt: skip
         self._emit(
-            TraceLine(agent, StepKind.FLAG, failed.state, TraceKey.STEP_FAILED,
+            TraceLine(agent, StepKind.FLAG, failed.state,
+                      _FAILED_KEY.get(agent, TraceKey.STEP_FAILED),
                       {"reason": failed.reason.value, "attempt": attempt}),
             attempt,
         )  # fmt: skip

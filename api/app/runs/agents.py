@@ -12,8 +12,9 @@ from typing import Protocol
 
 from pydantic import BaseModel
 
+from app.ai.caps import SessionFactory
 from app.ai.gateway import Gateway
-from app.core.enums import AgentKey, RunMode, RunOutcome, RunReason, StepState
+from app.core.enums import AgentKey, RunMode, RunOutcome, RunReason, StepState, UploadMime
 from app.runs.cat_schemas import ReportDraft
 from app.runs.trace import TraceLine
 from app.sandbox_client import SandboxResult
@@ -45,6 +46,10 @@ class AgentContext:
     # None for any other upload, a deleted one, or a storage failure. The only way to read a file.
     read_upload: Callable[[uuid.UUID], bytes | None] = _no_upload
     question: str = field(default="", repr=False)  # the user's text: never log it
+    # For agents that read the database themselves (Hound, Cat on a PDF). Their queries select the
+    # uploads from this run's run_files, so they cannot reach another run's or user's data.
+    session_factory: SessionFactory | None = None
+    monotonic: Callable[[], float] = field(default=lambda: 0.0)
 
 
 @dataclass(frozen=True)
@@ -96,6 +101,8 @@ class FlowInput:
     lang: str
     upload_ids: tuple[uuid.UUID, ...]
     history: Sequence[StepRecord] = field(default_factory=tuple)
+    # The type of each upload, in the order of upload_ids; the flow routes on it in code.
+    upload_mimes: tuple[UploadMime, ...] = ()
 
 
 class Flow(Protocol):

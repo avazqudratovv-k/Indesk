@@ -18,7 +18,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core import clock
-from app.core.enums import RunOutcome, RunReason, RunStatus
+from app.core.enums import AiPurpose, RunOutcome, RunReason, RunStatus
 from app.db.models import AgentStep, AiCall, AuditLog, Run
 from app.runs import quota, report_store
 from app.runs.cat_schemas import ReportDraft
@@ -136,13 +136,25 @@ def add_counters(
 
 
 def run_tokens(db: Session, run_id: uuid.UUID) -> int:
-    """Tokens (in + out) the gateway recorded for this run: the source for max_tokens_per_run."""
+    """Tokens (in + out) the gateway recorded for this run: the source for max_tokens_per_run.
+    Embedding requests are left out: they have their own cap (run_embed_tokens)."""
     total = db.scalar(
         select(func.coalesce(func.sum(AiCall.tokens_in + AiCall.tokens_out), 0)).where(
-            AiCall.run_id == run_id
+            AiCall.run_id == run_id, AiCall.purpose != AiPurpose.EMBED.value
         )
     )
     db.rollback()  # end the read transaction; nothing to keep
+    return int(total or 0)
+
+
+def run_embed_tokens(db: Session, run_id: uuid.UUID) -> int:
+    """Embedding tokens the gateway recorded for this run (max_embed_tokens_per_run)."""
+    total = db.scalar(
+        select(func.coalesce(func.sum(AiCall.tokens_in), 0)).where(
+            AiCall.run_id == run_id, AiCall.purpose == AiPurpose.EMBED.value
+        )
+    )
+    db.rollback()
     return int(total or 0)
 
 

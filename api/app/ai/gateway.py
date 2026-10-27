@@ -15,12 +15,13 @@ import time
 import uuid
 from collections.abc import Callable
 from datetime import date
+from decimal import Decimal
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 from app.ai.caps import SessionFactory, reserve_call
-from app.ai.client import ClientFailure, ClientOk, ModelClient
+from app.ai.client import ClientFailure, ClientOk, EmbedOk, ModelClient
 from app.ai.config import ModelChains, ModelSpec, load_model_chains
 from app.ai.records import record_attempt
 from app.core.clock import quota_day
@@ -29,6 +30,7 @@ from app.core.enums import (
     AiCallStatus,
     AiPurpose,
     CapDecision,
+    EmbedTask,
     FailureKind,
     GatewayOutcome,
     JobClass,
@@ -55,8 +57,19 @@ PURPOSE_CLASS: dict[AiPurpose, JobClass] = {
     AiPurpose.COMPUTE: JobClass.MAIN,
     AiPurpose.VISION: JobClass.MAIN,
     AiPurpose.CRITIC: JobClass.MAIN,
-    AiPurpose.EMBED: JobClass.LIGHT,
+    AiPurpose.EMBED: JobClass.EMBED,
 }
+
+# A refusal that retrying the same model cannot fix: the key, request or model name is wrong.
+_NOT_TRANSIENT = frozenset(
+    {
+        FailureKind.HTTP_400,
+        FailureKind.HTTP_401,
+        FailureKind.HTTP_403,
+        FailureKind.HTTP_404,
+        FailureKind.HTTP_4XX,
+    }
+)
 
 
 class GatewayOk(BaseModel):
@@ -86,6 +99,23 @@ class GatewayError(BaseModel):
 
 
 GatewayResult = GatewayOk | GatewayError
+
+
+class EmbedGatewayOk(BaseModel):
+    """One vector per text, in order. `attempts` counts requests, retries included."""
+
+    model_config = ConfigDict(frozen=True)
+
+    ok: Literal[True] = True
+    outcome: Literal[GatewayOutcome.OK] = GatewayOutcome.OK
+    vectors: list[list[float]] = Field(repr=False)
+    model: str
+    attempts: int
+    tokens_in: int
+    duration_ms: int
+
+
+EmbedGatewayResult = EmbedGatewayOk | GatewayError
 
 
 # What a failure means when the client did not name a cause (a fake client, or an old code path).
@@ -130,6 +160,11 @@ class Gateway:
             and self._client is not None
         )
 
+    def embed_model(self) -> str | None:
+        """The configured embedding model, or None when there is none."""
+        chains = self._chains
+        return chains.embed.spec.name if chains is not None and chains.embed is not None else None
+
     def ask(
         self,
         prompt: str,
@@ -151,7 +186,160 @@ class Gateway:
             logger.error("ai gateway failed code=%s", "AI_GATEWAY_INTERNAL")
             return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
 
+    def embed(
+        self,
+        texts: list[str],
+        *,
+        task: EmbedTask,
+        user_id: uuid.UUID,
+        run_id: uuid.UUID | None = None,
+    ) -> EmbedGatewayResult:
+        """Embed `texts` with the one embedding model. Never raises. The model is not a chain: a
+        failed request is retried on the SAME model up to its `attempts`, never on another one
+        (vectors of two models cannot be compared). Each request takes a cap slot and writes one
+        ai_calls row (purpose embed, with an estimated cost)."""
+        started = self._clock()
+        try:
+            return self._embed(texts, task, user_id, run_id, started)
+        except Exception:  # noqa: BLE001  # the contract is "never raises"
+            logger.error("ai gateway failed code=%s", "AI_GATEWAY_INTERNAL")
+            return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
+
     # ---- internals ----
+
+    def _embed(
+        self,
+        texts: list[str],
+        task: EmbedTask,
+        user_id: uuid.UUID,
+        run_id: uuid.UUID | None,
+        started: float,
+    ) -> EmbedGatewayResult:
+        if not isinstance(texts, list) or not texts:
+            return self._error(GatewayOutcome.BAD_INPUT, started)
+        if any(not isinstance(t, str) or not t.strip() for t in texts):
+            return self._error(GatewayOutcome.BAD_INPUT, started)
+        if any(len(t) > self._limits.max_prompt_chars for t in texts):
+            return self._error(GatewayOutcome.BAD_INPUT, started)
+        key = self._api_key
+        if key is None or not key.get_secret_value().strip():
+            return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
+        if self._chains is None or self._chains.embed is None or self._client is None:
+            return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started)
+        chain = self._chains.embed
+        spec = chain.spec
+        deadline = started + chain.total_budget_seconds
+        vectors: list[list[float]] = []
+        tokens_in = requests = 0
+        for first in range(0, len(texts), spec.batch_size):
+            batch = texts[first : first + spec.batch_size]
+            failures: list[ModelFailure] = []
+            budget_gone = False
+            for number in range(1, spec.attempts + 1):
+                if self._clock() >= deadline:
+                    budget_gone = True
+                    break
+                decision = reserve_call(
+                    self._sessions, user_id=user_id, day=self._today(),
+                    per_user=self._limits.daily_calls_per_user,
+                    per_day=self._limits.daily_calls_global,
+                )  # fmt: skip
+                if decision is CapDecision.UNAVAILABLE:
+                    return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started, attempts=requests)
+                if decision is not CapDecision.RESERVED:
+                    scope: Literal["user", "global"] = (
+                        "user" if decision is CapDecision.USER_CAP else "global"
+                    )
+                    return self._error(
+                        GatewayOutcome.CAP_REACHED, started, attempts=requests, cap_scope=scope
+                    )
+                remaining = deadline - self._clock()
+                if remaining <= 0:
+                    budget_gone = True
+                    break
+                requests += 1
+                done = self._embed_attempt(
+                    spec.name, number, min(spec.timeout_seconds, remaining), batch, task,
+                    spec.dimensions, user_id, run_id,
+                )  # fmt: skip
+                if isinstance(done, EmbedOk):
+                    vectors += done.vectors
+                    tokens_in += done.tokens_in
+                    break
+                failure, transient = done
+                failures.append(failure)
+                if failure is ModelFailure.BAD_RESPONSE:
+                    return self._error(GatewayOutcome.BAD_OUTPUT, started, attempts=requests)
+                if not transient:
+                    return self._error(GatewayOutcome.MODEL_UNAVAILABLE, started, attempts=requests)
+            else:
+                return self._error(
+                    self._exhausted(failures, budget_gone), started, attempts=requests
+                )
+            if len(vectors) != first + len(batch):  # the batch loop broke without a result
+                return self._error(
+                    self._exhausted(failures, budget_gone), started, attempts=requests
+                )
+        return EmbedGatewayOk(
+            vectors=vectors, model=spec.name, attempts=requests, tokens_in=tokens_in,
+            duration_ms=self._ms(started),
+        )  # fmt: skip
+
+    def _embed_attempt(
+        self,
+        model: str,
+        number: int,
+        timeout: float,
+        batch: list[str],
+        task: EmbedTask,
+        dimensions: int,
+        user_id: uuid.UUID,
+        run_id: uuid.UUID | None,
+    ) -> EmbedOk | tuple[ModelFailure, bool]:
+        """One embedding request and its ai_calls row. A failure comes back with whether trying the
+        same model again could help."""
+        assert self._client is not None  # noqa: S101  # narrows the type; _embed checked it
+        began = self._clock()
+        try:
+            result = self._client.embed(
+                model=model, texts=batch, task_type=task.value, dimensions=dimensions,
+                timeout=timeout,
+            )  # fmt: skip
+        except Exception:  # noqa: BLE001  # a client that raises is just another failure
+            result = ClientFailure(kind=ModelFailure.OTHER)
+        failure_kind: FailureKind | None = None
+        tokens_in = 0
+        outcome: EmbedOk | tuple[ModelFailure, bool]
+        if isinstance(result, ClientFailure):
+            status = _CALL_STATUS[result.kind]
+            failure_kind = result.detail or _DEFAULT_KIND.get(result.kind)
+            outcome = (result.kind, failure_kind not in _NOT_TRANSIENT)
+        elif isinstance(result, EmbedOk) and self._vectors_fit(result, len(batch), dimensions):
+            status, tokens_in, outcome = AiCallStatus.OK, result.tokens_in, result
+        else:  # garbage, or a wrong count or size that the client did not catch
+            status, failure_kind = AiCallStatus.ERROR, FailureKind.BAD_JSON
+            outcome = (ModelFailure.BAD_RESPONSE, False)
+        cost = (
+            Decimal(tokens_in) * Decimal(str(self._limits.embed_usd_per_million_tokens)) / 1_000_000
+        ).quantize(Decimal("0.000001"))
+        latency = self._ms(began)
+        try:
+            record_attempt(
+                self._sessions, user_id=user_id, run_id=run_id, purpose=AiPurpose.EMBED,
+                model=model, attempt=number, status=status, tokens_in=tokens_in, tokens_out=0,
+                latency_ms=latency, failure_kind=failure_kind, est_cost_usd=cost,
+            )  # fmt: skip
+        except Exception:  # noqa: BLE001
+            logger.error("ai bookkeeping failed code=%s", "AI_RECORD_FAILED")
+        logger.info(
+            "ai model=%s outcome=%s ms=%d tokens_in=%d tokens_out=0 run=%s",
+            model, status.value, latency, tokens_in, run_id or "-",
+        )  # fmt: skip
+        return outcome
+
+    @staticmethod
+    def _vectors_fit(result: EmbedOk, count: int, dimensions: int) -> bool:
+        return len(result.vectors) == count and all(len(v) == dimensions for v in result.vectors)
 
     def _ms(self, since: float) -> int:
         return max(0, int((self._clock() - since) * 1000))

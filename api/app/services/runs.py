@@ -102,7 +102,7 @@ def _lock_uploads(db: Session, user: User, body: RunCreate, now: datetime) -> No
     if len(rows) != len(ids):
         raise AppError(404, ErrorCode.NOT_FOUND)
     for upload in rows:
-        if upload.mime != UploadMime.CSV:
+        if upload.mime not in (UploadMime.CSV, UploadMime.PDF):
             raise AppError(422, ErrorCode.UNSUPPORTED_TYPE)
         if (
             upload.status != UploadStatus.READY

@@ -15,7 +15,7 @@ from pydantic import (
     model_validator,
 )
 
-from app.core.enums import ClaimStatus, Confidence, ReportReason, RunOutcome
+from app.core.enums import ClaimOrigin, ClaimStatus, Confidence, ReportReason, RunOutcome
 from app.schemas.reports import EvidencePayload, ReportSummary
 
 MAX_CLAIMS: Final = 6
@@ -55,6 +55,39 @@ class ClaimsOut(BaseModel):
         return self
 
 
+class PdfClaimsOut(BaseModel):
+    """The writer's answer about a PDF: FLAT parallel lists, one entry per claim. claim_quotes[i] is
+    copied word for word from the passage on page claim_pages[i] (pages count from 1);
+    claim_values[i] is the figure the quote gives, or "" when it has none."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    title: Annotated[str, StringConstraints(min_length=1, max_length=120)]
+    answer: Annotated[str, StringConstraints(min_length=1, max_length=600)]
+    claim_texts: list[Annotated[str, StringConstraints(min_length=1, max_length=240)]] = Field(
+        min_length=1, max_length=MAX_CLAIMS
+    )
+    claim_quotes: list[Annotated[str, StringConstraints(max_length=300)]] = Field(
+        min_length=1, max_length=MAX_CLAIMS
+    )
+    claim_pages: list[int] = Field(min_length=1, max_length=MAX_CLAIMS)
+    claim_values: list[Annotated[str, StringConstraints(max_length=60)]] = Field(
+        min_length=1, max_length=MAX_CLAIMS
+    )
+    meaning: Annotated[str, StringConstraints(max_length=500)]
+    next_steps: list[Annotated[str, StringConstraints(max_length=200)]] = Field(max_length=3)
+
+    @model_validator(mode="after")
+    def _paired(self) -> "PdfClaimsOut":
+        sizes = {
+            len(self.claim_texts), len(self.claim_quotes), len(self.claim_pages),
+            len(self.claim_values),
+        }  # fmt: skip
+        if len(sizes) != 1:
+            raise ValueError("one quote, page and value per claim")
+        return self
+
+
 class ClaimRow(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -63,16 +96,21 @@ class ClaimRow(BaseModel):
     status: ClaimStatus
     computed_value: str | None
     evidence_refs: list[str]
+    # Document claims (P14a part 2); an Ask claim keeps the defaults.
+    origin: ClaimOrigin = ClaimOrigin.ANSWER
+    doc_quote: str | None = None
+    doc_location: str | None = None  # "p12"
+    doc_value: str | None = None
 
 
 class EvidenceRow(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     ref: str
-    type: Literal["table", "critic_note"]
+    type: Literal["table", "critic_note", "passage"]
     location: str | None
     payload: EvidencePayload
-    source: Literal["beaver", "cat"]  # whose trace line the evidence hangs on
+    source: Literal["beaver", "cat", "hound"]  # whose trace line the evidence hangs on
 
 
 class ReportDraft(BaseModel):

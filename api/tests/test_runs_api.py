@@ -208,11 +208,10 @@ def test_the_file_count_gate_comes_before_the_ownership_check(
         ({"status": "uploaded"}, 409, "UPLOAD_NOT_READY"),
         ({"moderation": "blocked"}, 409, "UPLOAD_NOT_READY"),
         ({"storage_key": None}, 409, "UPLOAD_NOT_READY"),
-        ({"mime": "application/pdf"}, 422, "UNSUPPORTED_TYPE"),
         ({"mime": "image/png"}, 422, "UNSUPPORTED_TYPE"),
         ({"status": "deleted", "deleted_at": clock.utcnow()}, 404, "NOT_FOUND"),
     ],
-    ids=["uploaded", "blocked", "no-file", "pdf", "png", "deleted"],
+    ids=["uploaded", "blocked", "no-file", "png", "deleted"],
 )
 def test_upload_must_be_a_ready_csv(
     alice: TestClient, db_connection: Connection, change: dict[str, Any], status: int, expected: str
@@ -220,6 +219,14 @@ def test_upload_must_be_a_ready_csv(
     upload = new_upload(alice)
     edit_upload(db_connection, upload, **change)
     code(alice.post(URL, json=body(upload)), status, expected)
+
+
+def test_a_ready_pdf_is_accepted_for_a_run(alice: TestClient, db_connection: Connection) -> None:
+    """P14a part 2 lifted the PDF refusal; any other type is still UNSUPPORTED_TYPE."""
+    upload = new_upload(alice)
+    edit_upload(db_connection, upload, mime="application/pdf")
+    response = alice.post(URL, json=body(upload))
+    assert response.status_code == 202, response.text
 
 
 def test_an_expired_upload_is_not_found(alice: TestClient, db_connection: Connection) -> None:

@@ -140,6 +140,30 @@ pdf_min_page_chars = 20
 chunk_chars = 1000
 chunk_overlap_chars = 150
 
+# --- PDF search (P14a part 2) ---
+
+# Embedding tokens (document chunks + question) one run may use, on top of max_tokens_per_run (embedding tokens are NOT
+# counted there). A PDF whose chunks need more than this is searched by keywords only. Owner-approved proposal for P14a;
+# about 40,000 tokens for a 30-page English PDF, up to the whole 100,000 for dense Korean. Tune in P14b from real numbers.
+max_embed_tokens_per_run = 100000
+
+# Price of embedding input in USD per 1M tokens, used for the cost estimate in ai_calls.est_cost_usd.
+# FROM GOOGLE'S PRICE PAGE, NOT MEASURED. The owner re-checks it in P14b.
+embed_usd_per_million_tokens = 0.20
+
+# Hybrid search: take this many nearest chunks by meaning (vector) and this many by words (full text), fuse them with
+# reciprocal rank fusion (rank constant retrieval_rrf_k), and keep the best retrieval_keep chunks for the writer.
+retrieval_vector_k = 20
+retrieval_text_k = 20
+retrieval_keep = 6
+retrieval_rrf_k = 60
+
+# Score floor. A chunk found by meaning counts only with cosine similarity at or above this; a chunk found by words
+# counts only if it holds at least retrieval_min_terms of the question's words. If nothing passes, the run ends
+# not_answerable with no writer call. NOT TUNED: 0.5 is a guess for gemini-embedding-2, to be measured in P14b.
+retrieval_min_similarity = 0.5
+retrieval_min_terms = 2
+
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
 # POST /runs reads these. Ask takes ONE CSV in v1 (more is refused with TOO_MANY_FILES).
 [files_per_slot]

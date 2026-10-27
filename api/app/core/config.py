@@ -68,6 +68,15 @@ class Limits(BaseModel):
     pdf_min_page_chars: PositiveInt
     chunk_chars: PositiveInt
     chunk_overlap_chars: NonNegativeInt
+    # PDF search and embeddings (P14a part 2).
+    max_embed_tokens_per_run: PositiveInt
+    embed_usd_per_million_tokens: PositiveFloat
+    retrieval_vector_k: PositiveInt
+    retrieval_text_k: PositiveInt
+    retrieval_keep: PositiveInt
+    retrieval_rrf_k: PositiveInt
+    retrieval_min_similarity: float = Field(ge=0, le=1)
+    retrieval_min_terms: PositiveInt
 
     @model_validator(mode="after")
     def _overlap_is_small(self) -> "Limits":

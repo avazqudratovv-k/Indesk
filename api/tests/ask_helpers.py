@@ -132,7 +132,7 @@ def ask_rig(
     csv: bytes | list[bytes] = CSV_GOOD,
     sandbox: list[Any] | None = None,
     api_key: str | None = API_KEY,
-    **limit_overrides: int,
+    **limit_overrides: float,
 ) -> tuple[Rig, CapturingClient, MemoryStorage]:
     limits = limits_with(**limit_overrides)
     # Cat's writer is the last call of a good run: a default answer follows the scripted steps,

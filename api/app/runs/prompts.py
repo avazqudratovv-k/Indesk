@@ -25,6 +25,7 @@ from app.runs.profile import CsvProfile
 OWL_PROMPT_VERSION: Final = "owl-2"
 BEAVER_PROMPT_VERSION: Final = "beaver-2"
 CAT_PROMPT_VERSION: Final = "cat-2"
+PDF_WRITER_PROMPT_VERSION: Final = "pdf-writer-1"
 
 
 def new_nonce() -> str:
@@ -187,6 +188,38 @@ def build_cat_prompt(
             "Write the report for this question from the table.",
             _question_block(question, nonce),
             _fence("TABLE", nonce, table),
+            "Reply with the report as JSON.",
+        ]
+    )
+    return PromptPair(system, prompt)
+
+
+def build_pdf_writer_prompt(
+    question: str, language: str, passages: list[dict[str, object]], *, nonce: str
+) -> PromptPair:
+    """The writer's prompt for a PDF: the passages Hound found (page and text, JSON, fenced) and the
+    question. The PDF text is untrusted: it sits ONLY inside the PASSAGES fence. The writer cites a
+    quote and a page; Cat's code checks both against the stored pages."""
+    system = (
+        "You are the report writer of a small document-reading team. Another agent has already "
+        "searched the user's PDF; you only write about the passages it found. Reply with one JSON "
+        "object that matches the given schema, and nothing else. Rules: write title, answer, "
+        f"claims, meaning and next steps in {language}. Use only facts that are in PASSAGES; never "
+        "use your own knowledge. If PASSAGES does not answer the question, write only what it does "
+        "say. Write 1 to 6 claims; each claim is one short sentence about one fact. For claim i: "
+        "claim_quotes[i] is copied word for word from one passage (at most 300 characters; join "
+        "separate parts of the same passage with ... if needed; never change, translate or "
+        "complete the words), claim_pages[i] is the page number of that passage as given in "
+        "PASSAGES, and claim_values[i] is the figure the quote gives, or an empty string. Every "
+        "number you write in a claim must appear in its quote. Do not write page numbers in the "
+        "claim text. Put no numbers in next_steps. No markup, no links, no code. "
+        + _data_rules(nonce)
+    )
+    prompt = "\n".join(
+        [
+            "Write the report for this question from the passages.",
+            _question_block(question, nonce),
+            _fence("PASSAGES", nonce, passages),
             "Reply with the report as JSON.",
         ]
     )

@@ -48,10 +48,9 @@ def insert_report(
         .order_by((RunFile.role == FileRole.SUBJECT).desc(), RunFile.upload_id)
         .limit(1)
     )
-    steps = {
-        "beaver": _step_id(db, run_id, AgentKey.DATA),
-        "cat": _step_id(db, run_id, AgentKey.CRITIC),
-    }
+    agents = {"beaver": AgentKey.DATA, "cat": AgentKey.CRITIC, "hound": AgentKey.RETRIEVAL}
+    # Only the steps the evidence hangs on: a PDF report has no Beaver step, a CSV one no Hound.
+    steps = {src: _step_id(db, run_id, agents[src]) for src in {e.source for e in draft.evidence}}
     days = RETENTION_DAYS.get(str(plan), DEFAULT_RETENTION_DAYS)
     report = Report(
         run_id=run_id,
@@ -70,7 +69,9 @@ def insert_report(
         db.add(
             Claim(
                 report_id=report.id, owner_id=owner_id, n=claim.n, text=claim.text,
-                status=claim.status.value, origin="answer", computed_value=claim.computed_value,
+                status=claim.status.value, origin=claim.origin.value,
+                computed_value=claim.computed_value, doc_quote=claim.doc_quote,
+                doc_location=claim.doc_location, doc_value=claim.doc_value,
                 evidence_refs=list(claim.evidence_refs),
             )
         )  # fmt: skip

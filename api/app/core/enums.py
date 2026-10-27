@@ -177,6 +177,15 @@ class JobClass(StrEnum):
 
     LIGHT = "light"
     MAIN = "main"
+    EMBED = "embed"  # embeddings (P14a part 2): one model, retries only, no fallback
+
+
+class EmbedTask(StrEnum):
+    """The task type sent with an embedding request: documents and queries are embedded
+    differently (P14a part 2). The values are the API's own words."""
+
+    DOCUMENT = "RETRIEVAL_DOCUMENT"
+    QUERY = "RETRIEVAL_QUERY"
 
 
 class AiCallStatus(StrEnum):
@@ -288,6 +297,10 @@ class TraceKey(StrEnum):
     STEP_FAILED = "stepFailed"
     STOPPED = "stopped"  # the closing line of every run that did not end in a normal answer
     VERIFY = "verify"  # Cat checks the claims (P9); args: claims, verified
+    # Hound (P14a part 2). Keys and args follow the web mock (messages workspace.live.events).
+    SEARCH = "search"  # args: pages, matched (+ mode)
+    BEST_PASSAGE = "bestPassage"  # args: page, score
+    SEARCH_FAILED = "searchFailed"  # args: reason, attempt
 
 
 class ReportReason(StrEnum):
@@ -300,6 +313,14 @@ class ReportReason(StrEnum):
     LABEL_MISSING = "label_missing"  # the claim does not name the row it cites
     NUMBER_MISMATCH = "number_mismatch"  # a number in the text is not in the cited cells
     RANKING_UNCHECKED = "ranking_unchecked"  # "most", "least"...: not the extreme of its column
+    # Document claims (P14a part 2): the quote and page the writer gave are checked against the
+    # stored text of the PDF.
+    QUOTE_NOT_FOUND = "quote_not_found"  # the quote is on no page of the document
+    PAGE_MISMATCH = "page_mismatch"  # the quote is in the document, but not on the cited page
+    BAD_PAGE = "bad_page"  # the cited page does not exist
+    QUOTE_TOO_SHORT = "quote_too_short"  # under 12 characters once spaces are ignored
+    NUMBER_NOT_IN_QUOTE = "number_not_in_quote"  # a number in the claim is not in its quote
+    NO_QUOTE = "no_quote"  # the claim cites no quote
 
 
 class EvidenceMethod(StrEnum):
