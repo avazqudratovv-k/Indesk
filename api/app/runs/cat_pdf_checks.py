@@ -3,11 +3,18 @@ is verified.
 
 "Verified" here means: the quote the writer gave is on the page it cited (word for word, after the
 match key of app.runs.quotes), it is long enough to mean something, and every number in the claim
-is a number of the quote. It does NOT mean the claim's wording follows from the quote, or that the
+is a number of the quote (with two narrow allowances below). It does NOT mean the claim's
+wording follows from the quote, or that the
 document is right; the quote is shown next to the claim so a reader can judge.
 
 Order of the checks: no_quote, bad_page, quote_too_short, quote_not_found / page_mismatch,
 number_not_in_quote. The first that fails is the reason.
+
+Allowances for a number of the claim that is not written in the quote: it is context the user gave
+(the same whole number is in the question, and it is a year 1900 to 2100 or a number up to 31:
+"2026년 9월"), or it is a whole number 0 to 12 that the quote spells as a word ("four", "네 개").
+A number of 3 digits or more, a decimal, a percent or a number with a scale word must be in the
+quote as written; a year or a day in the question is the only big number that may come from there.
 
 quote_too_short: every piece of a quote (between ellipses) must have 12 characters once spaces are
 ignored. In English that is about two words. In Korean, Japanese and Chinese 12 characters is a long
@@ -20,8 +27,9 @@ from dataclasses import dataclass
 from typing import Final
 
 from app.core.enums import ClaimStatus, ReportReason
-from app.runs.numbers import matches_any, number_tokens
+from app.runs.numbers import NumberToken, exact_tokens, matches_any, normal, number_tokens
 from app.runs.quotes import MIN_QUOTE_CHARS, check_quote, match_key, quote_segments
+from app.runs.spelled_numbers import MAX_SPELLED, spelled_in
 
 _SPACES: Final = re.compile(r"\s+")
 
@@ -44,8 +52,29 @@ def quote_numbers(quote: str) -> list[float]:
     return [float(t.value) * t.scale for t in number_tokens(quote)]
 
 
+def _whole(token: NumberToken) -> int | None:
+    """The token as a whole number when it is a plain one (no decimals, scale word or percent)."""
+    if not token.plain or token.places != 0:
+        return None
+    return int(normal(token.value))
+
+
+def _from_context(token: NumberToken, question_numbers: set[int], quote: str) -> bool:
+    number = _whole(token)
+    if number is None:
+        return False
+    restated = number in question_numbers and (number <= 31 or 1900 <= number <= 2100)
+    return restated or (number <= MAX_SPELLED and spelled_in(number, quote))
+
+
 def check_pdf_claim(
-    text: str, quote: str, page: int, value: str, pages: dict[int, str], page_count: int
+    text: str,
+    quote: str,
+    page: int,
+    value: str,
+    pages: dict[int, str],
+    page_count: int,
+    question: str = "",
 ) -> PdfVerdict:
     tidy_quote = _SPACES.sub(" ", quote).strip()
     segments = quote_segments(tidy_quote)
@@ -61,7 +90,11 @@ def check_pdf_claim(
         return _unverified(reason)
     shown = value.strip() if value.strip() and match_key(value) in "".join(segments) else None
     values = quote_numbers(tidy_quote)
-    if not all(matches_any(token, values) for token in number_tokens(text)):
+    asked = {int(n) for n in exact_tokens(question) if n == n.to_integral_value()}
+    if not all(
+        matches_any(token, values) or _from_context(token, asked, tidy_quote)
+        for token in number_tokens(text)
+    ):
         return _unverified(
             ReportReason.NUMBER_NOT_IN_QUOTE, found=True, quote=tidy_quote, value=shown
         )

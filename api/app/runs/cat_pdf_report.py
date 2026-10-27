@@ -47,7 +47,9 @@ def build_pdf_report(
         text = scrub_text(raw)
         if not text:
             continue
-        kept.append((text, page, check_pdf_claim(text, quote, page, value, pages, page_count)))
+        kept.append(
+            (text, page, check_pdf_claim(text, quote, page, value, pages, page_count, question))
+        )
     if not kept:
         return None
 

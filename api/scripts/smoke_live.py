@@ -10,10 +10,11 @@ Hound's search payload (mode, pages, scores; no passage text), the embedding row
 the estimated cost, and the report's claims with doc_quote / doc_location / doc_value. The owner runs
 it live in P14b; nothing here has run against real Gemini.
 
---reset-quota (dev helper): before the run, deletes the smoke account's own `run` usage_events and
-its own rl:login / rl:signup / rl:run Redis keys (its IP and email only), so repeated calibration
-runs are not stopped by the free-run total or the hourly limits. It refuses to do anything unless
-APP_ENV=development. It does not touch usage_daily (the daily caps), other users or other keys.
+--reset-quota (dev helper): before the run, deletes the smoke account's own `run` usage_events, its
+own usage_daily counters and its own rl:login / rl:signup / rl:run Redis keys (its IP and email
+only), so repeated calibration runs are not stopped by the free-run total, the daily caps or the
+hourly limits. It refuses to do anything unless APP_ENV=development. It never touches the global
+counters, other users or other keys.
 
 It logs in as one throwaway user (signing it up the first time; signup is limited to 5 per hour per
 IP) and reuses that user's upload of the same file name while it is still stored. It posts the run,
@@ -49,7 +50,7 @@ from app.core.config import Settings, get_settings  # noqa: E402
 from app.core.enums import UsageKind  # noqa: E402
 from app.core.ratelimit import redis_client  # noqa: E402
 from app.core.security import keyed_hash  # noqa: E402
-from app.db.models import UsageEvent, User  # noqa: E402
+from app.db.models import UsageDaily, UsageEvent, User  # noqa: E402
 from app.db.session import get_engine  # noqa: E402
 
 ORIGIN = "http://localhost:3000"  # an allow-listed origin: writes are refused without one
@@ -178,8 +179,15 @@ def reset_quota(settings: Settings, db: Session, redis: Any, ip: str | None) -> 
             .where(UsageEvent.user_id == user_id, UsageEvent.kind == UsageKind.RUN.value)
             .returning(UsageEvent.id)
         ).all()
-        db.commit()
         done.append(f"usage_events (run) deleted: {len(gone)}")
+        # Its own daily counters only: the user's rows, never the 'global' row or another user's.
+        days = db.scalars(
+            delete(UsageDaily)
+            .where(UsageDaily.user_id == user_id, UsageDaily.scope == f"user:{user_id}")
+            .returning(UsageDaily.id)
+        ).all()
+        db.commit()
+        done.append(f"usage_daily (this user's counters) deleted: {len(days)}")
     removed = redis.delete(*keys) if keys else 0
     done.append(f"redis rate-limit keys deleted: {removed}")
     return done
@@ -230,6 +238,12 @@ def inspect(run_id: str) -> None:
             continue
         if "matched" in payload and "mode" in payload:
             dump(f"Hound search (step {seq}, {key})", payload)
+            if "cosines" not in payload:  # the worker, not this script, writes the payload
+                print(
+                    "WARNING: this payload has no `cosines` field: the worker is running an older "
+                    "image than this script. Rebuild it: docker compose up -d --build worker "
+                    "scheduler api"
+                )
             print(
                 f"cosines (raw, kept passages): {payload.get('cosines')} | "
                 f"top cosine before the floor: {payload.get('top_cosine')} | "
