@@ -208,7 +208,6 @@ def test_empty_and_header_only(alice: TestClient, data: bytes) -> None:
     ("name", "mime", "status", "code"),
     [
         ("data.txt", "text/plain", 415, "UNSUPPORTED_TYPE"),
-        ("data.pdf", "application/pdf", 415, "UNSUPPORTED_TYPE"),
         ("data.xlsx", "", 415, "UNSUPPORTED_TYPE"),
         ("data", "text/csv", 415, "TYPE_MISMATCH"),
         ("data.csv", "application/pdf", 415, "TYPE_MISMATCH"),

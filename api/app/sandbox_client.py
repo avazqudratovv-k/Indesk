@@ -12,7 +12,7 @@ import urllib.request
 import uuid
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, JsonValue
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
 
 from app.core.config import get_settings
 from app.core.enums import SandboxErrorCode
@@ -110,4 +110,65 @@ def run_pandas(
             result = _fail(SandboxErrorCode.UNAVAILABLE, started)
     outcome = "ok" if isinstance(result, SandboxOk) else result.code.value
     logger.info("sandbox job %s %s %dms", job_id, outcome, result.duration_ms)
+    return result
+
+
+class PdfParsed(BaseModel):
+    """What the sandbox returns for a parsed PDF: the text of each page in order (0 = page 1)."""
+
+    model_config = ConfigDict(frozen=True)
+
+    page_count: int = Field(ge=1)
+    pages: list[str] = Field(repr=False)  # the document text: kept out of repr, like a prompt
+
+
+class PdfParseOk(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    ok: Literal[True] = True
+    parsed: PdfParsed
+    duration_ms: int
+
+
+PdfParseResult = PdfParseOk | SandboxError
+
+
+def parse_pdf(
+    pdf_bytes: bytes,
+    *,
+    max_pages: int,
+    max_chars: int,
+    timeout: float = TOTAL_TIMEOUT_SECONDS,
+) -> PdfParseResult:
+    """Parse a PDF in the parser service (its own container, see compose.yaml). Never raises. A busy
+    parse slot, a stopped parser and an answer that does not fit the shape all give
+    SandboxErrorCode.UNAVAILABLE. Never logs the PDF or its text."""
+    started = time.monotonic()
+    job_id = str(uuid.uuid4())
+    result: PdfParseResult
+    try:
+        payload = json.dumps(
+            {
+                "job_id": job_id,
+                "pdf_b64": base64.b64encode(pdf_bytes).decode("ascii"),
+                "max_pages": max_pages,
+                "max_chars": max_chars,
+            }
+        ).encode()
+        url = get_settings().parser_url.rstrip("/") + "/parse-pdf"
+        status, body = _post(url, payload, timeout)
+        answer = _interpret(status, body, started)
+        if isinstance(answer, SandboxError):
+            result = answer
+        else:
+            parsed = PdfParsed.model_validate(answer.result)
+            if len(parsed.pages) != parsed.page_count:
+                raise ValueError("page count does not match")
+            result = PdfParseOk(parsed=parsed, duration_ms=answer.duration_ms)
+    except (ValidationError, ValueError, TypeError):
+        result = _fail(SandboxErrorCode.UNAVAILABLE, started)
+    except Exception:  # noqa: BLE001  # never raise: timeouts, refused connections, bad JSON
+        result = _fail(SandboxErrorCode.UNAVAILABLE, started)
+    outcome = "ok" if isinstance(result, PdfParseOk) else result.code.value
+    logger.info("sandbox parse %s %s %dms", job_id, outcome, result.duration_ms)
     return result

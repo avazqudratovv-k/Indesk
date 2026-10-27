@@ -61,6 +61,20 @@ class Limits(BaseModel):
     profile_cell_chars: PositiveInt
     profile_name_chars: PositiveInt
     max_stored_result_bytes: PositiveInt
+    # PDF (P14a).
+    max_pdf_pages: PositiveInt
+    max_pdf_chars: PositiveInt
+    pdf_min_text_chars: PositiveInt
+    pdf_min_page_chars: PositiveInt
+    chunk_chars: PositiveInt
+    chunk_overlap_chars: NonNegativeInt
+
+    @model_validator(mode="after")
+    def _overlap_is_small(self) -> "Limits":
+        # The splitter looks for a break in the last 40% of a chunk; more overlap could stall it.
+        if self.chunk_overlap_chars * 5 > self.chunk_chars * 2:
+            raise ValueError("chunk_overlap_chars must be at most 40% of chunk_chars")
+        return self
 
 
 def load_limits(path: Path = LIMITS_FILE) -> Limits:
@@ -91,6 +105,7 @@ class Settings(BaseSettings):
     trusted_proxies: Annotated[list[str], NoDecode] = []
     # Where the sandbox service listens (only the worker shares a network with it).
     sandbox_url: str = "http://sandbox:8080"
+    parser_url: str = "http://parser:8080"  # the PDF parser service (P14a); not the sandbox
     # DEV ONLY: lets a developer watch a run end to end with scripted agents and no Gemini. Honoured
     # only when app_env is "development" (like the web dev_session cookie, DECISIONS #67). Never set
     # in compose.yaml (a test checks); a developer sets it in their own api/.env.

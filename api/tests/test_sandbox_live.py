@@ -192,7 +192,8 @@ def test_no_internet() -> None:
 INTERNAL_NAMES = """
 import socket
 out = {}
-for name in ("db", "redis", "api", "scheduler", "postgres", "indesk-db-1", "indesk-redis-1"):
+NAMES = ("db", "redis", "api", "parser", "scheduler", "postgres", "indesk-db-1", "indesk-redis-1")
+for name in NAMES:
     try:
         socket.gethostbyname(name)
         out[name] = "resolved"
@@ -200,6 +201,19 @@ for name in ("db", "redis", "api", "scheduler", "postgres", "indesk-db-1", "inde
         out[name] = "failed"
 result = out
 """
+
+
+def test_the_sandbox_has_no_parse_route() -> None:
+    """PDF parsing is the parser container's job (P14a); the sandbox serves /run only."""
+    body = json.dumps(
+        {"job_id": str(uuid.uuid4()), "pdf_b64": "JVBERg==", "max_pages": 1, "max_chars": 1}
+    )
+    request = urllib.request.Request(
+        f"{sandbox_url()}/parse-pdf", data=body.encode(), method="POST"
+    )
+    with pytest.raises(urllib.error.HTTPError) as caught:
+        urllib.request.urlopen(request, timeout=10)  # noqa: S310  # our own sandbox
+    assert caught.value.code == 404
 
 
 def test_db_redis_and_api_names_do_not_resolve() -> None:

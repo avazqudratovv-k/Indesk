@@ -118,6 +118,26 @@ profile_name_chars = 60
 # fails the run (analysis_failed) instead of being cut, because Cat cannot verify a cut value. The sandbox itself allows 1 MiB.
 max_stored_result_bytes = 65536
 
+# --- PDF in Ask (P14a) ---
+# The PDF size limit is max_file_bytes (5 MB), the same as a CSV. Parsing runs in the sandbox (pypdf).
+
+# Most pages in a PDF. One limit for everyone (owner answer to the P14 plan, Q2); the demo PDF is 5-30 pages.
+max_pdf_pages = 30
+
+# Most extracted characters in a PDF (about 5,000 a page). More is refused with PDF_TOO_MUCH_TEXT.
+max_pdf_chars = 150000
+
+# A PDF with less text than this in total counts as a scan or an empty file (PDF_NO_TEXT).
+pdf_min_text_chars = 200
+
+# A page counts as "has text" with at least this many characters. Fewer than half of the pages with text is also PDF_NO_TEXT.
+pdf_min_page_chars = 20
+
+# Target characters of a chunk, and the characters shared with the next chunk. Chunks never cross a page.
+# Owner-approved proposal for P14 (plan section 3); to be tuned on the demo PDF in P14b.
+chunk_chars = 1000
+chunk_overlap_chars = 150
+
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
 # POST /runs reads these. Ask takes ONE CSV in v1 (more is refused with TOO_MANY_FILES).
 [files_per_slot]

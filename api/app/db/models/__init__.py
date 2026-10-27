@@ -1,5 +1,6 @@
 """Importing this package registers every table on Base.metadata (Alembic and tests need it)."""
 
+from app.db.models.documents import Chunk, DocumentPage
 from app.db.models.reports import Claim, Evidence, Report
 from app.db.models.runs import AgentStep, Run, RunFile
 from app.db.models.uploads import Upload
@@ -10,7 +11,9 @@ __all__ = [
     "AgentStep",
     "AiCall",
     "AuditLog",
+    "Chunk",
     "Claim",
+    "DocumentPage",
     "Evidence",
     "RefreshToken",
     "Report",

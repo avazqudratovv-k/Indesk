@@ -4,10 +4,17 @@ import os
 
 MAX_BODY_BYTES = 12 * 1024 * 1024  # base64 of 8 MiB of CSV plus the code
 MAX_CSV_BYTES = 8 * 1024 * 1024  # a 5 MB cp949 upload grows to about 7.5 MB as UTF-8
+MAX_PDF_BYTES = 8 * 1024 * 1024  # the API caps a PDF at 5 MB; this is the hard ceiling
+PDF_MAX_PAGES_HARD = 200  # a request may ask for fewer, never more
+PDF_MAX_CHARS_HARD = 200_000  # extracted characters; keeps the JSON answer under MAX_RESULT_BYTES
 MAX_CODE_CHARS = 100_000
 MAX_RESULT_BYTES = 1024 * 1024  # serialized `result`
 MAX_STREAM_BYTES = 64 * 1024  # captured stdout, and stderr, each
 MAX_CONCURRENT_JOBS = 2
+# PDF parse jobs (P14a) run in the separate parser container (parser_server.py): one at a time.
+# A second parse is answered "unavailable" at once. It never takes a pandas run's slot: another
+# process.
+MAX_CONCURRENT_PARSE_JOBS = 1
 POOL_THREADS = 4  # started once; spare threads answer /health and "busy" while two jobs run
 REQUEST_READ_SECONDS = 10.0  # whole request body, so a slow sender cannot hold a thread
 
@@ -25,8 +32,12 @@ MAX_OPEN_FILES = 128
 JOBS_ROOT = "/tmp/jobs"  # noqa: S108  # in the tmpfs
 TEST_MODE_VARIABLE = "SANDBOX_TEST_MODE"
 OUTCOME_CODES = frozenset(
-    {"timeout", "memory", "forbidden", "runtime", "output_too_large", "bad_input"}
-)
+    {
+        "timeout", "memory", "forbidden", "runtime", "output_too_large", "bad_input",
+        # PDF parse jobs only (P14a):
+        "encrypted", "too_many_pages", "too_much_text", "unreadable",
+    }
+)  # fmt: skip
 
 
 def ast_check_enabled(requested: bool) -> bool:

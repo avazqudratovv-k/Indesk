@@ -22,6 +22,9 @@ services:
       - uploads:/data/uploads
     ports:
       - "127.0.0.1:8000:8000"
+    networks:
+      - default
+      - parse_net # reaches the parser service only (P14a); the sandbox is not on this network
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -120,6 +123,36 @@ services:
       retries: 5
       start_period: 5s
 
+  # Reads uploaded PDFs for the api (P14a). The SAME image as the sandbox with a parse-only entrypoint: it
+  # serves only /parse-pdf and /health (no /run), and no model-written code ever reaches it. Same hardening as
+  # the sandbox, on its own internal network shared with the api only (parse_net), so the sandbox that runs
+  # model code has no route to the api and the parser has no route to db, redis, the sandbox or the internet.
+  # No environment, no mounts, no published ports. Memory: a parse job is capped at 1280 MiB of address space
+  # and used under 400 MB resident in the stream-bomb test; 1 GiB leaves room for the server around it.
+  parser:
+    build: ./api/sandbox
+    command: ["python", "-m", "indesk_sandbox.parser_server"]
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 1g
+    memswap_limit: 1g # no swap
+    cpus: 1
+    restart: unless-stopped
+    networks:
+      - parse_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
   db:
     image: pgvector/pgvector:pg17
     environment:
@@ -149,6 +182,9 @@ services:
 networks:
   # No route to the internet or to db, redis and api. Shared only by the worker and the sandbox.
   sandbox_net:
+    internal: true
+  # No route to the internet or to db, redis, worker and sandbox. Shared only by the api and the parser.
+  parse_net:
     internal: true
 
 volumes:

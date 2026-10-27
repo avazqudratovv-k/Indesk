@@ -16,6 +16,10 @@ CREATE ROLE indesk_migrator LOGIN PASSWORD :'migrator_password'
 CREATE ROLE indesk_app LOGIN PASSWORD :'app_password'
   NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
 
+-- pgvector (P14): only a superuser may create it, so it is made here, once, on a fresh volume. Migration
+-- 0005 then finds it. An existing volume needs the same statement by hand (see the migration).
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- The migrator owns the database, so it also owns the public schema and every table it creates.
 ALTER DATABASE :"dbname" OWNER TO indesk_migrator;
 REVOKE ALL ON DATABASE :"dbname" FROM PUBLIC;

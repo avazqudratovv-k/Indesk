@@ -34,6 +34,12 @@ class ErrorCode(StrEnum):
     TOO_MANY_COLUMNS = "TOO_MANY_COLUMNS"
     EMPTY_FILE = "EMPTY_FILE"
     BAD_CSV = "BAD_CSV"
+    PDF_ENCRYPTED = "PDF_ENCRYPTED"  # password-protected: not supported
+    PDF_NO_TEXT = "PDF_NO_TEXT"  # a scan or images only: no text to search (Chameleon, later)
+    PDF_TOO_MANY_PAGES = "PDF_TOO_MANY_PAGES"
+    PDF_TOO_MUCH_TEXT = "PDF_TOO_MUCH_TEXT"
+    PDF_UNREADABLE = "PDF_UNREADABLE"  # damaged, or the parser could not finish
+    PARSER_BUSY = "PARSER_BUSY"  # 503: the sandbox parse slot is taken or the sandbox is down
     # Runs.
     MODE_NOT_AVAILABLE = "MODE_NOT_AVAILABLE"
     DAILY_CAP_USER = "DAILY_CAP_USER"

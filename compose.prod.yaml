@@ -8,7 +8,7 @@
 # required: with no default, compose refuses to start when one is missing.
 #
 # Networks: edge (web <-> api, pinned subnet = TRUSTED_PROXIES), backend (internal: db, redis and everything that
-# talks to them), egress (worker only, so it can reach Gemini), sandbox_net (internal: worker <-> sandbox).
+# talks to them), egress (worker only, so it can reach Gemini), sandbox_net (internal: worker <-> sandbox), parse_net (internal: api <-> parser).
 name: indesk
 
 x-logging: &logging
@@ -44,6 +44,7 @@ services:
     networks:
       - edge
       - backend
+      - parse_net # reaches the parser service only (P14a)
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -162,6 +163,38 @@ services:
       retries: 5
       start_period: 5s
 
+  # Reads uploaded PDFs for the api (P14a). The SAME image as the sandbox with a parse-only entrypoint: it
+  # serves only /parse-pdf and /health (no /run), and no model-written code ever reaches it. Same hardening as
+  # the sandbox, on its own internal network shared with the api only (parse_net), so the sandbox that runs
+  # model code has no route to the api and the parser has no route to db, redis, the sandbox or the internet.
+  # No environment, no mounts, no published ports. Memory: a parse job is capped at 1280 MiB of address space
+  # and used under 400 MB resident in the stream-bomb test; 1 GiB leaves room for the server around it.
+  parser:
+    build: ./api/sandbox
+    image: indesk-parser:local
+    command: ["python", "-m", "indesk_sandbox.parser_server"]
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 1g
+    memswap_limit: 1g # no swap
+    cpus: 1
+    restart: unless-stopped
+    logging: *logging
+    networks:
+      - parse_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
   web:
     build:
       context: ./web
@@ -244,7 +277,9 @@ networks:
     internal: true # db and redis have no route to the internet
   egress: {} # worker only
   sandbox_net:
-    internal: true # no route to the internet or to db, redis and api
+    internal: true # no route to the internet or to db, redis and api; worker and sandbox only
+  parse_net:
+    internal: true # no route to the internet, db, redis, worker or sandbox; api and parser only
 
 volumes:
   pgdata:

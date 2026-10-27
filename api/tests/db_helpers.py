@@ -18,8 +18,10 @@ def admin_url() -> URL:
     return make_url(os.environ.get("TEST_ADMIN_DATABASE_URL") or os.environ["DATABASE_URL"])
 
 
-def recreate_database(name: str) -> str:
-    """Drop and create an empty test database; return its URL."""
+def recreate_database(name: str, *, vector: bool = True) -> str:
+    """Drop and create an empty test database; return its URL. With `vector` (the default) the
+    pgvector extension is created as the superuser, as db-init does on a fresh volume; migration
+    0005 needs it and a limited role cannot create it."""
     if name not in TEST_DATABASES:
         raise RuntimeError("refusing to recreate a database that is not a test database")
     base = admin_url()
@@ -30,6 +32,13 @@ def recreate_database(name: str) -> str:
             conn.execute(text(f'CREATE DATABASE "{name}"'))
     finally:
         admin.dispose()
+    if vector:
+        own = create_engine(base.set(database=name), isolation_level="AUTOCOMMIT")
+        try:
+            with own.connect() as conn:
+                conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        finally:
+            own.dispose()
     return base.set(database=name).render_as_string(hide_password=False)
 
 

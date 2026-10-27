@@ -51,7 +51,13 @@ def failure_from_sandbox(error: SandboxError) -> AgentFailed:
             return AgentFailed(RunReason.ANALYSIS_FAILED, retryable=True)
         case SandboxErrorCode.MEMORY | SandboxErrorCode.OUTPUT_TOO_LARGE:
             return AgentFailed(RunReason.ANALYSIS_FAILED)
-        case SandboxErrorCode.BAD_INPUT:
+        case (
+            SandboxErrorCode.BAD_INPUT
+            | SandboxErrorCode.ENCRYPTED
+            | SandboxErrorCode.TOO_MANY_PAGES
+            | SandboxErrorCode.TOO_MUCH_TEXT
+            | SandboxErrorCode.UNREADABLE
+        ):  # the last four come from PDF parse jobs only (upload time); never from a pandas run
             return AgentFailed(RunReason.INPUT_UNUSABLE)
         case _:  # UNAVAILABLE
             return AgentFailed(RunReason.SANDBOX_UNAVAILABLE, retryable=True)

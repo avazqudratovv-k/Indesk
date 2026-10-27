@@ -1,6 +1,9 @@
-"""The sandbox HTTP server. Stdlib only. One endpoint: POST /run (and GET /health).
+"""The sandbox HTTP server. Stdlib only. This process serves POST /run (and GET /health). PDF
+parsing is a different process with the same code: parser_server.py serves ONLY POST /parse-pdf,
+in its own container on its own network (P14a fix). Neither process has the other's route.
 
 Request:  JSON {"job_id": str, "code": str, "csv_b64": str, "check_ast": bool (optional)}
+          /parse-pdf: JSON {"job_id": str, "pdf_b64": str, "max_pages": int, "max_chars": int}
 Response: 200 {"ok": true, "result": <json>, "duration_ms": n}
           200 {"ok": false, "error": "<fixed code>", "duration_ms": n}
           400 bad_input (malformed request), 413 bad_input (too large), 503 unavailable (busy).
@@ -33,17 +36,19 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 from indesk_sandbox import procs, settings
 
 logger = logging.getLogger("indesk.sandbox.server")
 
 RUNNER = str(Path(__file__).with_name("runner.py"))
+PARSE_RUNNER = str(Path(__file__).with_name("parse_runner.py"))
 JOB_ID = re.compile(r"[A-Za-z0-9-]{1,64}")
 PR_SET_DUMPABLE = 4
 PR_SET_CHILD_SUBREAPER = 36
 HEADER = struct.Struct(">II")
+PARSE_HEADER = struct.Struct(">III")  # max pages, max characters, PDF length
 CHUNK = 64 * 1024
 
 # What a job gets as its environment. Nothing is inherited. The thread counts keep numpy from
@@ -72,6 +77,7 @@ class Registry:
 
 REGISTRY = Registry()
 SLOTS = threading.BoundedSemaphore(settings.MAX_CONCURRENT_JOBS)
+PARSE_SLOTS = threading.BoundedSemaphore(settings.MAX_CONCURRENT_PARSE_JOBS)  # parser process only
 
 
 class Outcome:
@@ -171,6 +177,16 @@ def run_job(code: str, csv_bytes: bytes, check_ast: bool) -> Outcome:
     ast_on = settings.ast_check_enabled(check_ast)
     code_bytes = code.encode("utf-8")
     frame = HEADER.pack(len(code_bytes), len(csv_bytes)) + code_bytes + csv_bytes
+    return _execute(RUNNER, [str(int(ast_on))], frame)
+
+
+def parse_job(pdf_bytes: bytes, max_pages: int, max_chars: int) -> Outcome:
+    frame = PARSE_HEADER.pack(max_pages, max_chars, len(pdf_bytes)) + pdf_bytes
+    return _execute(PARSE_RUNNER, [], frame)
+
+
+def _execute(runner: str, extra_args: list[str], frame: bytes) -> Outcome:
+    """Start one runner process with the frame on its stdin and collect its single outcome."""
     try:
         job_dir = tempfile.mkdtemp(dir=settings.JOBS_ROOT)
         result_read, result_write = os.pipe()
@@ -182,7 +198,7 @@ def run_job(code: str, csv_bytes: bytes, check_ast: bool) -> Outcome:
         try:
             with REGISTRY.lock:
                 proc = subprocess.Popen(  # noqa: S603  # fixed argument list, no shell
-                    [sys.executable, "-E", "-s", "-B", RUNNER, str(result_write), str(int(ast_on))],
+                    [sys.executable, "-E", "-s", "-B", runner, str(result_write), *extra_args],
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
@@ -242,6 +258,27 @@ def _decode_request(body: bytes) -> tuple[str, str, bytes, bool] | None:
     return job_id, code, csv_bytes, check_ast
 
 
+def _decode_parse_request(body: bytes) -> tuple[str, bytes, int, int] | None:
+    try:
+        data = json.loads(body)
+        job_id, pdf_b64 = data["job_id"], data["pdf_b64"]
+        max_pages, max_chars = data["max_pages"], data["max_chars"]
+        if not (isinstance(job_id, str) and JOB_ID.fullmatch(job_id) and isinstance(pdf_b64, str)):
+            return None
+        for number, hard in (
+            (max_pages, settings.PDF_MAX_PAGES_HARD),
+            (max_chars, settings.PDF_MAX_CHARS_HARD),
+        ):
+            if isinstance(number, bool) or not isinstance(number, int) or not 0 < number <= hard:
+                return None
+        pdf_bytes = base64.b64decode(pdf_b64, validate=True)
+    except (ValueError, KeyError, TypeError, binascii.Error, RecursionError):
+        return None
+    if not pdf_bytes or len(pdf_bytes) > settings.MAX_PDF_BYTES:
+        return None
+    return job_id, pdf_bytes, max_pages, max_chars
+
+
 def health() -> dict[str, Any]:
     rss_kb = 0
     with contextlib.suppress(OSError, ValueError, IndexError):
@@ -254,6 +291,9 @@ def health() -> dict[str, Any]:
 class Handler(BaseHTTPRequestHandler):
     timeout = settings.REQUEST_READ_SECONDS  # a socket timeout on every read and write
     protocol_version = "HTTP/1.0"  # one request per connection
+    # path -> (job slot, method name). The base class serves no job route; each process picks ONE
+    # subclass, so the sandbox has no /parse-pdf and the parser has no /run.
+    routes: ClassVar[dict[str, tuple[threading.BoundedSemaphore, str]]] = {}
 
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
         return  # no access log: a path or an address is not needed, and a body must never appear
@@ -295,16 +335,18 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"ok": False, "error": "bad_input"})
 
     def do_POST(self) -> None:
-        if self.path != "/run":
+        route = self.routes.get(self.path)
+        if route is None:
             self._send(404, {"ok": False, "error": "bad_input"})
             return
-        if not SLOTS.acquire(blocking=False):
+        slots, method = route
+        if not slots.acquire(blocking=False):
             self._send(503, {"ok": False, "error": "unavailable"})
             return
         try:
-            self._run()
+            getattr(self, method)()
         finally:
-            SLOTS.release()
+            slots.release()
 
     def _run(self) -> None:
         started = time.monotonic()
@@ -317,7 +359,22 @@ class Handler(BaseHTTPRequestHandler):
             self._send(400, {"ok": False, "error": "bad_input", "duration_ms": 0})
             return
         job_id, code, csv_bytes, check_ast = request
-        outcome = run_job(code, csv_bytes, check_ast)
+        self._finish(job_id, run_job(code, csv_bytes, check_ast), started)
+
+    def _parse(self) -> None:
+        started = time.monotonic()
+        try:
+            body = self._read_body()
+        except (OSError, TimeoutError):
+            return
+        request = None if body is None else _decode_parse_request(body)
+        if request is None:
+            self._send(400, {"ok": False, "error": "bad_input", "duration_ms": 0})
+            return
+        job_id, pdf_bytes, max_pages, max_chars = request
+        self._finish(job_id, parse_job(pdf_bytes, max_pages, max_chars), started)
+
+    def _finish(self, job_id: str, outcome: Outcome, started: float) -> None:
         elapsed = int((time.monotonic() - started) * 1000)
         if outcome.error == "unavailable":
             status, payload = 503, {"ok": False, "error": "unavailable"}
@@ -332,12 +389,20 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, {"ok": False, "error": "runtime", "duration_ms": elapsed})
 
 
+class RunHandler(Handler):
+    routes = {"/run": (SLOTS, "_run")}
+
+
+class ParseHandler(Handler):
+    routes = {"/parse-pdf": (PARSE_SLOTS, "_parse")}
+
+
 class PoolServer(HTTPServer):
     """HTTPServer with a fixed set of handler threads, started once. Creating a thread per request
     would fail while a runaway job holds the user's process limit."""
 
-    def __init__(self, address: tuple[str, int]) -> None:
-        super().__init__(address, Handler)
+    def __init__(self, address: tuple[str, int], handler: type[Handler]) -> None:
+        super().__init__(address, handler)
         self.pending: queue.Queue[tuple[Any, Any]] = queue.Queue(maxsize=16)
         for _ in range(settings.POOL_THREADS):
             threading.Thread(target=self._worker, daemon=True).start()
@@ -371,12 +436,16 @@ def prepare_process() -> None:
     root.chmod(0o300)
 
 
-def main() -> None:
+def serve(handler: type[Handler], name: str) -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
     prepare_process()
-    server = PoolServer(("0.0.0.0", 8080))  # noqa: S104  # inside the container; no port is published
-    logger.info("sandbox listening")
+    server = PoolServer(("0.0.0.0", 8080), handler)  # noqa: S104  # inside the container; no port is published
+    logger.info("%s listening", name)
     server.serve_forever()
+
+
+def main() -> None:
+    serve(RunHandler, "sandbox")
 
 
 if __name__ == "__main__":

@@ -450,6 +450,10 @@ SANDBOX_CASES = [
     (SandboxErrorCode.MEMORY, "analysis_failed", 1, "failed"),
     (SandboxErrorCode.OUTPUT_TOO_LARGE, "analysis_failed", 1, "failed"),
     (SandboxErrorCode.BAD_INPUT, "input_unusable", 1, "failed"),
+    (SandboxErrorCode.ENCRYPTED, "input_unusable", 1, "failed"),  # PDF parse codes: never in a run,
+    (SandboxErrorCode.TOO_MANY_PAGES, "input_unusable", 1, "failed"),  # but mapped, not guessed
+    (SandboxErrorCode.TOO_MUCH_TEXT, "input_unusable", 1, "failed"),
+    (SandboxErrorCode.UNREADABLE, "input_unusable", 1, "failed"),
     (SandboxErrorCode.UNAVAILABLE, "sandbox_unavailable", 2, "failed"),
 ]
 

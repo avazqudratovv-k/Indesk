@@ -142,3 +142,97 @@ def test_migration_0004_downgrades_and_upgrades_again(
     command.upgrade(config, "head")
     with app_engine.connect() as conn:
         assert conn.execute(text("SELECT count(*) FROM users")).scalar() is not None
+
+
+# ---- migration 0005: PDF text and vectors (P14a) ----
+
+
+def test_the_app_role_can_use_the_pdf_tables_and_the_vector_type(app_engine: Engine) -> None:
+    from sqlalchemy.orm import Session  # noqa: PLC0415
+
+    vector = "[" + ",".join(["0.25"] * 768) + "]"
+    with Session(app_engine) as db:
+        user = make_user(db)
+        upload = db.execute(
+            text(
+                "INSERT INTO uploads (user_id, filename, mime, size, sha256, expires_at)"
+                " VALUES (:u, 'a.pdf', 'application/pdf', 10, :h, now() + interval '1 day')"
+                " RETURNING id"
+            ),
+            {"u": user.id, "h": "a" * 64},
+        ).scalar_one()
+        db.execute(
+            text(
+                "INSERT INTO document_pages (upload_id, owner_id, page, text, char_count)"
+                " VALUES (:i, :u, 1, 'abc def', 7)"
+            ),
+            {"i": upload, "u": user.id},
+        )
+        db.execute(
+            text(
+                "INSERT INTO chunks (upload_id, owner_id, page, ord, char_start, char_end, text)"
+                " VALUES (:i, :u, 1, 0, 0, 7, 'abc def')"
+            ),
+            {"i": upload, "u": user.id},
+        )
+        db.execute(
+            text("UPDATE chunks SET embedding = CAST(:v AS vector), embedding_model = 'm'"),
+            {"v": vector},
+        )
+        nearest = db.execute(
+            text(
+                "SELECT count(*) FROM (SELECT 1 FROM chunks"
+                " ORDER BY embedding <=> CAST(:v AS vector) LIMIT 1) q"
+            ),
+            {"v": vector},
+        ).scalar_one()
+        assert nearest == 1
+        db.execute(text("DELETE FROM chunks"))
+        db.execute(text("DELETE FROM document_pages"))
+        db.rollback()
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "DROP TABLE chunks",
+        "DROP TABLE document_pages",
+        "ALTER TABLE chunks ADD COLUMN sneaky text",
+        "CREATE INDEX sneaky ON chunks (page)",
+        "DROP EXTENSION vector",
+        "TRUNCATE chunks",
+    ],
+)
+def test_the_app_role_cannot_change_the_pdf_tables_or_the_extension(
+    app_engine: Engine, statement: str
+) -> None:
+    with app_engine.connect() as conn, pytest.raises(ProgrammingError) as caught:
+        conn.execute(text(statement))
+    assert isinstance(caught.value.orig, InsufficientPrivilege)
+
+
+def test_the_tables_belong_to_the_migrator(migrator_engine: Engine) -> None:
+    with migrator_engine.connect() as conn:
+        owners: dict[str, str] = dict(
+            conn.execute(
+                text(
+                    "SELECT tablename, tableowner FROM pg_tables"
+                    " WHERE tablename IN ('chunks', 'document_pages')"
+                )
+            )
+            .tuples()
+            .all()
+        )
+    assert owners == {"chunks": MIGRATOR, "document_pages": MIGRATOR}
+
+
+def test_a_missing_extension_stops_the_migration_with_a_clear_message(database_url: str) -> None:
+    """The migrator cannot create pgvector (only a superuser can); the migration says what to do."""
+    url = recreate_database("indesk_test_migrations", vector=False)
+    admin = create_engine(admin_url().set(database="postgres"), isolation_level="AUTOCOMMIT")
+    with admin.connect() as conn:
+        conn.execute(text(f"ALTER DATABASE indesk_test_migrations OWNER TO {MIGRATOR}"))  # noqa: S608
+    admin.dispose()
+    config = alembic_config(as_role(url, MIGRATOR).render_as_string(hide_password=False))
+    with pytest.raises(Exception, match="CREATE EXTENSION vector"):
+        command.upgrade(config, "head")

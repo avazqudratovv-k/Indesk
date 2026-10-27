@@ -50,7 +50,9 @@ def fake(monkeypatch: pytest.MonkeyPatch) -> Iterator[Fake]:
     server = HTTPServer(("127.0.0.1", 0), Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_port}"
-    monkeypatch.setattr(sandbox_client, "get_settings", lambda: SimpleNamespace(sandbox_url=url))
+    monkeypatch.setattr(
+        sandbox_client, "get_settings", lambda: SimpleNamespace(sandbox_url=url, parser_url=url)
+    )
     yield state
     server.shutdown()
     server.server_close()
@@ -172,3 +174,82 @@ def test_nothing_about_the_code_or_the_data_is_logged(
     assert "result =" not in logged
     sandbox_lines = [r for r in caplog.records if r.name == "indesk.sandbox"]
     assert len(sandbox_lines) == 1  # one line: job id, outcome, duration
+
+
+# ---- parse_pdf (P14a) ----
+
+PDF_BYTES = b"%PDF-1.4 PDF-CANARY-4e8b"
+
+
+def test_parse_pdf_ok_answer(fake: Fake) -> None:
+    fake.reply = answer(
+        200, {"ok": True, "result": {"page_count": 2, "pages": ["one", "two"]}, "duration_ms": 9}
+    )
+    result = sandbox_client.parse_pdf(PDF_BYTES, max_pages=30, max_chars=1000)
+    assert isinstance(result, sandbox_client.PdfParseOk)
+    assert result.parsed.pages == ["one", "two"] and result.parsed.page_count == 2
+    sent = fake.seen[0]
+    assert set(sent) == {"job_id", "pdf_b64", "max_pages", "max_chars"}
+    assert (sent["max_pages"], sent["max_chars"]) == (30, 1000)
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        SandboxErrorCode.ENCRYPTED,
+        SandboxErrorCode.TOO_MANY_PAGES,
+        SandboxErrorCode.TOO_MUCH_TEXT,
+        SandboxErrorCode.UNREADABLE,
+        SandboxErrorCode.TIMEOUT,
+        SandboxErrorCode.MEMORY,
+    ],
+)
+def test_parse_pdf_codes_come_back_typed(fake: Fake, code: SandboxErrorCode) -> None:
+    fake.reply = answer(200, {"ok": False, "error": code.value, "duration_ms": 3})
+    result = sandbox_client.parse_pdf(PDF_BYTES, max_pages=30, max_chars=1000)
+    assert isinstance(result, SandboxError) and result.code is code
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        (503, b'{"ok": false, "error": "unavailable"}'),  # the parse slot is taken
+        (500, b"boom"),
+        (200, b"not json"),
+        (
+            200,
+            b'{"ok": true, "result": {"page_count": 2, "pages": ["only one"]}}',
+        ),  # count mismatch
+        (200, b'{"ok": true, "result": {"page_count": 0, "pages": []}}'),
+        (200, b'{"ok": true, "result": {"pages": ["x"]}}'),
+        (200, b'{"ok": true, "result": [1, 2]}'),
+        (200, b'{"ok": true, "result": {"page_count": 1, "pages": [5]}}'),
+    ],
+)
+def test_parse_pdf_bad_answers_are_unavailable_and_never_raise(
+    fake: Fake, reply: tuple[int, bytes]
+) -> None:
+    fake.reply = reply
+    result = sandbox_client.parse_pdf(PDF_BYTES, max_pages=30, max_chars=1000)
+    assert isinstance(result, SandboxError) and result.code is SandboxErrorCode.UNAVAILABLE
+
+
+def test_parse_pdf_connection_refused_is_unavailable(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        sandbox_client, "get_settings", lambda: SimpleNamespace(parser_url="http://127.0.0.1:1")
+    )
+    result = sandbox_client.parse_pdf(PDF_BYTES, max_pages=30, max_chars=1000)
+    assert isinstance(result, SandboxError) and result.code is SandboxErrorCode.UNAVAILABLE
+
+
+def test_parse_pdf_logs_neither_the_pdf_nor_its_text(
+    fake: Fake, caplog: pytest.LogCaptureFixture
+) -> None:
+    fake.reply = answer(
+        200,
+        {"ok": True, "result": {"page_count": 1, "pages": ["TEXT-CANARY-2d7a"]}, "duration_ms": 1},
+    )
+    with caplog.at_level(logging.DEBUG):
+        result = sandbox_client.parse_pdf(PDF_BYTES, max_pages=30, max_chars=1000)
+    assert isinstance(result, sandbox_client.PdfParseOk)
+    assert "CANARY" not in caplog.text and "CANARY" not in repr(result)

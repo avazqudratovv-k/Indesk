@@ -38,7 +38,7 @@ def create_upload(
     )
     if consent != CONSENT_VALUE:
         raise AppError(422, ErrorCode.CONSENT_REQUIRED)
-    upload = service.create_csv_upload(
+    upload = service.create_upload(
         db,
         storage,
         settings.limits,

@@ -76,7 +76,7 @@ def test_sandbox_hardening_is_kept(prod: dict[str, Any]) -> None:
     assert sandbox["networks"] == ["sandbox_net"]
     assert prod["networks"]["sandbox_net"] == {"internal": True}
     sharing = [n for n, s in prod["services"].items() if "sandbox_net" in (s.get("networks") or [])]
-    assert sorted(sharing) == ["sandbox", "worker"]
+    assert sorted(sharing) == ["sandbox", "worker"]  # the api is NOT here (P14a fix)
 
 
 def test_db_and_redis_cannot_reach_the_internet(prod: dict[str, Any]) -> None:
@@ -92,3 +92,29 @@ def test_every_long_running_service_restarts_and_is_limited(prod: dict[str, Any]
         assert service["mem_limit"] == service["memswap_limit"], name
         if name != "migrate":
             assert service["restart"] == "unless-stopped", name
+
+
+def test_the_parser_is_a_hardened_parse_only_copy_on_its_own_network(prod: dict[str, Any]) -> None:
+    parser = prod["services"]["parser"]
+    assert parser["build"] == "./api/sandbox"
+    assert parser["command"] == ["python", "-m", "indesk_sandbox.parser_server"]
+    assert parser["read_only"] is True
+    assert parser["cap_drop"] == ["ALL"]
+    assert "cap_add" not in parser
+    assert any(o.startswith("no-new-privileges") for o in parser["security_opt"])
+    assert 0 < parser["pids_limit"] <= 128
+    assert parser["mem_limit"] and parser["memswap_limit"] == parser["mem_limit"]
+    assert 0 < float(parser["cpus"]) <= 4
+    assert parser["restart"] == "unless-stopped"
+    for key in (
+        "ports", "expose", "volumes", "volumes_from", "environment", "env_file", "secrets",
+        "privileged", "network_mode", "devices", "user", "depends_on",
+    ):  # fmt: skip
+        assert key not in parser, key
+    assert parser["networks"] == ["parse_net"]
+    assert prod["networks"]["parse_net"] == {"internal": True}
+    members = sorted(
+        n for n, s in prod["services"].items() if "parse_net" in (s.get("networks") or [])
+    )
+    assert members == ["api", "parser"]
+    assert prod["services"]["api"]["networks"] == ["edge", "backend", "parse_net"]

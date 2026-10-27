@@ -61,8 +61,36 @@ def test_sandbox_is_on_the_internal_network_only(
         for name, service in compose["services"].items()
         if "sandbox_net" in (service.get("networks") or [])
     ]
-    assert sorted(sharing) == ["sandbox", "worker"]
+    assert sorted(sharing) == ["sandbox", "worker"]  # the api is NOT here (P14a fix)
     assert "default" in compose["services"]["worker"]["networks"]  # keeps db and redis
+
+
+def test_the_parser_is_a_hardened_parse_only_copy_on_its_own_network(
+    compose: dict[str, Any],
+) -> None:
+    parser = compose["services"]["parser"]
+    assert parser["build"] == "./api/sandbox"  # the same image as the sandbox ...
+    assert parser["command"] == ["python", "-m", "indesk_sandbox.parser_server"]  # ... parse only
+    assert parser["read_only"] is True
+    assert parser["cap_drop"] == ["ALL"]
+    assert "cap_add" not in parser
+    assert any(o.startswith("no-new-privileges") for o in parser["security_opt"])
+    assert 0 < parser["pids_limit"] <= 128
+    assert parser["mem_limit"] and parser["memswap_limit"] == parser["mem_limit"]
+    assert 0 < float(parser["cpus"]) <= 4
+    assert len(parser["tmpfs"]) == 1 and parser["tmpfs"][0].startswith("/tmp:")
+    for key in (
+        "ports", "expose", "volumes", "volumes_from", "environment", "env_file", "secrets",
+        "privileged", "network_mode", "devices", "user", "depends_on",
+    ):  # fmt: skip
+        assert key not in parser, key
+    assert parser["networks"] == ["parse_net"]
+    assert compose["networks"]["parse_net"] == {"internal": True}
+    members = sorted(
+        n for n, s in compose["services"].items() if "parse_net" in (s.get("networks") or [])
+    )
+    assert members == ["api", "parser"]
+    assert compose["services"]["api"]["networks"] == ["default", "parse_net"]
 
 
 def test_test_mode_is_only_in_the_override(compose: dict[str, Any]) -> None:

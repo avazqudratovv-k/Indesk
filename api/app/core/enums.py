@@ -200,7 +200,12 @@ class SandboxErrorCode(StrEnum):
     RUNTIME = "runtime"
     OUTPUT_TOO_LARGE = "output_too_large"
     BAD_INPUT = "bad_input"
-    UNAVAILABLE = "unavailable"  # set by the client when the service cannot be reached
+    # PDF parse jobs only (P14a). The sandbox says what is wrong with the file, never more.
+    ENCRYPTED = "encrypted"
+    TOO_MANY_PAGES = "too_many_pages"
+    TOO_MUCH_TEXT = "too_much_text"
+    UNREADABLE = "unreadable"
+    UNAVAILABLE = "unavailable"  # set by the client when the service cannot be reached, or is busy
 
 
 class GatewayOutcome(StrEnum):
