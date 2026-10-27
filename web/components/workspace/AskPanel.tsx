@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import DemoNotice from "@/components/ui/DemoNotice";
 import { apiErrorKey, retryMinutes, ApiError } from "@/lib/api/errors";
@@ -13,6 +13,7 @@ import FileSlot from "./FileSlot";
 import ModeSwitch from "./ModeSwitch";
 import QuestionBox from "./QuestionBox";
 import SampleFile from "./SampleFile";
+import { clearSampleDismissed, loadSampleFile, readSampleDismissed, SAMPLE_FILE_NAME, SAMPLE_ID, writeSampleDismissed } from "@/lib/workspace/sample";
 import TeamReady from "./TeamReady";
 import UploadInfo from "./UploadInfo";
 import { useWorkspaceFiles } from "./use-workspace-files";
@@ -41,20 +42,27 @@ export type SubmitState = {
 type Need = "files" | "document" | "sources" | "both" | "question" | "tooLong" | "consent";
 
 // The Ask tab: mode switch, the two cards (files, question), the team strip and the upload info.
-// Everything here is local state. Pressing Run hands a summary to the page; nothing is uploaded or stored.
-export default function AskPanel({ freeLeft, plan, onRun, submit }: { freeLeft: number | null; plan: string; onRun: (submission: RunSubmission) => void; submit?: SubmitState }) {
+// Everything here is local state. Pressing Run hands the files to the page, which uploads them; nothing is uploaded before that.
+// In Ask the Seoul sample is attached as a pending card: it becomes a File (and is uploaded) only when Run is pressed.
+export default function AskPanel({ userId, freeLeft, plan, onRun, submit }: { userId: string; freeLeft: number | null; plan: string; onRun: (submission: RunSubmission) => void; submit?: SubmitState }) {
   const t = useTranslations("workspace");
   const [mode, setMode] = useState<WorkspaceMode>("ask");
   const [questions, setQuestions] = useState<Record<WorkspaceMode, string>>({ ask: "", check: "", compare: "" });
   const [consent, setConsent] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const { slots, errors, add, remove } = useWorkspaceFiles(mode);
+  // Whether the sample is on offer: off after the person removed it (kept per user) or chose a file of their own (this visit only).
+  const [sampleOn, setSampleOn] = useState(() => !readSampleDismissed(userId));
+  const [preparing, setPreparing] = useState(false);
+  const [sampleFailed, setSampleFailed] = useState(false);
+  const sampleFile = useRef<SlotFile | null>(null);
   const showActive = submit !== undefined && submit.activeRunId !== null && submit.failure?.code !== "RUN_ACTIVE" && submit.followingRunId !== submit.activeRunId;
 
   const question = questions[mode];
   const trimmed = question.trim();
   const slotIds = MODE_SLOTS[mode];
-  const fileCount = slotIds.reduce((sum, id) => sum + slots[id].length, 0);
+  const sampleActive = mode === "ask" && sampleOn && slots.files.length === 0;
+  const fileCount = slotIds.reduce((sum, id) => sum + slots[id].length, 0) + (sampleActive ? 1 : 0);
 
   function need(): Need | null {
     if (mode === "ask") {
@@ -71,15 +79,17 @@ export default function AskPanel({ freeLeft, plan, onRun, submit }: { freeLeft: 
     return null;
   }
 
-  const busy = submit !== undefined && submit.stage !== "idle";
+  const busy = (submit !== undefined && submit.stage !== "idle") || preparing;
   const missing = need();
-  const busyHint = submit && busy ? (submit.stage === "uploading" ? t("submit.uploading", { done: Math.min(submit.progress.done + 1, submit.progress.total), total: submit.progress.total }) : t("submit.starting")) : null;
+  const busyHint = preparing ? t("sample.preparing") : submit && busy ? (submit.stage === "uploading" ? t("submit.uploading", { done: Math.min(submit.progress.done + 1, submit.progress.total), total: submit.progress.total }) : t("submit.starting")) : null;
   // freeLeft is null whenever GET /api/usage has not answered (or failed): then the hint names no number.
   const usesHint = plan === "free" && freeLeft !== null ? (freeLeft > 0 ? t("run.usesFree", { left: freeLeft }) : t("run.noFreeLeft")) : t("run.usesOther");
   const hint = busyHint ?? (missing ? t(`run.need.${missing}`) : usesHint);
 
   function handleAdd(slot: SlotId, files: File[]) {
     const result = add(slot, files);
+    // A file of their own replaces the pending sample (nothing was uploaded for it, so nothing is lost).
+    if (slot === "files" && result.added.length > 0 && sampleOn) setSampleOn(false);
     const parts: string[] = [];
     if (result.added.length === 1) parts.push(t("upload.announceAddedOne", { name: result.added[0] }));
     else if (result.added.length > 1) parts.push(t("upload.announceAddedMany", { count: result.added.length }));
@@ -95,9 +105,39 @@ export default function AskPanel({ freeLeft, plan, onRun, submit }: { freeLeft: 
     if (item) setAnnouncement(t("upload.announceRemoved", { name: item.file.name }));
   }
 
-  function run() {
+  function removeSample() {
+    if (busy) return;
+    setSampleOn(false);
+    setSampleFailed(false);
+    writeSampleDismissed(userId);
+    submit?.onFileRemoved(SAMPLE_ID);
+    setAnnouncement(t("sample.announceRemoved"));
+  }
+
+  function useSample() {
+    if (busy) return;
+    setSampleOn(true);
+    clearSampleDismissed(userId);
+    setAnnouncement(t("sample.announceAdded"));
+  }
+
+  async function run() {
     if (need() !== null || busy) return;
-    onRun({ mode, fileCount, question: trimmed, files: slotIds.flatMap((id) => slots[id]) });
+    const own = slotIds.flatMap((id) => slots[id]);
+    if (!sampleActive) {
+      onRun({ mode, fileCount, question: trimmed, files: own });
+      return;
+    }
+    setSampleFailed(false);
+    setPreparing(true);
+    try {
+      sampleFile.current ??= await loadSampleFile();
+      onRun({ mode, fileCount, question: trimmed, files: [sampleFile.current] });
+    } catch {
+      setSampleFailed(true);
+    } finally {
+      setPreparing(false);
+    }
   }
 
   const slot = (id: SlotId, extra: { title?: string; documentOnly?: boolean; csvOnly?: boolean } = {}) => (
@@ -136,8 +176,9 @@ export default function AskPanel({ freeLeft, plan, onRun, submit }: { freeLeft: 
           <h2 className={styles.cardTitle}>{t(stepFiles)}</h2>
           {mode === "ask" ? (
             <>
+              {sampleActive ? <SampleFile attached locked={busy} onRemove={removeSample} onUse={useSample} /> : null}
               {slot("files", { csvOnly: true })}
-              <SampleFile />
+              {!sampleActive && slots.files.length === 0 ? <SampleFile attached={false} locked={busy} onRemove={removeSample} onUse={useSample} /> : null}
             </>
           ) : null}
           {mode === "check" ? (
@@ -172,8 +213,8 @@ export default function AskPanel({ freeLeft, plan, onRun, submit }: { freeLeft: 
               key={mode}
               value={question}
               onChange={(value) => setQuestions((all) => ({ ...all, [mode]: value }))}
-              placeholder={mode === "ask" ? t("question.placeholder") : t("question.focusPlaceholder")}
-              chips={mode === "ask"}
+              placeholder={mode === "ask" ? (sampleActive ? t("question.placeholder") : t("question.placeholderOwn")) : t("question.focusPlaceholder")}
+              chips={sampleActive}
             />
           )}
           <div className={styles.runBar}>
@@ -187,7 +228,12 @@ export default function AskPanel({ freeLeft, plan, onRun, submit }: { freeLeft: 
               {hint}
             </span>
           </div>
-          {submit?.failure ? <SubmitProblem submit={submit} failure={submit.failure} names={Object.fromEntries(slotIds.flatMap((id) => slots[id]).map((item) => [item.id, item.file.name]))} /> : null}
+          {sampleFailed ? (
+            <div className={styles.problem} role="alert">
+              <span>{t("sample.loadFailed")}</span>
+            </div>
+          ) : null}
+          {submit?.failure ? <SubmitProblem submit={submit} failure={submit.failure} names={{ ...Object.fromEntries(slotIds.flatMap((id) => slots[id]).map((item) => [item.id, item.file.name])), [SAMPLE_ID]: SAMPLE_FILE_NAME }} /> : null}
         </div>
       </section>
 

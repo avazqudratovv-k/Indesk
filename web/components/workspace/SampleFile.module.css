@@ -1,21 +1,107 @@
 .sample {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  align-items: stretch;
+  gap: 6px;
 }
 
+/* Same look as an added file in FileSlot. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 10px 10px 10px 14px;
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  background: var(--accentSoft);
+  color: var(--ink);
+  box-sizing: border-box;
+}
+
+.kind {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--c-cham);
+  color: var(--paper);
+  font: 500 12px var(--mono);
+}
+
+.info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.name {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--ink2);
+}
+
+.remove {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.remove:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+}
+
+.remove:disabled,
+.use:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 18px;
+}
+
+.use,
 .link {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
   font-size: 14.5px;
   font-weight: 700;
   color: var(--accentText);
   text-decoration: underline;
   text-underline-offset: 3px;
+  cursor: pointer;
 }
 
+.remove:focus-visible,
+.use:focus-visible,
 .link:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;

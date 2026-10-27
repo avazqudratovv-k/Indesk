@@ -470,6 +470,16 @@
       },
       "statusReady": "Uploaded, deleted from our servers on {when}"
     },
+    "sample": {
+      "title": "Sample: Seoul subway, September 2026",
+      "meta": "{size} · Pending, uploaded when you press Run",
+      "remove": "Remove the sample file",
+      "use": "Use the sample file",
+      "preparing": "Preparing the sample file…",
+      "loadFailed": "The sample file could not be loaded. Try again.",
+      "announceRemoved": "Removed the sample file.",
+      "announceAdded": "Added the sample file."
+    },
     "errors": {
       "type": "{name}: only CSV files work.",
       "empty": "{name}: the file is empty.",
@@ -506,7 +516,8 @@
           "text": "Which day was busiest?",
           "full": "Which day had the most total boardings?"
         }
-      ]
+      ],
+      "placeholderOwn": "Ask a question about your file"
     },
     "checkSteps": [
       "Owl lists every number, ranking and quote the document claims (up to 10 on Free).",

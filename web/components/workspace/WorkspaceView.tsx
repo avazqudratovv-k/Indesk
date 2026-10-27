@@ -103,7 +103,7 @@ export default function WorkspaceView({ offers, mockOutcome }: { offers: PlanOff
             </Link>
           ) : null}
         </div>
-        {session.status === "unknown" ? <p className={styles.sub} role="status">{tCommon("loading")}</p> : session.signedIn ? <AskPanel freeLeft={free ? free.left : null} plan={plan} onRun={onRun} submit={mockMode ? undefined : { stage: live.stage, progress: live.progress, fileStatus: live.fileStatus, failure: live.failure, activeRunId: live.activeRunId, followingRunId: live.run?.id ?? null, onWatchActive: () => void live.watchActive().then(() => setTab("run")), onFileRemoved: live.forgetFile, onDismissFailure: live.clearFailure }} /> : <SignedOutCard />}
+        {session.status === "unknown" ? <p className={styles.sub} role="status">{tCommon("loading")}</p> : session.signedIn ? <AskPanel userId={session.user.id} freeLeft={free ? free.left : null} plan={plan} onRun={onRun} submit={mockMode ? undefined : { stage: live.stage, progress: live.progress, fileStatus: live.fileStatus, failure: live.failure, activeRunId: live.activeRunId, followingRunId: live.run?.id ?? null, onWatchActive: () => void live.watchActive().then(() => setTab("run")), onFileRemoved: live.forgetFile, onDismissFailure: live.clearFailure }} /> : <SignedOutCard />}
       </div>
 
       <div id="ws-panel-run" role="tabpanel" aria-labelledby="ws-tab-run" hidden={tab !== "run"} className={styles.panel}>
