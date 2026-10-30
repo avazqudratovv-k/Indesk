@@ -9,7 +9,7 @@ export const navItems: NavItem[] = [
   { key: "home", href: "/", signedInOnly: false, built: true },
   { key: "workspace", href: "/workspace", signedInOnly: false, built: true },
   { key: "people", href: "/people", signedInOnly: true, built: false },
-  { key: "myReports", href: "/my", signedInOnly: true, built: false },
+  { key: "myReports", href: "/my", signedInOnly: true, built: true },
   { key: "plans", href: "/plans", signedInOnly: false, built: true },
 ];
 

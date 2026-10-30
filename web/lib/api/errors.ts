@@ -25,6 +25,7 @@ export const knownCodes = [
   "NOT_RETRYABLE",
   "MODEL_UNAVAILABLE",
   "RUN_ACTIVE",
+  "RUN_IN_PROGRESS",
   "UPLOAD_NOT_READY",
   "TOO_MANY_STREAMS",
   "TOO_MANY_FILES",

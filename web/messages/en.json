@@ -1220,6 +1220,48 @@
       }
     }
   },
+  "my": {
+    "title": "My page",
+    "retry": "Try again",
+    "loadMore": "Load more",
+    "loadError": "Could not load this list.",
+    "reports": {
+      "title": "Your reports",
+      "private": "Only you can open your reports.",
+      "deleteNote": "Deleting a report removes its evidence and the saved run. It does not give back a free run.",
+      "empty": "No reports yet. Start a run and it will show up here.",
+      "verified": "{verified} of {total} verified",
+      "files": "{count, plural, one {# file} other {# files}}",
+      "outcome": {
+        "answered": "Answered",
+        "partial": "Partly answered"
+      },
+      "created": "Created {date}",
+      "until": "Available until {date}",
+      "open": "Open",
+      "delete": "Delete",
+      "confirm": "Delete this report?",
+      "cancel": "Cancel",
+      "confirmDelete": "Delete",
+      "deleting": "Deleting…"
+    },
+    "files": {
+      "title": "Files you uploaded",
+      "note": "The file and its extracted text are deleted about 24 hours after upload. Reports keep the evidence they quoted.",
+      "deleteNote": "Deletes the file and its extracted text now. Reports that used it keep their evidence.",
+      "empty": "No files yet. Files you upload show up here.",
+      "deletesIn": "Deleted in {hours} h",
+      "deletesSoon": "Deleted soon",
+      "deleted": "Deleted",
+      "pages": "{count, plural, one {# page} other {# pages}}",
+      "rows": "{count, plural, one {# row} other {# rows}}",
+      "delete": "Delete",
+      "confirm": "Delete this file?",
+      "cancel": "Cancel",
+      "confirmDelete": "Delete",
+      "deleting": "Deleting…"
+    }
+  },
   "common": {
     "loading": "Loading…"
   },
@@ -1253,6 +1295,7 @@
     "NOT_RETRYABLE": "This cannot be retried.",
     "MODEL_UNAVAILABLE": "The AI service isn't available right now. Try again later.",
     "RUN_ACTIVE": "You already have a run in progress.",
+    "RUN_IN_PROGRESS": "The run for this report is still going. Wait for it to finish, then delete the report.",
     "UPLOAD_NOT_READY": "The file is still being prepared. Try again in a moment.",
     "TOO_MANY_STREAMS": "Too many tabs or windows are following runs at once. Close the others, then reconnect.",
     "TOO_MANY_FILES": "Ask takes one file, a CSV or a PDF. Remove the extra files and try again.",

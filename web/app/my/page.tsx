@@ -1,14 +1,17 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import RequireAuth from "@/components/auth/RequireAuth";
-import { notFound } from "next/navigation";
-import RoutePlaceholder from "@/components/RoutePlaceholder";
-import { isBuilt } from "@/components/layout/nav-items";
+import MyView from "@/components/my/MyView";
 
-// Not built yet: the page answers 404 until its flag in nav-items.ts is true.
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("my");
+  return { title: `${t("title")} · Indesk` };
+}
+
 export default function Page() {
-  if (!isBuilt("/my")) notFound();
   return (
     <RequireAuth>
-      <RoutePlaceholder route="My page" />
+      <MyView />
     </RequireAuth>
   );
 }
