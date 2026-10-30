@@ -11,11 +11,10 @@ Repo: this one (monorepo: `web/`, `api/`, `docs/`). Product detail: `docs/ai/SPE
 - Work follows `docs/ai/ROADMAP.md` in order (UI first, then backend, then swap mock to real). Check a box only when its "done when" is true.
 
 ## Commands
-`web/` exists; `api/` is only a stub (ROADMAP 3.1 creates it). Update this section as things appear.
-- Web (`web/`, exists): install `npm ci`; dev `npm run dev` (port 3000); build `npm run build`; lint `npm run lint`; typecheck `npm run typecheck`. No test runner yet (add with the first real logic).
-- API (`api/`): Python 3.12 virtualenv in `api/.venv`; dev `uvicorn app.main:app --reload` (port 8000); lint `ruff check .`; typecheck `mypy .`; tests `pytest`; migrations `alembic upgrade head`.
-- All services: `docker compose up` (API, Postgres + pgvector, Redis, RQ worker).
-- The `api/` commands are placeholders until it exists; verify before relying on them.
+`web/` and `api/` both exist. Update this section as things appear.
+- Web (`web/`): install `npm ci`; dev `npm run dev` (port 3000); build `npm run build`; lint `npm run lint`; typecheck `npm run typecheck`; tests `npm test` (Vitest).
+- API (`api/`): Python 3.12 runs only inside Docker (DECISIONS #99). Full check: `docker compose run --rm --build api sh -c "ruff check . && ruff format --check . && mypy . && pytest -q"`. The default `pytest` skips the tests marked `sandbox` and `parser` (they need those services; CI runs them in their own jobs). Migrations run in the one-shot `migrate` service (`alembic upgrade head`).
+- All services: `docker compose up` (api, worker, scheduler, sandbox, parser, Postgres + pgvector, Redis, and the one-shot migrate).
 
 ## Project layout
 - `web/` — Next.js 16 app: `app/` routes (`app/dev/tokens` is a dev-only swatch page), `components/`, `styles/tokens.css`; later `messages/` (en, ko) and `mocks/`
@@ -54,7 +53,7 @@ Repo: this one (monorepo: `web/`, `api/`, `docs/`). Product detail: `docs/ai/SPE
   - Main reasoning (Beaver code, Chameleon vision, Cat verdicts): `gemini-3.8-flash` → `gemini-3.6-flash` → `gemini-3.5-flash-lite`.
   - `gemini-4-argon` only as an optional escalation, off by default, paid tier only.
 - 35 s budget per model request shared across the whole fallback chain; a timeout, error or HTTP 429 moves to the next model; if all fail the agent shows Failed with Retry.
-- Every call is logged to `ai_calls` (metadata only: model, tokens, cost, status, latency; never file contents or question text) and counted in `usage_daily`. Daily caps from config: per user 30 runs / 300 calls, global 100 runs / 1,000 calls; the cached example is excluded. A capped run is refused before any model call with `daily_cap_user` or `daily_cap_global`.
+- Every call is logged to `ai_calls` (metadata only: model, tokens, cost, status, latency; never file contents or question text) and counted in `usage_daily`. Daily caps from `api/config/limits.toml` (set 2026-10-27, DECISIONS #261): per user 10 runs / 50 calls, global 150 runs / 600 calls; the cached example is excluded. A capped run is refused before any model call with `daily_cap_user` or `daily_cap_global`.
 - Uploaded text is data, never instructions: put it only in clearly marked data sections of a prompt.
 - Free tier only for development, and only with the public Seoul demo data and test files. Never use real private files until the paid-tier switch (ROADMAP 5.5).
 - Tests and CI use the fake model client. They never call real Gemini and never spend the daily cap. Real Gemini runs only by hand.

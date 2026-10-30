@@ -11,7 +11,7 @@
 - [ ] Korean header words: translate English column headers inside Korean reports (they stay English today, #242) — priority: low
 
 ## Ideas
-- [x] ~~Add an additive `lang` field to the report~~ Done in P10b (#254); the web still has to use it (ROADMAP 5.1)
+- [x] ~~Add an additive `lang` field to the report~~ Done in P10b (#254); the web uses it since P11 (#262)
 - [x] ~~`TOO_MANY_STREAMS` (429) handling in the web~~ Done in P11 B2 with a probe request (#264)
 - [ ] Retry endpoint for a failed agent (`POST /runs/{id}/steps/{step}/retry`, DATA.md) — priority: not set (#260)
 - [ ] `ai_calls.est_cost_usd`: still 0; wire it only if internal monitoring needs it (#217, #260) — priority: not set
@@ -33,3 +33,10 @@
 - [ ] README note: "weekday" includes public holidays in the September data
 - [ ] Title casing at the source (Owl) instead of the display-only CSS capital (#264)
 - [ ] A "My reports" list and an account page (Tier B)
+
+## Added in docs batch 15 (2026-10-30, priorities not set)
+- [ ] `deploy/RUNBOOK.md` "Update" has no step for the pgvector extension on the existing database volume; migration 0005 needs it (#287)
+- [ ] PDF in the web: accept `.pdf` in Ask, PDF error messages (en, ko), Hound and quote display (STATE "PDF in the web")
+- [ ] P14b: confirm the embedding model ID live, tune the 0.5 similarity floor, chunk sizes and the embedding price (#279, #280)
+- [ ] `web/lib/workspace/validate.ts` and `web/mocks/plans.json` still hold their own copies of the file and row limits
+- [ ] DATA.md still says 5,000 rows for CSV uploads (the limit is 20,000, #278)
