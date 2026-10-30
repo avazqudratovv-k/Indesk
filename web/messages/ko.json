@@ -389,7 +389,8 @@
       "noRealCards": "실제 카드 정보를 입력하지 마세요.",
       "processing": "처리 중…",
       "successTitle": "데모 결제가 완료되었습니다",
-      "successLine": "실제로 돈은 이동하지 않았습니다. 계정은 무료 플랜 그대로입니다.",
+      "successLine": "실제로 돈은 이동하지 않았습니다.",
+      "successAccountFree": "계정은 무료 플랜 그대로입니다.",
       "done": "완료",
       "declinedTitle": "결제가 거절되었습니다",
       "declinedLine": "이 데모 카드는 거절되었습니다.",
@@ -923,8 +924,7 @@
           "body": "''{column}'' 열에는 {min}~{max} 자료만 있습니다."
         },
         "csv_no_rows": {
-          "head": "질문에 맞는 행이 없습니다",
-          "body": "파일에는 {rows, number}행이 있습니다."
+          "head": "질문에 맞는 행이 없습니다"
         },
         "csv_missing_column": {
           "head": "이 파일에는 ''{column}'' 열이 없습니다",
@@ -937,6 +937,7 @@
         "pdf_not_in_passages": {
           "head": "이 문서에서는 답을 찾지 못했습니다",
           "checked": "질문과 가장 잘 맞는 {pages}쪽의 내용을 확인했지만 답은 없었습니다.",
+          "checkedAll": "문서 전체를 확인했지만 질문에 대한 답은 없었습니다.",
           "checkedNoPages": "질문과 가장 잘 맞는 내용을 확인했지만 답은 없었습니다.",
           "ofPages": "문서는 총 {pages, number}쪽입니다."
         },
@@ -971,6 +972,7 @@
       "stepFailed": "한 단계가 실패했습니다",
       "stepFailedReason": "한 단계가 실패했습니다: {reason}",
       "stopped": "실행이 멈췄습니다",
+      "stoppedMissingColumn": "이 질문에 필요한 열이 파일에 없습니다",
       "stoppedReason": "실행이 멈췄습니다: {reason}",
       "search": "문서에서 검색하는 중",
       "searchPages": "문서에서 검색하는 중({pages, number}쪽)",

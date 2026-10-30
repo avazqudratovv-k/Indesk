@@ -389,7 +389,8 @@
       "noRealCards": "Do not enter real card details.",
       "processing": "Processing…",
       "successTitle": "Demo checkout complete",
-      "successLine": "No real money moved. Your account stays on the Free plan.",
+      "successLine": "No real money moved.",
+      "successAccountFree": "Your account stays on the Free plan.",
       "done": "Done",
       "declinedTitle": "Payment declined",
       "declinedLine": "This demo card was declined.",
@@ -923,8 +924,7 @@
           "body": "''{column}'' holds data from {min} to {max}."
         },
         "csv_no_rows": {
-          "head": "No rows matched your question",
-          "body": "The file has {rows, number} rows."
+          "head": "No rows matched your question"
         },
         "csv_missing_column": {
           "head": "The file has no ''{column}'' column",
@@ -937,6 +937,7 @@
         "pdf_not_in_passages": {
           "head": "The document doesn't answer this",
           "checked": "We checked the passages on pages {pages} that best match your question. None answers it.",
+          "checkedAll": "We checked the whole document. None of it answers your question.",
           "checkedNoPages": "We checked the passages that best match your question. None answers it.",
           "ofPages": "The document has {pages, plural, one {# page} other {# pages}}."
         },
@@ -971,6 +972,7 @@
       "stepFailed": "A step failed",
       "stepFailedReason": "A step failed: {reason}",
       "stopped": "The run stopped",
+      "stoppedMissingColumn": "The file doesn't have a column this question needs",
       "stoppedReason": "The run stopped: {reason}",
       "search": "Searching the document",
       "searchPages": "Searching the document ({pages, plural, one {# page} other {# pages}})",

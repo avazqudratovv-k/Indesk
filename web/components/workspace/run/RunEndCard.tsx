@@ -1,5 +1,5 @@
 import type { Ref } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import { isRealReportId } from "@/lib/report/real/id";
 import type { EndCard } from "@/lib/run/live/reasons";
@@ -14,6 +14,7 @@ type Props = { card: EndCard; reportId: string | null; notAnswerable?: NotAnswer
 // finished run with no usable report id says so. Nothing is claimed as verified, and the text never comes from the server.
 export default function RunEndCard({ card, reportId, notAnswerable = null, headingRef, onChange, onAskInstead }: Props) {
   const t = useTranslations("workspace");
+  const locale = useLocale();
   // Keys are built from closed lists (reasons.ts, the outcome enum); the message types cannot see that.
   const message = t as unknown as (key: string, values?: Record<string, string | number>) => string;
 
@@ -40,7 +41,7 @@ export default function RunEndCard({ card, reportId, notAnswerable = null, headi
   }
 
   // A Not answerable run with a valid explanation says what is wrong and what the file holds; without one, the generic card.
-  const why = card.label === "notAnswerable" && notAnswerable ? notAnswerableCopy(notAnswerable, message) : null;
+  const why = card.label === "notAnswerable" && notAnswerable ? notAnswerableCopy(notAnswerable, message, locale) : null;
   return (
     <section className={`${styles.card} ${styles.stripe} ${styles[`stripe_${card.tone}`]}`} aria-labelledby="ws-end-title">
       <div className={styles.top}>

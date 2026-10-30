@@ -50,7 +50,7 @@ describe("outcome and plans copy tells the truth", () => {
   it("en success screen says demo checkout, no money moved and the account stays on Free", () => {
     expect(en.plans.checkout.successTitle).toBe("Demo checkout complete");
     expect(en.plans.checkout.successLine).toContain("No real money moved.");
-    expect(en.plans.checkout.successLine).toContain("Your account stays on the Free plan.");
+    expect(en.plans.checkout.successAccountFree).toBe("Your account stays on the Free plan.");
   });
 
   it.each(sets)("%s: success copy never claims a payment or a plan change", (_lang, m) => {

@@ -10,7 +10,7 @@ export type TraceKey = (typeof TRACE_KEYS)[number];
 export const TRACE_MESSAGE_IDS = [
   "plan", "planFiles", "dispatch", "dispatchAgents", "readCsv", "readCsvSized", "runPython", "runPythonAttempt",
   "top3", "top3Rows", "merge", "verify", "verifyCounts", "ready", "stepStarted", "stepStartedAttempt", "stepFailed", "stepFailedReason",
-  "stopped", "stoppedReason", "search", "searchPages", "searchNoMatch", "bestPassage", "bestPassagePage", "bestPassageSimilar", "keywordOnlySize", "keywordOnlySizeReason", "chunksSkipped", "chunksSkippedCount", "unknown",
+  "stopped", "stoppedReason", "stoppedMissingColumn", "search", "searchPages", "searchNoMatch", "bestPassage", "bestPassagePage", "bestPassageSimilar", "keywordOnlySize", "keywordOnlySizeReason", "chunksSkipped", "chunksSkippedCount", "unknown",
 ] as const;
 export type TraceMessageId = (typeof TRACE_MESSAGE_IDS)[number];
 
@@ -84,6 +84,7 @@ export function describeTrace(key: string, args: TraceArgs): TraceText {
     }
     case "stopped": {
       const reason = args.reason;
+      if (reason === "csv_missing_column") return say("stoppedMissingColumn");
       return typeof reason === "string" && isKnownReason(reason) ? say("stoppedReason", { reason }) : say("stopped");
     }
   }

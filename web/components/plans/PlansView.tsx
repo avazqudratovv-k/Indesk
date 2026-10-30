@@ -153,7 +153,7 @@ export default function PlansView({ offers, custom, limits }: { offers: PlanOffe
         <EnforceCard />
       </section>
 
-      {choice ? <Checkout summary={summary} onDone={finishCheckout} onCancel={cancel} /> : null}
+      {choice ? <Checkout summary={summary} signedIn={signedIn} onDone={finishCheckout} onCancel={cancel} /> : null}
 
       <p className={styles.demoLine}>{t("demoNoPayments")}</p>
     </main>

@@ -47,7 +47,8 @@ describe("Not answerable card, English", () => {
   it("csv_no_rows", () => {
     const html = card(csvNoRows);
     expect(html).toContain("No rows matched your question");
-    expect(html).toContain("The file has 120 rows.");
+    expect(html).not.toContain("The file has 120 rows.");
+    expect(html.match(/120 rows/g)).toHaveLength(1);
     expect(html).toContain("120 rows, columns: a, b");
     expect(html).not.toContain("You could ask instead");
   });
@@ -69,8 +70,14 @@ describe("Not answerable card, English", () => {
   it("pdf_not_in_passages says it checked passages, never that it read pages", () => {
     const html = card(pdfPassages);
     expect(html).toContain("The document doesn&#x27;t answer this");
-    expect(html).toContain("We checked the passages on pages 3, 5, 9 that best match your question. None answers it. The document has 12 pages.");
+    expect(html).toContain("We checked the passages on pages 3, 5 and 9 that best match your question. None answers it. The document has 12 pages.");
     expect(html).not.toMatch(/we read/i);
+  });
+
+  it("pdf_not_in_passages says the whole document was checked when every page with text was searched", () => {
+    const html = card({ reason: "pdf_not_in_passages", facts: { pageCount: 5, pagesWithText: 3, searchedPages: [1, 2, 4] }, suggestions: [] });
+    expect(html).toContain("We checked the whole document. None of it answers your question. The document has 5 pages.");
+    expect(html).not.toContain("best match");
   });
 
   it("pdf_page_range", () => {
@@ -112,13 +119,16 @@ describe("Not answerable card, Korean", () => {
 
   it("the other reasons", () => {
     expect(card(csvNoRows, "ko")).toContain("질문에 맞는 행이 없습니다");
-    expect(card(csvNoRows, "ko")).toContain("파일에는 120행이 있습니다.");
+    expect(card(csvNoRows, "ko")).not.toContain("파일에는 120행이 있습니다.");
+    expect(card(csvNoRows, "ko").match(/120행/g)).toHaveLength(1);
     expect(card(pdfNoMatch, "ko")).toContain("질문에 맞는 내용이 문서에 없습니다");
     expect(card(pdfNoMatch, "ko")).toContain("12쪽, 그중 10쪽에 텍스트 있음");
     const passages = card(pdfPassages, "ko");
     expect(passages).toContain("이 문서에서는 답을 찾지 못했습니다");
-    expect(passages).toContain("3, 5, 9쪽의 내용을 확인했지만");
+    expect(passages).toContain("3, 5 및 9쪽의 내용을 확인했지만");
     expect(passages).toContain("문서는 총 12쪽입니다.");
+    const whole = card({ reason: "pdf_not_in_passages", facts: { pageCount: 5, pagesWithText: 3, searchedPages: [1, 2, 4] }, suggestions: [] }, "ko");
+    expect(whole).toContain("문서 전체를 확인했지만 질문에 대한 답은 없었습니다.");
     expect(card(pdfRange, "ko")).toContain("이 파일은 4쪽까지만 있습니다");
     expect(card(pdfRange, "ko")).toContain("9쪽에 대해 물으셨습니다.");
   });
@@ -146,7 +156,7 @@ describe("suggestion chips", () => {
   // translations replaced, and the buttons are found in the element tree it returns.
   it("are buttons whose click hands the suggestion text to the page, and nothing else", async () => {
     vi.resetModules();
-    vi.doMock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+    vi.doMock("next-intl", () => ({ useTranslations: () => (key: string) => key, useLocale: () => "en" }));
     const { default: Card } = await import("./RunEndCard");
     const asked: string[] = [];
     const tree = Card({ card: endCard("not_answerable", null), reportId: null, notAnswerable: csvPeriod, headingRef: null, onChange: () => asked.push("change"), onAskInstead: (text) => asked.push(text) });
