@@ -46,7 +46,7 @@ export function liveReducer(state: LiveRun | null, action: LiveAction): LiveRun 
       if (state && state.id !== snapshot.id) return state; // a late answer for a run we left
       let steps = state?.steps ?? [];
       for (const step of snapshot.steps) steps = insertStep(steps, step);
-      const done: LiveDone | null = snapshot.status === "finished" ? { outcome: snapshot.outcome ?? "failed", reason: snapshot.reason, reportId: snapshot.reportId } : (state?.done ?? null);
+      const done: LiveDone | null = snapshot.status === "finished" ? { outcome: snapshot.outcome ?? "failed", reason: snapshot.reason, reportId: snapshot.reportId, ...(snapshot.notAnswerable ? { notAnswerable: snapshot.notAnswerable } : {}) } : (state?.done ?? null);
       return {
         id: snapshot.id,
         question: snapshot.question || state?.question || "",

@@ -6,7 +6,7 @@ import styles from "./RunHeader.module.css";
 
 // `real` is set for a real run: the mark is chosen by the page, there is no Replay, and there is no report link
 // (the report screen is built in 4.4).
-type Real = { mark: { tone: "ok" | "warn" | "bad"; text: string } | null };
+type Real = { mark: { tone: "ok" | "neutral" | "warn" | "bad"; text: string } | null };
 
 type Props = {
   title: string;
@@ -30,7 +30,7 @@ const RunHeader = forwardRef<HTMLHeadingElement, Props>(function RunHeader({ tit
           {title}
         </h1>
         {real ? (
-          real.mark ? <span className={`${styles.mark} ${real.mark.tone === "ok" ? "" : real.mark.tone === "warn" ? styles.warn : styles.bad}`}>{real.mark.text}</span> : null
+          real.mark ? <span className={`${styles.mark} ${real.mark.tone === "ok" || real.mark.tone === "neutral" ? "" : real.mark.tone === "warn" ? styles.warn : styles.bad}`}>{real.mark.text}</span> : null
         ) : finished ? (
           <span className={`${styles.mark} ${scenario === "answered" ? "" : scenario === "partial" ? styles.warn : styles.bad}`}>{t(`live.mark.${scenario}`)}</span>
         ) : null}

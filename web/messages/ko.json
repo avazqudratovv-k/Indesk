@@ -890,11 +890,15 @@
         "finishedReport": "실행이 끝났습니다.",
         "finishedNoReport": "실행이 끝났습니다. 아직 보여 줄 보고서는 없습니다.",
         "failed": "실행이 끝나지 않았습니다.",
-        "lost": "이 실행과의 연결이 끊겼습니다."
+        "lost": "이 실행과의 연결이 끊겼습니다.",
+        "notAnswerable": "실행이 답 없이 끝났습니다.",
+        "needsBetterInput": "실행이 끝났습니다. 더 나은 입력이 필요합니다."
       },
       "mark": {
         "finished": "완료",
-        "failed": "끝나지 않음"
+        "failed": "끝나지 않음",
+        "notAnswerable": "답 없음",
+        "needsBetterInput": "더 나은 입력 필요"
       },
       "noReport": {
         "title": "실행은 끝났지만 열 수 있는 보고서가 없습니다",
@@ -922,12 +926,44 @@
         "freeRunNote": "무료 실행 횟수를 쓰지 않았습니다.",
         "newQuestion": "질문 바꾸기",
         "notCounted": "횟수에 포함되지 않음",
-        "failedExample": "다시 시도해 주세요."
+        "failedExample": "다시 시도해 주세요.",
+        "noFreeRun": "무료 실행 미사용"
       },
       "ready": {
         "title": "보고서가 준비되었습니다",
         "body": "열어서 답변과, 검증된 주장과 그렇지 않은 주장을 확인하세요.",
         "open": "보고서 열기"
+      },
+      "na": {
+        "csv_period": {
+          "head": "이 파일에는 {year}년 내용이 없습니다",
+          "body": "''{column}'' 열에는 {min}~{max} 자료만 있습니다."
+        },
+        "csv_no_rows": {
+          "head": "질문에 맞는 행이 없습니다",
+          "body": "파일에는 {rows, number}행이 있습니다."
+        },
+        "pdf_no_match": {
+          "head": "질문에 맞는 내용이 문서에 없습니다",
+          "body": "문서는 {pages, number}쪽이지만 질문과 맞는 내용이 없습니다."
+        },
+        "pdf_not_in_passages": {
+          "head": "이 문서에서는 답을 찾지 못했습니다",
+          "checked": "질문과 가장 잘 맞는 {pages}쪽의 내용을 확인했지만 답은 없었습니다.",
+          "checkedNoPages": "질문과 가장 잘 맞는 내용을 확인했지만 답은 없었습니다.",
+          "ofPages": "문서는 총 {pages, number}쪽입니다."
+        },
+        "pdf_page_range": {
+          "head": "이 파일은 {pages, number}쪽까지만 있습니다",
+          "body": "{asked}쪽에 대해 물으셨습니다."
+        },
+        "containsLabel": "파일에 들어 있는 내용",
+        "pdfPages": "{pages, number}쪽",
+        "pdfPagesText": "{pages, number}쪽, 그중 {withText}쪽에 텍스트 있음",
+        "csvRows": "{rows, number}행",
+        "csvRowsColumns": "{rows, number}행, 열: {columns}",
+        "csvColumns": "열: {columns}",
+        "askInstead": "대신 이렇게 물어보세요"
       }
     },
     "trace": {

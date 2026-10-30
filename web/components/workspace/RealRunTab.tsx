@@ -7,7 +7,7 @@ import type { LiveRunApi } from "./run/use-live-run";
 import styles from "./RunTab.module.css";
 
 // The run tab for real runs (ROADMAP 4.3): the live view of the person's latest run, or the "nothing yet" card.
-export default function RealRunTab({ live, onBack }: { live: LiveRunApi; onBack: () => void }) {
+export default function RealRunTab({ live, onBack, onAskInstead }: { live: LiveRunApi; onBack: () => void; onAskInstead: (text: string) => void }) {
   const t = useTranslations("workspace");
   if (!live.run) {
     return (
@@ -20,5 +20,5 @@ export default function RealRunTab({ live, onBack }: { live: LiveRunApi; onBack:
       </section>
     );
   }
-  return <RealRunView key={live.run.id} run={live.run} connection={live.connection} onReconnect={live.reconnect} onBack={onBack} />;
+  return <RealRunView key={live.run.id} run={live.run} connection={live.connection} onReconnect={live.reconnect} onBack={onBack} onAskInstead={onAskInstead} />;
 }

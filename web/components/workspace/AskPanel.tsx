@@ -47,11 +47,19 @@ type Need = "files" | "document" | "sources" | "both" | "question" | "tooLong" |
 // The Ask tab: mode switch, the two cards (files, question), the team strip and the upload info.
 // Everything here is local state. Pressing Run hands the files to the page, which uploads them; nothing is uploaded before that.
 // In Ask the Seoul sample is attached as a pending card: it becomes a File (and is uploaded) only when Run is pressed.
-export default function AskPanel({ userId, freeLeft, plan, onRun, submit }: { userId: string; freeLeft: number | null; plan: string; onRun: (submission: RunSubmission) => void; submit?: SubmitState }) {
+export default function AskPanel({ prefill = null, userId, freeLeft, plan, onRun, submit }: { prefill?: { text: string; n: number } | null; userId: string; freeLeft: number | null; plan: string; onRun: (submission: RunSubmission) => void; submit?: SubmitState }) {
   const t = useTranslations("workspace");
   const [mode, setMode] = useState<WorkspaceMode>("ask");
   const [questions, setQuestions] = useState<Record<WorkspaceMode, string>>({ ask: "", check: "", compare: "" });
   const [consent, setConsent] = useState(false);
+  // A suggested question fills the Ask question box (the file stays attached); it never starts a run. Adjusted during render
+  // when a new suggestion arrives, the React way of resetting state from a prop.
+  const [seenPrefill, setSeenPrefill] = useState(0);
+  if (prefill && prefill.n !== seenPrefill) {
+    setSeenPrefill(prefill.n);
+    setMode("ask");
+    setQuestions((all) => ({ ...all, ask: prefill.text }));
+  }
   const [announcement, setAnnouncement] = useState("");
   const { slots, errors, add, remove } = useWorkspaceFiles(mode);
   // Whether the sample is on offer: off after the person removed it (kept per user) or chose a file of their own (this visit only).

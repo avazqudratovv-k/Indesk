@@ -890,11 +890,15 @@
         "finishedReport": "The run finished.",
         "finishedNoReport": "The run finished. There is no report to show yet.",
         "failed": "The run did not finish.",
-        "lost": "The connection to this run was lost."
+        "lost": "The connection to this run was lost.",
+        "notAnswerable": "The run ended without an answer.",
+        "needsBetterInput": "The run ended: the input needs to be better."
       },
       "mark": {
         "finished": "Finished",
-        "failed": "Did not finish"
+        "failed": "Did not finish",
+        "notAnswerable": "No answer",
+        "needsBetterInput": "Needs better input"
       },
       "noReport": {
         "title": "The run finished, but there is no report to open",
@@ -922,12 +926,44 @@
         "freeRunNote": "This didn't use one of your free runs.",
         "newQuestion": "Change question",
         "notCounted": "Not counted",
-        "failedExample": "Please try again."
+        "failedExample": "Please try again.",
+        "noFreeRun": "Doesn't use a free run"
       },
       "ready": {
         "title": "Your report is ready",
         "body": "Open it to read the answer and see which claims are verified and which are not.",
         "open": "Open the report"
+      },
+      "na": {
+        "csv_period": {
+          "head": "The file does not cover {year}",
+          "body": "''{column}'' holds data from {min} to {max}."
+        },
+        "csv_no_rows": {
+          "head": "No rows matched your question",
+          "body": "The file has {rows, number} rows."
+        },
+        "pdf_no_match": {
+          "head": "No passage in this document matches",
+          "body": "The document has {pages, plural, one {# page} other {# pages}}, but none of its text matches your question."
+        },
+        "pdf_not_in_passages": {
+          "head": "The document doesn't answer this",
+          "checked": "We checked the passages on pages {pages} that best match your question. None answers it.",
+          "checkedNoPages": "We checked the passages that best match your question. None answers it.",
+          "ofPages": "The document has {pages, plural, one {# page} other {# pages}}."
+        },
+        "pdf_page_range": {
+          "head": "The file has only {pages, plural, one {# page} other {# pages}}",
+          "body": "You asked about page {asked}."
+        },
+        "containsLabel": "What the file contains",
+        "pdfPages": "{pages, plural, one {# page} other {# pages}}",
+        "pdfPagesText": "{pages, plural, one {# page} other {# pages}}, {withText} with text",
+        "csvRows": "{rows, number} rows",
+        "csvRowsColumns": "{rows, number} rows, columns: {columns}",
+        "csvColumns": "Columns: {columns}",
+        "askInstead": "You could ask instead"
       }
     },
     "trace": {

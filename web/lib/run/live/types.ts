@@ -29,8 +29,32 @@ export type LiveStep = {
   bubble: Bubble | null;
 };
 
+export const NA_REASONS = ["pdf_no_match", "pdf_not_in_passages", "pdf_page_range", "csv_period", "csv_no_rows"] as const;
+export type NaReason = (typeof NA_REASONS)[number];
+
+export const NA_KINDS = ["csv_rank", "csv_trend", "pdf_about", "pdf_page"] as const;
+export type NaKind = (typeof NA_KINDS)[number];
+
+// Why a run is not answerable (api/app/schemas/not_answerable.py), after parse.ts has checked every field. Every fact is
+// optional and absent when the server left it out; text is plain text with a length cap.
+export type NaFacts = {
+  pageCount?: number;
+  pagesWithText?: number;
+  searchedPages?: number[];
+  askedPage?: number;
+  rowCount?: number;
+  columns?: string[];
+  timeColumn?: string;
+  yearMin?: number;
+  yearMax?: number;
+  askedYear?: number;
+};
+export type NaSuggestion = { text: string; kind: NaKind };
+export type NotAnswerable = { reason: NaReason; facts: NaFacts; suggestions: NaSuggestion[] };
+
 // The closing facts of a run. `reason` is kept as the raw code string; reasons.ts decides what it means.
-export type LiveDone = { outcome: Outcome; reason: string | null; reportId: string | null };
+// `notAnswerable` is set only for a not_answerable run whose object passed the strict check.
+export type LiveDone = { outcome: Outcome; reason: string | null; reportId: string | null; notAnswerable?: NotAnswerable };
 
 export type RunStatus = "queued" | "running" | "finished";
 
@@ -41,6 +65,7 @@ export type RunSnapshot = {
   outcome: Outcome | null;
   reason: string | null;
   reportId: string | null;
+  notAnswerable?: NotAnswerable;
   question: string;
   createdAt: number | null;
   startedAt: number | null;
