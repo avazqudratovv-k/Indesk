@@ -127,7 +127,7 @@
         "see": "주장별 근거와 판정."
       },
       "seeLabelLater": "예정:",
-      "comingLater": "추후 제공"
+      "comingLater": "아직 쓸 수 없음"
     },
     "modes": {
       "title": "파일을 활용하는 세 가지 방법",
@@ -146,7 +146,7 @@
         "body": "두 달 치, 두 버전, 두 출처를 비교해 무엇이 바뀌었는지 근거와 함께 보여 줍니다."
       },
       "try": "예시로 체험하기",
-      "comingSoon": "곧 제공"
+      "comingSoon": "아직 쓸 수 없음"
     },
     "who": {
       "title": "누구를 위한 서비스인가요",
@@ -420,7 +420,7 @@
         "check": "문서와 그 근거 데이터를 올리면, 확인 가능한 주장을 모두 찾아 검증합니다.",
         "compare": "같은 종류의 파일 두 개를 비교해 무엇이 바뀌었는지 보여 줍니다."
       },
-      "soon": "준비 중"
+      "soon": "아직 쓸 수 없음"
     },
     "steps": {
       "askFiles": "1. 파일 고르기",
@@ -456,7 +456,7 @@
         "error": "업로드하지 못했습니다"
       },
       "statusReady": "업로드됨, {when}에 서버에서 삭제됩니다",
-      "pagesWithoutText": "{n, number}쪽에 텍스트가 없어 검색할 수 없습니다."
+      "pagesWithoutText": "텍스트가 없는 페이지가 {n, number}개 있어 검색할 수 없습니다."
     },
     "sample": {
       "title": "샘플: 서울 지하철, 2026년 9월",
@@ -600,8 +600,8 @@
         "skipped": "건너뜀",
         "failed": "실패",
         "flagged": "{count, number}건 표시",
-        "didNotRun": "실행되지 않음",
-        "comingLater": "추후 제공",
+        "didNotRun": "시작하지 않음",
+        "comingLater": "아직 쓸 수 없음",
         "notUsed": "사용 안 함"
       },
       "feedTitle": "실시간 추적",
@@ -672,13 +672,13 @@
         "notCounted": "무료 실행 미사용",
         "answered": {
           "label": "답변 완료",
-          "head": "6개 진술 중 5개 검증",
+          "head": "6개 주장 중 5개 검증",
           "body": "모든 숫자에는 출처 행이나 쪽이 표시됩니다."
         },
         "partial": {
           "label": "일부 완료",
           "head": "일부 주장은 맞출 수 없었습니다",
-          "body": "6개 중 4개가 검증되었습니다. 파일과 맞출 수 없었던 2개 진술은 “미검증”으로 표시됩니다."
+          "body": "6개 중 4개가 검증되었습니다. 파일과 맞출 수 없었던 2개 주장은 “미검증”으로 표시됩니다."
         },
         "notAnswerable": {
           "label": "답할 수 없음",
@@ -741,15 +741,15 @@
         "flagged": "표시됨",
         "waiting": "대기 중",
         "failed": "실패",
-        "didNotRun": "실행되지 않음",
-        "comingLater": "추후 제공",
+        "didNotRun": "시작하지 않음",
+        "comingLater": "아직 쓸 수 없음",
         "notUsed": "사용 안 함"
       },
       "states": {
         "waiting": "이 에이전트가 시작하기를 기다리는 중…",
         "failed": "35초 후 재시도에도 응답이 없습니다.",
-        "didNotRun": "이 에이전트의 차례가 오기 전에 실행이 끝나서 실행되지 않았습니다.",
-        "comingLater": "이 에이전트는 아직 만들어지지 않았습니다. 추후 제공됩니다.",
+        "didNotRun": "이 에이전트의 차례가 오기 전에 실행이 끝나서 시작하지 못했습니다.",
+        "comingLater": "이 에이전트는 아직 쓸 수 없습니다.",
         "notUsed": "이 실행에서는 사용하지 않았습니다"
       },
       "handover": {
@@ -1077,8 +1077,8 @@
       "tip": "{name}: 데이터 {data}, 차트 사진 {photo}",
       "meaningTitle": "의미",
       "nextTitle": "다음에 할 일",
-      "confNoteReal": "진술 {total}개를 확인했습니다. {verified}개는 계산된 데이터와 일치합니다.{open, plural, =0 {} other { #개는 검증하지 못해 표시되었습니다.}}",
-      "confNotePdf": "진술 {total}개를 확인했습니다. {verified}개는 문서의 인용문과 일치합니다.{open, plural, =0 {} other { #개는 검증하지 못해 표시되었습니다.}}"
+      "confNoteReal": "주장 {total}개를 확인했습니다. {verified}개는 계산된 데이터와 일치합니다.{open, plural, =0 {} other { #개는 검증하지 못해 표시되었습니다.}}",
+      "confNotePdf": "주장 {total}개를 확인했습니다. {verified}개는 문서의 인용문과 일치합니다.{open, plural, =0 {} other { #개는 검증하지 못해 표시되었습니다.}}"
     },
     "detailed": {
       "claimsTitle": "주장과 근거",
@@ -1130,7 +1130,7 @@
       },
       "source": "{file} · {location}",
       "sourceFile": "{file}",
-      "page": "{n, number}\u2060쪽",
+      "page": "{n, number}쪽",
       "similarity": "유사도 {value, number}",
       "passageTitle": "문서에서 찾은 구절",
       "passageBody": "이 주장의 바탕이 된 파일 속 문장입니다.",

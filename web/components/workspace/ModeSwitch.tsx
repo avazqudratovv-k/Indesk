@@ -11,7 +11,7 @@ const available = new Set<WorkspaceMode>(["ask"]);
 
 // Board mode switch: a radio group (Ask / Check a document / Compare) with a one-line hint under it.
 // Unavailable modes use aria-disabled, are skipped by the arrow keys and the Tab order (like disabled radios),
-// and say "Coming soon" in text.
+// and say "Not available yet" in text.
 export default function ModeSwitch({ mode, onChange }: { mode: WorkspaceMode; onChange: (mode: WorkspaceMode) => void }) {
   const t = useTranslations("workspace");
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);

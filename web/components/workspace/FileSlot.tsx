@@ -102,7 +102,9 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, csv
                   {extensionOf(item.file.name).toUpperCase()}
                 </span>
                 <span className={styles.info}>
-                  <span className={styles.name}>{item.file.name}</span>
+                  <span className={styles.name} title={item.file.name}>
+                    {item.file.name}
+                  </span>
                   <span className={styles.meta}>
                     {format.number(size.value)} {size.unit}
                     {statusText(statuses?.[item.id]) ? ` · ${statusText(statuses?.[item.id])}` : ""}

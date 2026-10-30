@@ -36,7 +36,7 @@ describe("pages without text note", () => {
   });
 
   it("is written in Korean too", () => {
-    expect(slot(ready(2), "ko")).toContain("2쪽에 텍스트가 없어");
+    expect(slot(ready(2), "ko")).toContain("텍스트가 없는 페이지가 2개 있어");
   });
 });
 

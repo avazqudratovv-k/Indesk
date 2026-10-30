@@ -10,7 +10,7 @@ export const agentColor: Record<AgentId, string> = {
   cat: "var(--c-cat)",
 };
 
-// Chameleon is not built yet (ROADMAP): the Home page labels it "Coming later". Hound works on PDFs.
+// Chameleon is not built yet (ROADMAP): the Home page labels it "Not available yet". Hound works on PDFs.
 export const agentBuilt: Record<AgentId, boolean> = { owl: true, chameleon: false, beaver: true, hound: true, cat: true };
 
 export const agentPlate: Record<AgentId, string> = { owl: "I", chameleon: "II", beaver: "III", hound: "IV", cat: "V" };

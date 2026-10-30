@@ -127,7 +127,7 @@
         "see": "Each claim with its evidence and a verdict."
       },
       "seeLabelLater": "Planned:",
-      "comingLater": "Coming later"
+      "comingLater": "Not available yet"
     },
     "modes": {
       "title": "Three ways to work with your files",
@@ -146,7 +146,7 @@
         "body": "Two months, two versions, two sources. We show what changed and prove it."
       },
       "try": "Try with an example",
-      "comingSoon": "Coming soon"
+      "comingSoon": "Not available yet"
     },
     "who": {
       "title": "Who it’s for",
@@ -420,7 +420,7 @@
         "check": "Upload a document and the data behind it. We find every checkable claim and test it.",
         "compare": "Two files of the same kind. We show what changed."
       },
-      "soon": "Coming soon"
+      "soon": "Not available yet"
     },
     "steps": {
       "askFiles": "1. Choose your files",
@@ -600,8 +600,8 @@
         "skipped": "Skipped",
         "failed": "Failed",
         "flagged": "{count, number} flagged",
-        "didNotRun": "Did not run",
-        "comingLater": "Coming later",
+        "didNotRun": "Did not start",
+        "comingLater": "Not available yet",
         "notUsed": "Not used"
       },
       "feedTitle": "Live trace",
@@ -741,15 +741,15 @@
         "flagged": "Flagged",
         "waiting": "Waiting",
         "failed": "Failed",
-        "didNotRun": "Did not run",
-        "comingLater": "Coming later",
+        "didNotRun": "Did not start",
+        "comingLater": "Not available yet",
         "notUsed": "Not used"
       },
       "states": {
         "waiting": "Waiting for this agent to start…",
         "failed": "No answer after 35 s and one retry.",
-        "didNotRun": "This agent did not run, because the run ended before its turn.",
-        "comingLater": "This agent is not built yet. It is coming later.",
+        "didNotRun": "This agent did not start, because the run ended before its turn.",
+        "comingLater": "This agent is not available yet.",
         "notUsed": "Not used in this run"
       },
       "handover": {

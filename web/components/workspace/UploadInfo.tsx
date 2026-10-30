@@ -37,10 +37,10 @@ export default function UploadInfo() {
           </ul>
         </div>
         <div className={`${styles.box} ${styles.wide}`}>
-          <div className={`${styles.label} ${styles.noLabel}`}>{t("info.later")}</div>
+          <div className={`${styles.label} ${styles.laterLabel}`}>{t("info.later")}</div>
           <ul className={styles.pills}>
             {later.map((item) => (
-              <li key={item} className={`${styles.pill} ${styles.noPill}`}>
+              <li key={item} className={`${styles.pill} ${styles.laterPill}`}>
                 {item}
               </li>
             ))}

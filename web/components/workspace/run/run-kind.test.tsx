@@ -72,7 +72,7 @@ describe("the run view of a PDF run", () => {
       </NextIntlClientProvider>,
     );
 
-  it("shows Beaver's tab as Not used and Chameleon's as Coming later", () => {
+  it("shows Beaver's tab as Not used and Chameleon's as Not available yet", () => {
     expect(work("en")).toContain("Not used");
     expect(work("ko")).toContain("사용 안 함");
     expect(en.workspace.artifacts.states.notUsed).toBe("Not used in this run");

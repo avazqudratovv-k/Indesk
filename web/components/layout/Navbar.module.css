@@ -102,7 +102,27 @@
   min-width: 0;
 }
 
-.right > a {
+/* The auth slot: three layers in one grid cell. The wider invisible layer sets the width, the live one sits at the end. */
+.slot {
+  display: inline-grid;
+  justify-items: end;
+  align-items: center;
+  gap: inherit;
+}
+
+.ghost,
+.live {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  gap: inherit;
+}
+
+.ghost {
+  visibility: hidden;
+}
+
+.right a {
   white-space: nowrap;
 }
 

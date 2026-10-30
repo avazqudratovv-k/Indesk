@@ -79,23 +79,40 @@ export default function Navbar() {
         <div className={styles.right}>
           <LanguageSwitch />
           <ThemeToggle />
-          {session.status === "unknown" ? null : session.user ? (
-            <>
-              <span className={`${styles.link} ${styles.who}`}>{session.user.display_name}</span>
-              <button type="button" className={`${styles.link} ${styles.plainButton}`} onClick={onLogout} disabled={logout === "busy"} aria-live="polite">
-                {logout === "busy" ? t("logoutBusy") : logout === "failed" ? t("logoutFailed") : t("logout")}
-              </button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className={`${styles.link} ${styles.login} ${authHidden}`}>
-                {t("login")}
-              </Link>
-              <Button href="/signup" variant="primary" size="sm" className={authHidden}>
+          {/* The slot is as wide as the wider answer (Log in + Sign up, or name + Log out) in every state, so the bar
+              does not move when the session becomes known. The two invisible layers only hold the room; they are hidden
+              from everyone and cannot be focused. */}
+          <span className={styles.slot}>
+            <span className={styles.ghost} aria-hidden="true" inert>
+              <span className={`${styles.link} ${styles.login}`}>{t("login")}</span>
+              <Button variant="primary" size="sm" tabIndex={-1}>
                 {t("signup")}
               </Button>
-            </>
-          )}
+            </span>
+            <span className={styles.ghost} aria-hidden="true" inert>
+              <span className={`${styles.link} ${styles.who}`}>WWWWWWWW</span>
+              <span className={`${styles.link} ${styles.plainButton}`}>{t("logout")}</span>
+            </span>
+            <span className={styles.live}>
+              {session.status === "unknown" ? null : session.user ? (
+                <>
+                  <span className={`${styles.link} ${styles.who}`}>{session.user.display_name}</span>
+                  <button type="button" className={`${styles.link} ${styles.plainButton}`} onClick={onLogout} disabled={logout === "busy"} aria-live="polite">
+                    {logout === "busy" ? t("logoutBusy") : logout === "failed" ? t("logoutFailed") : t("logout")}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className={`${styles.link} ${styles.login} ${authHidden}`}>
+                    {t("login")}
+                  </Link>
+                  <Button href="/signup" variant="primary" size="sm" className={authHidden}>
+                    {t("signup")}
+                  </Button>
+                </>
+              )}
+            </span>
+          </span>
         </div>
       </div>
     </header>

@@ -38,7 +38,7 @@ type Props = {
   finished: boolean;
   // The board's "EXAMPLE 5/6" stamp belongs to the scripted demo only; real runs turn it off.
   showStamp?: boolean;
-  // Real runs: Chameleon and Hound are not built, so they read "Coming later" instead of "Did not run".
+  // Real runs: Chameleon and Hound are not built, so they read "Not available yet" instead of "Did not run".
   real?: boolean;
 };
 

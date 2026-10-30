@@ -35,6 +35,14 @@ function useNow(active: boolean): number {
   return now;
 }
 
+// Seconds a real run took. A finished run uses only the server's own start and finish times, so a reload or a resumed
+// run shows the same number as the first time. A running one counts up from the server start to the browser clock.
+// (Not done: a skew offset between the two clocks; the API sends no server time yet, see the report.)
+export function runSeconds(real: { startMs: number | null; endMs: number | null }, now: number): number | null {
+  if (real.startMs === null) return null;
+  return Math.max(0, ((real.endMs ?? now) - real.startMs) / 1000);
+}
+
 type Props = { toolCalls: number; tokens: number; agentsDone: number; agentCount: number; finished: boolean; real?: { startMs: number | null; endMs: number | null } };
 
 // Board summary tiles, in step with the events. Time is the real elapsed clock; Tokens and Tool calls are scripted
@@ -43,7 +51,7 @@ export default function RunTiles({ toolCalls, tokens, agentsDone, agentCount, fi
   const t = useTranslations("workspace");
   const playback = useElapsed(finished, real !== undefined);
   const now = useNow(real !== undefined && real.endMs === null);
-  const elapsed = real ? (real.startMs === null ? null : Math.max(0, ((real.endMs ?? now) - real.startMs) / 1000)) : playback;
+  const elapsed = real ? runSeconds(real, now) : playback;
   const tiles = [
     { id: "time", value: elapsed === null ? "—" : `${elapsed.toFixed(1)}s`, tag: t("live.tilesTag.playback") },
     { id: "tokens", value: tokens.toLocaleString("en-US"), tag: t("live.tilesTag.example") },

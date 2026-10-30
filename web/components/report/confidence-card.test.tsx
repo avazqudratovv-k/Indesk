@@ -24,7 +24,7 @@ describe("the confidence note of a PDF report", () => {
   it("says the statements match quotes in the document, never computed data", () => {
     expect(card(pdf, { total: 3, verified: 3 }, "en")).toContain("We checked 3 statements. 3 match quotes in the document.");
     expect(card(pdf, { total: 3, verified: 3 }, "en")).not.toContain("computed");
-    expect(card(pdf, { total: 3, verified: 3 }, "ko")).toContain("진술 3개를 확인했습니다. 3개는 문서의 인용문과 일치합니다.");
+    expect(card(pdf, { total: 3, verified: 3 }, "ko")).toContain("주장 3개를 확인했습니다. 3개는 문서의 인용문과 일치합니다.");
   });
 
   it("uses singular and plural forms in English", () => {
@@ -33,7 +33,7 @@ describe("the confidence note of a PDF report", () => {
   });
 
   it("reads 1개 in Korean", () => {
-    expect(card(pdf, { total: 1, verified: 1 }, "ko")).toContain("진술 1개를 확인했습니다. 1개는 문서의 인용문과 일치합니다.");
+    expect(card(pdf, { total: 1, verified: 1 }, "ko")).toContain("주장 1개를 확인했습니다. 1개는 문서의 인용문과 일치합니다.");
   });
 });
 
@@ -41,14 +41,14 @@ describe("the confidence note of a CSV report", () => {
   it("keeps the computed-data copy with proper plural forms", () => {
     expect(card(csv, { total: 1, verified: 1 }, "en")).toContain("We checked 1 statement. 1 matches the computed data.");
     expect(card(csv, { total: 4, verified: 3 }, "en")).toContain("We checked 4 statements. 3 match the computed data. 1 could not be verified and is marked.");
-    expect(card(csv, { total: 1, verified: 1 }, "ko")).toContain("진술 1개를 확인했습니다. 1개는 계산된 데이터와 일치합니다.");
-    expect(card(csv, { total: 4, verified: 3 }, "ko")).toContain("진술 4개를 확인했습니다. 3개는 계산된 데이터와 일치합니다.");
+    expect(card(csv, { total: 1, verified: 1 }, "ko")).toContain("주장 1개를 확인했습니다. 1개는 계산된 데이터와 일치합니다.");
+    expect(card(csv, { total: 4, verified: 3 }, "ko")).toContain("주장 4개를 확인했습니다. 3개는 계산된 데이터와 일치합니다.");
   });
 });
 
 describe("the evidence source line", () => {
   it("keeps p. and the page number together", () => {
     expect(en.report.evidence.page).toBe("p. {n, number}");
-    expect(ko.report.evidence.page).toBe("{n, number}⁠쪽");
+    expect(ko.report.evidence.page).toBe("{n, number}쪽");
   });
 });
