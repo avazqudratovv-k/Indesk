@@ -1,4 +1,5 @@
 // Typed read functions over web/mocks/*.json (ROADMAP 1.7). Screens call these until the API exists (section 4 swaps them).
+import { DEMO_LIMITS } from "@/lib/limits";
 import type { ArtifactDetail, ArtifactRecord } from "@/lib/run/artifacts";
 import type { RunEvent, RunScenario } from "@/lib/run/mock-run";
 import type { Claim, CustomPlanOffer, DemoLimits, PlanOffer, Evidence, PersonResult, Report, ShareLink, ShareLinkState, Upload, User } from "@/lib/types";
@@ -85,7 +86,7 @@ export function listMockPlanOffers(): PlanOffer[] {
 }
 
 export function getMockDemoLimits(): DemoLimits {
-  return plansFile.demo_limits;
+  return DEMO_LIMITS;
 }
 
 export function getMockCustomPlanOffer(): CustomPlanOffer {

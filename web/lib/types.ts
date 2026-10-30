@@ -36,7 +36,6 @@ export type CustomConfig = {
   runs: number;
   max_file_mb: 25 | 100 | 250;
   data_tier: string;
-  retention_days: 90 | 180 | 365;
   parallel: 1 | 3 | 5;
 };
 

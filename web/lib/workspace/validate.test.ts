@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ASK_ACCEPT, checkFile, MAX_CSV_ROWS, MAX_FILE_BYTES, MAX_PDF_CHARS, MAX_PDF_PAGES, SLOT_MAX } from "./validate";
+import { MAX_CSV_ROWS, MAX_FILE_BYTES, MAX_PDF_CHARS, MAX_PDF_PAGES } from "@/lib/limits";
+import { ASK_ACCEPT, checkFile, SLOT_MAX } from "./validate";
 
 const csv = (name: string) => new File(["a,b\n1,2"], name, { type: "text/csv" });
 const base = { slot: "files" as const, takenNames: new Set<string>(), count: 0, partnerKind: null, csvOnly: true };

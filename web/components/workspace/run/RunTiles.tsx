@@ -53,10 +53,10 @@ export default function RunTiles({ toolCalls, tokens, agentsDone, agentCount, fi
   const now = useNow(real !== undefined && real.endMs === null);
   const elapsed = real ? runSeconds(real, now) : playback;
   const tiles = [
-    { id: "time", value: elapsed === null ? "—" : `${elapsed.toFixed(1)}s`, tag: t("live.tilesTag.playback") },
-    { id: "tokens", value: tokens.toLocaleString("en-US"), tag: t("live.tilesTag.example") },
-    { id: "agents", value: `${agentsDone} / ${agentCount}`, tag: t("live.tilesTag.example") },
-    { id: "tools", value: `${toolCalls} / ${TOOL_CALL_LIMIT}`, tag: t("live.tilesTag.example") },
+    { id: "time" as const, value: elapsed === null ? "—" : `${elapsed.toFixed(1)}s`, tag: t("live.tilesTag.playback") },
+    { id: "tokens" as const, value: tokens.toLocaleString("en-US"), tag: t("live.tilesTag.example") },
+    { id: "agents" as const, value: `${agentsDone} / ${agentCount}`, tag: t("live.tilesTag.example") },
+    { id: "tools" as const, value: `${toolCalls} / ${TOOL_CALL_LIMIT}`, tag: t("live.tilesTag.example") },
   ];
   return (
     <section className={styles.tiles} aria-label={t("live.tilesLabel")}>

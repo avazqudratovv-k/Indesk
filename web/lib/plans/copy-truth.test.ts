@@ -55,6 +55,8 @@ describe("outcome and plans copy tells the truth", () => {
 
   it.each(sets)("%s: success copy never claims a payment or a plan change", (_lang, m) => {
     const text = `${m.plans.checkout.successTitle} ${m.plans.checkout.successLine}`;
-    for (const old of ["Payment successful", "went through", "결제가 완료", "결제가 처리"]) expect(text).not.toContain(old);
+    // "데모 결제가 완료되었습니다" (Demo checkout complete) is the allowed wording; a plain "결제가 완료" is not.
+    for (const old of ["Payment successful", "went through", "결제가 처리"]) expect(text).not.toContain(old);
+    expect(text.replaceAll("데모 결제가 완료", "")).not.toContain("결제가 완료");
   });
 });

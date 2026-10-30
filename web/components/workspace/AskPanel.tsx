@@ -5,7 +5,8 @@ import { useTranslations } from "next-intl";
 import DemoNotice from "@/components/ui/DemoNotice";
 import { apiErrorKey, retryMinutes, ApiError } from "@/lib/api/errors";
 import type { FileStatus } from "@/lib/run/live/submit";
-import { MAX_CSV_ROWS, MAX_FILE_BYTES, MAX_PDF_CHARS, MAX_PDF_PAGES, MAX_QUESTION_CHARS, MODE_SLOTS, questionLength, type SlotFile, type SlotId, type WorkspaceMode } from "@/lib/workspace/validate";
+import { MAX_CSV_ROWS, MAX_FILE_MB, MAX_PDF_CHARS, MAX_PDF_PAGES, MAX_QUESTION_CHARS } from "@/lib/limits";
+import { MODE_SLOTS, questionLength, type SlotFile, type SlotId, type WorkspaceMode } from "@/lib/workspace/validate";
 import Button from "@/components/ui/Button";
 import AgentEndings from "./AgentEndings";
 import ConsentBox from "./ConsentBox";
@@ -42,23 +43,23 @@ export type SubmitState = {
   onDismissFailure: () => void;
 };
 
-type Need = "files" | "document" | "sources" | "both" | "question" | "tooLong" | "consent";
+type Need = "files" | "question" | "tooLong" | "consent";
 
 // The Ask tab: mode switch, the two cards (files, question), the team strip and the upload info.
 // Everything here is local state. Pressing Run hands the files to the page, which uploads them; nothing is uploaded before that.
 // In Ask the Seoul sample is attached as a pending card: it becomes a File (and is uploaded) only when Run is pressed.
 export default function AskPanel({ prefill = null, userId, freeLeft, plan, onRun, submit }: { prefill?: { text: string; n: number } | null; userId: string; freeLeft: number | null; plan: string; onRun: (submission: RunSubmission) => void; submit?: SubmitState }) {
   const t = useTranslations("workspace");
-  const [mode, setMode] = useState<WorkspaceMode>("ask");
-  const [questions, setQuestions] = useState<Record<WorkspaceMode, string>>({ ask: "", check: "", compare: "" });
+  // Check a document and Compare are shown but cannot be chosen yet (ModeSwitch), so this panel is always Ask.
+  const mode: WorkspaceMode = "ask";
+  const [question, setQuestion] = useState("");
   const [consent, setConsent] = useState(false);
   // A suggested question fills the Ask question box (the file stays attached); it never starts a run. Adjusted during render
   // when a new suggestion arrives, the React way of resetting state from a prop.
   const [seenPrefill, setSeenPrefill] = useState(0);
   if (prefill && prefill.n !== seenPrefill) {
     setSeenPrefill(prefill.n);
-    setMode("ask");
-    setQuestions((all) => ({ ...all, ask: prefill.text }));
+    setQuestion(prefill.text);
   }
   const [announcement, setAnnouncement] = useState("");
   const { slots, errors, add, remove } = useWorkspaceFiles(mode);
@@ -78,24 +79,16 @@ export default function AskPanel({ prefill = null, userId, freeLeft, plan, onRun
   const sampleFile = useRef<SlotFile | null>(null);
   const showActive = submit !== undefined && submit.activeRunId !== null && submit.failure?.code !== "RUN_ACTIVE" && submit.followingRunId !== submit.activeRunId;
 
-  const question = questions[mode];
   const trimmed = question.trim();
   const slotIds = MODE_SLOTS[mode];
   // sampleShown: the card takes its place (hidden while sampleOn is still null). sampleActive: it counts as the file to run.
-  const sampleShown = mode === "ask" && sampleOn !== false && slots.files.length === 0;
+  const sampleShown = sampleOn !== false && slots.files.length === 0;
   const sampleActive = sampleShown && sampleOn === true;
   const fileCount = slotIds.reduce((sum, id) => sum + slots[id].length, 0) + (sampleActive ? 1 : 0);
 
   function need(): Need | null {
-    if (mode === "ask") {
-      if (fileCount === 0) return "files";
-      if (trimmed.length === 0) return "question";
-    }
-    if (mode === "check") {
-      if (slots.document.length === 0) return "document";
-      if (slots.sources.length === 0) return "sources";
-    }
-    if (mode === "compare" && (slots.fileA.length === 0 || slots.fileB.length === 0)) return "both";
+    if (fileCount === 0) return "files";
+    if (trimmed.length === 0) return "question";
     if (questionLength(question) > MAX_QUESTION_CHARS) return "tooLong";
     if (!consent) return "consent";
     return null;
@@ -162,12 +155,10 @@ export default function AskPanel({ prefill = null, userId, freeLeft, plan, onRun
     }
   }
 
-  const slot = (id: SlotId, extra: { title?: string; documentOnly?: boolean; csvOnly?: boolean } = {}) => (
+  const slot = (id: SlotId, extra: { csvOnly?: boolean } = {}) => (
     <FileSlot
       key={id}
       slot={id}
-      title={extra.title}
-      documentOnly={extra.documentOnly}
       csvOnly={extra.csvOnly}
       items={slots[id]}
       errors={errors[id]}
@@ -178,10 +169,6 @@ export default function AskPanel({ prefill = null, userId, freeLeft, plan, onRun
     />
   );
 
-  const stepFiles = mode === "ask" ? "steps.askFiles" : mode === "check" ? "steps.checkFiles" : "steps.compareFiles";
-  const stepTwo = mode === "ask" ? "steps.askQuestion" : mode === "check" ? "steps.checkNext" : "steps.compareFocus";
-  const checkSteps = t.raw("checkSteps") as string[];
-
   return (
     <div className={styles.panel}>
       {showActive && submit ? (
@@ -191,62 +178,34 @@ export default function AskPanel({ prefill = null, userId, freeLeft, plan, onRun
         </div>
       ) : null}
 
-      <ModeSwitch mode={mode} onChange={setMode} />
+      <ModeSwitch mode={mode} />
 
       <section className={styles.cards}>
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>{t(stepFiles)}</h2>
-          {mode === "ask" ? (
-            <>
-              {sampleShown ? (
-                <div className={sampleOn === null ? styles.samplePending : undefined} aria-hidden={sampleOn === null || undefined} inert={sampleOn === null || undefined}>
-                  <SampleFile attached locked={busy} onRemove={removeSample} onUse={useSample} />
-                </div>
-              ) : null}
-              {slot("files", { csvOnly: true })}
-              {!sampleShown && slots.files.length === 0 ? <SampleFile attached={false} locked={busy} onRemove={removeSample} onUse={useSample} /> : null}
-            </>
+          <h2 className={styles.cardTitle}>{t("steps.askFiles")}</h2>
+          {sampleShown ? (
+            <div className={sampleOn === null ? styles.samplePending : undefined} aria-hidden={sampleOn === null || undefined} inert={sampleOn === null || undefined}>
+              <SampleFile attached locked={busy} onRemove={removeSample} onUse={useSample} />
+            </div>
           ) : null}
-          {mode === "check" ? (
-            <>
-              {slot("document", { title: t("slots.document"), documentOnly: true })}
-              {slot("sources", { title: t("slots.sources") })}
-            </>
-          ) : null}
-          {mode === "compare" ? (
-            <>
-              {slot("fileA", { title: t("slots.fileA") })}
-              {slot("fileB", { title: t("slots.fileB") })}
-            </>
-          ) : null}
+          {slot("files", { csvOnly: true })}
+          {!sampleShown && slots.files.length === 0 ? <SampleFile attached={false} locked={busy} onRemove={removeSample} onUse={useSample} /> : null}
           <DemoNotice />
           <ConsentBox checked={consent} onChange={setConsent} />
         </div>
 
         <div className={styles.card}>
-          <h2 className={styles.cardTitle}>{t(stepTwo)}</h2>
-          {mode === "check" ? (
-            <ol className={styles.steps}>
-              {checkSteps.map((text, index) => (
-                <li key={text} className={styles.step}>
-                  <span className={styles.stepNumber}>{index + 1}</span>
-                  <span>{text}</span>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <QuestionBox
-              key={mode}
-              value={question}
-              onChange={(value) => setQuestions((all) => ({ ...all, [mode]: value }))}
-              placeholder={mode === "ask" ? (sampleShown ? t("question.placeholder") : t("question.placeholderOwn")) : t("question.focusPlaceholder")}
-              chips={sampleShown}
-              chipsHidden={sampleOn === null}
-            />
-          )}
+          <h2 className={styles.cardTitle}>{t("steps.askQuestion")}</h2>
+          <QuestionBox
+            value={question}
+            onChange={setQuestion}
+            placeholder={sampleShown ? t("question.placeholder") : t("question.placeholderOwn")}
+            chips={sampleShown}
+            chipsHidden={sampleOn === null}
+          />
           <div className={styles.runBar}>
             <button type="button" className={styles.run} aria-disabled={missing !== null || busy} aria-describedby="ws-run-hint" onClick={run}>
-              {t(`run.${mode}`)}
+              {t("run.ask")}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
@@ -282,7 +241,7 @@ function SubmitProblem({ submit, failure, names }: { submit: SubmitState; failur
   const tErrors = useTranslations("apiErrors");
   const error = new ApiError(0, failure.code, failure.retryAfter);
   const key = apiErrorKey(error);
-  const limits = { mb: MAX_FILE_BYTES / (1024 * 1024), pages: MAX_PDF_PAGES, chars: MAX_PDF_CHARS, rows: MAX_CSV_ROWS };
+  const limits = { mb: MAX_FILE_MB, pages: MAX_PDF_PAGES, chars: MAX_PDF_CHARS, rows: MAX_CSV_ROWS };
   const base = failure.code === "RATE_LIMITED" && failure.retryAfter !== undefined ? t("submit.tooSoon", { minutes: retryMinutes(error) }) : tErrors(key, limits);
   const name = failure.fileId ? names[failure.fileId] : undefined;
   // The server's counts, not a number of ours: without them (or without a file name) the generic line is used.

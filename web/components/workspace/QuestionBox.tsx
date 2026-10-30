@@ -2,7 +2,8 @@
 
 import { useId, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { MAX_QUESTION_CHARS, MAX_QUESTION_INPUT_CHARS, QUESTION_COUNTER_FROM, questionLength } from "@/lib/workspace/validate";
+import { MAX_QUESTION_CHARS } from "@/lib/limits";
+import { MAX_QUESTION_INPUT_CHARS, QUESTION_COUNTER_FROM, questionLength } from "@/lib/workspace/validate";
 import styles from "./QuestionBox.module.css";
 
 type Chip = { text: string; full: string };

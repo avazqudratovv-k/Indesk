@@ -20,7 +20,8 @@ export default function OwlView({ artifacts, finished }: { artifacts: Artifacts;
         {artifacts.questionType ? (
           <p className={styles.chosen}>
             <span className={styles.chosenLabel}>{t("artifacts.owl.typeLabel")}</span>
-            <b>{t(`artifacts.types.${artifacts.questionType}`)}</b>
+            {/* The question type comes from the run, so the type cannot list it; hence the cast. */}
+            <b>{t(`artifacts.types.${artifacts.questionType}` as Parameters<typeof t>[0])}</b>
           </p>
         ) : (
           <p className={styles.note}>{t("artifacts.states.waiting")}</p>

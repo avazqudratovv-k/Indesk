@@ -9,7 +9,6 @@
     "plans": "Plans",
     "login": "Log in",
     "signup": "Sign up",
-    "account": "Account: {name}",
     "logout": "Log out",
     "logoutBusy": "Logging out…",
     "logoutFailed": "Could not log out. Try again."
@@ -213,7 +212,6 @@
     "components": {
       "title": "Base components",
       "lede": "Every variant and size. Resize below 760 px to check 44 px touch targets.",
-      "pageTheme": "Page theme: {theme}",
       "light": "light",
       "dark": "dark",
       "buttons": "Button",
@@ -282,11 +280,11 @@
       "passwordTooLong": "Use 128 characters or fewer."
     },
     "freeTitle": "Included for free",
-    "free": [
-      "Free analysis runs, a one-time allowance",
-      "Files up to 5 MB each",
-      "CSV up to 20,000 rows"
-    ],
+    "free": {
+      "runs": "Free analysis runs, a one-time allowance",
+      "size": "Files up to {mb, number} MB each",
+      "rows": "CSV up to {rows, number} rows"
+    },
     "trustTitle": "How we protect you",
     "trust": [
       "Passwords are hashed with Argon2",
@@ -416,25 +414,13 @@
       "check": "Check a document",
       "compare": "Compare",
       "intro": {
-        "ask": "Ask anything your CSV or PDF can answer. Every number comes from your file; claims that can't be matched are marked.",
-        "check": "Upload a document and the data behind it. We find every checkable claim and test it.",
-        "compare": "Two files of the same kind. We show what changed."
+        "ask": "Ask anything your CSV or PDF can answer. Every number comes from your file; claims that can't be matched are marked."
       },
       "soon": "Not available yet"
     },
     "steps": {
       "askFiles": "1. Choose your files",
-      "askQuestion": "2. Ask your question",
-      "checkFiles": "1. The document, and the data to check it against",
-      "checkNext": "2. What happens next",
-      "compareFiles": "1. Choose the two files",
-      "compareFocus": "2. What should we focus on? (optional)"
-    },
-    "slots": {
-      "document": "Document to check",
-      "sources": "Source data",
-      "fileA": "File A",
-      "fileB": "File B"
+      "askQuestion": "2. Ask your question"
     },
     "upload": {
       "dropOne": "Drop a file here or choose a file",
@@ -472,7 +458,7 @@
       "type": "{name}: only CSV and PDF files work.",
       "empty": "{name}: the file is empty.",
       "tooBig": "{name}: larger than {mb, number} MB.",
-      "nameTooLong": "{name}: the file name is too long (255 characters at most).",
+      "nameTooLong": "{name}: the file name is too long ({chars, number} characters at most).",
       "duplicate": "{name}: a file with this name is already added.",
       "slotFull": "{name}: no room left here. You can add {max, plural, one {# file} other {# files}}.",
       "documentMustBePdf": "{name}: the document to check must be a PDF.",
@@ -483,7 +469,6 @@
     "question": {
       "label": "Your question",
       "placeholder": "For example: Which station has the most total boardings in September 2026?",
-      "focusPlaceholder": "For example: which stations changed the most?",
       "counter": "{count, number} / {max, number}",
       "tooLong": "Your question is {over, number} characters over the limit of {max, number}.",
       "chipsLabel": "Example questions",
@@ -507,23 +492,13 @@
       ],
       "placeholderOwn": "Ask a question about your file"
     },
-    "checkSteps": [
-      "Owl lists every number, ranking and quote the document claims.",
-      "Beaver, Hound and Chameleon test each claim against your data.",
-      "Cat marks each one: matches, does not match, or cannot be verified."
-    ],
     "consent": "I have the right to use these files and they hold no private or sensitive data. I understand this is my responsibility.",
     "run": {
       "ask": "Ask the team",
-      "check": "Check the document",
-      "compare": "Compare the files",
       "usesFree": "Uses 1 of your {left, number} remaining free {left, plural, one {run} other {runs}}.",
       "usesOther": "Uses 1 run.",
       "need": {
         "files": "Select at least one file to continue.",
-        "document": "Add the document to check.",
-        "sources": "Select at least one source file to check against.",
-        "both": "Select both files to compare.",
         "question": "Type a question to continue.",
         "tooLong": "Shorten your question to continue.",
         "consent": "Tick the box above to continue."
@@ -621,7 +596,6 @@
       "guard": {
         "title": "Guardrails in this run",
         "tools": "Tool-call limit",
-        "toolsValue": "12",
         "budget": "Budget",
         "budgetValue": "Each run has a size cap.",
         "network": "Network for code",

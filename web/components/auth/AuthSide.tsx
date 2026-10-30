@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { MAX_CSV_ROWS, MAX_FILE_MB } from "@/lib/limits";
 import { DemoNoticeText } from "./DemoNoticeText";
 import styles from "./AuthSide.module.css";
 
@@ -15,7 +16,7 @@ export default function AuthSide() {
         <h2 id="auth-free" className={styles.freeTitle}>
           {t("freeTitle")}
         </h2>
-        {asStrings(t.raw("free")).map((text) => (
+        {[t("free.runs"), t("free.size", { mb: MAX_FILE_MB }), t("free.rows", { rows: MAX_CSV_ROWS })].map((text) => (
           <p key={text} className={styles.freeRow}>
             <span className={styles.tick}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

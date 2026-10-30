@@ -1,19 +1,15 @@
 // Browser-side checks for the Workspace upload area (ROADMAP 2.5). Files never leave the browser in this step;
 // the server repeats every one of these checks later (ROADMAP section 3).
 
+import { MAX_FILE_BYTES, MAX_FILE_NAME_CHARS } from "@/lib/limits";
+
 export type WorkspaceMode = "ask" | "check" | "compare";
 export type SlotId = "files" | "document" | "sources" | "fileA" | "fileB";
 export type FileKind = "csv" | "pdf" | "image";
 
-// Largest file on the Free plan: 5 MB, an owner decision that differs from DATA.md `uploads.size` ("Free 2 MB").
-// SPEC.md does not set a number. This is the only place the size is written; the UI reads it from here.
-export const MAX_FILE_BYTES = 5 * 1024 * 1024;
-// DATA.md `runs.question`: "max 1,000 characters (rec)"; accepted by DECISIONS #25.
-export const MAX_QUESTION_CHARS = 1000;
+// Product limits (file size, question length, file name length) live in lib/limits.ts.
 // Counter appears from here. Owner decision for this task, not in SPEC.
 export const QUESTION_COUNTER_FROM = 800;
-// DATA.md `uploads.filename`: "max 255 (rec)"; accepted by DECISIONS #25.
-export const MAX_FILE_NAME_CHARS = 255;
 
 // Files per slot. Ask takes exactly one CSV (DECISIONS: the server answers TOO_MANY_FILES for more; api limits.toml
 // files_per_slot). The Check and Compare counts are the owner's answers for task 2.5 (1 document + 4 sources, exactly 2).
@@ -41,13 +37,6 @@ export const ACCEPT_ATTRIBUTE = ".csv,.pdf,.jpg,.jpeg,.png,text/csv,application/
 
 // Ask reads one CSV or one PDF; images are on the "Not available yet" list.
 export const ASK_ACCEPT = ".csv,.pdf,text/csv,application/pdf";
-
-// Server limits, used only in copy (messages). The browser never opens a file to count rows, pages or characters:
-// it checks type, size and name, and the server answers with a code (TOO_MANY_ROWS, PDF_TOO_MANY_PAGES, ...).
-// Source of truth: api/config/limits.toml (STATE.md "Upload limits").
-export const MAX_CSV_ROWS = 20000;
-export const MAX_PDF_PAGES = 30;
-export const MAX_PDF_CHARS = 150000;
 
 export type FileErrorCode =
   | "type"

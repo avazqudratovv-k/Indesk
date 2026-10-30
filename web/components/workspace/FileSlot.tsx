@@ -3,7 +3,8 @@
 import { useEffect, useId, useRef, useState, type DragEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import type { FileStatus } from "@/lib/run/live/submit";
-import { ACCEPT_ATTRIBUTE, ASK_ACCEPT, extensionOf, formatSize, MAX_FILE_BYTES, SLOT_MAX, type FileError, type SlotFile, type SlotId } from "@/lib/workspace/validate";
+import { MAX_FILE_MB, MAX_FILE_NAME_CHARS } from "@/lib/limits";
+import { ACCEPT_ATTRIBUTE, ASK_ACCEPT, extensionOf, formatSize, SLOT_MAX, type FileError, type SlotFile, type SlotId } from "@/lib/workspace/validate";
 import styles from "./FileSlot.module.css";
 
 type Props = {
@@ -37,7 +38,6 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, csv
   const removeButtons = useRef(new Map<string, HTMLButtonElement>());
   // Where focus goes after the list changes: "next" after a removal (index to land on), "file" after adding to a single slot.
   const pending = useRef<{ type: "remove"; index: number } | { type: "add" } | null>(null);
-  const mb = MAX_FILE_BYTES / (1024 * 1024);
 
   useEffect(() => {
     const action = pending.current;
@@ -167,7 +167,7 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, csv
             {t("upload.dropOne")}
           </span>
           <span id={helpId} className={styles.help}>
-            {documentOnly ? t("upload.helpDocument", { mb }) : t("upload.help", { mb })}
+            {documentOnly ? t("upload.helpDocument", { mb: MAX_FILE_MB }) : t("upload.help", { mb: MAX_FILE_MB })}
           </span>
           <span className={styles.choose} aria-hidden="true">
             {t("upload.choose")}
@@ -182,7 +182,7 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, csv
               <circle cx="12" cy="12" r="9" />
               <path d="M12 7.5v5.5M12 16.5v.1" />
             </svg>
-            <span>{t(error.code === "slotFull" && slot === "files" ? "errors.askOneFile" : `errors.${error.code}`, { name: error.name, mb, max: SLOT_MAX[slot] })}</span>
+            <span>{t(error.code === "slotFull" && slot === "files" ? "errors.askOneFile" : `errors.${error.code}`, { name: error.name, mb: MAX_FILE_MB, max: SLOT_MAX[slot], chars: MAX_FILE_NAME_CHARS })}</span>
           </p>
         ))}
       </div>
