@@ -9,6 +9,7 @@ import { endCard } from "@/lib/run/live/reasons";
 import { describeTrace } from "@/lib/run/live/trace";
 import type { LiveStep, Outcome } from "@/lib/run/live/types";
 import { countAgentsDone, countToolCalls, deriveAgents, RUN_AGENTS, sumTokens, type AgentView, type RunAgent } from "@/lib/run/mock-run";
+import { markUnused, RUN_WORKERS, runKind } from "./agent-status";
 import type { Connection } from "./use-live-run";
 import AgentTimeline from "./AgentTimeline";
 import GuardrailsPanel from "./GuardrailsPanel";
@@ -60,8 +61,10 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
   const step = events.length;
   const agents = useMemo(() => {
     const raw = deriveAgents(events, step);
-    return run.done ? settle(raw, run.done.outcome) : raw;
+    const settled = run.done ? settle(raw, run.done.outcome) : raw;
+    return markUnused(settled, runKind(settled));
   }, [events, step, run.done]);
+  const workers = RUN_WORKERS[runKind(agents) ?? "csv"];
   const simulated = isSimulated(run.steps);
   const card = run.done ? endCard(run.done.outcome, run.done.reason) : null;
   const lost = !finished && connection !== "live";
@@ -104,7 +107,7 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
         </p>
       ) : null}
       <RunHeader ref={heading} title={run.question} finished={finished} onBack={onBack} real={{ mark }} />
-      <RunTiles key={run.id} toolCalls={toolCalls} tokens={sumTokens(events, step)} agentsDone={countAgentsDone(agents)} agentCount={RUN_AGENTS.length} finished={finished} real={{ startMs: run.createdAt ?? run.startedAt, endMs: run.finishedAt }} />
+      <RunTiles key={run.id} toolCalls={toolCalls} tokens={sumTokens(events, step)} agentsDone={countAgentsDone(agents, workers)} agentCount={workers.length} finished={finished} real={{ startMs: run.createdAt ?? run.startedAt, endMs: run.finishedAt }} />
       {lost ? <RunNotice cause={connection === "signedOut" ? "signedOut" : connection === "tooManyStreams" ? "tooManyStreams" : "lost"} onReconnect={onReconnect} /> : null}
       {card ? <RunEndCard card={card} reportId={run.done?.reportId ?? null} headingRef={endHeading} onChange={onBack} /> : null}
       {!finished && !lost && events.length === 0 ? (

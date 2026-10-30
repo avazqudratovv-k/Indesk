@@ -1091,7 +1091,8 @@
       "tip": "{name}: 데이터 {data}, 차트 사진 {photo}",
       "meaningTitle": "의미",
       "nextTitle": "다음에 할 일",
-      "confNoteReal": "진술 {total}개를 확인했습니다. {verified}개는 계산된 데이터와 일치합니다.{open, plural, =0 {} other { #개는 검증하지 못해 표시되었습니다.}}"
+      "confNoteReal": "진술 {total}개를 확인했습니다. {verified}개는 계산된 데이터와 일치합니다.{open, plural, =0 {} other { #개는 검증하지 못해 표시되었습니다.}}",
+      "confNotePdf": "진술 {total}개를 확인했습니다. {verified}개는 문서의 인용문과 일치합니다.{open, plural, =0 {} other { #개는 검증하지 못해 표시되었습니다.}}"
     },
     "detailed": {
       "claimsTitle": "주장과 근거",
@@ -1143,7 +1144,7 @@
       },
       "source": "{file} · {location}",
       "sourceFile": "{file}",
-      "page": "{n, number}쪽",
+      "page": "{n, number}\u2060쪽",
       "similarity": "유사도 {value, number}",
       "passageTitle": "문서에서 찾은 구절",
       "passageBody": "이 주장의 바탕이 된 파일 속 문장입니다.",

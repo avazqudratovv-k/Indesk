@@ -48,8 +48,8 @@ export function sumTokens(events: RunEvent[], step: number): number {
   return events.slice(0, step).reduce((sum, event) => sum + event.tok, 0);
 }
 
-export function countAgentsDone(agents: Record<RunAgent, AgentView>): number {
-  return RUN_AGENTS.filter((id) => agents[id].state === "done").length;
+export function countAgentsDone(agents: Record<RunAgent, AgentView>, ids: readonly RunAgent[] = RUN_AGENTS): number {
+  return ids.filter((id) => agents[id].state === "done").length;
 }
 
 // What the team graph draws, from the agents' states (board rules): a connector turns solid when the agent it leads to

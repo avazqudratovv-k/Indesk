@@ -31,7 +31,7 @@ describe("a PDF report", () => {
     for (const locale of ["en", "ko"] as const) {
       const html = report("pdf", { lang: locale, note: null }, locale);
       expect(html).toContain("2,450,051");
-      expect(html).not.toContain("matches");
+      expect(html).not.toContain(locale === "en" ? "computed data" : "계산된 데이터");
     }
   });
 

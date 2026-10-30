@@ -27,7 +27,7 @@ describe("unbuilt agents in a real run", () => {
 
   it("keep the real states of built agents", () => {
     expect(endedKey("beaver", view("waiting"), true, true)).toBe("didNotRun");
-    expect(tabStatus("beaver", view("skipped"), true, true)).toBe("didNotRun");
+    expect(tabStatus("beaver", view("skipped"), true, true)).toBe("notUsed");
     expect(tabStatus("owl", view("done"), true, true)).toBe("done");
     expect(endedKey("cat", view("failed"), true, true)).toBe("failed");
   });

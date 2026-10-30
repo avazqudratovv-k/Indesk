@@ -1079,7 +1079,7 @@
     "simple": {
       "inShort": "In short",
       "confTitle": "How sure are we?",
-      "confNote": "We checked {total} statements. {verified} are backed by the data or the document.{open, plural, =0 {} one { 1 is only an idea and is marked.} other { # are only ideas and are marked.}}",
+      "confNote": "We checked {total, plural, one {# statement} other {# statements}}. {verified} are backed by the data or the document.{open, plural, =0 {} one { 1 is only an idea and is marked.} other { # are only ideas and are marked.}}",
       "confBar": "{verified} / {total}",
       "keyBar": "Computed from the CSV",
       "keyTick": "Read from the chart photo",
@@ -1091,7 +1091,8 @@
       "tip": "{name}: data {data}, chart photo {photo}",
       "meaningTitle": "What this means",
       "nextTitle": "What you could do next",
-      "confNoteReal": "We checked {total} statements. {verified} match the computed data.{open, plural, =0 {} one { 1 could not be verified and is marked.} other { # could not be verified and are marked.}}"
+      "confNoteReal": "We checked {total, plural, one {# statement} other {# statements}}. {verified, plural, one {# matches} other {# match}} the computed data.{open, plural, =0 {} one { 1 could not be verified and is marked.} other { # could not be verified and are marked.}}",
+      "confNotePdf": "We checked {total, plural, one {# statement} other {# statements}}. {verified, plural, one {# matches a quote} other {# match quotes}} in the document.{open, plural, =0 {} one { 1 could not be verified and is marked.} other { # could not be verified and are marked.}}"
     },
     "detailed": {
       "claimsTitle": "Claims and evidence",
@@ -1143,7 +1144,7 @@
       },
       "source": "{file} · {location}",
       "sourceFile": "{file}",
-      "page": "p. {n, number}",
+      "page": "p.\u00a0{n, number}",
       "similarity": "similarity {value, number}",
       "passageTitle": "Passage from your document",
       "passageBody": "The words of your file that this claim rests on.",

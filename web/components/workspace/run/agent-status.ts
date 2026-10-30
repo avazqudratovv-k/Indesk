@@ -24,9 +24,33 @@ export function isComingLater(id: RunAgent, view: AgentView, real: boolean): boo
   return real && !agentBuilt[id] && (view.state === "skipped" || view.state === "waiting");
 }
 
-// Real runs only: Hound works on PDFs, so in a CSV run it never starts. It is "not used", a neutral word, not "did not run".
+// Real runs only: Hound works on PDFs and Beaver on CSVs, so each never starts in the other kind of run. That agent is
+// "not used", a neutral word, not "did not run". Hound is also not used when the run ended without it starting; Beaver
+// only once the run is known to be a PDF run (see `markUnused`), because a CSV run that ended early did not run Beaver.
 export function isNotUsed(id: RunAgent, view: AgentView, finished: boolean, real: boolean): boolean {
-  return real && id === "hound" && (view.state === "skipped" || (view.state === "waiting" && finished));
+  if (!real) return false;
+  if (id === "hound") return view.state === "skipped" || (view.state === "waiting" && finished);
+  return id === "beaver" && view.state === "skipped";
+}
+
+export type RunKind = "csv" | "pdf";
+
+// The agents that can work in each kind of run; "Agents done N / M" counts only these.
+export const RUN_WORKERS: Record<RunKind, readonly RunAgent[]> = { csv: ["owl", "beaver", "cat"], pdf: ["owl", "hound", "cat"] };
+
+// The kind of a real run, read from its events: Hound working (or Beaver skipped) is a PDF run, Beaver working (or Hound
+// skipped) is a CSV run. Null while neither worker has started.
+export function runKind(agents: Record<RunAgent, AgentView>): RunKind | null {
+  const started = (view: AgentView) => view.state !== "waiting" && view.state !== "skipped";
+  if (started(agents.hound) || agents.beaver.state === "skipped") return "pdf";
+  if (started(agents.beaver) || agents.hound.state === "skipped") return "csv";
+  return null;
+}
+
+// In a PDF run Beaver is not used from the moment the run is known to be a PDF run: its waiting state becomes skipped.
+export function markUnused(agents: Record<RunAgent, AgentView>, kind: RunKind | null): Record<RunAgent, AgentView> {
+  if (kind !== "pdf" || agents.beaver.state !== "waiting") return agents;
+  return { ...agents, beaver: { ...agents.beaver, state: "skipped" } };
 }
 
 export type TabStatus = "working" | "done" | "flagged" | "waiting" | "failed" | "didNotRun" | "comingLater" | "notUsed";
