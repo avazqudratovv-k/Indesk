@@ -6,6 +6,7 @@ Two matrices: the default one answers the sandbox with a fake parser and checks 
 with it; the `parser` ones send real PDFs to the running parser service (run them from the api
 container: `docker compose run --rm api pytest -m parser`)."""
 
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +16,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app import sandbox_client
+from app.ai.gateway import Gateway
 from app.core.config import Settings
 from app.core.enums import SandboxErrorCode
 from app.db.models import AiCall, Chunk, DocumentPage, Upload, UsageDaily, UsageEvent
@@ -40,6 +42,32 @@ def assert_nothing_left(db: Any, settings: Settings) -> None:
 
 def pdf_post(client: TestClient, data: bytes = PDF, mime: str = "application/pdf") -> Any:
     return post(client, data, "report.pdf", mime)
+
+
+def ai_call_rows(db: Any) -> int | None:
+    with Session(bind=db) as session:
+        return session.scalar(select(func.count()).select_from(AiCall))
+
+
+@pytest.fixture(autouse=True)
+def no_model_call(monkeypatch: pytest.MonkeyPatch, db_connection: Any) -> Iterator[None]:
+    """For every test here: the gateway is never asked (ask or embed) and the real ai_calls
+    table has the same row count after the request as before it."""
+    asked: list[str] = []
+
+    def count(name: str) -> Any:
+        def spy(*args: Any, **kwargs: Any) -> Any:
+            asked.append(name)
+            raise AssertionError(f"Gateway.{name} called during a PDF upload")
+
+        return spy
+
+    monkeypatch.setattr(Gateway, "ask", count("ask"))
+    monkeypatch.setattr(Gateway, "embed", count("embed"))
+    before = ai_call_rows(db_connection)
+    yield
+    assert asked == []
+    assert ai_call_rows(db_connection) == before
 
 
 # ---- the default matrix: a fake parser ----
