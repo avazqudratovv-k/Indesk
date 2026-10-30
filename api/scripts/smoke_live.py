@@ -249,6 +249,8 @@ def inspect(run_id: str) -> None:
                 f"top cosine before the floor: {payload.get('top_cosine')} | "
                 f"fused scores: {payload.get('scores')}"
             )
+        if "verdicts" in payload:  # Cat on a PDF: status and reason code per claim, no text
+            dump(f"Cat quote-check verdicts (step {seq}, {key})", payload["verdicts"])
         if "plan" in payload:
             dump(f"Owl plan (step {seq}, {key})", payload["plan"])
         if "code" in payload:
@@ -299,6 +301,8 @@ def main() -> None:
     if view.get("report_id"):  # P9: the saved report, as the owner's browser would get it
         status, report = api.call("GET", f"/reports/{view['report_id']}")
         dump(f"report (GET /reports/{{id}}, HTTP {status})", report)
+    else:
+        print("\n--- no report_id on this run (no report row was created)")
 
 
 if __name__ == "__main__":
