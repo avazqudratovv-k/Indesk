@@ -4,6 +4,8 @@ then works as the app role. Both sessions are opened with `options=-c role=...`,
 needed and the dev roles are left exactly as they are."""
 
 from collections.abc import Iterator
+from datetime import timedelta
+from pathlib import Path
 
 import pytest
 from alembic import command
@@ -282,3 +284,31 @@ def test_the_app_role_can_delete_a_run_and_the_cascade_follows(app_engine: Engin
     finally:
         with app_engine.begin() as conn:
             conn.execute(text("DELETE FROM users WHERE id = :u"), {"u": user_id})
+
+
+# ---- the daily purge runs as the app role ----
+
+
+def test_the_purge_works_as_the_app_role(app_engine: Engine, tmp_path: Path) -> None:
+    from sqlalchemy.orm import Session  # noqa: PLC0415
+
+    from app.services.purge import purge_expired  # noqa: PLC0415
+    from app.storage import LocalDiskStorage  # noqa: PLC0415
+    from tests.ai_helpers import limits_with  # noqa: PLC0415
+    from tests.factories import NOW, make_report, make_run  # noqa: PLC0415
+
+    with Session(app_engine) as db:
+        assert db.execute(text("SELECT current_user")).scalar() == APP
+        user = make_user(db)
+        run = make_run(db, user, status="finished", outcome="answered", finished_at=NOW)
+        make_report(db, run, expires_at=NOW - timedelta(days=1))
+        user_id, run_id = user.id, run.id
+        db.commit()
+        try:
+            done = purge_expired(db, LocalDiskStorage(tmp_path), limits_with(), NOW)
+            assert done.expired_runs >= 1
+            left = db.execute(text("SELECT count(*) FROM runs WHERE id = :r"), {"r": run_id})
+            assert left.scalar() == 0
+        finally:
+            db.execute(text("DELETE FROM users WHERE id = :u"), {"u": user_id})
+            db.commit()

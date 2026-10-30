@@ -82,6 +82,11 @@ class Limits(BaseModel):
     # Ask: a column the plan names that is not in the file counts as a near-miss of a real column
     # (a typo, not a missing column) at or above this similarity.
     column_match_similarity: float = Field(ge=0, le=1)
+    # Daily purge: rows per batch, days before a finished run without a report goes, and days
+    # before an ai_calls row goes.
+    purge_batch: PositiveInt
+    purge_no_report_days: PositiveInt
+    ai_calls_retention_days: PositiveInt
     # A chunk whose estimated tokens pass this is not embedded (it stays searchable by words).
     embed_chunk_max_tokens: PositiveInt = MAX_EMBED_CHUNK_TOKENS
 

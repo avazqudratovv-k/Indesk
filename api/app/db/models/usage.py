@@ -39,7 +39,7 @@ class AiCall(Base):
     created_at: Mapped[created_at_col]
 
     __table_args__ = (
-        Index("ix_ai_calls_created_at", "created_at"),  # 90-day cleanup
+        Index("ix_ai_calls_created_at", "created_at"),  # daily purge (ai_calls_retention_days)
         CheckConstraint("char_length(model) BETWEEN 1 AND 100", name="model"),
         CheckConstraint("attempt BETWEEN 1 AND 3", name="attempt"),
         CheckConstraint("tokens_in >= 0 AND tokens_out >= 0 AND latency_ms >= 0", name="counters"),
@@ -81,7 +81,7 @@ class UsageDaily(Base):
 
 
 class UsageEvent(Base):
-    """Plan quota is computed from these rows. Retention 90 days."""
+    """Plan quota is computed from these rows. Kept: the source of truth for the free-run count."""
 
     __tablename__ = "usage_events"
 
@@ -110,7 +110,7 @@ class UsageEvent(Base):
 
 
 class AuditLog(Base):
-    """Action, target and a hashed IP. Retention 90 days. Survives user deletion (user_id null)."""
+    """Action, target and a hashed IP. Kept, never purged. Survives user deletion (user_id null)."""
 
     __tablename__ = "audit_log"
 

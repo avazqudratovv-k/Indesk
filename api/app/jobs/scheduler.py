@@ -5,9 +5,12 @@ from redis import Redis
 from rq.cron import CronScheduler
 
 from app.core.config import get_settings
+from app.jobs.purge import purge_expired_job
 from app.jobs.runs import reap_stuck_runs
 from app.jobs.sweep import run_sweep
 from app.jobs.worker import QUEUE_NAME
+
+PURGE_INTERVAL_SECONDS = 86400  # daily
 
 
 def build_scheduler(
@@ -17,6 +20,9 @@ def build_scheduler(
     scheduler.register(run_sweep, QUEUE_NAME, interval=interval_seconds, name="upload-sweep")
     scheduler.register(
         reap_stuck_runs, QUEUE_NAME, interval=reaper_interval_seconds, name="run-reaper"
+    )
+    scheduler.register(
+        purge_expired_job, QUEUE_NAME, interval=PURGE_INTERVAL_SECONDS, name="purge-expired"
     )
     return scheduler
 

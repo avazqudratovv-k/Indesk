@@ -178,6 +178,18 @@ retrieval_min_terms = 2
 # missing column, so the run still fails as bad_model_output. Owner decision 2026-10-31.
 column_match_similarity = 0.85
 
+# --- Daily purge ---
+
+# Rows deleted per batch (each batch is one short transaction; passes repeat until nothing is left).
+purge_batch = 200
+
+# A finished run that never made a report is deleted this many days after it finished. The run's usage_events
+# row stays (the free-run count), only its run_id becomes NULL.
+purge_no_report_days = 30
+
+# ai_calls rows are deleted after this many days. usage_events, usage_daily and audit_log are never purged.
+ai_calls_retention_days = 90
+
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
 # POST /runs reads these. Ask takes ONE CSV in v1 (more is refused with TOO_MANY_FILES).
 [files_per_slot]
