@@ -260,7 +260,7 @@ export default function AskPanel({ userId, freeLeft, plan, onRun, submit }: { us
         {announcement}
       </p>
 
-      <TeamReady />
+      <TeamReady withHound={slots.files.some((item) => item.kind === "pdf")} />
       <AgentEndings />
       <UploadInfo />
     </div>

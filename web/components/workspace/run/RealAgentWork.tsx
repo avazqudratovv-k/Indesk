@@ -58,6 +58,8 @@ export default function RealAgentWork({ agents, events, finished, reportId }: Pr
           </ol>
         ) : status === "comingLater" ? (
           <p className={work.state}>{t("artifacts.states.comingLater")}</p>
+        ) : status === "notUsed" ? (
+          <p className={work.state}>{t("artifacts.states.notUsed")}</p>
         ) : status === "didNotRun" ? (
           <p className={work.state}>{t("artifacts.states.didNotRun")}</p>
         ) : (

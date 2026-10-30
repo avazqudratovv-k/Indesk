@@ -21,7 +21,7 @@ export default function AgentTimeline({ agents, reportReady, finished, real = fa
         const key = endedKey(id, view, finished, real);
         const live = view.state === "working" ? "on" : view.state === "waiting" ? "dim" : "";
         return (
-          <li key={id} className={`${styles.item} ${styles[`s_${key === "didNotRun" || key === "comingLater" ? "waiting" : key}`]}`}>
+          <li key={id} className={`${styles.item} ${styles[`s_${key === "didNotRun" || key === "comingLater" || key === "notUsed" ? "waiting" : key}`]}`}>
             <span className={styles.ring}>
               <AgentSprite agent={id} live={live} size={52} phase={index} className={styles.sprite} />
             </span>

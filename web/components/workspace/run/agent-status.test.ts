@@ -5,8 +5,8 @@ import { endedKey, tabStatus } from "./agent-status";
 const view = (state: AgentView["state"]): AgentView => ({ state, flags: 0 });
 
 describe("unbuilt agents in a real run", () => {
-  it("show Coming later for Chameleon and Hound, whatever their idle state", () => {
-    for (const id of ["chameleon", "hound"] as const) {
+  it("show Coming later for Chameleon, whatever their idle state", () => {
+    for (const id of ["chameleon"] as const) {
       for (const state of ["waiting", "skipped"] as const) {
         for (const finished of [false, true]) {
           expect(endedKey(id, view(state), finished, true)).toBe("comingLater");
@@ -14,6 +14,15 @@ describe("unbuilt agents in a real run", () => {
         }
       }
     }
+  });
+
+  it("show Hound as real: working and done keep their state, and in a CSV run it is Not used", () => {
+    expect(tabStatus("hound", view("working"), false, true)).toBe("working");
+    expect(tabStatus("hound", view("done"), true, true)).toBe("done");
+    expect(tabStatus("hound", view("waiting"), false, true)).toBe("waiting");
+    expect(tabStatus("hound", view("skipped"), true, true)).toBe("notUsed");
+    expect(tabStatus("hound", view("waiting"), true, true)).toBe("notUsed");
+    expect(endedKey("hound", view("waiting"), true, true)).toBe("notUsed");
   });
 
   it("keep the real states of built agents", () => {

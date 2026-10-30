@@ -6,7 +6,7 @@ import PlateMark from "./PlateMark";
 import { agentBuilt, agentColor, agentIds, agentPlate, type AgentId } from "./agents";
 
 // Only the built agents have a tag (the others show the "Coming later" chip).
-type BuiltAgentId = Exclude<AgentId, "chameleon" | "hound">;
+type BuiltAgentId = Exclude<AgentId, "chameleon">;
 import styles from "./HomeTeam.module.css";
 
 export default function HomeTeam() {

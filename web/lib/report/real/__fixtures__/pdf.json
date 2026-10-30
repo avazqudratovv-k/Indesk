@@ -1,0 +1,71 @@
+{
+ "_note": "Test fixture with invented numbers. A PDF report: no top_rows, claims quote the document. Never imported by the app.",
+ "report": {
+  "id": "11111111-1111-4111-8111-111111111111",
+  "run_id": "22222222-2222-4222-8222-222222222222",
+  "owner_id": "00000001-4444-4444-8444-444444444444",
+  "mode": "ask",
+  "title": "Gangnam station had the most boardings",
+  "summary_json": {
+   "answer": "The document says Gangnam station had 2,450,051 boardings (p. 4).",
+   "in_short": [
+    {
+     "status": "verified",
+     "text": "Gangnam had 2,450,051 boardings, on page 4."
+    }
+   ],
+   "meaning": "The three busiest stations are in the centre of the city.",
+   "next_steps": [
+    "Compare with another month."
+   ]
+  },
+  "confidence": "high",
+  "verified_count": 1,
+  "total_claims": 1,
+  "pdf_key": null,
+  "template": "plain",
+  "typeface": "clean",
+  "text_size": "m",
+  "created_at": "2026-10-26T09:00:00Z",
+  "expires_at": "2026-11-25T09:00:00Z",
+  "deleted_at": null,
+  "purge_at": null,
+  "translations": null
+ },
+ "claims": [
+  {
+   "id": "00000101-4444-4444-8444-444444444444",
+   "report_id": "11111111-1111-4111-8111-111111111111",
+   "n": 1,
+   "text": "Gangnam station had 2,450,051 boardings.",
+   "status": "verified",
+   "origin": "document",
+   "doc_quote": "Gangnam station recorded 2,450,051 boardings in the month.",
+   "doc_location": "p4",
+   "doc_value": "2,450,051",
+   "computed_value": null,
+   "evidence_refs": [
+    "H1"
+   ],
+   "ko": null
+  }
+ ],
+ "evidence": [
+  {
+   "id": "00000200-4444-4444-8444-444444444444",
+   "run_id": "22222222-2222-4222-8222-222222222222",
+   "step_id": "33333333-3333-4333-8333-333333333333",
+   "ref": "H1",
+   "type": "passage",
+   "file_name": "seoul_subway_2026-09.pdf",
+   "location": "p4",
+   "payload": {
+    "passage": "Gangnam station recorded 2,450,051 boardings in the month, the most of any station.",
+    "quote": "Gangnam station recorded 2,450,051 boardings in the month.",
+    "page": 4,
+    "similarity": 0.83,
+    "code": "ignored"
+   }
+  }
+ ]
+}

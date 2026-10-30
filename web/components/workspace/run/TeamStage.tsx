@@ -94,7 +94,7 @@ export default function TeamStage({ agents, events, step, reportReady, scenario,
           const [x, y, h] = POS[id];
           const bubble = id === "owl" ? (bubbleOwl ? t(`live.bubbles.${bubbleOwl}`) : "") : view.state === "working" ? t(`live.bubbles.${id}`) : "";
           const bad = key === "flagged" || key === "failed";
-          const idle = key === "didNotRun" || key === "comingLater" ? "waiting" : key;
+          const idle = key === "didNotRun" || key === "comingLater" || key === "notUsed" ? "waiting" : key;
           const pool = view.state === "working" ? 1 : bad ? 0.7 : view.state === "done" ? 0.4 : 0;
           const live = view.state === "working" ? "on" : view.state === "waiting" ? "dim" : "";
           const bob = id === "owl" ? !!bubble : view.state === "working";

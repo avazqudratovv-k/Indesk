@@ -57,7 +57,10 @@ function parseClaim(value: unknown, reportId: string): Claim | null {
     return clean ? [clean] : [];
   });
   return {
-    id, report_id: reportId, n, text, status, origin: "answer", doc_quote: null, doc_location: null, doc_value: null,
+    id, report_id: reportId, n, text, status, origin: value.origin === "document" ? "document" : "answer",
+    doc_quote: typeof value.doc_quote === "string" ? plainText(value.doc_quote, 600) || null : null,
+    doc_location: typeof value.doc_location === "string" ? plainText(value.doc_location, 60) || null : null,
+    doc_value: typeof value.doc_value === "string" ? plainText(value.doc_value, 120) || null : null,
     computed_value: typeof value.computed_value === "string" ? plainText(value.computed_value, 120) : null,
     evidence_refs: refs,
   };
@@ -78,6 +81,16 @@ function parseEvidence(value: unknown, runId: string): Evidence | null {
     method: str(payload.method) ?? undefined,
     table: parseTable(payload.table) ?? undefined,
   };
+  // A document passage: its words are document content, so plain text only (never a link, never markup).
+  if (type === "passage") {
+    const passage = typeof payload.passage === "string" ? plainText(payload.passage, 1200) : "";
+    const quote = typeof payload.quote === "string" ? plainText(payload.quote, 600) : "";
+    if (passage) kept.passage = passage;
+    if (quote) kept.quote = quote;
+    if (count(payload.page) !== null) kept.page = count(payload.page);
+    const similarity = payload.similarity;
+    if (typeof similarity === "number" && Number.isFinite(similarity) && similarity >= 0 && similarity <= 1) kept.similarity = similarity;
+  }
   return { id, run_id: runId, step_id: str(value.step_id) ?? "", ref, type, file_name: plainText(value.file_name, 200), location: typeof value.location === "string" ? plainText(value.location, 60) : null, payload: kept };
 }
 

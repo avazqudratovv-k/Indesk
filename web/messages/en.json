@@ -37,14 +37,14 @@
     "hero": {
       "eyebrow": "A team of AI agents that shows its work",
       "title": "Answers from your files, with proof.",
-      "lede": "Upload one CSV and ask a question. Three agents plan, calculate and check, and every claim in the report is marked verified or not.",
+      "lede": "Upload one CSV or one PDF and ask a question. Three agents work on it: they plan, then calculate or search, then check. Every claim in the report is marked verified or not.",
       "tryDemo": "Try the demo",
       "signUp": "Sign up free",
       "note": "Free runs · no card needed"
     },
     "film": {
       "label": "Sample animation",
-      "description": "A 10-second sample loop: a CSV arrives, a question is asked, three agents work and a report appears. Chameleon and Hound are not built yet.",
+      "description": "A 10-second sample loop: a CSV arrives, a question is asked, three agents work and a report appears. Chameleon is not built yet.",
       "pause": "Pause animation",
       "play": "Play animation",
       "duration": "Sample animation · 10 s",
@@ -115,7 +115,8 @@
       "hound": {
         "name": "Hound",
         "role": "Retrieval",
-        "desc": "Will find the right passages in long PDFs.",
+        "desc": "Finds the right passages in your PDF.",
+        "tag": "hybrid search",
         "see": "Matched passages with page numbers and scores."
       },
       "cat": {
@@ -412,7 +413,7 @@
   },
   "workspace": {
     "title": "What would you like to know?",
-    "sub": "Pick your CSV file, ask in your own words, and watch the team work.",
+    "sub": "Pick your CSV or PDF file, ask in your own words, and watch the team work.",
     "tabsLabel": "Workspace steps",
     "tabAsk": "Ask a question",
     "tabRun": "Agents at work",
@@ -429,7 +430,7 @@
       "check": "Check a document",
       "compare": "Compare",
       "intro": {
-        "ask": "Ask anything your CSV can answer. Every number comes from your file; claims that can't be matched are marked.",
+        "ask": "Ask anything your CSV or PDF can answer. Every number comes from your file; claims that can't be matched are marked.",
         "check": "Upload a document and the data behind it. We find every checkable claim and test it.",
         "compare": "Two files of the same kind. We show what changed."
       },
@@ -614,7 +615,8 @@
         "failed": "Failed",
         "flagged": "{count, number} flagged",
         "didNotRun": "Did not run",
-        "comingLater": "Coming later"
+        "comingLater": "Coming later",
+        "notUsed": "Not used"
       },
       "feedTitle": "Live trace",
       "feedEmpty": "The team is starting…",
@@ -754,13 +756,15 @@
         "waiting": "Waiting",
         "failed": "Failed",
         "didNotRun": "Did not run",
-        "comingLater": "Coming later"
+        "comingLater": "Coming later",
+        "notUsed": "Not used"
       },
       "states": {
         "waiting": "Waiting for this agent to start…",
         "failed": "No answer after 35 s and one retry.",
         "didNotRun": "This agent did not run, because the run ended before its turn.",
-        "comingLater": "This agent is not built yet. It is coming later."
+        "comingLater": "This agent is not built yet. It is coming later.",
+        "notUsed": "Not used in this run"
       },
       "handover": {
         "title": "Hands over to the report",
@@ -959,6 +963,16 @@
       "stepFailedReason": "A step failed: {reason}",
       "stopped": "The run stopped",
       "stoppedReason": "The run stopped: {reason}",
+      "search": "Searching the document",
+      "searchPages": "Searching the document ({pages, plural, one {# page} other {# pages}})",
+      "searchNoMatch": "Searched {pages, plural, one {# page} other {# pages}}: no passage matched",
+      "bestPassage": "Found the best passage",
+      "bestPassagePage": "Found the best passage on page {page, number}",
+      "bestPassageSimilar": "Found the best passage on page {page, number} (similarity {similarity, number})",
+      "keywordOnlySize": "Searching by words only",
+      "keywordOnlySizeReason": "Searching by words only: the document is too large to compare by meaning",
+      "chunksSkipped": "Some passages were searched by words only",
+      "chunksSkippedCount": "{count, plural, one {# passage was} other {# passages were}} too long to compare by meaning and searched by words only",
       "unknown": "The agent reported progress",
       "verify": "Checking the claims",
       "verifyCounts": "{verified, number} of {claims, number} claims verified"
@@ -1129,6 +1143,10 @@
       },
       "source": "{file} · {location}",
       "sourceFile": "{file}",
+      "page": "p. {n, number}",
+      "similarity": "similarity {value, number}",
+      "passageTitle": "Passage from your document",
+      "passageBody": "The words of your file that this claim rests on.",
       "d1Title": "Computed table",
       "rowsUsed": "Used {n, number} rows",
       "rows": "Rows {from, number}–{to, number}",

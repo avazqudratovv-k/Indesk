@@ -3,14 +3,14 @@ import type { TraceArgs } from "./types";
 
 // The closed set of trace keys (api/app/runs/trace.py TraceKey) and the arguments each may use. A key we do not know,
 // or an argument of the wrong kind, never reaches the screen as text: it becomes a generic line.
-export const TRACE_KEYS = ["plan", "dispatch", "readCsv", "runPython", "top3", "merge", "verify", "ready", "stepStarted", "stepFailed", "stopped"] as const;
+export const TRACE_KEYS = ["plan", "dispatch", "readCsv", "runPython", "top3", "merge", "verify", "ready", "stepStarted", "stepFailed", "stopped", "search", "bestPassage", "keywordOnlySize", "chunksSkipped"] as const;
 export type TraceKey = (typeof TRACE_KEYS)[number];
 
 // Message ids under workspace.trace.* (one per wording; a variant exists where an argument can be missing).
 export const TRACE_MESSAGE_IDS = [
   "plan", "planFiles", "dispatch", "dispatchAgents", "readCsv", "readCsvSized", "runPython", "runPythonAttempt",
   "top3", "top3Rows", "merge", "verify", "verifyCounts", "ready", "stepStarted", "stepStartedAttempt", "stepFailed", "stepFailedReason",
-  "stopped", "stoppedReason", "unknown",
+  "stopped", "stoppedReason", "search", "searchPages", "searchNoMatch", "bestPassage", "bestPassagePage", "bestPassageSimilar", "keywordOnlySize", "keywordOnlySizeReason", "chunksSkipped", "chunksSkippedCount", "unknown",
 ] as const;
 export type TraceMessageId = (typeof TRACE_MESSAGE_IDS)[number];
 
@@ -64,6 +64,23 @@ export function describeTrace(key: string, args: TraceArgs): TraceText {
     case "stepFailed": {
       const reason = args.reason;
       return typeof reason === "string" && isKnownReason(reason) ? say("stepFailedReason", { reason }) : say("stepFailed");
+    }
+    case "search": {
+      const pages = count(args, "pages", 1);
+      if (pages === null) return say("search");
+      return count(args, "matched", 0) === 0 ? say("searchNoMatch", { pages }) : say("searchPages", { pages });
+    }
+    case "bestPassage": {
+      const page = count(args, "page", 1);
+      if (page === null) return say("bestPassage");
+      const similarity = args.similarity;
+      return typeof similarity === "number" && similarity >= 0 && similarity <= 1 ? say("bestPassageSimilar", { page, similarity: Math.round(similarity * 100) / 100 }) : say("bestPassagePage", { page });
+    }
+    case "keywordOnlySize":
+      return args.reason === "document_size" ? say("keywordOnlySizeReason") : say("keywordOnlySize");
+    case "chunksSkipped": {
+      const skipped = count(args, "count", 1);
+      return skipped === null ? say("chunksSkipped") : say("chunksSkippedCount", { count: skipped });
     }
     case "stopped": {
       const reason = args.reason;
