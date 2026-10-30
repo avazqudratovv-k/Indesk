@@ -40,4 +40,21 @@ describe("outcome and plans copy tells the truth", () => {
       for (const key of ["fileSize", "dataSize", "parallel", "optionsNote", "lineFileSize", "lineParallel", "included"]) expect(m.plans.custom).not.toHaveProperty(key);
     }
   });
+
+  it.each(sets)("%s: checkout success and card limit keys exist", (_lang, m) => {
+    for (const text of [m.plans.checkout.successTitle, m.plans.checkout.successLine, m.plans.features.fileSize, m.plans.features.csvRows, m.plans.features.pdfPages]) {
+      expect(text).toBeTruthy();
+    }
+  });
+
+  it("en success screen says demo checkout, no money moved and the account stays on Free", () => {
+    expect(en.plans.checkout.successTitle).toBe("Demo checkout complete");
+    expect(en.plans.checkout.successLine).toContain("No real money moved.");
+    expect(en.plans.checkout.successLine).toContain("Your account stays on the Free plan.");
+  });
+
+  it.each(sets)("%s: success copy never claims a payment or a plan change", (_lang, m) => {
+    const text = `${m.plans.checkout.successTitle} ${m.plans.checkout.successLine}`;
+    for (const old of ["Payment successful", "went through", "결제가 완료", "결제가 처리"]) expect(text).not.toContain(old);
+  });
 });

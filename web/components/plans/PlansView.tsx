@@ -28,11 +28,10 @@ export default function PlansView({ offers, custom, limits }: { offers: PlanOffe
   const payg = offers.find((offer) => offer.plan === "payg");
   if (!free || !pro || !payg) throw new Error("plans mock is missing a plan");
 
-  const paygRuns = payg.runs;
   const signedIn = session.signedIn;
-  const [plan, setPlan] = useState<DemoPlan>(session.user?.plan === "pro" ? "pro" : "free");
-  const [credits, setCredits] = useState(0);
-  const [customLimit, setCustomLimit] = useState(0);
+  // Paid plans are simulated: buying never changes the account, so the plan and credits are read-only here.
+  const plan: DemoPlan = session.user?.plan === "pro" ? "pro" : "free";
+  const credits = 0;
   const [used, setUsed] = useState(1);
   const [choice, setChoice] = useState<Choice | null>(null);
   const [paid, setPaid] = useState(false);
@@ -41,7 +40,7 @@ export default function PlansView({ offers, custom, limits }: { offers: PlanOffe
   const paidRef = useRef<HTMLElement>(null);
 
   const quote = useMemo(() => quoteCustomPlan(runs, custom), [runs, custom]);
-  const limit = plan === "custom" ? customLimit : plan === "pro" ? pro.runs : free.runs + credits;
+  const limit = plan === "pro" ? pro.runs : free.runs + credits;
   const shownUsed = Math.min(used, limit);
   const blocked = shownUsed >= limit;
 
@@ -56,20 +55,11 @@ export default function PlansView({ offers, custom, limits }: { offers: PlanOffe
     trigger.current?.focus();
   }
 
-  // Called by the checkout's Done button after a successful demo payment. A declined payment never gets here.
-  function applyPlan() {
-    if (choice === "custom") {
-      setPlan("custom");
-      setCustomLimit(quote.runs);
-    } else if (choice === "pro") {
-      setPlan("pro");
-    } else {
-      setCredits((value) => value + paygRuns);
-    }
+  // Called by the checkout's Done button after a successful demo checkout. Nothing about the account changes.
+  function finishCheckout() {
     setChoice(null);
     setPaid(true);
-    // Focus goes back to the button that opened the checkout. After a Pro purchase that button is disabled
-    // ("Current plan"), so the banner at the top takes the focus and is brought into view instead.
+    // Focus goes back to the button that opened the checkout; if it is gone or disabled, the banner at the top takes it.
     requestAnimationFrame(() => {
       const opener = trigger.current;
       if (opener?.isConnected && !(opener instanceof HTMLButtonElement && opener.disabled)) {
@@ -86,8 +76,6 @@ export default function PlansView({ offers, custom, limits }: { offers: PlanOffe
 
   function reset() {
     setUsed(1);
-    setPlan("free");
-    setCredits(0);
     setChoice(null);
     setPaid(false);
   }
@@ -129,7 +117,7 @@ export default function PlansView({ offers, custom, limits }: { offers: PlanOffe
           <PlanCard
             key={offer.plan}
             offer={offer}
-            limits={offer.plan === "free" ? limits : undefined}
+            limits={limits}
             signedIn={signedIn}
             current={signedIn && (offer.plan === "free" ? plan === "free" && credits === 0 : offer.plan === "pro" && plan === "pro")}
             onChoose={(from) => open(offer.plan === "pro" ? "pro" : "payg", from)}
@@ -165,7 +153,7 @@ export default function PlansView({ offers, custom, limits }: { offers: PlanOffe
         <EnforceCard />
       </section>
 
-      {choice ? <Checkout summary={summary} onDone={applyPlan} onCancel={cancel} /> : null}
+      {choice ? <Checkout summary={summary} onDone={finishCheckout} onCancel={cancel} /> : null}
 
       <p className={styles.demoLine}>{t("demoNoPayments")}</p>
     </main>

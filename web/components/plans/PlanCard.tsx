@@ -9,8 +9,8 @@ import styles from "./PlanCard.module.css";
 
 type PlanCardProps = {
   offer: PlanOffer;
-  // Set on the Free card only: the demo's real limits. Paid cards list runs and price and nothing else.
-  limits?: DemoLimits;
+  // The demo has one set of limits for everyone, so every card lists the same three.
+  limits: DemoLimits;
   signedIn: boolean;
   current: boolean;
   onChoose: (trigger: HTMLElement) => void;
@@ -26,13 +26,9 @@ export default function PlanCard({ offer, limits, signedIn, current, onChoose }:
   const { plan } = offer;
   const features = [
     t(runsKey[plan], { runs: offer.runs }),
-    ...(limits
-      ? [
-          t("features.fileSize", { mb: limits.max_file_mb }),
-          t("features.csvRows", { rows: limits.csv_rows }),
-          t("features.pdfPages", { pages: limits.pdf_pages }),
-        ]
-      : []),
+    t("features.fileSize", { mb: limits.max_file_mb }),
+    t("features.csvRows", { rows: limits.csv_rows }),
+    t("features.pdfPages", { pages: limits.pdf_pages }),
   ];
   const label = current ? t("currentPlan") : t(`cta.${plan}`, { runs: format.number(offer.runs) });
   const headingId = `plan-${plan}`;
