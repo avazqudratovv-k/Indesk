@@ -111,9 +111,7 @@ def _new_refresh_row(
 
 def _issue(db: Session, user: User, secret: str, session_max: timedelta) -> IssuedSession:
     refresh_token, row = _new_refresh_row(db, user.id, uuid.uuid4(), clock.utcnow(), session_max)
-    return IssuedSession(
-        user, create_access_token(user.id, secret), refresh_token, row.expires_at
-    )
+    return IssuedSession(user, create_access_token(user.id, secret), refresh_token, row.expires_at)
 
 
 def _revoke_family(db: Session, family_id: uuid.UUID) -> None:
@@ -129,7 +127,8 @@ def signup(
     secret: str,
     session_max: timedelta,
     *,
-    email: str, password: str,
+    email: str,
+    password: str,
     display_name: str,
     ip_hash: str,
 ) -> IssuedSession:

@@ -49,9 +49,7 @@ def test_refresh_at_5h59_works_and_expiry_stays_at_login_plus_6h(
     assert newest.session_started_at == start
 
 
-def test_refresh_at_6h01_is_401(
-    auth_client: TestClient, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_refresh_at_6h01_is_401(auth_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     start = clock.utcnow()
     move_to(monkeypatch, start)  # frozen, so the login time is exactly `start`
     signup(auth_client)
@@ -152,12 +150,18 @@ def test_reuse_detection_still_revokes_the_family(
     old = refresh_value(auth_client)
     assert auth_client.post("/api/auth/refresh").status_code == 204
     newest = refresh_value(auth_client)
-    assert auth_client.post(
-        "/api/auth/refresh", headers=with_cookie("indesk_refresh", old)
-    ).status_code == 401
-    assert auth_client.post(
-        "/api/auth/refresh", headers=with_cookie("indesk_refresh", newest)
-    ).status_code == 401
+    assert (
+        auth_client.post(
+            "/api/auth/refresh", headers=with_cookie("indesk_refresh", old)
+        ).status_code
+        == 401
+    )
+    assert (
+        auth_client.post(
+            "/api/auth/refresh", headers=with_cookie("indesk_refresh", newest)
+        ).status_code
+        == 401
+    )
     assert all(r.revoked_at is not None for r in rows(db_connection))
 
 
@@ -213,12 +217,16 @@ def test_backfill_uses_the_earliest_created_at_of_each_family() -> None:
     assert found["b1"] == t0 + timedelta(minutes=50)
     command.downgrade(config, "0005")
     with engine.connect() as conn:
-        columns = conn.execute(
-            text(
-                "SELECT column_name FROM information_schema.columns"
-                " WHERE table_name = 'refresh_tokens'"
+        columns = (
+            conn.execute(
+                text(
+                    "SELECT column_name FROM information_schema.columns"
+                    " WHERE table_name = 'refresh_tokens'"
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
     assert "session_started_at" not in columns
     command.upgrade(config, "head")
     engine.dispose()

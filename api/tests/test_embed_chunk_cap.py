@@ -154,8 +154,13 @@ def _add_korean_chunks(factory: SessionFactory, world: World, count: int) -> lis
     with factory() as db, db.begin():
         db.add_all(
             Chunk(
-                upload_id=world.upload_ids[0], owner_id=world.user_id, page=1, ord=1000 + n,
-                char_start=0, char_end=1000, text=chr(0xAC00 + n) + HANGUL * 99 + HANGUL[:9],
+                upload_id=world.upload_ids[0],
+                owner_id=world.user_id,
+                page=1,
+                ord=1000 + n,
+                char_start=0,
+                char_end=1000,
+                text=chr(0xAC00 + n) + HANGUL * 99 + HANGUL[:9],
             )  # fmt: skip
             for n in range(count)
         )
