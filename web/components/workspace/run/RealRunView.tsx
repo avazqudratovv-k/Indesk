@@ -120,7 +120,7 @@ export default function RealRunView({ run, connection, onReconnect, onBack, onAs
         </p>
       ) : null}
       <RunHeader ref={heading} title={run.question} finished={finished} onBack={onBack} real={{ mark }} />
-      <RunTiles key={run.id} toolCalls={toolCalls} tokens={sumTokens(events, step)} agentsDone={countAgentsDone(agents, workers)} agentCount={workers.length} finished={finished} real={{ startMs: run.startedAt ?? run.createdAt, endMs: run.finishedAt }} />
+      <RunTiles key={run.id} toolCalls={toolCalls} tokens={sumTokens(events, step)} agentsDone={countAgentsDone(agents, workers)} agentCount={workers.length} finished={finished} real={{ startMs: run.startedAt ?? run.createdAt, endMs: run.finishedAt, offsetMs: run.clockOffsetMs }} />
       {lost ? <RunNotice cause={connection === "signedOut" ? "signedOut" : connection === "tooManyStreams" ? "tooManyStreams" : "lost"} onReconnect={onReconnect} /> : null}
       {card ? <RunEndCard card={card} reportId={run.done?.reportId ?? null} notAnswerable={na ?? null} headingRef={endHeading} onChange={onBack} onAskInstead={onAskInstead} /> : null}
       {!finished && !lost && events.length === 0 ? (

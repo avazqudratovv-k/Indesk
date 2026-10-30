@@ -71,6 +71,8 @@ export type RunSnapshot = {
   createdAt: number | null;
   startedAt: number | null;
   finishedAt: number | null;
+  // Server clock minus browser clock (ms) at the moment the answer arrived; null when server_now was missing or invalid.
+  clockOffsetMs: number | null;
   steps: LiveStep[];
 };
 

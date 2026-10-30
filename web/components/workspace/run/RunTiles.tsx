@@ -36,14 +36,17 @@ function useNow(active: boolean): number {
 }
 
 // Seconds a real run took. A finished run uses only the server's own start and finish times, so a reload or a resumed
-// run shows the same number as the first time. A running one counts up from the server start to the browser clock.
-// (Not done: a skew offset between the two clocks; the API sends no server time yet, see the report.)
-export function runSeconds(real: { startMs: number | null; endMs: number | null }, now: number): number | null {
-  if (real.startMs === null) return null;
-  return Math.max(0, ((real.endMs ?? now) - real.startMs) / 1000);
+// run shows the same number as the first time. A running one counts up from the server start to the browser clock plus
+// `offsetMs` (server minus browser at the last answer); without an offset it uses the browser clock as it is.
+type RealTime = { startMs: number | null; endMs: number | null; offsetMs?: number | null };
+export function runSeconds(real: RealTime, now: number): number | null {
+  if (real.startMs === null || !Number.isFinite(real.startMs)) return null;
+  const end = real.endMs ?? now + (real.offsetMs ?? 0);
+  if (!Number.isFinite(end)) return null;
+  return Math.max(0, (end - real.startMs) / 1000);
 }
 
-type Props = { toolCalls: number; tokens: number; agentsDone: number; agentCount: number; finished: boolean; real?: { startMs: number | null; endMs: number | null } };
+type Props = { toolCalls: number; tokens: number; agentsDone: number; agentCount: number; finished: boolean; real?: RealTime };
 
 // Board summary tiles, in step with the events. Time is the real elapsed clock; Tokens and Tool calls are scripted
 // ("Example"); Agents done replaces the board's Cost tile (no cost is shown to users, DECISIONS #74).

@@ -11,6 +11,7 @@ export type LiveRun = {
   createdAt: number | null;
   startedAt: number | null;
   finishedAt: number | null;
+  clockOffsetMs: number | null;
 };
 
 export type LiveAction =
@@ -21,7 +22,7 @@ export type LiveAction =
   | { type: "clear" };
 
 export function initialRun(id: string, question: string, status: RunStatus = "queued", now: number | null = null): LiveRun {
-  return { id, question, status, steps: [], done: null, createdAt: now, startedAt: null, finishedAt: null };
+  return { id, question, status, steps: [], done: null, createdAt: now, startedAt: null, finishedAt: null, clockOffsetMs: null };
 }
 
 function insertStep(steps: LiveStep[], step: LiveStep): LiveStep[] {
@@ -56,6 +57,7 @@ export function liveReducer(state: LiveRun | null, action: LiveAction): LiveRun 
         createdAt: snapshot.createdAt ?? state?.createdAt ?? null,
         startedAt: snapshot.startedAt ?? state?.startedAt ?? null,
         finishedAt: snapshot.finishedAt ?? state?.finishedAt ?? null,
+        clockOffsetMs: snapshot.clockOffsetMs ?? state?.clockOffsetMs ?? null,
       };
     }
     case "step": {

@@ -7,7 +7,7 @@ function step(seq: number, over: Partial<LiveStep> = {}): LiveStep {
 }
 
 function snapshot(over: Partial<RunSnapshot> = {}): RunSnapshot {
-  return { id: "r1", status: "running", outcome: null, reason: null, reportId: null, question: "q", createdAt: 1, startedAt: 2, finishedAt: null, steps: [], ...over };
+  return { id: "r1", status: "running", outcome: null, reason: null, reportId: null, question: "q", createdAt: 1, startedAt: 2, finishedAt: null, clockOffsetMs: null, steps: [], ...over };
 }
 
 function apply(state: LiveRun | null, ...actions: Parameters<typeof liveReducer>[1][]): LiveRun | null {

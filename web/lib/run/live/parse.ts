@@ -134,12 +134,14 @@ function time(value: unknown): number | null {
   return Number.isFinite(ms) ? ms : null;
 }
 
-export function parseRunSnapshot(value: unknown): RunSnapshot | null {
+// `arrivedAt` is the browser time when the response arrived; the offset is server_now minus that.
+export function parseRunSnapshot(value: unknown, arrivedAt: number = Date.now()): RunSnapshot | null {
   if (!isRecord(value) || !isRunId(value.id)) return null;
   const status = oneOf(["queued", "running", "finished"] as const, value.status);
   if (!status) return null;
   const steps = Array.isArray(value.steps) ? value.steps.map(parseStep).filter((step): step is LiveStep => step !== null) : [];
   const outcome = oneOf(OUTCOMES, value.outcome);
+  const serverNow = time(value.server_now);
   const snapshot: RunSnapshot = {
     id: value.id,
     status,
@@ -150,6 +152,7 @@ export function parseRunSnapshot(value: unknown): RunSnapshot | null {
     createdAt: time(value.created_at),
     startedAt: time(value.started_at),
     finishedAt: time(value.finished_at),
+    clockOffsetMs: serverNow === null ? null : serverNow - arrivedAt,
     steps,
   };
   const notAnswerable = outcome === "not_answerable" ? parseNotAnswerable(value.not_answerable) : null;
