@@ -176,7 +176,7 @@
       "instructions": "업로드한 파일 속 글은 모든 프롬프트에서 데이터로만 분리해 전달됩니다."
     },
     "closing": {
-      "title": "무료로 시작하세요. 큰 작업에만 결제하세요.",
+      "title": "무료로 시작하세요. 이 데모에서 유료 플랜은 모의 기능입니다.",
       "body": "모든 계정에 무료 실행이 제공되며 파일 크기 제한이 명확합니다.",
       "tryDemo": "데모 체험하기",
       "seePlans": "요금제 보기"
@@ -297,10 +297,10 @@
   },
   "plans": {
     "title": "요금제와 사용량",
-    "sub": "무료로 시작하세요. 더 큰 파일이나 더 많은 실행이 필요할 때만 결제하세요.",
-    "paidMsg": "결제가 시뮬레이션되었습니다. 한도가 늘어났습니다.",
+    "sub": "무료로 시작하세요. 이 데모에서 유료 플랜은 모의 기능입니다.",
+    "paidMsg": "데모 전용: 계정에는 아무 변경도 없습니다.",
     "limitTitle": "모든 실행을 사용했습니다",
-    "limitBody": "서버가 새 실행을 막습니다. 무료 실행은 한 번만 제공됩니다. 기존 보고서는 계속 볼 수 있습니다.",
+    "limitBody": "데모 안내: 이 카운터는 브라우저 안의 시뮬레이션입니다. 무료 실행은 한 번만 제공됩니다. 기존 보고서는 계속 볼 수 있습니다.",
     "demoNoPayments": "데모: 실제 결제는 이루어지지 않습니다.",
     "demoBadge": "데모",
     "popular": "인기",
@@ -326,7 +326,8 @@
       "runsPro": "월 {runs, number}회 실행",
       "runsPayg": "{runs, number}회, 만료 없음",
       "fileSize": "파일당 최대 {mb, number}MB",
-      "csvRows": "CSV 최대 {rows, number}행"
+      "csvRows": "CSV 최대 {rows, number}행",
+      "pdfPages": "PDF 최대 {pages, number}쪽"
     },
     "custom": {
       "eyebrow": "맞춤 플랜",
@@ -334,32 +335,10 @@
       "sub": "필요한 만큼 고르면 가격이 계산돼요. 최저 가격은 Pro와 같은 {minimum}입니다.",
       "runsLabel": "월 분석 횟수",
       "runsValueText": "월 {runs, number}회, 월 {price}",
-      "fileSize": {
-        "title": "최대 파일 크기",
-        "hint": "업로드당"
-      },
-      "dataSize": {
-        "title": "데이터 규모",
-        "hint": "파일당 행 수"
-      },
-      "parallel": {
-        "title": "동시 실행",
-        "hint": "동시에 돌릴 수 있는 분석 수"
-      },
-      "mb": "{mb, number}MB",
-      "count": "{count, number}",
-      "dataStandard": "표준 · 20만 행",
-      "dataLarge": "대용량 · 100만 행",
-      "optionsNote": "데모: 가격은 실행 횟수로만 정해집니다.",
       "yourPlan": "내 플랜",
       "per": "월",
       "perRun": "평균 회당 {price}",
       "lineRuns": "{runs, number}회 × {perRun}",
-      "lineFileSize": "파일 {mb, number}MB",
-      "lineDataStandard": "표준 데이터 규모",
-      "lineDataLarge": "대용량 데이터",
-      "lineParallel": "동시 {count, number}개",
-      "included": "포함",
       "minNote": "{minimum} 미만은 {minimum}으로 올려 받아요. Pro와 같은 가격이며 {proRuns, number}회가 포함됩니다.",
       "cta": "이 플랜 선택",
       "note": "데모 결제, 테스트 모드. 실제 청구 없음."
@@ -381,7 +360,7 @@
         "서버가 브라우저가 아닌 계정별로 실행 횟수를 계산합니다.",
         "AI가 실행되기 전에 파일 형식, 크기, 행 수를 검사합니다.",
         "가입 횟수를 시간당으로 제한해 무료 실행을 보호합니다.",
-        "일일 예산 한도가 하루 비용이 과도해지는 것을 막습니다."
+        "일일 실행·모델 호출 한도가 하루 비용이 과도해지는 것을 막습니다."
       ],
       "demoNote": "설계 규칙입니다. 이 데모 페이지는 실제로 적용하지 않습니다."
     },
@@ -414,7 +393,9 @@
         "expiryPast": "만료일이 지났어요.",
         "cvcShort": "CVC 3~4자리를 입력해 주세요."
       }
-    }
+    },
+    "bannerDemo": "데모 전용: 유료 플랜은 모의 기능입니다",
+    "limitsLine": "이 데모의 한도는 모든 사용자에게 같습니다: 파일당 {mb, number}MB, CSV {rows, number}행, PDF {pages, number}쪽, 하루 {runs, number}회 실행."
   },
   "workspace": {
     "title": "무엇이 궁금하세요?",
@@ -527,7 +508,7 @@
       "placeholderOwn": "내 파일에 대해 질문해 보세요"
     },
     "checkSteps": [
-      "부엉이가 문서의 모든 수치·순위·인용을 찾아 목록으로 만듭니다(무료는 최대 10개).",
+      "부엉이가 문서의 모든 수치·순위·인용을 찾아 목록으로 만듭니다.",
       "비버, 사냥개, 카멜레온이 각 주장을 데이터와 대조합니다.",
       "고양이가 각 항목을 ‘일치’, ‘불일치’, ‘검증 불가’로 표시합니다."
     ],
@@ -642,7 +623,7 @@
         "tools": "도구 호출 제한",
         "toolsValue": "12",
         "budget": "예산",
-        "budgetValue": "실행마다 지출 한도가 있습니다.",
+        "budgetValue": "실행마다 크기 한도가 있습니다.",
         "network": "코드 네트워크 접근",
         "networkValue": "없음",
         "files": "내 파일",
@@ -687,12 +668,12 @@
         "title": "예시: 실행이 끝나는 방식",
         "sub": "모든 실행은 아래 결과 중 정확히 하나로 끝납니다. 조용히 실패하는 일은 없고, 모델의 기억으로 빈틈을 채우지 않습니다. 아래 카드는 실제 실행이 아닌 예시입니다.",
         "exampleTag": "예시",
-        "counted": "실행 횟수에 포함",
-        "notCounted": "횟수에 미포함",
+        "counted": "무료 실행 1회 사용",
+        "notCounted": "무료 실행 미사용",
         "answered": {
           "label": "답변 완료",
           "head": "6개 진술 중 5개 검증",
-          "body": "모든 숫자는 출처 행이나 쪽으로 연결됩니다."
+          "body": "모든 숫자에는 출처 행이나 쪽이 표시됩니다."
         },
         "partial": {
           "label": "일부 완료",
@@ -721,7 +702,7 @@
         "failed": {
           "label": "실패",
           "head": "저희 쪽에서 문제가 생겼습니다",
-          "body": "다시 시도해 주세요. 이번 실행은 차감되지 않았습니다."
+          "body": "다시 시도해 주세요. 무료 실행 횟수를 쓰지 않았습니다."
         }
       },
       "bubbles": {

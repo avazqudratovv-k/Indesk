@@ -3,30 +3,24 @@
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import type { CustomQuote } from "@/lib/plans/calc";
-import type { CustomPlanOffer, PlanOffer } from "@/lib/types";
-import type { CustomChoices } from "./CustomCalculator";
+import type { PlanOffer } from "@/lib/types";
 import { usePlanMoney } from "./use-plan-money";
 import styles from "./CustomSummary.module.css";
 
 type CustomSummaryProps = {
-  offer: CustomPlanOffer;
   pro: PlanOffer;
   quote: CustomQuote;
-  choices: CustomChoices;
   signedIn: boolean;
   onChoose: (trigger: HTMLElement) => void;
 };
 
 // Right card of the custom plan: always-dark panel with the live price, the breakdown and the checkout button.
-export default function CustomSummary({ offer, pro, quote, choices, signedIn, onChoose }: CustomSummaryProps) {
+export default function CustomSummary({ pro, quote, signedIn, onChoose }: CustomSummaryProps) {
   const t = useTranslations("plans.custom");
   const { money } = usePlanMoney();
   const total = money(quote.total);
   const lines = [
     { label: t("lineRuns", { runs: quote.runs, perRun: money(quote.perRun) }), amount: money(quote.base) },
-    { label: t("lineFileSize", { mb: offer.max_file_mb[choices.fileSize] }), amount: t("included") },
-    { label: choices.dataTier === 0 ? t("lineDataStandard") : t("lineDataLarge"), amount: t("included") },
-    { label: t("lineParallel", { count: offer.parallel[choices.parallel] }), amount: t("included") },
   ];
 
   return (

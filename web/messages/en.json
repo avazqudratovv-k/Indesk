@@ -176,7 +176,7 @@
       "instructions": "Text inside uploads is fenced off as data in every prompt."
     },
     "closing": {
-      "title": "Start free. Pay only for bigger jobs.",
+      "title": "Start free. Paid plans are simulated in this demo.",
       "body": "Free runs on every account, with clear limits on file size.",
       "tryDemo": "Try the demo",
       "seePlans": "See plans"
@@ -297,10 +297,10 @@
   },
   "plans": {
     "title": "Plans and usage",
-    "sub": "Start free. Pay only when you need bigger files or more runs.",
-    "paidMsg": "Payment simulated. Your limits were raised.",
+    "sub": "Start free. Paid plans are simulated in this demo.",
+    "paidMsg": "Demo only: nothing changed on your account.",
     "limitTitle": "You’ve used all your runs",
-    "limitBody": "The server blocks new runs. Free runs are a one-time allowance. Your reports stay available.",
+    "limitBody": "Demo note: this counter is a simulation in your browser. Free runs are a one-time allowance. Your reports stay available.",
     "demoNoPayments": "Demo: no real payments are taken.",
     "demoBadge": "Demo",
     "popular": "Most popular",
@@ -326,7 +326,8 @@
       "runsPro": "{runs, number} runs per month",
       "runsPayg": "{runs, number} runs, never expire",
       "fileSize": "Files up to {mb, number} MB each",
-      "csvRows": "CSV up to {rows, number} rows"
+      "csvRows": "CSV up to {rows, number} rows",
+      "pdfPages": "PDF up to {pages, number} pages"
     },
     "custom": {
       "eyebrow": "Custom plan",
@@ -334,32 +335,10 @@
       "sub": "Choose what you need and the price follows. It never drops below {minimum}, the Pro price.",
       "runsLabel": "Runs per month",
       "runsValueText": "{runs, number} runs per month, {price} per month",
-      "fileSize": {
-        "title": "Largest file",
-        "hint": "per upload"
-      },
-      "dataSize": {
-        "title": "Data size",
-        "hint": "rows per file"
-      },
-      "parallel": {
-        "title": "Runs at the same time",
-        "hint": "how many analyses can run together"
-      },
-      "mb": "{mb, number} MB",
-      "count": "{count, number}",
-      "dataStandard": "Standard · 200k rows",
-      "dataLarge": "Large · 1M rows",
-      "optionsNote": "Demo: only the number of runs sets the price.",
       "yourPlan": "Your plan",
       "per": "per month",
       "perRun": "{price} per run on average",
       "lineRuns": "{runs, number} runs × {perRun}",
-      "lineFileSize": "File size {mb, number} MB",
-      "lineDataStandard": "Standard data size",
-      "lineDataLarge": "Large data size",
-      "lineParallel": "{count, number} at the same time",
-      "included": "included",
       "minNote": "Under {minimum} we round up to {minimum}, the same as Pro, which already covers {proRuns, number} runs.",
       "cta": "Choose this plan",
       "note": "Demo checkout, test mode. No real charge."
@@ -381,7 +360,7 @@
         "The server counts runs per account, not the browser.",
         "Files are checked for type, size and rows before any AI runs.",
         "Sign-ups are limited per hour, which protects the free runs.",
-        "A daily budget cap stops any single day from costing too much."
+        "Daily caps on runs and model calls stop any single day from costing too much."
       ],
       "demoNote": "These are the design rules. This demo page does not enforce them."
     },
@@ -414,7 +393,9 @@
         "expiryPast": "This expiry date has passed.",
         "cvcShort": "Enter the 3 or 4 digit CVC."
       }
-    }
+    },
+    "bannerDemo": "Demo only: paid plans are simulated",
+    "limitsLine": "The demo has one set of limits for everyone: {mb, number} MB per file, {rows, number} CSV rows, {pages, number} PDF pages, {runs, number} runs a day."
   },
   "workspace": {
     "title": "What would you like to know?",
@@ -527,7 +508,7 @@
       "placeholderOwn": "Ask a question about your file"
     },
     "checkSteps": [
-      "Owl lists every number, ranking and quote the document claims (up to 10 on Free).",
+      "Owl lists every number, ranking and quote the document claims.",
       "Beaver, Hound and Chameleon test each claim against your data.",
       "Cat marks each one: matches, does not match, or cannot be verified."
     ],
@@ -642,7 +623,7 @@
         "tools": "Tool-call limit",
         "toolsValue": "12",
         "budget": "Budget",
-        "budgetValue": "Each run has a spending cap.",
+        "budgetValue": "Each run has a size cap.",
         "network": "Network for code",
         "networkValue": "none",
         "files": "Your files",
@@ -687,12 +668,12 @@
         "title": "Example: how a run can end",
         "sub": "Every run ends in exactly one of these outcomes. Nothing fails silently, and the model's own memory is never used to fill a gap. These cards are examples, not from a real run.",
         "exampleTag": "Example",
-        "counted": "Counts as a run",
-        "notCounted": "Not counted",
+        "counted": "Uses a free run",
+        "notCounted": "Doesn't use a free run",
         "answered": {
           "label": "Answered",
           "head": "5 of 6 statements verified",
-          "body": "Every number links to the row or page it came from."
+          "body": "Every number shows the row or page it came from."
         },
         "partial": {
           "label": "Partial",
@@ -721,7 +702,7 @@
         "failed": {
           "label": "Failed",
           "head": "Something broke on our side",
-          "body": "Please try again. This run was not used up."
+          "body": "Please try again. This didn't use one of your free runs."
         }
       },
       "bubbles": {

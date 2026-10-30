@@ -4,23 +4,22 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSession } from "@/hooks/use-session";
 import { quoteCustomPlan } from "@/lib/plans/calc";
-import type { CustomPlanOffer, PlanOffer } from "@/lib/types";
+import type { CustomPlanOffer, DemoLimits, PlanOffer } from "@/lib/types";
 import Check from "./Check";
 import Checkout from "./Checkout";
-import CustomCalculator, { type CustomChoices } from "./CustomCalculator";
+import CustomCalculator from "./CustomCalculator";
 import CustomSummary from "./CustomSummary";
 import EnforceCard from "./EnforceCard";
 import PlanCard from "./PlanCard";
 import UsagePanel, { type DemoPlan } from "./UsagePanel";
 import { usePlanMoney } from "./use-plan-money";
+import notice from "@/components/ui/DemoNotice.module.css";
 import styles from "./PlansView.module.css";
 
 type Choice = "pro" | "payg" | "custom";
 
-const defaultChoices: CustomChoices = { fileSize: 0, dataTier: 0, retention: 0, parallel: 0 };
-
 // The whole Plans screen. All state here is client-only demo state: nothing is stored, sent or charged.
-export default function PlansView({ offers, custom }: { offers: PlanOffer[]; custom: CustomPlanOffer }) {
+export default function PlansView({ offers, custom, limits }: { offers: PlanOffer[]; custom: CustomPlanOffer; limits: DemoLimits }) {
   const t = useTranslations("plans");
   const session = useSession();
   const { money } = usePlanMoney();
@@ -38,7 +37,6 @@ export default function PlansView({ offers, custom }: { offers: PlanOffer[]; cus
   const [choice, setChoice] = useState<Choice | null>(null);
   const [paid, setPaid] = useState(false);
   const [runs, setRuns] = useState(custom.runs.default);
-  const [choices, setChoices] = useState<CustomChoices>(defaultChoices);
   const trigger = useRef<HTMLElement | null>(null);
   const paidRef = useRef<HTMLElement>(null);
 
@@ -122,11 +120,16 @@ export default function PlansView({ offers, custom }: { offers: PlanOffer[]; cus
         </section>
       ) : null}
 
+      <p className={notice.notice} role="note">
+        {t("bannerDemo")}
+      </p>
+
       <section className={styles.row}>
         {[free, pro, payg].map((offer) => (
           <PlanCard
             key={offer.plan}
             offer={offer}
+            limits={offer.plan === "free" ? limits : undefined}
             signedIn={signedIn}
             current={signedIn && (offer.plan === "free" ? plan === "free" && credits === 0 : offer.plan === "pro" && plan === "pro")}
             onChoose={(from) => open(offer.plan === "pro" ? "pro" : "payg", from)}
@@ -134,15 +137,17 @@ export default function PlansView({ offers, custom }: { offers: PlanOffer[]; cus
         ))}
       </section>
 
+      <p className={styles.demoLine}>
+        {t("limitsLine", { mb: limits.max_file_mb, rows: limits.csv_rows, pages: limits.pdf_pages, runs: limits.runs_per_day })}
+      </p>
+
       <section className={styles.row} aria-label={t("custom.title")}>
         <CustomCalculator
           offer={custom}
           quote={quote}
-          choices={choices}
           onRuns={setRuns}
-          onChoice={(key, index) => setChoices((value) => ({ ...value, [key]: index }))}
         />
-        <CustomSummary offer={custom} pro={pro} quote={quote} choices={choices} signedIn={signedIn} onChoose={(from) => open("custom", from)} />
+        <CustomSummary pro={pro} quote={quote} signedIn={signedIn} onChoose={(from) => open("custom", from)} />
       </section>
 
       <section className={styles.row}>
