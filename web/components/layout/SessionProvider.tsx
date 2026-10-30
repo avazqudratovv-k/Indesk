@@ -5,7 +5,9 @@ import { SessionContext, type SessionApi } from "@/hooks/use-session";
 import { apiClient, setAuthLostHandler } from "@/lib/api/client";
 import { fetchMe, logout } from "@/lib/auth/api";
 import { resolveUnknownSession } from "@/lib/auth/bootstrap";
-import { clearHint, readHint, setHint } from "@/lib/auth/hint";
+import { usePathname } from "next/navigation";
+import { clearHint, readHint, readLoginAt, setHint } from "@/lib/auth/hint";
+import { postNotice, sessionEndedNotice, shouldWriteSessionEnded } from "@/lib/auth/notice";
 import { clearRunId } from "@/lib/run/live/storage";
 import { signedInSession, signedOutSession, type Session } from "@/lib/session";
 import type { User } from "@/lib/types";
@@ -26,16 +28,31 @@ export default function SessionProvider({ session: initial, children }: { sessio
     }
   }
 
+  const pathname = usePathname();
+  const pathRef = useRef(pathname);
+  const statusRef = useRef(session.status);
+  useEffect(() => {
+    pathRef.current = pathname;
+    statusRef.current = session.status;
+  }, [pathname, session.status]);
+
   const signedOut = useCallback(() => {
     clearHint();
     setSession(signedOutSession);
   }, []);
 
-  // A call that could not be saved by a refresh means the session is gone.
-  useEffect(() => {
-    setAuthLostHandler(signedOut);
-    return () => setAuthLostHandler(() => {});
+  // A call that could not be saved by a refresh means the session is gone. The notice is decided before the hint (and
+  // its login time) is cleared; a second auth-lost finds the status already signedOut and writes nothing.
+  const authLost = useCallback(() => {
+    if (shouldWriteSessionEnded(statusRef.current, pathRef.current)) postNotice(sessionEndedNotice(readLoginAt(), Date.now()));
+    statusRef.current = "signedOut";
+    signedOut();
   }, [signedOut]);
+
+  useEffect(() => {
+    setAuthLostHandler(authLost);
+    return () => setAuthLostHandler(() => {});
+  }, [authLost]);
 
   useEffect(() => {
     if (initial.status === "signedIn") setHint();
@@ -48,6 +65,8 @@ export default function SessionProvider({ session: initial, children }: { sessio
       me: fetchMe,
     }).then((result) => {
       if (!live) return;
+      // clearHint is true only when a hint existed and the refresh was denied: that cold load lost a session.
+      if (result.clearHint && shouldWriteSessionEnded("unknownWithHint", pathRef.current)) postNotice(sessionEndedNotice(readLoginAt(), Date.now()));
       if (result.clearHint) clearHint();
       if (result.session.status === "signedIn") setHint();
       setSession(result.session);
@@ -73,7 +92,7 @@ export default function SessionProvider({ session: initial, children }: { sessio
   }, []);
 
   const startSession = useCallback((user: User) => {
-    setHint();
+    setHint(Date.now());
     setSession(signedInSession(user));
     tell("signedIn");
   }, []);

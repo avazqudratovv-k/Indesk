@@ -26,9 +26,12 @@ export default function FileRowItem({ row, now, onDeleted }: { row: FileRow; now
   return (
     <li className={`${styles.fileRow} ${row.deleted ? styles.fileGone : ""}`}>
       <span className={`${styles.kind} ${kindColor[row.kind]}`}>{row.kind.toUpperCase()}</span>
-      <span className={styles.fileName}>{row.name}</span>
+      <span className={styles.fileName} title={row.name}>
+        {row.name}
+      </span>
       <span className={styles.fileFact}>{`${format.number(size.value)} ${size.unit}`}</span>
-      {count ? <span className={styles.fileFact}>{count}</span> : null}
+      {/* Always rendered, even empty, so the columns of the desktop grid line up (hidden on phones when empty). */}
+      <span className={styles.fileFact}>{count}</span>
       <span className={`${styles.pill} ${row.deleted ? styles.pillGone : ""}`}>{status}</span>
       {row.deleted ? null : (
         <ConfirmDelete

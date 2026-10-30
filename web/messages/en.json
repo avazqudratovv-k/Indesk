@@ -14,6 +14,14 @@
     "logoutFailed": "Could not log out. Try again.",
     "accountLink": "{name}, opens My page"
   },
+  "notice": {
+    "welcome": "Welcome back, {name}.",
+    "welcomeNoName": "Welcome back.",
+    "loggedOut": "You are logged out.",
+    "sessionEndedHours": "Your session ended after {hours, plural, one {# hour} other {# hours}}. Please log in again.",
+    "sessionEnded": "Your session ended. Please log in again.",
+    "close": "Close"
+  },
   "tabBar": {
     "label": "Main",
     "home": "Home",

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSessionActions } from "@/hooks/use-session";
+import { isAuthPath, postNotice } from "@/lib/auth/notice";
 import { runLogout } from "@/lib/auth/logout-flow";
 
 export type LogoutState = "idle" | "busy" | "failed";
@@ -19,7 +20,14 @@ export function useLogout(): { state: LogoutState; logout: () => Promise<void> }
   const logout = useCallback(async () => {
     if (state === "busy") return;
     setState("busy");
-    const result = await runLogout(endSession, () => router.push("/"));
+    // The notice is written only once the server has confirmed the logout (endSession rejects otherwise).
+    const result = await runLogout(
+      async () => {
+        await endSession();
+        if (!isAuthPath(window.location.pathname)) postNotice({ kind: "loggedOut" });
+      },
+      () => router.push("/"),
+    );
     if (result === "done") {
       setState("idle");
       return;

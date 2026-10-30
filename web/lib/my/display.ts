@@ -1,8 +1,11 @@
-// The letter in the avatar: the first character of the display name. NFC first, so a Hangul syllable typed as separate
-// jamo is still one letter; "?" for a name that is empty after trimming.
-export function displayInitial(name: string): string {
-  const first = Array.from(name.trim().normalize("NFC"))[0];
-  return first ? first.toLocaleUpperCase() : "?";
+// The letter in the avatar: the first character of the display name, else of the email, else "?". NFC first, so a Hangul
+// syllable typed as separate jamo is still one letter.
+export function displayInitial(name: string, email = ""): string {
+  for (const text of [name, email]) {
+    const first = Array.from(text.trim().normalize("NFC"))[0];
+    if (first) return first.toLocaleUpperCase();
+  }
+  return "?";
 }
 
 const knownPlans = ["free", "pro", "payg", "custom"] as const;

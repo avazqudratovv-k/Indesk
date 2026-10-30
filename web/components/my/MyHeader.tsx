@@ -12,7 +12,7 @@ export default function MyHeader() {
   return (
     <div className={styles.header}>
       <span className={styles.avatar} aria-hidden="true">
-        {user ? displayInitial(user.display_name) : ""}
+        {user ? displayInitial(user.display_name, user.email) : ""}
       </span>
       <div className={styles.headerText}>
         <h1 className={styles.title}>{t("title")}</h1>

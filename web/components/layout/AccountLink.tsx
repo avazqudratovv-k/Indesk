@@ -13,7 +13,7 @@ export default function AccountLink({ name }: { name: string }) {
   return (
     <Link
       href="/my"
-      className={`${styles.link} ${styles.who} ${styles.whoLink} ${current ? styles.on : ""}`}
+      className={`${styles.link} ${styles.who} ${styles.whoLink} ${current ? styles.whoCurrent : ""}`}
       aria-current={current ? "page" : undefined}
       aria-label={t("accountLink", { name })}
     >

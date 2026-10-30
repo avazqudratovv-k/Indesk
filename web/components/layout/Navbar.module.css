@@ -139,6 +139,8 @@
   min-height: 44px;
 }
 
+/* Current on /my: aria-current stays, but only the nav item (My reports) gets the underline bar; the name just turns ink. */
+.whoCurrent,
 .whoLink:hover {
   color: var(--ink);
 }

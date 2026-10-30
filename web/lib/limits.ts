@@ -10,6 +10,9 @@ export const MAX_QUESTION_CHARS = 1000; // max_question_chars
 export const MAX_FILE_NAME_CHARS = 255; // max_filename_chars
 export const RUNS_PER_DAY = 10; // daily_runs_per_user
 
+// Not in limits.toml: the API's login lifetime (api/app/core/config.py, session_max_seconds). Used for the "6 hours" notice.
+export const SESSION_MAX_SECONDS = 21600;
+
 export const MAX_FILE_MB = MAX_FILE_BYTES / (1024 * 1024);
 
 // The set of limits shown on the Plans screen (one set for everyone in the demo).

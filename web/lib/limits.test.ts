@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { DEMO_LIMITS, MAX_CSV_ROWS, MAX_FILE_BYTES, MAX_FILE_NAME_CHARS, MAX_PDF_CHARS, MAX_PDF_PAGES, MAX_QUESTION_CHARS, RUNS_PER_DAY } from "./limits";
+import { DEMO_LIMITS, MAX_CSV_ROWS, MAX_FILE_BYTES, MAX_FILE_NAME_CHARS, MAX_PDF_CHARS, MAX_PDF_PAGES, MAX_QUESTION_CHARS, RUNS_PER_DAY, SESSION_MAX_SECONDS } from "./limits";
 
 // Top-level `key = integer` lines only (the [files_per_slot] table starts after them and is not read).
 function readServerLimits(): Record<string, number> {
@@ -14,6 +14,15 @@ function readServerLimits(): Record<string, number> {
   }
   return values;
 }
+
+describe("the session length matches api/app/core/config.py", () => {
+  it("session_max_seconds default is SESSION_MAX_SECONDS", () => {
+    const text = readFileSync(resolve(import.meta.dirname, "../../api/app/core/config.py"), "utf8");
+    const match = /^\s*session_max_seconds:\s*\w+\s*=\s*(\d+)/m.exec(text);
+    expect(match, "session_max_seconds default not found in config.py").not.toBeNull();
+    expect(SESSION_MAX_SECONDS).toBe(Number(match![1]));
+  });
+});
 
 describe("web limits match api/config/limits.toml", () => {
   const server = readServerLimits();
