@@ -3,8 +3,8 @@ from datetime import datetime
 
 from fastapi import Response
 
-from app.core.config import Settings
 from app.core import clock
+from app.core.config import Settings
 from app.core.security import ACCESS_TTL
 
 ACCESS_COOKIE = "indesk_access"
