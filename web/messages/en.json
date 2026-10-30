@@ -453,7 +453,7 @@
       "dropOne": "Drop a file here or choose a file",
       "choose": "Choose",
       "sampleLink": "Download the sample file (CSV)",
-      "help": "One CSV file, up to {mb, number} MB.",
+      "help": "One CSV or one PDF, up to {mb, number} MB.",
       "helpDocument": "A PDF, up to {mb, number} MB.",
       "listLabel": "Added files",
       "empty": "No files added yet.",
@@ -468,7 +468,8 @@
         "uploading": "Uploading…",
         "error": "Not uploaded"
       },
-      "statusReady": "Uploaded, deleted from our servers on {when}"
+      "statusReady": "Uploaded, deleted from our servers on {when}",
+      "pagesWithoutText": "{n, plural, one {# page has} other {# pages have}} no text and can't be searched."
     },
     "sample": {
       "title": "Sample: Seoul subway, September 2026",
@@ -481,7 +482,7 @@
       "announceAdded": "Added the sample file."
     },
     "errors": {
-      "type": "{name}: only CSV files work.",
+      "type": "{name}: only CSV and PDF files work.",
       "empty": "{name}: the file is empty.",
       "tooBig": "{name}: larger than {mb, number} MB.",
       "nameTooLong": "{name}: the file name is too long (255 characters at most).",
@@ -489,8 +490,8 @@
       "slotFull": "{name}: no room left here. You can add {max, plural, one {# file} other {# files}}.",
       "documentMustBePdf": "{name}: the document to check must be a PDF.",
       "sameKind": "{name}: both files must be the same kind (CSV, PDF or image).",
-      "csvOnly": "{name}: PDF and image files are not available yet. Use a CSV file for now.",
-      "askOneFile": "{name}: Ask takes one CSV file. Remove the current one first."
+      "csvOnly": "{name}: Images are not available yet. Use a CSV or a PDF.",
+      "askOneFile": "{name}: Ask takes one file, a CSV or a PDF. Remove the current one first."
     },
     "question": {
       "label": "Your question",
@@ -550,7 +551,8 @@
       "ok": "Works with",
       "no": "Not supported",
       "okItems": [
-        "CSV tables"
+        "CSV tables",
+        "PDFs with text"
       ],
       "noItems": [
         "Video or audio",
@@ -561,7 +563,6 @@
       ],
       "later": "Not available yet",
       "laterItems": [
-        "PDFs with text",
         "Photos (JPG, PNG)"
       ]
     },
@@ -1219,9 +1220,9 @@
     "NETWORK": "Could not reach the server. Check your connection and try again.",
     "UNKNOWN": "Something went wrong. Try again.",
     "CONSENT_REQUIRED": "Tick the box to confirm the files are not private or sensitive.",
-    "FILE_TOO_LARGE": "This file is too large.",
-    "TYPE_MISMATCH": "This file does not look like a CSV file.",
-    "TOO_MANY_ROWS": "This file has too many rows.",
+    "FILE_TOO_LARGE": "This file is larger than {mb, number} MB.",
+    "TYPE_MISMATCH": "This file does not look like a CSV or PDF file.",
+    "TOO_MANY_ROWS": "This file has more than {rows, number} rows.",
     "TOO_MANY_ROWS_DETAIL": "{name} has {rows, number} rows. The limit is {max, number} rows.",
     "TOO_MANY_COLUMNS": "This file has too many columns.",
     "EMPTY_FILE": "This file is empty.",
@@ -1235,7 +1236,13 @@
     "RUN_ACTIVE": "You already have a run in progress.",
     "UPLOAD_NOT_READY": "The file is still being prepared. Try again in a moment.",
     "TOO_MANY_STREAMS": "Too many tabs or windows are following runs at once. Close the others, then reconnect.",
-    "TOO_MANY_FILES": "Ask takes one CSV file. Remove the extra files and try again.",
-    "UPLOAD_IN_USE": "A run is still using this file. Wait for it to finish, then try again."
+    "TOO_MANY_FILES": "Ask takes one file, a CSV or a PDF. Remove the extra files and try again.",
+    "UPLOAD_IN_USE": "A run is still using this file. Wait for it to finish, then try again.",
+    "PDF_ENCRYPTED": "This PDF is password-protected. Remove the password and try again.",
+    "PDF_NO_TEXT": "This PDF has too little text to search. Scanned PDFs are not supported.",
+    "PDF_TOO_MANY_PAGES": "This PDF has more than {pages, number} pages.",
+    "PDF_TOO_MUCH_TEXT": "This PDF has more than {chars, number} characters of text.",
+    "PDF_UNREADABLE": "This PDF could not be read. Check that the file is a normal PDF.",
+    "PARSER_BUSY": "The PDF reader is busy. Try again in a moment."
   }
 }

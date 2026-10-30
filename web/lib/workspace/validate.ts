@@ -39,8 +39,15 @@ const MIME_BY_EXTENSION: Record<string, readonly string[]> = {
 
 export const ACCEPT_ATTRIBUTE = ".csv,.pdf,.jpg,.jpeg,.png,text/csv,application/pdf,image/jpeg,image/png";
 
-// Ask reads CSV only for now; the other types are on the "Not available yet" list.
-export const CSV_ACCEPT_ATTRIBUTE = ".csv,text/csv";
+// Ask reads one CSV or one PDF; images are on the "Not available yet" list.
+export const ASK_ACCEPT = ".csv,.pdf,text/csv,application/pdf";
+
+// Server limits, used only in copy (messages). The browser never opens a file to count rows, pages or characters:
+// it checks type, size and name, and the server answers with a code (TOO_MANY_ROWS, PDF_TOO_MANY_PAGES, ...).
+// Source of truth: api/config/limits.toml (STATE.md "Upload limits").
+export const MAX_CSV_ROWS = 20000;
+export const MAX_PDF_PAGES = 30;
+export const MAX_PDF_CHARS = 150000;
 
 export type FileErrorCode =
   | "type"
@@ -78,7 +85,7 @@ export type SlotRules = {
   count: number;
   // Kind of the file in the other Compare slot, if there is one.
   partnerKind: FileKind | null;
-  // Ask runs read CSV files only for now (the server refuses the rest), so other kinds are turned away here.
+  // Ask runs read one CSV or one PDF; images are turned away here. (The name is from the CSV-only days.)
   csvOnly?: boolean;
 };
 
@@ -87,7 +94,7 @@ export type SlotRules = {
 export function checkFile(file: File, rules: SlotRules): FileErrorCode | null {
   const kind = kindOf(file);
   if (!kind) return "type";
-  if (rules.csvOnly && kind !== "csv") return "csvOnly";
+  if (rules.csvOnly && kind === "image") return "csvOnly";
   if (file.name.length > MAX_FILE_NAME_CHARS) return "nameTooLong";
   if (file.size === 0) return "empty";
   if (file.size > MAX_FILE_BYTES) return "tooBig";

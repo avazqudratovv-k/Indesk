@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import DemoNotice from "@/components/ui/DemoNotice";
 import { apiErrorKey, retryMinutes, ApiError } from "@/lib/api/errors";
 import type { FileStatus } from "@/lib/run/live/submit";
-import { MAX_QUESTION_CHARS, MODE_SLOTS, questionLength, type SlotFile, type SlotId, type WorkspaceMode } from "@/lib/workspace/validate";
+import { MAX_CSV_ROWS, MAX_FILE_BYTES, MAX_PDF_CHARS, MAX_PDF_PAGES, MAX_QUESTION_CHARS, MODE_SLOTS, questionLength, type SlotFile, type SlotId, type WorkspaceMode } from "@/lib/workspace/validate";
 import Button from "@/components/ui/Button";
 import AgentEndings from "./AgentEndings";
 import ConsentBox from "./ConsentBox";
@@ -274,7 +274,8 @@ function SubmitProblem({ submit, failure, names }: { submit: SubmitState; failur
   const tErrors = useTranslations("apiErrors");
   const error = new ApiError(0, failure.code, failure.retryAfter);
   const key = apiErrorKey(error);
-  const base = failure.code === "RATE_LIMITED" && failure.retryAfter !== undefined ? t("submit.tooSoon", { minutes: retryMinutes(error) }) : tErrors(key);
+  const limits = { mb: MAX_FILE_BYTES / (1024 * 1024), pages: MAX_PDF_PAGES, chars: MAX_PDF_CHARS, rows: MAX_CSV_ROWS };
+  const base = failure.code === "RATE_LIMITED" && failure.retryAfter !== undefined ? t("submit.tooSoon", { minutes: retryMinutes(error) }) : tErrors(key, limits);
   const name = failure.fileId ? names[failure.fileId] : undefined;
   // The server's counts, not a number of ours: without them (or without a file name) the generic line is used.
   const text = failure.code === "RUN_ACTIVE" ? (submit.activeRunId ? t("submit.activeRunWatch") : t("submit.activeRun")) : failure.code === "TOO_MANY_ROWS" && name && failure.rowLimit ? tErrors("TOO_MANY_ROWS_DETAIL", { name, rows: failure.rowLimit.rows, max: failure.rowLimit.max }) : name ? t("submit.fileError", { name, message: base }) : base;

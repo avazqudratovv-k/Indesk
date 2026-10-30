@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type DragEvent } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import type { FileStatus } from "@/lib/run/live/submit";
-import { ACCEPT_ATTRIBUTE, CSV_ACCEPT_ATTRIBUTE, extensionOf, formatSize, MAX_FILE_BYTES, SLOT_MAX, type FileError, type SlotFile, type SlotId } from "@/lib/workspace/validate";
+import { ACCEPT_ATTRIBUTE, ASK_ACCEPT, extensionOf, formatSize, MAX_FILE_BYTES, SLOT_MAX, type FileError, type SlotFile, type SlotId } from "@/lib/workspace/validate";
 import styles from "./FileSlot.module.css";
 
 type Props = {
@@ -73,6 +73,11 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, csv
 
   const showDrop = (!single || items.length === 0) && !locked;
 
+  // Neutral note after a PDF upload; nothing for a CSV (field absent) or when every page has text (0).
+  function noteText(status: FileStatus | undefined): string {
+    return status?.state === "ready" && status.pagesWithoutText !== undefined && status.pagesWithoutText > 0 ? t("upload.pagesWithoutText", { n: status.pagesWithoutText }) : "";
+  }
+
   function statusText(status: FileStatus | undefined): string {
     if (!status) return "";
     if (status.state === "ready") return status.expiresAt ? t("upload.statusReady", { when: format.dateTime(status.expiresAt, { dateStyle: "medium", timeStyle: "short" }) }) : "";
@@ -102,6 +107,7 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, csv
                     {format.number(size.value)} {size.unit}
                     {statusText(statuses?.[item.id]) ? ` · ${statusText(statuses?.[item.id])}` : ""}
                   </span>
+                  {noteText(statuses?.[item.id]) ? <span className={styles.meta}>{noteText(statuses?.[item.id])}</span> : null}
                 </span>
                 <button
                   type="button"
@@ -142,7 +148,7 @@ export default function FileSlot({ slot, title, items, errors, documentOnly, csv
             className={styles.input}
             type="file"
             multiple={!single}
-            accept={documentOnly ? ".pdf,application/pdf" : csvOnly ? CSV_ACCEPT_ATTRIBUTE : ACCEPT_ATTRIBUTE}
+            accept={documentOnly ? ".pdf,application/pdf" : csvOnly ? ASK_ACCEPT : ACCEPT_ATTRIBUTE}
             aria-labelledby={`${dropId}-label`}
             aria-describedby={helpId}
             onChange={(event) => {

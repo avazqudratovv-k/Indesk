@@ -75,7 +75,10 @@ export function parseUpload(value: unknown): UploadedFile | null {
   if (!isRecord(value) || typeof value.id !== "string") return null;
   const expiresAt = time(value.expires_at);
   if (expiresAt === null) return null;
-  return { id: value.id, expiresAt, rowCount: typeof value.row_count === "number" ? value.row_count : null };
+  const upload: UploadedFile = { id: value.id, expiresAt, rowCount: typeof value.row_count === "number" ? value.row_count : null };
+  const blank = value.pages_without_text;
+  if (typeof blank === "number" && Number.isSafeInteger(blank) && blank >= 0) upload.pagesWithoutText = blank;
+  return upload;
 }
 
 export function parseCreated(value: unknown): { id: string } | null {

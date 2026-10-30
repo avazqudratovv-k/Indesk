@@ -48,4 +48,5 @@ export type RunSnapshot = {
   steps: LiveStep[];
 };
 
-export type UploadedFile = { id: string; expiresAt: number; rowCount: number | null };
+// pagesWithoutText: only for a PDF, only when the server sent it; absent for a CSV.
+export type UploadedFile = { id: string; expiresAt: number; rowCount: number | null; pagesWithoutText?: number };
