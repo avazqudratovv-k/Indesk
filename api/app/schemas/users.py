@@ -1,4 +1,12 @@
-from pydantic import AwareDatetime, BaseModel, ConfigDict
+from typing import Any
+
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+)
 
 from app.core.enums import DefaultView, Lang, Moderation, Plan, Theme, UploadMime, UploadStatus
 from app.schemas.common import Id
@@ -36,6 +44,19 @@ class Upload(BaseModel):
     size: int
     page_count: int | None
     row_count: int | None
+    # PDF only: pages with too little text to search (a scanned page), computed from the stored
+    # pages. Additive: the key is left out of the response for a CSV (and when the text is gone).
+    pages_without_text: int | None = None
+
+    @model_serializer(mode="wrap")
+    def _leave_out_empty_pages_without_text(
+        self, handler: SerializerFunctionWrapHandler
+    ) -> dict[str, Any]:
+        data: dict[str, Any] = handler(self)
+        if data.get("pages_without_text") is None:
+            data.pop("pages_without_text", None)
+        return data
+
     status: UploadStatus
     moderation: Moderation
     created_at: AwareDatetime

@@ -15,9 +15,11 @@ from app.runs.cat_checks import (
     check_claim,
     confidence_of,
     format_cell,
+    has_figure,
     has_number,
     is_number,
     prose_ok,
+    quantity_support,
     resolve,
     scrub_text,
     tidy,
@@ -29,7 +31,7 @@ from app.runs.cat_schemas import (
     ReportDraft,
     VerdictRecord,
 )
-from app.runs.numbers import exact_tokens
+from app.runs.numbers import exact_tokens, unsupported_quantity_words
 from app.schemas.reports import (
     EvidencePayload,
     EvidenceTable,
@@ -82,8 +84,20 @@ def _unique(label: str, taken: set[str]) -> str:
     return candidate
 
 
-def _prose(text: str, view: ResultView, qnums: set, protected: set) -> str | None:  # type: ignore[type-arg]
+def _prose(
+    text: str,
+    view: ResultView,
+    qnums: set,  # type: ignore[type-arg]
+    protected: set,  # type: ignore[type-arg]
+    support: tuple[str, ...],
+    dropped: list[int],
+) -> str | None:
+    """Title, answer or meaning. A size said in words that nothing supports drops the sentence
+    (counted in `dropped`, which holds one counter)."""
     clean = tidy(text, view, protected)
+    if clean and unsupported_quantity_words(clean, *support):
+        dropped[0] += 1
+        return None
     return clean if clean and prose_ok(clean, view, qnums) else None
 
 
@@ -93,13 +107,15 @@ def build_report(
     """None when no claim survives scrubbing (the writer's output was not usable)."""
     qnums = exact_tokens(question)
     protected = qnums | view.label_numbers()
+    support = quantity_support(view, question)
+    dropped = [0]
     kept: list[tuple[str, list[str], Verdict]] = []
     for raw, cells in zip(out.claim_texts, out.claim_cells, strict=True):
         text = tidy(raw, view, protected)
         if not text:
             continue
         refs = cells.split(",")
-        kept.append((text, refs, check_claim(text, refs, view, qnums)))
+        kept.append((text, refs, check_claim(text, refs, view, qnums, support)))
     if not kept:
         return None
 
@@ -139,13 +155,23 @@ def build_report(
 
     first_verified = next((c.text for c in claims if c.status is ClaimStatus.VERIFIED), None)
     title = (
-        _prose(out.title, view, qnums, protected) or scrub_text(question)[:100].strip() or "Report"
+        _prose(out.title, view, qnums, protected, support, dropped)
+        or scrub_text(question)[:100].strip()
+        or "Report"
     )
-    answer = _prose(out.answer, view, qnums, protected) or first_verified or claims[0].text
-    meaning = _prose(out.meaning, view, qnums, protected) if out.meaning.strip() else None
-    steps = [
-        s for s in (tidy(x, view, protected) for x in out.next_steps) if s and not has_number(s)
-    ]
+    answer = (
+        _prose(out.answer, view, qnums, protected, support, dropped)
+        or first_verified
+        or claims[0].text
+    )
+    meaning = (
+        _prose(out.meaning, view, qnums, protected, support, dropped)
+        if out.meaning.strip()
+        else None
+    )
+    tidy_steps = [s for s in (tidy(x, view, protected) for x in out.next_steps) if s]
+    steps = [s for s in tidy_steps if not has_figure(s)]
+    dropped[0] += sum(1 for s in tidy_steps if has_figure(s) and not has_number(s))
 
     taken: set[str] = set()
     summary = ReportSummary(
@@ -165,5 +191,6 @@ def build_report(
     draft = ReportDraft(
         title=title, summary=summary, confidence=confidence_of(verified, len(claims)),
         verified_count=verified, total_claims=len(claims), claims=claims, evidence=[d1, *notes],
+        quantity_dropped=dropped[0], quantity_demoted=sum(v.quantity for _, _, v in kept),
     )  # fmt: skip
     return draft, records

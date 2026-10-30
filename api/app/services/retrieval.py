@@ -24,7 +24,7 @@ from sqlalchemy import Select, Table, bindparam, func, select, update
 from sqlalchemy.orm import Session
 
 from app.ai.caps import SessionFactory
-from app.ai.client import estimate_tokens
+from app.ai.client import estimate_embed_tokens
 from app.ai.gateway import EmbedGatewayResult, GatewayError
 from app.core.config import Limits
 from app.core.enums import EmbedTask, UploadStatus
@@ -83,6 +83,11 @@ class SearchOutcome:
     # The best cosine of any chunk, before the similarity floor (None without an embedding): what
     # the floor is tuned against.
     top_cosine: float | None = None
+    # The search ran on words alone because the document needs more embedding tokens than the run's
+    # budget (max_embed_tokens_per_run); Hound says so in the trace.
+    size_limited: bool = False
+    # Chunks too big for the embedding model (embed_chunk_max_tokens): not embedded, found by words.
+    skipped_chunks: int = 0
 
 
 @dataclass(frozen=True)
@@ -152,6 +157,15 @@ def _term_hits(text: str, terms: list[str]) -> int:
 
 
 # ---- vectors ----
+
+
+def split_embeddable(
+    pending: list[tuple[uuid.UUID, str]], limits: Limits
+) -> tuple[list[tuple[uuid.UUID, str]], int]:
+    """(the chunks small enough to embed, how many are not). A big chunk is never cut."""
+    cap = limits.embed_chunk_max_tokens
+    fits = [item for item in pending if estimate_embed_tokens([item[1]]) <= cap]
+    return fits, len(pending) - len(fits)
 
 
 def pending_chunks(
@@ -279,6 +293,14 @@ def _fetch(
 # ---- the search ----
 
 
+@dataclass(frozen=True)
+class EmbedProgress:
+    tokens: int = 0  # embedding tokens this pass used
+    stopped: GatewayError | None = None  # the gateway error that stopped it
+    over_budget: bool = False  # the document needs more than the run's embedding budget
+    skipped: int = 0  # chunks too big for the embedding model, left to the word search
+
+
 def _embed_chunks(
     session_factory: SessionFactory,
     embedder: Embedder,
@@ -289,27 +311,29 @@ def _embed_chunks(
     limits: Limits,
     now: Clock,
     deadline: float,
-) -> tuple[int, GatewayError | None]:
+) -> EmbedProgress:
     """Embed the chunks that have no vector yet, EMBED_GROUP at a time, storing each group at once.
-    Returns (tokens used, the gateway error that stopped it or None). Stops before the run's
-    embedding budget is passed or its deadline is reached."""
+    A chunk over embed_chunk_max_tokens is skipped (never cut). Stops before the run's embedding
+    budget is passed or its deadline is reached."""
     with session_factory() as db:
-        pending = pending_chunks(db, run_id, user_id, model)
+        every = pending_chunks(db, run_id, user_id, model)
         used = store.run_embed_tokens(db, run_id)
+    pending, skipped = split_embeddable(every, limits)
     if not pending:
-        return 0, None
-    if used + estimate_tokens([text for _, text in pending]) > limits.max_embed_tokens_per_run:
-        return 0, None  # too big for the budget: keyword search only, nothing is spent
+        return EmbedProgress(skipped=skipped)
+    need = estimate_embed_tokens([text for _, text in pending])
+    if used + need > limits.max_embed_tokens_per_run:
+        return EmbedProgress(over_budget=True, skipped=skipped)  # words only, nothing spent
     tokens = 0
     for first in range(0, len(pending), EMBED_GROUP):
         if now() >= deadline:
-            return tokens, None
+            return EmbedProgress(tokens, skipped=skipped)
         group = pending[first : first + EMBED_GROUP]
         done = embedder.embed(
             [text for _, text in group], task=EmbedTask.DOCUMENT, user_id=user_id, run_id=run_id
         )
         if isinstance(done, GatewayError):
-            return tokens, done
+            return EmbedProgress(tokens, done, skipped=skipped)
         tokens += done.tokens_in
         with session_factory() as db:
             store_vectors(
@@ -319,7 +343,7 @@ def _embed_chunks(
                 model,
                 [(cid, vec) for (cid, _), vec in zip(group, done.vectors, strict=True)],
             )
-    return tokens, None
+    return EmbedProgress(tokens, skipped=skipped)
 
 
 def search(
@@ -342,23 +366,30 @@ def search(
     cosines: dict[uuid.UUID, float] = {}  # every hit, before the floor
     tokens = 0
     mode: Literal["hybrid", "keyword"] = "keyword"
+    size_limited = False
+    skipped = 0
     if model is not None:
-        doc_tokens, stopped = _embed_chunks(
+        progress = _embed_chunks(
             session_factory, embedder, run_id=run_id, user_id=user_id, model=model,
             limits=limits, now=now, deadline=deadline,
         )  # fmt: skip
-        tokens += doc_tokens
+        tokens += progress.tokens
+        skipped = progress.skipped
+        stopped = progress.stopped
         if stopped is not None and stopped.cap_scope is not None:
-            return SearchOutcome([], "keyword", tokens, cap=stopped)
+            return SearchOutcome([], "keyword", tokens, cap=stopped, skipped_chunks=skipped)
         with session_factory() as db:
-            pending_left = bool(pending_chunks(db, run_id, user_id, model))
+            left, _ = split_embeddable(pending_chunks(db, run_id, user_id, model), limits)
+            pending_left = bool(left)
             used = store.run_embed_tokens(db, run_id)
-        query_cost = estimate_tokens([question])
-        if not pending_left and used + query_cost <= limits.max_embed_tokens_per_run:
+        query_cost = estimate_embed_tokens([question])
+        question_fits = used + query_cost <= limits.max_embed_tokens_per_run
+        size_limited = progress.over_budget or (not pending_left and not question_fits)
+        if not pending_left and question_fits:
             asked = embedder.embed([question], task=EmbedTask.QUERY, user_id=user_id, run_id=run_id)
             if isinstance(asked, GatewayError):
                 if asked.cap_scope is not None:
-                    return SearchOutcome([], "keyword", tokens, cap=asked)
+                    return SearchOutcome([], "keyword", tokens, cap=asked, skipped_chunks=skipped)
             else:
                 tokens += asked.tokens_in
                 with session_factory() as db:
@@ -376,4 +407,6 @@ def search(
     with session_factory() as db:
         passages = _fetch(db, run_id, user_id, fused[: limits.retrieval_keep], cosines)
     top = max(cosines.values()) if cosines else None
-    return SearchOutcome(passages, mode, tokens, top_cosine=top)
+    return SearchOutcome(
+        passages, mode, tokens, top_cosine=top, size_limited=size_limited, skipped_chunks=skipped
+    )

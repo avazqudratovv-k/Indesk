@@ -58,6 +58,27 @@ def estimate_tokens(texts: list[str]) -> int:
     return -(-ascii_chars // 4) + other
 
 
+# Measured on 2026-10-30 from the local ai_calls rows of the two demo PDFs (the stored chunks and
+# the tokens_in of their embedding calls). An English, digit-heavy document cost 0.36 tokens per
+# ASCII character (2.7 characters a token; the /4 rule above undercounts it by about 28%). A mixed
+# Korean document cost 0.61 tokens per character overall, about 1.1 per non-ASCII character once
+# its ASCII part is priced like the English one. Two documents only: an estimate, kept a little
+# high.
+ASCII_CHARS_PER_TOKEN_NUM = 3  # tokens = ascii * 3 / 8 (0.375)
+ASCII_CHARS_PER_TOKEN_DEN = 8
+OTHER_TOKENS_PER_CHAR_NUM = 23  # tokens = non-ascii * 23 / 20 (1.15)
+OTHER_TOKENS_PER_CHAR_DEN = 20
+
+
+def estimate_embed_tokens(texts: list[str]) -> int:
+    """Input tokens of embedding `texts`, for the per-run embedding budget and the chunk guard. NOT
+    the rule of estimate_tokens: calibrated on real embedding calls (see the note above)."""
+    ascii_chars = sum(1 for text in texts for ch in text if ch.isascii())
+    other = sum(len(text) for text in texts) - ascii_chars
+    ascii_tokens = -(-ascii_chars * ASCII_CHARS_PER_TOKEN_NUM // ASCII_CHARS_PER_TOKEN_DEN)
+    return ascii_tokens + -(-other * OTHER_TOKENS_PER_CHAR_NUM // OTHER_TOKENS_PER_CHAR_DEN)
+
+
 class ModelClient(Protocol):
     def generate(
         self,

@@ -137,8 +137,14 @@ pdf_min_page_chars = 20
 
 # Target characters of a chunk, and the characters shared with the next chunk. Chunks never cross a page.
 # Owner-approved proposal for P14 (plan section 3); to be tuned on the demo PDF in P14b.
+# chunk_chars may not pass 3,000 (the server refuses to start): the embedding model reads 8,192 tokens at most
+# per text (Google's model page; owner answer in P14b), and Korean can cost about a token a character.
 chunk_chars = 1000
 chunk_overlap_chars = 150
+
+# A chunk whose estimated embedding tokens pass this is not embedded: it stays searchable by words and the trace says
+# so. Never truncated (a cut text would make a vector of something the passage does not say). At most 6,000.
+embed_chunk_max_tokens = 6000
 
 # --- PDF search (P14a part 2) ---
 

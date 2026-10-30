@@ -27,7 +27,14 @@ from dataclasses import dataclass
 from typing import Final
 
 from app.core.enums import ClaimStatus, ReportReason
-from app.runs.numbers import NumberToken, exact_tokens, matches_any, normal, number_tokens
+from app.runs.numbers import (
+    NumberToken,
+    exact_tokens,
+    matches_any,
+    normal,
+    number_tokens,
+    unsupported_quantity_words,
+)
 from app.runs.quotes import MIN_QUOTE_CHARS, check_quote, match_key, quote_segments
 from app.runs.spelled_numbers import MAX_SPELLED, spelled_in
 
@@ -41,6 +48,7 @@ class PdfVerdict:
     quote_found: bool  # the quote is on the cited page, so it may be shown as evidence
     quote: str | None  # the quote as written, spaces tidied, when quote_found
     value: str | None  # the writer's figure, when it is in the quote
+    quantity: bool = False  # demoted only because of a quantity word with no support
 
 
 def _unverified(reason: ReportReason, *, found: bool = False, quote: str | None = None,
@@ -98,4 +106,9 @@ def check_pdf_claim(
         return _unverified(
             ReportReason.NUMBER_NOT_IN_QUOTE, found=True, quote=tidy_quote, value=shown
         )
+    if unsupported_quantity_words(text, tidy_quote, question):  # "a million": no digit to compare
+        return PdfVerdict(
+            ClaimStatus.UNVERIFIED, ReportReason.NUMBER_NOT_IN_QUOTE, True, tidy_quote, shown,
+            quantity=True,
+        )  # fmt: skip
     return PdfVerdict(ClaimStatus.VERIFIED, None, True, tidy_quote, shown)

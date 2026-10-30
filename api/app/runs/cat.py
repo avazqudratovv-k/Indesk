@@ -27,7 +27,14 @@ from app.runs.agents import AgentContext, AgentDone, AgentFailed, AgentResult
 from app.runs.ask_schemas import BeaverPayload
 from app.runs.cat_checks import ResultView
 from app.runs.cat_report import build_report
-from app.runs.cat_schemas import CatPayload, CatResult, ClaimsOut, VerdictRecord
+from app.runs.cat_schemas import (
+    CatPayload,
+    CatResult,
+    ClaimsOut,
+    ReportDraft,
+    VerdictRecord,
+    payload_with_quantity,
+)
 from app.runs.mapping import failure_from_gateway
 from app.runs.prompts import CAT_PROMPT_VERSION, build_cat_prompt, new_nonce
 from app.runs.trace import TraceLine
@@ -77,7 +84,7 @@ class CatAgent:
                 StepState.DONE, tok=tokens, claims=draft.total_claims,
                 verified=draft.verified_count,
             ),
-            self._payload(view, records),
+            self._payload(view, records, draft),
         )  # fmt: skip
         all_verified = draft.verified_count == draft.total_claims
         outcome = RunOutcome.ANSWERED if all_verified else RunOutcome.PARTIAL
@@ -86,7 +93,10 @@ class CatAgent:
             data=CatResult(outcome=outcome, report=draft),
         )  # fmt: skip
 
-    def _payload(self, view: ResultView, records: list[VerdictRecord]) -> CatPayload:
-        return CatPayload(
+    def _payload(
+        self, view: ResultView, records: list[VerdictRecord], draft: ReportDraft | None = None
+    ) -> CatPayload:
+        payload = CatPayload(
             prompt_version=CAT_PROMPT_VERSION, rows_mismatch=not view.rows_ok, verdicts=records
         )
+        return payload_with_quantity(payload, draft)

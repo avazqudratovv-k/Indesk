@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
 
 from app.core import clock, ratelimit
 from app.core.errors import AppError, ErrorCode
+from app.db.models import Upload as UploadRow
 from app.routers.deps import AppSettings, CurrentUser, Db, IpHash, RedisDep
 from app.schemas.users import Upload
 from app.services import uploads as service
@@ -48,12 +49,21 @@ def create_upload(
         stream=file.file,
         ip_hash=ip_hash,
     )
-    return Upload.model_validate(upload)
+    return _view(db, settings, [upload])[0]
+
+
+def _view(db: Db, settings: AppSettings, rows: list[UploadRow]) -> list[Upload]:
+    """The public shape of each upload, with pages_without_text filled in for PDFs."""
+    counts = service.pages_without_text(db, rows, settings.limits)
+    return [
+        Upload.model_validate(u).model_copy(update={"pages_without_text": counts[u.id]})
+        for u in rows
+    ]
 
 
 @router.get("", response_model=list[Upload])
-def list_uploads(db: Db, user: CurrentUser) -> list[Upload]:
-    return [Upload.model_validate(u) for u in service.list_uploads(db, user, clock.utcnow())]
+def list_uploads(db: Db, settings: AppSettings, user: CurrentUser) -> list[Upload]:
+    return _view(db, settings, service.list_uploads(db, user, clock.utcnow()))
 
 
 @router.delete("/{upload_id}", status_code=204)
@@ -63,5 +73,5 @@ def delete_upload(upload_id: str, db: Db, storage: StorageDep, user: CurrentUser
 
 
 @router.get("/{upload_id}", response_model=Upload)
-def get_upload(upload_id: str, db: Db, user: CurrentUser) -> Upload:
-    return Upload.model_validate(service.get_upload(db, user, upload_id, clock.utcnow()))
+def get_upload(upload_id: str, db: Db, settings: AppSettings, user: CurrentUser) -> Upload:
+    return _view(db, settings, [service.get_upload(db, user, upload_id, clock.utcnow())])[0]

@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Final
 
 from app.core.enums import ClaimOrigin, ClaimStatus, EvidenceType, ReportReason
-from app.runs.cat_checks import confidence_of, has_number, scrub_text
+from app.runs.cat_checks import confidence_of, has_figure, has_number, scrub_text
 from app.runs.cat_pdf_checks import PdfVerdict, check_pdf_claim, quote_numbers
 from app.runs.cat_schemas import (
     ClaimRow,
@@ -16,17 +16,32 @@ from app.runs.cat_schemas import (
     ReportDraft,
     VerdictRecord,
 )
-from app.runs.numbers import exact_tokens, matches_any, number_tokens
+from app.runs.numbers import (
+    exact_tokens,
+    matches_any,
+    number_tokens,
+    unsupported_quantity_words,
+)
 from app.schemas.reports import EvidencePayload, InShort, ReportSummary
 
 _SPACES: Final = re.compile(r"\s+")
 
 
-def _prose(text: str, allowed: list[float], question_numbers: set[Decimal]) -> str | None:
-    """Title, answer or meaning: scrubbed, and every number in it is a number of a quote found in
-    the document or of the question."""
+def _prose(
+    text: str,
+    allowed: list[float],
+    question_numbers: set[Decimal],
+    support: tuple[str, ...],
+    dropped: list[int],
+) -> str | None:
+    """Title, answer or meaning: scrubbed, every number in it is a number of a quote found in the
+    document or of the question, and a size said in words is in a verified quote or the question
+    (else the sentence is dropped and counted in `dropped`, which holds one counter)."""
     clean = scrub_text(text)
     if not clean:
+        return None
+    if unsupported_quantity_words(clean, *support):
+        dropped[0] += 1
         return None
     for token in number_tokens(clean):
         if token.plain and token.value.normalize() in question_numbers:
@@ -94,10 +109,22 @@ def build_pdf_report(
     qnums = exact_tokens(question)
     allowed = [v for row in passages for v in quote_numbers(row.payload.quote or "")]
     first_verified = next((c.text for c in claims if c.status is ClaimStatus.VERIFIED), None)
-    title = _prose(out.title, allowed, qnums) or scrub_text(question)[:100].strip() or "Report"
-    answer = _prose(out.answer, allowed, qnums) or first_verified or claims[0].text
-    meaning = _prose(out.meaning, allowed, qnums) if out.meaning.strip() else None
-    steps = [s for s in (scrub_text(x) for x in out.next_steps) if s and not has_number(s)]
+    dropped = [0]
+    support = (
+        question, *(c.doc_quote for c in claims if c.status is ClaimStatus.VERIFIED and c.doc_quote)
+    )  # fmt: skip
+    title = (
+        _prose(out.title, allowed, qnums, support, dropped)
+        or scrub_text(question)[:100].strip()
+        or "Report"
+    )
+    answer = (
+        _prose(out.answer, allowed, qnums, support, dropped) or first_verified or claims[0].text
+    )
+    meaning = _prose(out.meaning, allowed, qnums, support, dropped) if out.meaning.strip() else None
+    scrubbed = [s for s in (scrub_text(x) for x in out.next_steps) if s]
+    steps = [s for s in scrubbed if not has_figure(s)]
+    dropped[0] += sum(1 for s in scrubbed if has_figure(s) and not has_number(s))
     summary = ReportSummary(
         answer=answer,
         in_short=[InShort(status=c.status, text=c.text) for c in claims],
@@ -107,6 +134,7 @@ def build_pdf_report(
     draft = ReportDraft(
         title=title, summary=summary, confidence=confidence_of(verified, len(claims)),
         verified_count=verified, total_claims=len(claims), claims=claims,
-        evidence=[*passages, *notes],
+        evidence=[*passages, *notes], quantity_dropped=dropped[0],
+        quantity_demoted=sum(v.quantity for _, _, v in kept),
     )  # fmt: skip
     return draft, records

@@ -25,7 +25,14 @@ from app.core.enums import (
 )
 from app.runs.agents import AgentContext, AgentDone, AgentFailed, AgentResult
 from app.runs.cat_pdf_report import build_pdf_report
-from app.runs.cat_schemas import CatPayload, CatResult, PdfClaimsOut, VerdictRecord
+from app.runs.cat_schemas import (
+    CatPayload,
+    CatResult,
+    PdfClaimsOut,
+    ReportDraft,
+    VerdictRecord,
+    payload_with_quantity,
+)
 from app.runs.mapping import failure_from_gateway
 from app.runs.pdf_schemas import HoundResult
 from app.runs.prompts import PDF_WRITER_PROMPT_VERSION, build_pdf_writer_prompt, new_nonce
@@ -89,7 +96,7 @@ class CatPdfAgent:
                 StepState.DONE, tok=tokens, claims=draft.total_claims,
                 verified=draft.verified_count,
             ),
-            self._payload(records),
+            self._payload(records, draft),
         )  # fmt: skip
         outcome = (
             RunOutcome.ANSWERED
@@ -102,7 +109,8 @@ class CatPdfAgent:
         )  # fmt: skip
 
     @staticmethod
-    def _payload(records: list[VerdictRecord]) -> CatPayload:
-        return CatPayload(
+    def _payload(records: list[VerdictRecord], draft: ReportDraft | None = None) -> CatPayload:
+        payload = CatPayload(
             prompt_version=PDF_WRITER_PROMPT_VERSION, rows_mismatch=False, verdicts=records
         )
+        return payload_with_quantity(payload, draft)

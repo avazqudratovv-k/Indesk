@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import BinaryIO
 
-from sqlalchemy import delete, exists, select
+from sqlalchemy import delete, exists, func, select
 from sqlalchemy.orm import Session
 
 from app import sandbox_client
@@ -225,6 +225,27 @@ def create_pdf_upload(
         storage.delete(key)  # no stored file without a row
         raise
     return upload
+
+
+def pages_without_text(
+    db: Session, uploads: list[Upload], limits: Limits
+) -> dict[uuid.UUID, int | None]:
+    """For each PDF upload: how many stored pages hold fewer than `pdf_min_page_chars` characters
+    (a scanned page), the same line the upload policy draws. None for a CSV, or a PDF whose page
+    text is gone. Computed from document_pages: nothing is stored for it."""
+    ids = [u.id for u in uploads if u.mime == UploadMime.PDF]
+    counts: dict[uuid.UUID, int | None] = {u.id: None for u in uploads}
+    if not ids:
+        return counts
+    short = func.length(func.btrim(DocumentPage.text, " \n\t\r")) < limits.pdf_min_page_chars
+    rows = db.execute(
+        select(DocumentPage.upload_id, func.count(), func.count().filter(short))
+        .where(DocumentPage.upload_id.in_(ids))
+        .group_by(DocumentPage.upload_id)
+    ).all()
+    for upload_id, _total, without in rows:
+        counts[upload_id] = int(without)
+    return counts
 
 
 def delete_document_text(db: Session, upload_ids: list[uuid.UUID] | None = None) -> int:

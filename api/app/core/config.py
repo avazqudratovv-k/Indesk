@@ -19,6 +19,8 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 AUTH_SECRET_MIN_LENGTH = 32
 LIMITS_FILE = Path(__file__).resolve().parents[2] / "config" / "limits.toml"
+MAX_CHUNK_CHARS = 3000  # ceiling for chunk_chars, checked at startup (embedding input cap, P14b)
+MAX_EMBED_CHUNK_TOKENS = 6000  # below the model's 8,192-token input cap
 
 
 class Limits(BaseModel):
@@ -77,6 +79,19 @@ class Limits(BaseModel):
     retrieval_rrf_k: PositiveInt
     retrieval_min_similarity: float = Field(ge=0, le=1)
     retrieval_min_terms: PositiveInt
+    # A chunk whose estimated tokens pass this is not embedded (it stays searchable by words).
+    embed_chunk_max_tokens: PositiveInt = MAX_EMBED_CHUNK_TOKENS
+
+    @model_validator(mode="after")
+    def _chunks_fit_the_embedding_model(self) -> "Limits":
+        # The embedding model reads at most 8,192 tokens per text (Google's model page, owner answer
+        # P14b Q3). At one token per character, the worst case for Korean, 3,000 characters stay
+        # well under it. A bigger chunk size stops the server at startup.
+        if self.chunk_chars > MAX_CHUNK_CHARS:
+            raise ValueError(f"chunk_chars must be at most {MAX_CHUNK_CHARS}")
+        if self.embed_chunk_max_tokens > MAX_EMBED_CHUNK_TOKENS:
+            raise ValueError(f"embed_chunk_max_tokens must be at most {MAX_EMBED_CHUNK_TOKENS}")
+        return self
 
     @model_validator(mode="after")
     def _overlap_is_small(self) -> "Limits":

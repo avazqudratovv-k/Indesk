@@ -34,6 +34,9 @@ ALLOWED_ARGS: Final[Mapping[TraceKey, frozenset[str]]] = {
     TraceKey.SEARCH: frozenset({"pages", "matched", "mode"}),
     TraceKey.BEST_PASSAGE: frozenset({"page", "score", "similarity"}),
     TraceKey.SEARCH_FAILED: frozenset({"reason", "attempt"}),
+    # keywordOnlySize: reason is the code "document_size". chunksSkipped: chunks not embedded.
+    TraceKey.KEYWORD_ONLY_SIZE: frozenset({"reason"}),
+    TraceKey.CHUNKS_SKIPPED: frozenset({"count"}),
 }
 
 

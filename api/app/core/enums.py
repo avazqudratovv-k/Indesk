@@ -301,6 +301,9 @@ class TraceKey(StrEnum):
     SEARCH = "search"  # args: pages, matched (+ mode)
     BEST_PASSAGE = "bestPassage"  # args: page, score, similarity
     SEARCH_FAILED = "searchFailed"  # args: reason, attempt
+    # Hound notes (P14b), said before its closing line.
+    KEYWORD_ONLY_SIZE = "keywordOnlySize"  # keyword-only because of document size; args: reason
+    CHUNKS_SKIPPED = "chunksSkipped"  # chunks too big to embed, found by words; args: count
 
 
 class ReportReason(StrEnum):
