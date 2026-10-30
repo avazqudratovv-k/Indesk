@@ -7,10 +7,12 @@ Suggestions are fixed templates filled with real column names or a stored page. 
 claims that a suggested question can be answered."""
 
 import re
+import unicodedata
 import uuid
+from difflib import SequenceMatcher
 from typing import Final
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -49,6 +51,54 @@ def asked_page_beyond(question: str, page_count: int) -> int | None:
 
 def years_in(question: str) -> list[int]:
     return [int(hit.group(1)) for hit in _YEAR.finditer(question)]
+
+
+class ClosingPayload(BaseModel):
+    """The payload of a closing line that carries the object (Owl's stop; Cat's own payload holds
+    the same key). Written in the same transaction that finishes the run (store.finish_run)."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    not_answerable: NotAnswerable
+
+
+# Short names are compared exactly: two 3-letter names share most letters by chance.
+MIN_FUZZY_CHARS: Final = 4
+MIN_ASKED_COLUMN_CHARS: Final = 3
+_SEPARATORS: Final = re.compile(r"[\s_\-]+")
+
+
+def normalize_name(text: str) -> str:
+    """Case, width and the separators space, underscore and hyphen do not matter."""
+    return _SEPARATORS.sub(" ", unicodedata.normalize("NFKC", text).casefold()).strip()
+
+
+def is_near_miss(name: str, known: list[str], threshold: float) -> bool:
+    """Is `name` (a column the plan named) the same as, or very close to, a real column?"""
+    squashed = normalize_name(name).replace(" ", "")
+    for column in known:
+        other = normalize_name(column).replace(" ", "")
+        if squashed == other:
+            return True
+        if min(len(squashed), len(other)) >= MIN_FUZZY_CHARS and (
+            SequenceMatcher(None, squashed, other).ratio() >= threshold
+        ):
+            return True
+    return False
+
+
+def asked_column_in(question: str, missing: list[str]) -> str | None:
+    """The first missing name whose normalized form appears in the question, returned as the
+    question's own words (a slice of the normalized question), never the model's string."""
+    haystack = normalize_name(question)
+    for name in missing:
+        needle = normalize_name(name)
+        if len(needle) < MIN_ASKED_COLUMN_CHARS:
+            continue
+        at = haystack.find(needle)
+        if at >= 0:
+            return _label(haystack[at : at + len(needle)])
+    return None
 
 
 def _label(name: str) -> str | None:
@@ -135,6 +185,30 @@ def for_csv(
     )
 
 
+def for_missing_column(
+    question: str,
+    lang: str,
+    missing: list[str],
+    *,
+    profile: CsvProfile,
+    span: TimeSpan | None,
+) -> NotAnswerable:
+    """The plan needs a column the file does not have. `missing` is checked against the question
+    only to decide whether the name is shown; the model's own text is never kept."""
+    columns = [s for s in (_label(c.name) for c in profile.columns) if s][:MAX_FACT_COLUMNS]
+    facts = NotAnswerableFacts(
+        row_count=profile.row_count or None,
+        columns=columns,
+        asked_column=asked_column_in(question, missing),
+    )
+    time_label = _label(span.column) if span is not None else None
+    return NotAnswerable(
+        reason=NotAnswerableReason.CSV_MISSING_COLUMN,
+        facts=facts,
+        suggestions=_csv_suggestions(lang, profile, time_label),
+    )
+
+
 def _csv_suggestions(
     lang: str, profile: CsvProfile | None, time_label: str | None
 ) -> list[Suggestion]:
@@ -184,8 +258,9 @@ def read_for_run(db: Session, run_id: uuid.UUID) -> NotAnswerable | None:
         select(AgentStep.payload)
         .where(
             AgentStep.run_id == run_id,
-            AgentStep.agent == AgentKey.CRITIC,
-            AgentStep.payload.is_not(None),
+            AgentStep.agent.in_((AgentKey.CRITIC.value, AgentKey.MANAGER.value)),
+            # A line without a payload is stored as JSON null, which `IS NOT NULL` lets through.
+            AgentStep.payload.has_key(PAYLOAD_KEY),
         )
         .order_by(AgentStep.seq.desc())
         .limit(1)

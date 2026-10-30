@@ -22,6 +22,12 @@ export function notAnswerableCopy(na: NotAnswerable, t: Translate): NaCopy {
   } else if (reason === "csv_no_rows") {
     head = t(k("csv_no_rows.head"));
     body = facts.rowCount !== undefined ? t(k("csv_no_rows.body"), { rows: facts.rowCount }) : null;
+  } else if (reason === "csv_missing_column") {
+    // The column name is the user's own word from the question; without it the generic wording stays.
+    if (facts.askedColumn !== undefined) {
+      head = t(k("csv_missing_column.head"), { column: facts.askedColumn });
+      body = t(k("csv_missing_column.body"));
+    } else body = generic.body;
   } else if (reason === "pdf_no_match") {
     head = t(k("pdf_no_match.head"));
     body = facts.pageCount !== undefined ? t(k("pdf_no_match.body"), { pages: facts.pageCount }) : null;

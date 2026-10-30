@@ -110,6 +110,7 @@ class _Runner:
         reason: RunReason | None,
         final: TraceLine | None,
         report: ReportDraft | None = None,
+        payload: BaseModel | None = None,
     ) -> None:
         with self._db() as db:
             store.finish_run(
@@ -121,6 +122,7 @@ class _Runner:
                 final=final,
                 now=self.deps.now(),
                 report=report,
+                payload=payload,
             )
         logger.info(
             "run %s finished outcome=%s reason=%s steps=%d",
@@ -182,7 +184,7 @@ class _Runner:
                 FlowInput(self.run_id, mode, lang, upload_ids, tuple(self.history), mimes)
             )
             if isinstance(step, Finish):
-                self._finish(step.outcome, step.reason, step.final, step.report)
+                self._finish(step.outcome, step.reason, step.final, step.report, step.payload)
                 return
             if not self._drive(step, user_id, mode, lang, upload_ids, deadline):
                 return

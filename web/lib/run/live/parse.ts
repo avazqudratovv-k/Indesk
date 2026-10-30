@@ -81,6 +81,9 @@ function parseNaFacts(value: unknown): NaFacts | null {
   const timeColumn = naText(value.time_column, NA_MAX_NAME_CHARS);
   if (timeColumn === null) return null;
   if (timeColumn !== undefined) facts.timeColumn = timeColumn;
+  const askedColumn = naText(value.asked_column, NA_MAX_NAME_CHARS);
+  if (askedColumn === null) return null;
+  if (askedColumn !== undefined) facts.askedColumn = askedColumn;
   for (const [name, field, max, cap] of [
     ["searchedPages", "searched_pages", NA_MAX_PAGES, 1],
     ["columns", "columns", NA_MAX_COLUMNS, 0],

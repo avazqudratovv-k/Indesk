@@ -87,6 +87,7 @@ class NotAnswerableReason(StrEnum):
     PDF_PAGE_RANGE = "pdf_page_range"
     CSV_PERIOD = "csv_period"
     CSV_NO_ROWS = "csv_no_rows"
+    CSV_MISSING_COLUMN = "csv_missing_column"
 
 
 class SuggestionKind(StrEnum):

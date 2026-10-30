@@ -86,6 +86,8 @@ class Finish:
     final: TraceLine
     reason: RunReason | None = None
     report: ReportDraft | None = None  # saved in the same transaction that finishes the run
+    # Stored on the closing line, in that same transaction (e.g. the not_answerable object).
+    payload: BaseModel | None = None
 
 
 @dataclass(frozen=True)

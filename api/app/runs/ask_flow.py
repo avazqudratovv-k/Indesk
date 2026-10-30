@@ -12,6 +12,7 @@ from collections.abc import Callable
 from app.core.config import Limits
 from app.core.enums import (
     AgentKey,
+    NotAnswerableReason,
     RunOutcome,
     RunReason,
     StepKind,
@@ -26,6 +27,7 @@ from app.runs.cat import CatAgent
 from app.runs.cat_pdf import CatPdfAgent
 from app.runs.cat_schemas import CatResult
 from app.runs.hound import HoundAgent
+from app.runs.not_answerable import ClosingPayload
 from app.runs.owl import OwlAgent
 from app.runs.owl_pdf import OwlPdfAgent
 from app.runs.pdf_schemas import HoundResult
@@ -55,6 +57,9 @@ class AskFlow:
             return OwlAgent(self._limits, self._nonce)
         if done == 1:
             plan = info.history[0].result.data
+            if isinstance(plan, ClosingPayload):  # Owl found a column the file does not have
+                line = stopped_line(NotAnswerableReason.CSV_MISSING_COLUMN)
+                return Finish(RunOutcome.NOT_ANSWERABLE, line, payload=plan)
             if not isinstance(plan, OwlPlan):  # cannot happen; fail closed, never guess a plan
                 return _stop(RunReason.INTERNAL_ERROR)
             return BeaverAgent(self._limits, plan, self._nonce)

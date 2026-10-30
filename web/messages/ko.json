@@ -917,6 +917,10 @@
           "head": "질문에 맞는 행이 없습니다",
           "body": "파일에는 {rows, number}행이 있습니다."
         },
+        "csv_missing_column": {
+          "head": "이 파일에는 ''{column}'' 열이 없습니다",
+          "body": "아래에 나온 열 중에서 골라 물어보세요."
+        },
         "pdf_no_match": {
           "head": "질문에 맞는 내용이 문서에 없습니다",
           "body": "문서는 {pages, number}쪽이지만 질문과 맞는 내용이 없습니다."

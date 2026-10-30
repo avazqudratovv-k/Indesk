@@ -13,22 +13,23 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Connection
 
 from app.ai.caps import SessionFactory
-from app.core.config import Settings
+from app.core.config import LIMITS_FILE, Settings
 from app.core.enums import AgentKey, NotAnswerableReason, RunOutcome, RunStatus, StepState, TraceKey
 from app.db.models import Run
 from app.main import app
 from app.routers.runs import get_enqueue, get_session_factory
 from app.runs import not_answerable as na
-from app.runs import sse, store
+from app.runs import quota, sse, store
 from app.runs.executor import run_job
 from app.runs.pdf_schemas import HoundPassage, HoundResult
 from app.runs.profile import ProfileFailed, build_profile, time_span
+from app.runs.trace import stopped_line
 from app.schemas.not_answerable import NotAnswerable
 from app.services import runs as service
 from tests.ai_helpers import factory_for, limits_with
 from tests.ask_helpers import NONCE, ask_rig, code_answer, plan_answer, sandbox_ok
 from tests.pdf_run_helpers import PAGES, make_pdf_world, not_found_answer, pdf_rig
-from tests.runs_helpers import World, line, make_world, run_row
+from tests.runs_helpers import World, line, make_world, run_row, step_rows
 from tests.test_auth import MakeClient
 from tests.test_runs_api import body, code, new_upload
 from tests.test_uploads import settings_for, signed_in
@@ -154,6 +155,143 @@ def test_csv_without_a_readable_file_falls_back_with_no_suggestions(
     unreadable = na.for_csv("q 2015", "en", row_count=14, profile=None, span=None)
     assert unreadable.reason is NotAnswerableReason.CSV_NO_ROWS
     assert unreadable.facts.columns == [] and unreadable.suggestions == []
+
+
+# ---- a column the file does not have ----
+
+
+def missing_run(
+    factory: SessionFactory,
+    question: str,
+    named: str = "revenue_total",
+    lang: str = "en",
+    csv: bytes = YEARLY,
+) -> tuple[World, Any]:
+    world = make_world(factory, question=question)
+    set_lang(factory, world, lang)
+    bad = plan_answer(columns=[named])
+    rig, client, _ = ask_rig(factory, world, bad, bad, csv=csv)
+    run_job(world.run_id, rig.deps)
+    return world, client
+
+
+def test_a_missing_column_asked_twice_ends_not_answerable(factory: SessionFactory) -> None:
+    world, client = missing_run(factory, "What was the revenue total per station?")
+    run = run_row(factory, world.run_id)
+    assert (run.status, run.outcome, run.outcome_reason, run.counted) == (
+        "finished", "not_answerable", None, False,
+    )  # fmt: skip
+    assert len(client.calls) == 2  # the retry is kept; no shortcut, no Beaver, no Cat
+    why = stored(factory, world.run_id)
+    assert why.reason is NotAnswerableReason.CSV_MISSING_COLUMN
+    assert why.facts.asked_column == "revenue total"  # the question's own words, normalized
+    assert (why.facts.row_count, why.facts.columns) == (14, ["station", "year", "riders"])
+    assert [s.kind for s in why.suggestions] == ["csv_trend", "csv_rank"]
+    last = step_rows(factory, world.run_id)[-1]
+    assert (last.key, last.args) == (
+        TraceKey.STOPPED.value, {"reason": "csv_missing_column"},
+    )  # fmt: skip
+
+
+def test_asked_column_is_left_out_when_the_question_does_not_say_it(
+    factory: SessionFactory,
+) -> None:
+    world, _ = missing_run(factory, "Which station had the most riders?", named="secret_model_word")
+    facts = stored(factory, world.run_id).facts
+    assert facts.asked_column is None
+    assert "secret" not in json.dumps(facts.model_dump(mode="json"))  # never model text
+
+
+def test_a_korean_question_and_an_english_only_file_name_no_column(
+    factory: SessionFactory,
+) -> None:
+    world, _ = missing_run(factory, "역별 매출 합계는 얼마인가요?", lang="ko")
+    why = stored(factory, world.run_id)
+    assert why.reason is NotAnswerableReason.CSV_MISSING_COLUMN
+    assert why.facts.asked_column is None  # "revenue_total" is not in the Korean question
+    assert why.facts.columns == ["station", "year", "riders"]
+    assert why.suggestions[0].text == "year별 riders 추이 보여 주세요"
+
+
+def test_a_near_miss_of_a_real_column_still_fails_as_bad_model_output(
+    factory: SessionFactory,
+) -> None:
+    world, _ = missing_run(factory, "Which station had the most riders?", named="Riders")
+    run = run_row(factory, world.run_id)
+    assert (run.outcome, run.outcome_reason) == ("failed", "bad_model_output")
+
+
+def test_a_missing_column_gives_back_no_daily_slot(
+    factory: SessionFactory, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[int] = []
+    real = quota.release_run
+
+    def spy(*args: Any, **kwargs: Any) -> Any:
+        calls.append(1)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(quota, "release_run", spy)
+    missing_run(factory, "What was the revenue total per station?")
+    assert calls == []
+
+
+@pytest.mark.parametrize(
+    ("named", "real", "close"),
+    [
+        ("Riders", "riders", True),  # case
+        ("monthly_riders", "Monthly Riders", True),  # underscore against space and case
+        ("monthly-riders", "monthly_riders", True),
+        ("승차인원수", "승차인원", True),  # Hangul, 8 of 9 letters shared (0.89)
+        ("하차인원", "승차인원", False),  # Hangul, 6 of 8 shared (0.75)
+        ("rider_count", "riders", False),
+        ("revenue", "riders", False),
+        ("id", "ids", False),  # under 4 characters: exact match only
+        ("id", "ID", True),
+        ("abc", "abd", False),
+    ],
+)
+def test_near_miss_table(named: str, real: str, close: bool) -> None:
+    threshold = limits_with().column_match_similarity
+    assert threshold == 0.85
+    assert na.is_near_miss(named, [real, "unrelated"], threshold) is close
+
+
+def test_the_threshold_is_read_from_limits_toml() -> None:
+    assert "column_match_similarity = 0.85" in LIMITS_FILE.read_text()
+    assert limits_with(column_match_similarity=0.5).column_match_similarity == 0.5
+
+
+def test_the_closing_payload_and_the_finish_are_one_transaction(factory: SessionFactory) -> None:
+    class Boom(na.ClosingPayload):
+        def model_dump(self, **kw: Any) -> dict[str, Any]:
+            raise RuntimeError("write failed")
+
+    why = na.for_missing_column("q", "en", ["x"], profile=cut(["a", "b"])[0], span=None)
+    world = make_world(factory)
+    closing = NotAnswerableReason.CSV_MISSING_COLUMN
+    with factory() as db:
+        with pytest.raises(RuntimeError):
+            store.finish_run(
+                db, world.run_id, expected=RunStatus.QUEUED, outcome=RunOutcome.NOT_ANSWERABLE,
+                reason=None, final=stopped_line(closing), now=NOW,
+                payload=Boom(not_answerable=why),
+            )  # fmt: skip
+        db.rollback()
+    assert run_row(factory, world.run_id).status == "queued"  # the status update went with it
+    assert step_rows(factory, world.run_id) == []
+    with factory() as db:
+        assert store.finish_run(
+            db, world.run_id, expected=RunStatus.QUEUED, outcome=RunOutcome.NOT_ANSWERABLE,
+            reason=None, final=stopped_line(closing), now=NOW,
+            payload=na.ClosingPayload(not_answerable=why),
+        )  # fmt: skip
+    finished = run_row(factory, world.run_id)
+    (last,) = step_rows(factory, world.run_id)
+    assert finished.status == "finished" and last.key == "stopped"
+    assert last.payload is not None and last.payload["not_answerable"]["reason"] == (
+        "csv_missing_column"
+    )  # status, closing line and payload were committed together
 
 
 # ---- en and ko ----

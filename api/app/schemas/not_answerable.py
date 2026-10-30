@@ -17,6 +17,7 @@ from app.core.enums import NotAnswerableReason, SuggestionKind
 MAX_FACT_PAGES: Final = 8
 MAX_FACT_COLUMNS: Final = 8
 MAX_SUGGESTIONS: Final = 2
+MAX_ASKED_COLUMN_CHARS: Final = 80
 
 
 class NotAnswerableFacts(BaseModel):
@@ -34,6 +35,8 @@ class NotAnswerableFacts(BaseModel):
     year_min: int | None = None
     year_max: int | None = None
     asked_year: int | None = None
+    # A column name taken from the user's own question, never from model text (runs.not_answerable).
+    asked_column: str | None = Field(default=None, max_length=MAX_ASKED_COLUMN_CHARS)
 
     @model_serializer(mode="wrap")
     def _leave_out_empty(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:

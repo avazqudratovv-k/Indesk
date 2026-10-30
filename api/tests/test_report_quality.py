@@ -273,7 +273,8 @@ def test_a_contradictory_add_metrics_is_rejected(bad: dict[str, Any]) -> None:
 def test_add_metrics_naming_a_missing_or_text_column_fails_after_one_retry(
     factory: SessionFactory,
 ) -> None:
-    for bad in (["year", "no_such_column"], ["station", "riders"]):  # the 2nd is text
+    # A column the file lacks now ends not_answerable (test_not_answerable.py); a text column fails.
+    for bad in (["station", "riders"],):  # text
         world = make_world(factory)
         step = plan_answer(metric=None, add_metrics=bad)
         rig, client, _ = ask_rig(factory, world, step, step)

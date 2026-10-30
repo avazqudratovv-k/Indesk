@@ -28,6 +28,8 @@ const suggestions = [
 
 const csvPeriod: NotAnswerable = { reason: "csv_period", facts: { rowCount: 4079, columns: ["date", "station", "<i>riders</i>"], timeColumn: "date", yearMin: 2019, yearMax: 2025, askedYear: 2015 }, suggestions };
 const csvNoRows: NotAnswerable = { reason: "csv_no_rows", facts: { rowCount: 120, columns: ["a", "b"] }, suggestions: [] };
+const missing: NotAnswerable = { reason: "csv_missing_column", facts: { rowCount: 14, columns: ["station", "year", "riders"], askedColumn: "revenue total" }, suggestions: [] };
+const missingUnnamed: NotAnswerable = { reason: "csv_missing_column", facts: { rowCount: 14, columns: ["station", "year", "riders"] }, suggestions: [] };
 const pdfNoMatch: NotAnswerable = { reason: "pdf_no_match", facts: { pageCount: 12, pagesWithText: 10 }, suggestions: [{ text: "What is this document about?", kind: "pdf_about" }] };
 const pdfPassages: NotAnswerable = { reason: "pdf_not_in_passages", facts: { pageCount: 12, pagesWithText: 12, searchedPages: [3, 5, 9] }, suggestions: [] };
 const pdfRange: NotAnswerable = { reason: "pdf_page_range", facts: { pageCount: 4, askedPage: 9 }, suggestions: [{ text: "What is on page 2?", kind: "pdf_page" }] };
@@ -48,6 +50,13 @@ describe("Not answerable card, English", () => {
     expect(html).toContain("The file has 120 rows.");
     expect(html).toContain("120 rows, columns: a, b");
     expect(html).not.toContain("You could ask instead");
+  });
+
+  it("csv_missing_column names the column the question asked for and lists the real ones", () => {
+    const html = card(missing);
+    expect(html).toContain("The file has no &#x27;revenue total&#x27; column");
+    expect(html).toContain("Ask about one of the columns listed below.");
+    expect(html).toContain("14 rows, columns: station, year, riders");
   });
 
   it("pdf_no_match mentions the page count and the pages with text", () => {
@@ -112,6 +121,19 @@ describe("Not answerable card, Korean", () => {
     expect(passages).toContain("문서는 총 12쪽입니다.");
     expect(card(pdfRange, "ko")).toContain("이 파일은 4쪽까지만 있습니다");
     expect(card(pdfRange, "ko")).toContain("9쪽에 대해 물으셨습니다.");
+  });
+
+  it("csv_missing_column names the column in Korean", () => {
+    const html = card(missing, "ko");
+    expect(html).toContain("이 파일에는 &#x27;revenue total&#x27; 열이 없습니다");
+    expect(html).toContain("아래에 나온 열 중에서 골라 물어보세요.");
+  });
+
+  it("a Korean question on an English-only file ends with the generic Korean headline and the real columns", () => {
+    const html = card(missingUnnamed, "ko");
+    expect(html).toContain(ko.workspace.reasons.notAnswerable.head);
+    expect(html).toContain("14행, 열: station, year, riders");
+    expect(html).not.toContain("열이 없습니다");
   });
 
   it("uses no 은(는) style particle markers", () => {

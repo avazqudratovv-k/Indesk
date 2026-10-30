@@ -25,7 +25,7 @@ describe("parseNotAnswerable", () => {
   });
 
   it("accepts every known reason, empty facts and no suggestions", () => {
-    for (const reason of ["pdf_no_match", "pdf_not_in_passages", "pdf_page_range", "csv_period", "csv_no_rows"]) {
+    for (const reason of ["pdf_no_match", "pdf_not_in_passages", "pdf_page_range", "csv_period", "csv_no_rows", "csv_missing_column"]) {
       expect(parseNotAnswerable({ reason, facts: {}, suggestions: [] })).toEqual({ reason, facts: {}, suggestions: [] });
     }
     expect(parseNotAnswerable({ reason: "csv_no_rows", facts: { row_count: 3 } })?.suggestions).toEqual([]);
@@ -57,6 +57,14 @@ describe("parseNotAnswerable", () => {
     expect(parseNotAnswerable({ ...csvPeriod, facts: { columns: Array.from({ length: 9 }, (_, i) => `c${i}`) } })).toBeNull();
     expect(parseNotAnswerable({ reason: "pdf_not_in_passages", facts: { searched_pages: [1, 2, 3, 4, 5, 6, 7, 8, 9] } })).toBeNull();
     expect(parseNotAnswerable({ ...csvPeriod, suggestions: [...csvPeriod.suggestions, csvPeriod.suggestions[0]] })).toBeNull();
+  });
+
+  it("reads asked_column (at most 80 characters) for csv_missing_column", () => {
+    const base = { reason: "csv_missing_column", facts: { row_count: 14, columns: ["station"], asked_column: "revenue total" }, suggestions: [] };
+    expect(parseNotAnswerable(base)?.facts).toEqual({ rowCount: 14, columns: ["station"], askedColumn: "revenue total" });
+    expect(parseNotAnswerable({ ...base, facts: { asked_column: "c".repeat(80) } })?.facts.askedColumn).toHaveLength(80);
+    expect(parseNotAnswerable({ ...base, facts: { asked_column: "c".repeat(81) } })).toBeNull();
+    expect(parseNotAnswerable({ ...base, facts: { asked_column: 5 } })).toBeNull();
   });
 
   it("keeps markup as plain text and removes control and direction characters", () => {

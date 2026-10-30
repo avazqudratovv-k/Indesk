@@ -917,6 +917,10 @@
           "head": "No rows matched your question",
           "body": "The file has {rows, number} rows."
         },
+        "csv_missing_column": {
+          "head": "The file has no ''{column}'' column",
+          "body": "Ask about one of the columns listed below."
+        },
         "pdf_no_match": {
           "head": "No passage in this document matches",
           "body": "The document has {pages, plural, one {# page} other {# pages}}, but none of its text matches your question."

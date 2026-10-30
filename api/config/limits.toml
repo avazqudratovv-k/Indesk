@@ -170,6 +170,14 @@ retrieval_rrf_k = 60
 retrieval_min_similarity = 0.5
 retrieval_min_terms = 2
 
+# --- Missing column (Ask) ---
+
+# When Owl's plan, after its one retry, names a column the file does not have, the run ends not_answerable
+# (csv_missing_column) - unless that name is a near-miss of a real column (similarity at or above this, on names
+# of 4 or more characters; shorter names must match exactly after normalizing). A near-miss is a model slip, not a
+# missing column, so the run still fails as bad_model_output. Owner decision 2026-10-31.
+column_match_similarity = 0.85
+
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
 # POST /runs reads these. Ask takes ONE CSV in v1 (more is refused with TOO_MANY_FILES).
 [files_per_slot]

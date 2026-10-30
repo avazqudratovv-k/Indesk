@@ -6,6 +6,9 @@ profile it (a non-comma or unreadable CSV ends here as input_unusable, with no m
 cap slot), then ONE gateway call. A plan that names a column the file does not have is a bad plan:
 bad_model_output, retried once by the executor.
 
+On the second attempt, a named column the file really lacks (not a near-miss of a real one) ends
+the run not_answerable (csv_missing_column) instead of failed: Owl hands the flow a ClosingPayload.
+
 NOT VERIFIED against real Gemini: tested with the fake gateway only."""
 
 from collections.abc import Callable
@@ -24,8 +27,10 @@ from app.core.enums import (
 )
 from app.runs.agents import AgentContext, AgentDone, AgentFailed, AgentResult
 from app.runs.ask_schemas import OwlPayload, OwlPlan
+from app.runs.machine import MAX_ATTEMPTS
 from app.runs.mapping import failure_from_gateway
-from app.runs.profile import ProfileFailed, build_profile
+from app.runs.not_answerable import ClosingPayload, for_missing_column, is_near_miss
+from app.runs.profile import ProfileFailed, build_profile, time_span
 from app.runs.prompts import OWL_PROMPT_VERSION, build_owl_prompt, new_nonce
 from app.runs.trace import TraceLine
 
@@ -66,8 +71,19 @@ class OwlAgent:
             return failure_from_gateway(result)
         plan = result.parsed
         known = set(profile.column_names)
-        if not isinstance(plan, OwlPlan) or any(c not in known for c in plan.named_columns()):
+        if not isinstance(plan, OwlPlan):
             return AgentFailed(RunReason.BAD_MODEL_OUTPUT, retryable=True)
+        missing = [c for c in plan.named_columns() if c not in known]
+        if missing:
+            threshold = self._limits.column_match_similarity
+            slip = any(is_near_miss(c, profile.column_names, threshold) for c in missing)
+            if ctx.attempt < MAX_ATTEMPTS or slip:
+                return AgentFailed(RunReason.BAD_MODEL_OUTPUT, retryable=True)
+            # Asked twice and the file really lacks the column: say so instead of failing.
+            why = for_missing_column(
+                ctx.question, ctx.lang, missing, profile=profile, span=time_span(data, profile)
+            )
+            return AgentDone(data=ClosingPayload(not_answerable=why))
         numeric = {c.name for c in profile.columns if c.dtype in ("integer", "float")}
         if any(c not in numeric for c in plan.add_metrics):
             return AgentFailed(RunReason.BAD_MODEL_OUTPUT, retryable=True)

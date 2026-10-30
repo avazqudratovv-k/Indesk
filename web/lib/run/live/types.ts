@@ -29,7 +29,7 @@ export type LiveStep = {
   bubble: Bubble | null;
 };
 
-export const NA_REASONS = ["pdf_no_match", "pdf_not_in_passages", "pdf_page_range", "csv_period", "csv_no_rows"] as const;
+export const NA_REASONS = ["pdf_no_match", "pdf_not_in_passages", "pdf_page_range", "csv_period", "csv_no_rows", "csv_missing_column"] as const;
 export type NaReason = (typeof NA_REASONS)[number];
 
 export const NA_KINDS = ["csv_rank", "csv_trend", "pdf_about", "pdf_page"] as const;
@@ -48,6 +48,7 @@ export type NaFacts = {
   yearMin?: number;
   yearMax?: number;
   askedYear?: number;
+  askedColumn?: string;
 };
 export type NaSuggestion = { text: string; kind: NaKind };
 export type NotAnswerable = { reason: NaReason; facts: NaFacts; suggestions: NaSuggestion[] };

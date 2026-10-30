@@ -79,6 +79,9 @@ class Limits(BaseModel):
     retrieval_rrf_k: PositiveInt
     retrieval_min_similarity: float = Field(ge=0, le=1)
     retrieval_min_terms: PositiveInt
+    # Ask: a column the plan names that is not in the file counts as a near-miss of a real column
+    # (a typo, not a missing column) at or above this similarity.
+    column_match_similarity: float = Field(ge=0, le=1)
     # A chunk whose estimated tokens pass this is not embedded (it stays searchable by words).
     embed_chunk_max_tokens: PositiveInt = MAX_EMBED_CHUNK_TOKENS
 
