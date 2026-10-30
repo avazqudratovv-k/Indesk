@@ -8,6 +8,7 @@ from fastapi import Depends, Request
 from redis import Redis
 from sqlalchemy.orm import Session
 
+from app.core import ratelimit
 from app.core.config import Settings, get_settings
 from app.core.cookies import ACCESS_COOKIE
 from app.core.errors import AppError, ErrorCode
@@ -80,3 +81,27 @@ def current_user(request: Request, db: Db, secret: Secret) -> User:
 
 
 CurrentUser = Annotated[User, Depends(current_user)]
+
+
+def read_limit(user: CurrentUser, settings: AppSettings, redis: RedisDep) -> None:
+    """120 reads a minute per user, shared by the report and upload read routes. Runs after
+    authentication. Redis down: the read goes through (fail open)."""
+    ratelimit.hit(
+        redis,
+        f"rl:read:{user.id}",
+        settings.limits.reads_per_minute,
+        ratelimit.READ_WINDOW,
+        fail_open=True,
+    )
+
+
+def delete_limit(user: CurrentUser, settings: AppSettings, redis: RedisDep) -> None:
+    """30 deletes an hour per user, shared by the report and upload delete routes. Runs after
+    authentication. Redis down: refused (503, fail closed)."""
+    ratelimit.hit(
+        redis, f"rl:delete:{user.id}", settings.limits.deletes_per_hour, ratelimit.DELETE_WINDOW
+    )
+
+
+ReadLimit = Depends(read_limit)
+DeleteLimit = Depends(delete_limit)

@@ -5,7 +5,15 @@ from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile
 from app.core import clock, ratelimit
 from app.core.errors import AppError, ErrorCode
 from app.db.models import Upload as UploadRow
-from app.routers.deps import AppSettings, CurrentUser, Db, IpHash, RedisDep
+from app.routers.deps import (
+    AppSettings,
+    CurrentUser,
+    Db,
+    DeleteLimit,
+    IpHash,
+    ReadLimit,
+    RedisDep,
+)
 from app.schemas.users import Upload
 from app.services import uploads as service
 from app.storage import LocalDiskStorage, Storage
@@ -61,7 +69,7 @@ def _view(db: Db, settings: AppSettings, rows: list[UploadRow]) -> list[Upload]:
     ]
 
 
-@router.get("", response_model=list[Upload])
+@router.get("", response_model=list[Upload], dependencies=[ReadLimit])
 def list_uploads(
     db: Db,
     settings: AppSettings,
@@ -75,12 +83,12 @@ def list_uploads(
     return _view(db, settings, rows)
 
 
-@router.delete("/{upload_id}", status_code=204)
+@router.delete("/{upload_id}", status_code=204, dependencies=[DeleteLimit])
 def delete_upload(upload_id: str, db: Db, storage: StorageDep, user: CurrentUser) -> Response:
     service.delete_upload(db, storage, user, upload_id, clock.utcnow())
     return Response(status_code=204)
 
 
-@router.get("/{upload_id}", response_model=Upload)
+@router.get("/{upload_id}", response_model=Upload, dependencies=[ReadLimit])
 def get_upload(upload_id: str, db: Db, settings: AppSettings, user: CurrentUser) -> Upload:
     return _view(db, settings, [service.get_upload(db, user, upload_id, clock.utcnow())])[0]

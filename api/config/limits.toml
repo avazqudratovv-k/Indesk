@@ -190,6 +190,16 @@ purge_no_report_days = 30
 # ai_calls rows are deleted after this many days. usage_events, usage_daily and audit_log are never purged.
 ai_calls_retention_days = 90
 
+# --- Read and delete limits ---
+
+# GET /reports, /reports/{id}, /uploads and /uploads/{id} one user may make per minute, together (fixed window in
+# Redis). A flood guard. If Redis is down reads still work (fail open). Owner decision 2026-10-31.
+reads_per_minute = 120
+
+# DELETE /reports/{id} and /uploads/{id} one user may make per hour, together. If Redis is down deletes are refused
+# with 503 (fail closed). Owner decision 2026-10-31.
+deletes_per_hour = 30
+
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
 # POST /runs reads these. Ask takes ONE CSV in v1 (more is refused with TOO_MANY_FILES).
 [files_per_slot]
