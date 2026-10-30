@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
-import { useSession, useSessionActions } from "@/hooks/use-session";
+import { useLogout } from "@/hooks/use-logout";
+import { useSession } from "@/hooks/use-session";
+import AccountLink from "./AccountLink";
 import BrandMark from "./BrandMark";
 import LanguageSwitch from "./LanguageSwitch";
 import ThemeToggle from "./ThemeToggle";
@@ -17,37 +18,14 @@ export default function Navbar() {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const session = useSession();
-  const { endSession } = useSessionActions();
-  const router = useRouter();
+  // Logs out on the server first, then goes Home. If the server cannot be reached the session is still active, so say that.
+  const { state: logoutState, logout } = useLogout();
   const onAuthPage = pathname === "/login" || pathname === "/signup";
   const authHidden = onAuthPage ? styles.authPageHidden : "";
   const [tapped, setTapped] = useState(false);
   const tapTimer = useRef<number | undefined>(undefined);
-  const [logout, setLogout] = useState<"idle" | "busy" | "failed">("idle");
-  const failTimer = useRef<number | undefined>(undefined);
 
-  useEffect(
-    () => () => {
-      window.clearTimeout(tapTimer.current);
-      window.clearTimeout(failTimer.current);
-    },
-    [],
-  );
-
-  // Logs out on the server first. If the server cannot be reached the session is still active, so say that.
-  async function onLogout() {
-    if (logout === "busy") return;
-    setLogout("busy");
-    try {
-      await endSession();
-      setLogout("idle");
-      router.push("/");
-    } catch {
-      setLogout("failed");
-      window.clearTimeout(failTimer.current);
-      failTimer.current = window.setTimeout(() => setLogout("idle"), 4000);
-    }
-  }
+  useEffect(() => () => window.clearTimeout(tapTimer.current), []);
 
   // Tilts the mark for 600 ms on click or tap. The link still navigates; nothing is prevented.
   function tapBrand() {
@@ -96,9 +74,9 @@ export default function Navbar() {
             <span className={styles.live}>
               {session.status === "unknown" ? null : session.user ? (
                 <>
-                  <span className={`${styles.link} ${styles.who}`}>{session.user.display_name}</span>
-                  <button type="button" className={`${styles.link} ${styles.plainButton}`} onClick={onLogout} disabled={logout === "busy"} aria-live="polite">
-                    {logout === "busy" ? t("logoutBusy") : logout === "failed" ? t("logoutFailed") : t("logout")}
+                  <AccountLink name={session.user.display_name} />
+                  <button type="button" className={`${styles.link} ${styles.plainButton}`} onClick={logout} disabled={logoutState === "busy"} aria-live="polite">
+                    {logoutState === "busy" ? t("logoutBusy") : logoutState === "failed" ? t("logoutFailed") : t("logout")}
                   </button>
                 </>
               ) : (

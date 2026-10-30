@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import en from "@/messages/en.json";
 import ko from "@/messages/ko.json";
 import type { FileRow, ReportRow } from "@/lib/my/api";
@@ -9,6 +9,9 @@ import FilesSection from "./FilesSection";
 import ReportRowItem from "./ReportRowItem";
 import ReportsSection from "./ReportsSection";
 import MyView from "./MyView";
+
+// The page now holds the Log out button, which uses the router.
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => {} }) }));
 
 const id = "11111111-1111-4111-8111-111111111111";
 const now = Date.parse("2026-10-31T00:00:00Z");
@@ -67,7 +70,7 @@ describe("a file row", () => {
     const html = render("en", <FileRowItem row={file} now={now} onDeleted={() => {}} />);
     expect(html).toContain(">CSV<");
     expect(html).toContain("seoul.csv");
-    expect(html).toContain("1.8 MB");
+    expect(html).toContain("1.72 MB");
     expect(html).toContain("4,200 rows");
     expect(html).toContain("Deleted in 17 h");
     expect(html).toContain(">Delete<");

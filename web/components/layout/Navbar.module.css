@@ -126,12 +126,26 @@
   white-space: nowrap;
 }
 
-/* Signed-in name: plain text in the nav link style, desktop only, cut off with an ellipsis. */
+/* Signed-in name: in the nav link style, desktop only, cut off with an ellipsis. */
 .who {
   display: none;
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* The name is a link to My page: hover like the nav links, a 2 px focus ring, and a 44 px tap target. */
+.link.whoLink {
+  min-height: 44px;
+}
+
+.whoLink:hover {
+  color: var(--ink);
+}
+
+.whoLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .plainButton {

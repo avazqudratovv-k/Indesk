@@ -282,6 +282,120 @@
   align-self: flex-start;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accentInk);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.headerText {
+  min-width: 0;
+}
+
+.headerLine {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  color: var(--mute);
+  overflow-wrap: anywhere;
+}
+
+/* Phones: one column, the right column first (usage, account), then reports and files. Board: two columns from 760 px. */
+.columns {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.primary,
+.aside {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.primary {
+  gap: 24px;
+}
+
+.aside {
+  order: -1;
+  gap: 20px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.usageText {
+  margin: 0;
+  font: 500 24px/1.25 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.bar {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--track);
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--accent);
+}
+
+@media (min-width: 760px) {
+  .columns {
+    flex-flow: row wrap;
+    align-items: flex-start;
+    gap: 36px;
+  }
+
+  .primary {
+    flex: 2 1 560px;
+  }
+
+  .aside {
+    order: 0;
+    flex: 1 1 340px;
+  }
+}
+
 @media (max-width: 759.98px) {
   .main {
     padding: 22px 20px 0;

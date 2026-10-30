@@ -11,7 +11,8 @@
     "signup": "회원가입",
     "logout": "로그아웃",
     "logoutBusy": "로그아웃 중…",
-    "logoutFailed": "로그아웃하지 못했습니다. 다시 시도해 주세요."
+    "logoutFailed": "로그아웃하지 못했습니다. 다시 시도해 주세요.",
+    "accountLink": "{name}, 내 페이지 열기"
   },
   "tabBar": {
     "label": "메인",
@@ -1225,6 +1226,27 @@
     "retry": "다시 시도",
     "loadMore": "더 보기",
     "loadError": "목록을 불러오지 못했습니다.",
+    "plan": {
+      "free": "무료 플랜",
+      "pro": "Pro 플랜",
+      "payg": "종량제",
+      "custom": "맞춤 플랜",
+      "other": "내 플랜"
+    },
+    "header": {
+      "line": "{address} · {plan}"
+    },
+    "usage": {
+      "title": "이용 현황",
+      "left": "무료 실행 {total, number}회 중 {left, number}회 남음",
+      "barLabel": "남은 무료 실행",
+      "none": "남은 무료 실행이 없습니다. 보고서는 계속 볼 수 있습니다.",
+      "limits": "한도는 모든 사용자에게 같습니다: 파일당 {mb, number}MB, CSV {rows, number}행, PDF {pages, number}쪽, 하루 {runs, number}회 실행."
+    },
+    "account": {
+      "title": "계정",
+      "retention": "파일과 추출된 텍스트는 업로드 후 약 24시간이 지나면 삭제됩니다."
+    },
     "reports": {
       "title": "내 보고서",
       "private": "보고서는 본인만 열 수 있습니다.",

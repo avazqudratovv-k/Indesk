@@ -11,7 +11,8 @@
     "signup": "Sign up",
     "logout": "Log out",
     "logoutBusy": "Logging out…",
-    "logoutFailed": "Could not log out. Try again."
+    "logoutFailed": "Could not log out. Try again.",
+    "accountLink": "{name}, opens My page"
   },
   "tabBar": {
     "label": "Main",
@@ -1225,6 +1226,27 @@
     "retry": "Try again",
     "loadMore": "Load more",
     "loadError": "Could not load this list.",
+    "plan": {
+      "free": "Free plan",
+      "pro": "Pro plan",
+      "payg": "Pay as you go",
+      "custom": "Custom plan",
+      "other": "Your plan"
+    },
+    "header": {
+      "line": "{address} · {plan}"
+    },
+    "usage": {
+      "title": "Your usage",
+      "left": "{left, number} of {total, number} free runs left",
+      "barLabel": "Free runs left",
+      "none": "No free runs left. Your reports stay available.",
+      "limits": "Limits for everyone: {mb, number} MB per file, {rows, number} CSV rows, {pages, number} PDF pages, {runs, number} runs a day."
+    },
+    "account": {
+      "title": "Account",
+      "retention": "The file and its extracted text are deleted about 24 hours after upload."
+    },
     "reports": {
       "title": "Your reports",
       "private": "Only you can open your reports.",

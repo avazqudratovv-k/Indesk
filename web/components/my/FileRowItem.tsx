@@ -2,6 +2,7 @@
 
 import { useFormatter, useTranslations } from "next-intl";
 import { deleteFile, hoursLeft, type FileRow } from "@/lib/my/api";
+import { formatSize } from "@/lib/workspace/validate";
 import ConfirmDelete from "./ConfirmDelete";
 import styles from "./my.module.css";
 
@@ -13,23 +14,20 @@ const kindColor: Record<FileRow["kind"], string> = {
   txt: styles.kindText,
 };
 
-function sizeLabel(bytes: number, number: (n: number, o: { maximumFractionDigits: number }) => string): string {
-  if (bytes >= 1_000_000) return `${number(bytes / 1_000_000, { maximumFractionDigits: 1 })} MB`;
-  return `${number(Math.max(1, Math.round(bytes / 1000)), { maximumFractionDigits: 0 })} KB`;
-}
-
 export default function FileRowItem({ row, now, onDeleted }: { row: FileRow; now: number; onDeleted: (id: string) => void }) {
   const t = useTranslations("my.files");
   const format = useFormatter();
   const hours = row.deleted ? null : hoursLeft(row.expiresAt, now);
   const status = row.deleted ? t("deleted") : hours === null ? t("deletesSoon") : t("deletesIn", { hours });
+  // The workspace's formatter, so one file shows one size everywhere.
+  const size = formatSize(row.size);
   const count = row.pages !== null ? t("pages", { count: row.pages }) : row.rows !== null ? t("rows", { count: row.rows }) : null;
 
   return (
     <li className={`${styles.fileRow} ${row.deleted ? styles.fileGone : ""}`}>
       <span className={`${styles.kind} ${kindColor[row.kind]}`}>{row.kind.toUpperCase()}</span>
       <span className={styles.fileName}>{row.name}</span>
-      <span className={styles.fileFact}>{sizeLabel(row.size, (n, o) => format.number(n, o))}</span>
+      <span className={styles.fileFact}>{`${format.number(size.value)} ${size.unit}`}</span>
       {count ? <span className={styles.fileFact}>{count}</span> : null}
       <span className={`${styles.pill} ${row.deleted ? styles.pillGone : ""}`}>{status}</span>
       {row.deleted ? null : (
