@@ -271,7 +271,7 @@ def get_run(db: Session, user: User, raw_id: str) -> Run:
 def run_view(db: Session, run: Run) -> RunView:
     """The owner's view of a run the caller already owns (get_run / get_active_run checked it). A
     not_answerable run also carries why, read from its closing payload."""
-    view = RunView.model_validate(run)
+    view = RunView.model_validate(run).model_copy(update={"server_now": clock.utcnow()})
     if run.outcome != RunOutcome.NOT_ANSWERABLE:
         return view
     return view.model_copy(update={"not_answerable": not_answerable.read_for_run(db, run.id)})

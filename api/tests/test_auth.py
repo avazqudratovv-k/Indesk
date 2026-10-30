@@ -90,9 +90,11 @@ def test_cookies_are_secure_only_in_production(make_client: MakeClient) -> None:
     prod = Settings(
         app_env="production",
         auth_secret=TEST_AUTH_SECRET,
+        allowed_origins=["https://indesk.example"],
+        trusted_proxies=["10.0.0.0/8"],
         redis_url=Settings().redis_url.get_secret_value().rsplit("/", 1)[0] + "/15",
     )
-    response = signup(make_client(prod))
+    response = signup(make_client(prod, origin="https://indesk.example"))
     assert response.status_code == 201
     for line in cookie_headers(response).values():
         assert "Secure" in line

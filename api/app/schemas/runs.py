@@ -141,3 +141,6 @@ class RunView(ApiModel):
     report_id: Id | None
     # Additive: only for a not_answerable run (filled by the service from the closing payload).
     not_answerable: NotAnswerable | None = None
+    # Additive: the server clock (UTC) when the view was built, so the browser can work out its
+    # offset. Set by the service; never part of a list or a report.
+    server_now: AwareDatetime | None = None

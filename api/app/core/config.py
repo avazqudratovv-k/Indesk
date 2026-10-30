@@ -3,6 +3,7 @@ import tomllib
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Literal
+from urllib.parse import urlsplit
 
 from pydantic import (
     BaseModel,
@@ -123,6 +124,11 @@ def _split_commas(value: object) -> object:
     return value
 
 
+def _is_local_origin(origin: str) -> bool:
+    host = urlsplit(origin).hostname or ""
+    return host in ("localhost", "127.0.0.1")
+
+
 class Settings(BaseSettings):
     """Values come from environment variables only. Secrets are SecretStr, so they never print."""
 
@@ -164,6 +170,22 @@ class Settings(BaseSettings):
     def _production_needs_auth_secret(self) -> "Settings":
         if self.app_env == "production" and not self.auth_ready:
             raise ValueError("AUTH_SECRET must be set and at least 32 characters in production")
+        return self
+
+    @model_validator(mode="after")
+    def _production_is_safe_to_start(self) -> "Settings":
+        # Names only, never values: this text reaches the logs.
+        if self.app_env != "production":
+            return self
+        problems = []
+        if any(_is_local_origin(origin) for origin in self.allowed_origins):
+            problems.append("ALLOWED_ORIGINS must not contain localhost or 127.0.0.1")
+        if not self.trusted_proxies:
+            problems.append("TRUSTED_PROXIES must not be empty")
+        if not self.cookie_secure:
+            problems.append("cookies must be marked Secure")
+        if problems:
+            raise ValueError("unsafe production settings: " + "; ".join(problems))
         return self
 
     @field_validator("allowed_origins", "trusted_proxies", mode="before")

@@ -1,5 +1,7 @@
 """POST /api/runs and GET /api/runs/{id}: auth, ownership, validation, idempotency, limits."""
 
+from datetime import UTC, datetime, timedelta
+
 import uuid
 from collections.abc import Callable
 from pathlib import Path
@@ -447,6 +449,8 @@ def test_get_run_for_the_owner(alice: TestClient, db_connection: Connection) -> 
     assert response.status_code == 200
     data = response.json()
     assert set(data) == set(RunView.model_fields)
+    sent = datetime.fromisoformat(data["server_now"])
+    assert sent.utcoffset() == timedelta(0) and abs(datetime.now(UTC) - sent) < timedelta(minutes=1)
     for hidden in ("user_id", "cost_usd", "error", "payload", "model", "owner_id"):
         assert hidden not in data
     assert (data["id"], data["status"], data["outcome"], data["reason"], data["steps"]) == (

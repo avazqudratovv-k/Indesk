@@ -262,7 +262,9 @@ def test_too_many_streams_are_refused(
     world = my_run(client, factory)
     redis = Redis.from_url(settings.redis_url.get_secret_value())
     streams.acquire(redis, world.user_id, "another-tab", 1)
-    code(client.get(f"/api/runs/{world.run_id}/events"), 429, "TOO_MANY_STREAMS")
+    refused = client.get(f"/api/runs/{world.run_id}/events")
+    code(refused, 429, "TOO_MANY_STREAMS")
+    assert refused.headers["Retry-After"] == "5"
     streams.release(redis, world.user_id, "another-tab")
     finish(factory, world)
     assert client.get(f"/api/runs/{world.run_id}/events").status_code == 200
