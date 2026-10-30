@@ -36,3 +36,10 @@ describe("the mobile tab bar and the unbuilt pages", () => {
     expect(read("../../app/my/page.tsx")).toContain('if (!isBuilt("/my")) notFound();');
   });
 });
+
+describe("the shared report page", () => {
+  it("is not built: /s answers 404", () => {
+    expect(isBuilt("/s")).toBe(false);
+    expect(readFileSync(join(__dirname, "../../app/s/[token]/page.tsx"), "utf8")).toContain('if (!isBuilt("/s")) notFound();');
+  });
+});

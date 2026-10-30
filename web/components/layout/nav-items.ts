@@ -18,8 +18,12 @@ export function visibleNavItems(signedIn: boolean, items: NavItem[] = navItems):
   return items.filter((item) => item.built && (signedIn || !item.signedInOnly));
 }
 
-// A page that is not built answers 404 (used by app/people and app/my).
+// Pages that have no nav link but are not built either (the shared report view, ROADMAP later).
+const hiddenPages = ["/s"];
+
+// A page that is not built answers 404 (used by app/people, app/my and app/s).
 export function isBuilt(href: string, items: NavItem[] = navItems): boolean {
+  if (hiddenPages.includes(href)) return false;
   return items.find((item) => item.href === href)?.built ?? true;
 }
 

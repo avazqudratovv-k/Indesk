@@ -237,6 +237,11 @@
       "notFound": "찾을 수 없음"
     }
   },
+  "notFound": {
+    "title": "페이지를 찾을 수 없습니다",
+    "body": "이 페이지는 존재하지 않습니다.",
+    "home": "홈으로"
+  },
   "auth": {
     "tabsLabel": "계정",
     "tabSignup": "회원가입",

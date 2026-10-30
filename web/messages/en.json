@@ -237,6 +237,11 @@
       "notFound": "Not found"
     }
   },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page does not exist.",
+    "home": "Back to Home"
+  },
   "auth": {
     "tabsLabel": "Account",
     "tabSignup": "Sign up",
