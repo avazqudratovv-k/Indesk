@@ -76,7 +76,7 @@ class OwlAgent:
         missing = [c for c in plan.named_columns() if c not in known]
         if missing:
             threshold = self._limits.column_match_similarity
-            slip = any(is_near_miss(c, profile.column_names, threshold) for c in missing)
+            slip = all(is_near_miss(c, profile.column_names, threshold) for c in missing)
             if ctx.attempt < MAX_ATTEMPTS or slip:
                 return AgentFailed(RunReason.BAD_MODEL_OUTPUT, retryable=True)
             # Asked twice and the file really lacks the column: say so instead of failing.

@@ -221,6 +221,22 @@ def test_a_near_miss_of_a_real_column_still_fails_as_bad_model_output(
     assert (run.outcome, run.outcome_reason) == ("failed", "bad_model_output")
 
 
+def test_a_near_miss_and_a_true_miss_together_end_not_answerable(
+    factory: SessionFactory,
+) -> None:
+    question = "What was the revenue total per station?"
+    world = make_world(factory, question=question)
+    bad = plan_answer(columns=["Riders", "revenue_total"])  # a near-miss of riders, and no match
+    rig, client, _ = ask_rig(factory, world, bad, bad, csv=YEARLY)
+    run_job(world.run_id, rig.deps)
+    run = run_row(factory, world.run_id)
+    assert (run.outcome, run.outcome_reason, run.counted) == ("not_answerable", None, False)
+    assert len(client.calls) == 2
+    why = stored(factory, world.run_id)
+    assert why.reason is NotAnswerableReason.CSV_MISSING_COLUMN
+    assert why.facts.asked_column == "revenue total"  # this question does say it
+
+
 def test_a_missing_column_gives_back_no_daily_slot(
     factory: SessionFactory, monkeypatch: pytest.MonkeyPatch
 ) -> None:
