@@ -17,6 +17,7 @@ from pydantic import (
 
 from app.core.enums import ClaimOrigin, ClaimStatus, Confidence, ReportReason, RunOutcome
 from app.runs.numbers import QUANTITY_REASON
+from app.schemas.not_answerable import NotAnswerable
 from app.schemas.reports import EvidencePayload, ReportSummary
 
 MAX_CLAIMS: Final = 6
@@ -168,6 +169,9 @@ class CatPayload(BaseModel):
     quantity_dropped: int = 0
     quantity_demoted: int = 0
     quantity_reason: str | None = None
+    # Only when the run ends not_answerable: the closed reason code, facts from the file and the
+    # suggested questions (app.runs.not_answerable). Never model text.
+    not_answerable: NotAnswerable | None = None
 
 
 def payload_with_quantity(payload: CatPayload, draft: ReportDraft | None) -> CatPayload:

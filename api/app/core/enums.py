@@ -79,6 +79,23 @@ class RunOutcome(StrEnum):
     FAILED = "failed"
 
 
+class NotAnswerableReason(StrEnum):
+    """Why a run ended not_answerable: a closed list, the browser holds the text."""
+
+    PDF_NO_MATCH = "pdf_no_match"
+    PDF_NOT_IN_PASSAGES = "pdf_not_in_passages"
+    PDF_PAGE_RANGE = "pdf_page_range"
+    CSV_PERIOD = "csv_period"
+    CSV_NO_ROWS = "csv_no_rows"
+
+
+class SuggestionKind(StrEnum):
+    CSV_RANK = "csv_rank"
+    CSV_TREND = "csv_trend"
+    PDF_ABOUT = "pdf_about"
+    PDF_PAGE = "pdf_page"
+
+
 class FileRole(StrEnum):
     SUBJECT = "subject"
     SOURCE = "source"

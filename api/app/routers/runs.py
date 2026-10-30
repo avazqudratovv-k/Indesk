@@ -80,12 +80,12 @@ def get_active_run(db: Db, user: CurrentUser) -> RunView | Response:
     run = service.get_active_run(db, user)
     if run is None:
         return Response(status_code=204)
-    return RunView.model_validate(run)
+    return service.run_view(db, run)
 
 
 @router.get("/{run_id}", response_model=RunView)
 def get_run(run_id: str, db: Db, user: CurrentUser) -> RunView:
-    return RunView.model_validate(service.get_run(db, user, run_id))
+    return service.run_view(db, service.get_run(db, user, run_id))
 
 
 @router.get("/{run_id}/events", response_model=None)

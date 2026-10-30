@@ -34,6 +34,7 @@ from app.runs.cat_schemas import (
     payload_with_quantity,
 )
 from app.runs.mapping import failure_from_gateway
+from app.runs.not_answerable import for_pdf
 from app.runs.pdf_schemas import HoundResult
 from app.runs.prompts import PDF_WRITER_PROMPT_VERSION, build_pdf_writer_prompt, new_nonce
 from app.runs.trace import TraceLine
@@ -59,7 +60,10 @@ class CatPdfAgent:
         hound = self._hound
         if not hound.passages:
             ctx.emit(_line(StepState.RUNNING))
-            ctx.emit(_line(StepState.DONE, claims=0, verified=0), self._payload([]))
+            ctx.emit(
+                _line(StepState.DONE, claims=0, verified=0),
+                self._not_answerable(ctx, found_nothing=False),
+            )
             return AgentDone(data=CatResult(outcome=RunOutcome.NOT_ANSWERABLE, report=None))
         if not ctx.gateway.is_configured():
             return AgentFailed(RunReason.MODEL_UNAVAILABLE)
@@ -80,7 +84,10 @@ class CatPdfAgent:
             return AgentFailed(RunReason.BAD_MODEL_OUTPUT)
         tokens = asked.tokens_in + asked.tokens_out
         if not asked.parsed.found or not asked.parsed.claim_texts:  # does not answer: no report
-            ctx.emit(_line(StepState.DONE, tok=tokens, claims=0, verified=0), self._payload([]))
+            ctx.emit(
+                _line(StepState.DONE, tok=tokens, claims=0, verified=0),
+                self._not_answerable(ctx, found_nothing=True),
+            )  # the writer's answer, title and meaning are not read
             return AgentDone(
                 asked.tokens_in, asked.tokens_out, asked.model,
                 data=CatResult(outcome=RunOutcome.NOT_ANSWERABLE, report=None),
@@ -107,6 +114,20 @@ class CatPdfAgent:
             asked.tokens_in, asked.tokens_out, asked.model,
             data=CatResult(outcome=outcome, report=draft),
         )  # fmt: skip
+
+    def _not_answerable(self, ctx: AgentContext, *, found_nothing: bool) -> CatPayload:
+        with_text: int | None = None
+        if ctx.session_factory is not None:
+            with ctx.session_factory() as db:
+                pages = retrieval.load_pages(db, ctx.run_id, ctx.user_id, self._hound.upload_id)
+            if pages:
+                floor = self._limits.pdf_min_page_chars
+                with_text = sum(1 for text in pages.values() if len(text.strip()) >= floor)
+        why = for_pdf(
+            ctx.question, ctx.lang, self._hound, pages_with_text=with_text,
+            writer_found_nothing=found_nothing,
+        )  # fmt: skip
+        return self._payload([]).model_copy(update={"not_answerable": why})
 
     @staticmethod
     def _payload(records: list[VerdictRecord], draft: ReportDraft | None = None) -> CatPayload:

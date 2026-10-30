@@ -25,15 +25,16 @@ from app.core.enums import (
     Moderation,
     Plan,
     RunMode,
+    RunOutcome,
     RunStatus,
     UploadMime,
     UploadStatus,
 )
 from app.core.errors import AppError, ErrorCode
 from app.db.models import AuditLog, Run, RunFile, Upload, User
-from app.runs import quota, store
+from app.runs import not_answerable, quota, store
 from app.runs.lang import detect_lang
-from app.schemas.runs import RunCreate
+from app.schemas.runs import RunCreate, RunView
 
 IDEMPOTENCY_TTL = 24 * 60 * 60
 ACTIVE_INDEX: Final = "uq_runs_user_id_active"
@@ -265,6 +266,15 @@ def get_run(db: Session, user: User, raw_id: str) -> Run:
     if run is None:
         raise not_found
     return run
+
+
+def run_view(db: Session, run: Run) -> RunView:
+    """The owner's view of a run the caller already owns (get_run / get_active_run checked it). A
+    not_answerable run also carries why, read from its closing payload."""
+    view = RunView.model_validate(run)
+    if run.outcome != RunOutcome.NOT_ANSWERABLE:
+        return view
+    return view.model_copy(update={"not_answerable": not_answerable.read_for_run(db, run.id)})
 
 
 def get_active_run(db: Session, user: User) -> Run | None:

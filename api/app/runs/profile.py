@@ -136,3 +136,50 @@ def build_profile(csv_bytes: bytes, limits: Limits) -> CsvProfile | ProfileFaile
         for name, found in zip(names, kinds, strict=True)
     ]
     return CsvProfile(row_count=rows, columns=columns, sample_rows=sample)
+
+
+YEAR_NAMES: Final = frozenset({"year", "yr", "연도", "년도", "기준연도", "연"})
+_YEAR_FROM, _YEAR_TO = 1900, 2100
+
+
+@dataclass(frozen=True)
+class TimeSpan:
+    column: str
+    year_min: int
+    year_max: int
+
+
+def time_span(csv_bytes: bytes, profile: CsvProfile) -> TimeSpan | None:
+    """The first and last year of the file's ONE time column, or None when there is no such column
+    or it is not clear: a date column, or an integer column named like a year, with every value
+    between 1900 and 2100. Two candidates, a stray value or an unreadable file give None (a fact
+    that cannot be computed with confidence is left out). Stdlib only, over the whole file."""
+    candidates = [
+        index
+        for index, column in enumerate(profile.columns)
+        if column.dtype == "date"
+        or (column.dtype == "integer" and column.name.strip().casefold() in YEAR_NAMES)
+    ]
+    if len(candidates) != 1:
+        return None
+    index = candidates[0]
+    column = profile.columns[index]
+    first: int | None = None
+    last: int | None = None
+    try:
+        reader = csv.reader(io.StringIO(decode_to_text(csv_bytes)))
+        next(reader, None)
+        for row in reader:
+            if index >= len(row) or not row[index].strip():
+                continue
+            cell = row[index].strip()
+            year = int(cell[:4]) if column.dtype == "date" else int(cell)
+            if not _YEAR_FROM <= year <= _YEAR_TO:
+                return None
+            first = year if first is None else min(first, year)
+            last = year if last is None else max(last, year)
+    except (AppError, csv.Error, UnicodeError, ValueError):
+        return None
+    if first is None or last is None:
+        return None
+    return TimeSpan(column.name, first, last)
