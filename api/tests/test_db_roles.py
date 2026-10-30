@@ -242,3 +242,43 @@ def test_a_missing_extension_stops_the_migration_with_a_clear_message(database_u
         with admin.connect() as conn:
             conn.execute(text('DROP DATABASE IF EXISTS "indesk_test_migrations" WITH (FORCE)'))
         admin.dispose()
+
+
+# ---- DELETE /reports/{id}: the app role can delete a run and the foreign keys cascade ----
+
+
+def test_the_app_role_can_delete_a_run_and_the_cascade_follows(app_engine: Engine) -> None:
+    from sqlalchemy.orm import Session  # noqa: PLC0415
+
+    from tests.factories import (  # noqa: PLC0415
+        make_claim,
+        make_evidence,
+        make_report,
+        make_run,
+        make_run_file,
+        make_step,
+        make_upload,
+    )
+
+    children = ("reports", "claims", "evidence", "agent_steps", "run_files")
+    with Session(app_engine) as db:
+        user = make_user(db)
+        run = make_run(db, user, status="finished", outcome="answered")
+        make_run_file(db, run, make_upload(db, user))
+        make_evidence(db, run, make_step(db, run))
+        make_claim(db, make_report(db, run))
+        user_id, run_id = user.id, run.id
+        db.commit()
+    try:
+        with app_engine.begin() as conn:
+            conn.execute(text("DELETE FROM runs WHERE id = :r"), {"r": run_id})
+        with app_engine.connect() as conn:
+            for table in children:
+                left = conn.execute(
+                    text(f"SELECT count(*) FROM {table} WHERE owner_id = :u"),  # noqa: S608
+                    {"u": user_id},
+                ).scalar()
+                assert left == 0, table
+    finally:
+        with app_engine.begin() as conn:
+            conn.execute(text("DELETE FROM users WHERE id = :u"), {"u": user_id})

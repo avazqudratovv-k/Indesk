@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import BinaryIO
 
-from sqlalchemy import delete, exists, func, select
+from sqlalchemy import and_, delete, exists, func, or_, select
 from sqlalchemy.orm import Session
 
 from app import sandbox_client
@@ -265,12 +265,18 @@ def delete_document_text(db: Session, upload_ids: list[uuid.UUID] | None = None)
     return removed
 
 
-def list_uploads(db: Session, user: User, now: datetime) -> list[Upload]:
-    """The caller's own live uploads, newest first."""
+def list_uploads(
+    db: Session, user: User, now: datetime, *, limit: int = 50, include_deleted: bool = False
+) -> list[Upload]:
+    """The caller's own live uploads, newest first. With `include_deleted`, the rows already marked
+    deleted are listed too (an expired file not yet swept stays hidden)."""
+    live = and_(Upload.deleted_at.is_(None), Upload.expires_at > now)
+    visible = or_(live, Upload.deleted_at.is_not(None)) if include_deleted else live
     stmt = (
         select(Upload)
-        .where(Upload.user_id == user.id, Upload.deleted_at.is_(None), Upload.expires_at > now)
+        .where(Upload.user_id == user.id, visible)
         .order_by(Upload.created_at.desc(), Upload.id.desc())
+        .limit(limit)
     )
     return list(db.scalars(stmt))
 

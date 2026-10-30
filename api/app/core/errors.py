@@ -52,6 +52,8 @@ class ErrorCode(StrEnum):
     TOO_MANY_STREAMS = "TOO_MANY_STREAMS"
     TOO_MANY_FILES = "TOO_MANY_FILES"  # Ask takes one CSV in v1
     UPLOAD_IN_USE = "UPLOAD_IN_USE"  # an active run still uses the file
+    # Reports.
+    RUN_IN_PROGRESS = "RUN_IN_PROGRESS"  # DELETE /reports/{id}: the run is still active
 
 
 _CODES = {

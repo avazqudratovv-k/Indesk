@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile
 
 from app.core import clock, ratelimit
 from app.core.errors import AppError, ErrorCode
@@ -62,8 +62,17 @@ def _view(db: Db, settings: AppSettings, rows: list[UploadRow]) -> list[Upload]:
 
 
 @router.get("", response_model=list[Upload])
-def list_uploads(db: Db, settings: AppSettings, user: CurrentUser) -> list[Upload]:
-    return _view(db, settings, service.list_uploads(db, user, clock.utcnow()))
+def list_uploads(
+    db: Db,
+    settings: AppSettings,
+    user: CurrentUser,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    include_deleted: bool = False,
+) -> list[Upload]:
+    rows = service.list_uploads(
+        db, user, clock.utcnow(), limit=limit, include_deleted=include_deleted
+    )
+    return _view(db, settings, rows)
 
 
 @router.delete("/{upload_id}", status_code=204)

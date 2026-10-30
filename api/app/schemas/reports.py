@@ -4,6 +4,8 @@ Optional keys stay absent when unset, so serialize with exclude_unset=True to ge
 shape back.
 """
 
+from typing import Literal
+
 from pydantic import AwareDatetime, Field
 
 from app.core.enums import (
@@ -17,6 +19,7 @@ from app.core.enums import (
     ReportTemplate,
     ReportTypeface,
     RunMode,
+    RunOutcome,
     TextSize,
 )
 from app.schemas.common import ApiModel, Id
@@ -209,3 +212,26 @@ class ReportDetail(ApiModel):
     report: Report
     claims: list[Claim] = Field(default_factory=list)
     evidence: list[Evidence] = Field(default_factory=list)
+
+
+class ReportListItem(ApiModel):
+    """One row of GET /api/reports. Metadata only: no summary, claims, evidence or any text the
+    model wrote."""
+
+    id: Id
+    title: str
+    created_at: AwareDatetime
+    expires_at: AwareDatetime
+    verified_count: int
+    total_claims: int
+    outcome: RunOutcome
+    language: Lang
+    file_kind: Literal["csv", "pdf"] | None  # pdf if any file of the run is a PDF
+    file_count: int
+
+
+class ReportPage(ApiModel):
+    """GET /api/reports: newest first. `next_cursor` is opaque; null on the last page."""
+
+    items: list[ReportListItem]
+    next_cursor: str | None
