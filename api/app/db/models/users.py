@@ -56,6 +56,8 @@ class RefreshToken(Base):
     replaced_by: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("refresh_tokens.id", ondelete="SET NULL")
     )
+    # Login time of this chain; rotated tokens copy it. NULL = a row from before migration 0006.
+    session_started_at: Mapped[Timestamp | None]
     expires_at: Mapped[Timestamp]
     revoked_at: Mapped[Timestamp | None]
     created_at: Mapped[created_at_col]

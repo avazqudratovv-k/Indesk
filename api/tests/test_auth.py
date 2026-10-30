@@ -83,7 +83,7 @@ def test_signup_creates_user_and_sets_cookies(auth_client: TestClient) -> None:
     assert "Path=/;" in access
     assert "Max-Age=900" in access
     assert "Path=/api/auth" in refresh
-    assert "Max-Age=2592000" in refresh
+    assert "Max-Age=21600" in refresh
 
 
 def test_cookies_are_secure_only_in_production(make_client: MakeClient) -> None:
@@ -270,14 +270,14 @@ def test_refresh_without_cookie_or_with_garbage_is_401(auth_client: TestClient) 
     assert garbage.status_code == 401
 
 
-def test_refresh_token_expires_after_30_days(
+def test_refresh_token_expires_after_6_hours(
     auth_client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     signup(auth_client)
     real_now = clock.utcnow()
-    monkeypatch.setattr(clock, "utcnow", lambda: real_now + timedelta(days=29))
+    monkeypatch.setattr(clock, "utcnow", lambda: real_now + timedelta(hours=5, minutes=59))
     assert auth_client.post("/api/auth/refresh").status_code == 204
-    monkeypatch.setattr(clock, "utcnow", lambda: real_now + timedelta(days=29) + timedelta(days=31))
+    monkeypatch.setattr(clock, "utcnow", lambda: real_now + timedelta(hours=6, minutes=1))
     assert auth_client.post("/api/auth/refresh").status_code == 401
 
 

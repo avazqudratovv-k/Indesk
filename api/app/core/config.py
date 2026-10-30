@@ -123,6 +123,8 @@ class Settings(BaseSettings):
     postgres_password: SecretStr | None = None
     auth_secret: SecretStr | None = None
     gemini_api_key: SecretStr | None = None
+    # Absolute session length from login (SESSION_MAX_SECONDS); a refresh never extends past it.
+    session_max_seconds: PositiveInt = 21600
     # Comma-separated in the environment. Origins that may send a write request (CSRF check).
     allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:3000"]
     # Comma-separated IPs or CIDRs of reverse proxies whose X-Forwarded-For is believed.
