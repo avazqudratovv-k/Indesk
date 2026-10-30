@@ -13,7 +13,7 @@ from app.runs.executor import run_job
 from tests.ai_helpers import factory_for
 from tests.fake_model_client import server_error
 from tests.pdf_run_helpers import GOOD_QUOTE, PAGES, make_pdf_world, pdf_rig, writer_answer
-from tests.runs_helpers import run_row, step_rows
+from tests.runs_helpers import World, run_row, step_rows
 
 
 @pytest.fixture
@@ -145,13 +145,32 @@ def test_a_normal_document_has_no_such_line(factory: SessionFactory) -> None:
     assert "keywordOnlySize" not in keys(factory, world.run_id)
 
 
-def test_dense_korean_of_90000_characters_goes_keyword_only_but_english_fits(
+HANGUL = "가나다라마바사아자차"
+
+
+def _add_korean_chunks(factory: SessionFactory, world: World, count: int) -> list[str]:
+    """`count` whole 1,000-character Hangul chunks stored directly (no PDF, no chunker) beside the
+    world's own chunks. Returns the text of every chunk of the upload."""
+    with factory() as db, db.begin():
+        db.add_all(
+            Chunk(
+                upload_id=world.upload_ids[0], owner_id=world.user_id, page=1, ord=1000 + n,
+                char_start=0, char_end=1000, text=chr(0xAC00 + n) + HANGUL * 99 + HANGUL[:9],
+            )  # fmt: skip
+            for n in range(count)
+        )
+    with factory() as db:
+        return [c.text for c in db.scalars(select(Chunk).order_by(Chunk.ord))]
+
+
+def test_dense_korean_just_over_250000_tokens_goes_keyword_only_but_english_fits(
     factory: SessionFactory,
 ) -> None:
-    """With the real 100,000 budget: 90,000 Hangul characters (plus overlap) estimate to about
-    119,000 tokens, the same size of English to about 40,000."""
-    korean = ["가나다라마 바사아자차 " * 1500] * 6  # 6 pages of 15,000 characters
-    world = make_pdf_world(factory, korean)
+    """With the real 250,000 budget: dense Hangul chunks that estimate to just over 250,000 tokens
+    (the same size of English is about 85,000) are searched by keywords only."""
+    world = make_pdf_world(factory, PAGES)
+    texts = _add_korean_chunks(factory, world, 218)
+    assert estimate_embed_tokens(texts) > 250_000
     rig, client = pdf_rig(factory, world, writer_answer([GOOD_QUOTE], [2]))
     run_job(world.run_id, rig.deps)
     assert client.embed_calls == []
@@ -163,3 +182,36 @@ def test_dense_korean_of_90000_characters_goes_keyword_only_but_english_fits(
     run_job(world.run_id, rig.deps)
     assert client.embed_calls != []
     assert "keywordOnlySize" not in keys(factory, world.run_id)
+
+
+def test_a_150000_character_korean_pdf_is_embedded_not_keyword_only(
+    factory: SessionFactory,
+) -> None:
+    """The largest accepted PDF, dense Korean, chunked as the upload route chunks it (1,000
+    characters, 150 overlap): about 176,000 characters of chunks, about 203,000 tokens."""
+    pages = ["가나다라마바사아자차" * 1500] * 10  # 10 pages of 15,000 characters
+    assert sum(len(p) for p in pages) == 150_000
+    world = make_pdf_world(factory, pages)
+    with factory() as db:
+        texts = [c.text for c in db.scalars(select(Chunk).order_by(Chunk.ord))]
+    assert 200_000 < estimate_embed_tokens(texts) <= 250_000
+    rig, client = pdf_rig(factory, world, writer_answer([GOOD_QUOTE], [2]))
+    run_job(world.run_id, rig.deps)
+    assert client.embed_calls != []
+    assert "keywordOnlySize" not in keys(factory, world.run_id)
+    with factory() as db:
+        assert all(c.embedding is not None for c in db.scalars(select(Chunk)))
+
+
+def test_chunks_just_over_the_embedding_budget_fall_back_with_document_size(
+    factory: SessionFactory,
+) -> None:
+    world = make_pdf_world(factory, PAGES)
+    texts = _add_korean_chunks(factory, world, 218)
+    total = estimate_embed_tokens(texts)
+    assert 250_000 < total <= 250_000 + 2_000  # just over
+    rig, client = pdf_rig(factory, world, writer_answer([GOOD_QUOTE], [2]))
+    run_job(world.run_id, rig.deps)
+    assert client.embed_calls == []
+    note = [s for s in step_rows(factory, world.run_id) if s.key == "keywordOnlySize"]
+    assert [s.args for s in note] == [{"reason": "document_size"}]

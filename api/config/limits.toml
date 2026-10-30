@@ -151,7 +151,7 @@ embed_chunk_max_tokens = 6000
 # Embedding tokens (document chunks + question) one run may use, on top of max_tokens_per_run (embedding tokens are NOT
 # counted there). A PDF whose chunks need more than this is searched by keywords only. Owner-approved proposal for P14a;
 # about 40,000 tokens for a 30-page English PDF, up to the whole 100,000 for dense Korean. Tune in P14b from real numbers.
-max_embed_tokens_per_run = 100000
+max_embed_tokens_per_run = 250000
 
 # Price of embedding input in USD per 1M tokens, used for the cost estimate in ai_calls.est_cost_usd.
 # FROM GOOGLE'S PRICE PAGE, NOT MEASURED. The owner re-checks it in P14b.
