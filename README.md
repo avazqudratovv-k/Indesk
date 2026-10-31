@@ -5,7 +5,7 @@ Upload a CSV or a PDF, ask a question, and get an answer made of checked claims 
 ## Live demo
 - Site: https://indesk.76-13-198-17.sslip.io
 - Sample report: `/reports/example` (the cached example, built from the public Seoul subway data; it costs no AI calls).
-- TODO: the live site is at commit 12a069a; the PDF Ask, My page and the other later work are committed but not deployed yet (see `docs/ai/STATE.md`).
+- Live demo: https://indesk.76-13-198-17.sslip.io (deployed 2026-10-31; moving to indesk.uz).
 
 ## Stack
 - `web/`: Next.js (App Router), TypeScript, CSS Modules, next-intl (English and Korean)
@@ -34,6 +34,7 @@ Upload a CSV or a PDF, ask a question, and get an answer made of checked claims 
 - Check a document and Compare are not built; they say "Not available yet".
 - A free account gets 3 runs in total, not per month.
 - Cat marks a claim it cannot verify as unverified instead of claiming proof. A claim is shown as verified only when the code checked it against the file.
+- No self-service account deletion yet.
 
 ## Run locally
 Python runs only in Docker. Secrets go in `api/.env` (ignored by git; names are in `api/.env.example`).
