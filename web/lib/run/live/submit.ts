@@ -3,7 +3,7 @@ import type { CreateRunBody } from "./api";
 import type { UploadedFile } from "./types";
 
 export type SubmitFile = { id: string; file: File };
-export type FileStatus = { state: "waiting" | "uploading" | "ready" | "error"; code?: ApiErrorCode; expiresAt?: number };
+export type FileStatus = { state: "waiting" | "uploading" | "ready" | "error"; code?: ApiErrorCode; expiresAt?: number; pagesWithoutText?: number };
 
 export type SubmitDeps = {
   upload: (file: File) => Promise<UploadedFile>;
@@ -62,7 +62,7 @@ export async function submitRun(input: SubmitInput, deps: SubmitDeps): Promise<{
   for (const item of files) {
     const known = uploaded.get(item.id);
     if (known && known.expiresAt - deps.now() > EXPIRY_MARGIN_MS) {
-      input.onStatus(item.id, { state: "ready", expiresAt: known.expiresAt });
+      input.onStatus(item.id, { state: "ready", expiresAt: known.expiresAt, pagesWithoutText: known.pagesWithoutText });
       done += 1;
       input.onProgress(done, files.length);
       continue;
@@ -75,7 +75,7 @@ export async function submitRun(input: SubmitInput, deps: SubmitDeps): Promise<{
       input.onStatus(item.id, { state: "error", code: failure.code });
       throw failure;
     }
-    input.onStatus(item.id, { state: "ready", expiresAt: uploaded.get(item.id)?.expiresAt });
+    input.onStatus(item.id, { state: "ready", expiresAt: uploaded.get(item.id)?.expiresAt, pagesWithoutText: uploaded.get(item.id)?.pagesWithoutText });
     done += 1;
     input.onProgress(done, files.length);
   }

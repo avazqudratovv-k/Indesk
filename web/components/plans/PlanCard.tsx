@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
-import type { PlanOffer } from "@/lib/types";
+import type { DemoLimits, PlanOffer } from "@/lib/types";
 import Check from "./Check";
 import { usePlanMoney } from "./use-plan-money";
 import styles from "./PlanCard.module.css";
 
 type PlanCardProps = {
   offer: PlanOffer;
+  // The demo has one set of limits for everyone, so every card lists the same three.
+  limits: DemoLimits;
   signedIn: boolean;
   current: boolean;
   onChoose: (trigger: HTMLElement) => void;
@@ -17,15 +19,16 @@ type PlanCardProps = {
 const runsKey = { free: "features.runsFree", pro: "features.runsPro", payg: "features.runsPayg" } as const;
 
 // One of the three plan cards. Free is never bought; Pro and Pay as you go open the demo checkout (visitors go to Log in first).
-export default function PlanCard({ offer, signedIn, current, onChoose }: PlanCardProps) {
+export default function PlanCard({ offer, limits, signedIn, current, onChoose }: PlanCardProps) {
   const t = useTranslations("plans");
   const format = useFormatter();
   const { money } = usePlanMoney();
   const { plan } = offer;
   const features = [
     t(runsKey[plan], { runs: offer.runs }),
-    t("features.fileSize", { mb: offer.max_file_mb }),
-    t("features.csvRows", { rows: offer.csv_rows }),
+    t("features.fileSize", { mb: limits.max_file_mb }),
+    t("features.csvRows", { rows: limits.csv_rows }),
+    t("features.pdfPages", { pages: limits.pdf_pages }),
   ];
   const label = current ? t("currentPlan") : t(`cta.${plan}`, { runs: format.number(offer.runs) });
   const headingId = `plan-${plan}`;

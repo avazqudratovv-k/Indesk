@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import BinaryIO
 
-from sqlalchemy import delete, exists, select
+from sqlalchemy import and_, delete, exists, func, or_, select
 from sqlalchemy.orm import Session
 
 from app import sandbox_client
@@ -227,6 +227,27 @@ def create_pdf_upload(
     return upload
 
 
+def pages_without_text(
+    db: Session, uploads: list[Upload], limits: Limits
+) -> dict[uuid.UUID, int | None]:
+    """For each PDF upload: how many stored pages hold fewer than `pdf_min_page_chars` characters
+    (a scanned page), the same line the upload policy draws. None for a CSV, or a PDF whose page
+    text is gone. Computed from document_pages: nothing is stored for it."""
+    ids = [u.id for u in uploads if u.mime == UploadMime.PDF]
+    counts: dict[uuid.UUID, int | None] = {u.id: None for u in uploads}
+    if not ids:
+        return counts
+    short = func.length(func.btrim(DocumentPage.text, " \n\t\r")) < limits.pdf_min_page_chars
+    rows = db.execute(
+        select(DocumentPage.upload_id, func.count(), func.count().filter(short))
+        .where(DocumentPage.upload_id.in_(ids))
+        .group_by(DocumentPage.upload_id)
+    ).all()
+    for upload_id, _total, without in rows:
+        counts[upload_id] = int(without)
+    return counts
+
+
 def delete_document_text(db: Session, upload_ids: list[uuid.UUID] | None = None) -> int:
     """Delete the page texts and chunks (and so the vectors) of these uploads, or of every upload
     that is already marked deleted. Returns the chunks removed. The upload row is not touched."""
@@ -244,12 +265,18 @@ def delete_document_text(db: Session, upload_ids: list[uuid.UUID] | None = None)
     return removed
 
 
-def list_uploads(db: Session, user: User, now: datetime) -> list[Upload]:
-    """The caller's own live uploads, newest first."""
+def list_uploads(
+    db: Session, user: User, now: datetime, *, limit: int = 50, include_deleted: bool = False
+) -> list[Upload]:
+    """The caller's own live uploads, newest first. With `include_deleted`, the rows already marked
+    deleted are listed too (an expired file not yet swept stays hidden)."""
+    live = and_(Upload.deleted_at.is_(None), Upload.expires_at > now)
+    visible = or_(live, Upload.deleted_at.is_not(None)) if include_deleted else live
     stmt = (
         select(Upload)
-        .where(Upload.user_id == user.id, Upload.deleted_at.is_(None), Upload.expires_at > now)
+        .where(Upload.user_id == user.id, visible)
         .order_by(Upload.created_at.desc(), Upload.id.desc())
+        .limit(limit)
     )
     return list(db.scalars(stmt))
 

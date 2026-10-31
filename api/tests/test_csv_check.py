@@ -1,4 +1,6 @@
+import csv
 import io
+from typing import Any
 
 import pytest
 
@@ -247,3 +249,67 @@ def test_a_cp949_header_is_decoded_like_the_full_parse() -> None:
 
 def test_an_empty_stream_is_left_to_the_empty_file_check() -> None:
     assert csv_check.read_header(io.BytesIO(b""), LIMITS) == b""
+
+
+# ---- non-comma files are stored comma-separated ----
+
+
+def test_comma_file_is_stored_byte_identical() -> None:
+    raw = b'a,b\n1,"x, y"\n2,z\n'
+    assert csv_check.check_csv(raw, LIMITS).utf8_bytes == raw
+
+
+def test_semicolon_file_is_stored_with_commas() -> None:
+    checked = csv_check.check_csv(b"a;b;c\n1;2;3\n4;5;6\n", LIMITS)
+    assert checked.utf8_bytes == b"a,b,c\n1,2,3\n4,5,6\n"
+    assert (checked.row_count, checked.column_count) == (2, 3)
+
+
+def test_tab_file_is_stored_with_commas() -> None:
+    checked = csv_check.check_csv(b"a\tb\n1\t2\n", LIMITS)
+    assert checked.utf8_bytes == b"a,b\n1,2\n"
+    assert (checked.row_count, checked.column_count) == (1, 2)
+
+
+def test_field_holding_the_delimiter_or_a_comma_survives() -> None:
+    checked = csv_check.check_csv(b'a;b\n"x;y";"p,q"\n', LIMITS)
+    assert checked.utf8_bytes == b'a,b\nx;y,"p,q"\n'
+    again = list(csv.reader(io.StringIO(checked.utf8_bytes.decode())))
+    assert again == [["a", "b"], ["x;y", "p,q"]]
+
+
+def test_korean_header_and_bom_and_cp949_convert_to_plain_utf8() -> None:
+    text = "역명;승차인원\n합정;100\n"
+    expected = "역명,승차인원\n합정,100\n".encode()
+    for raw in (text.encode(), b"\xef\xbb\xbf" + text.encode(), text.encode("cp949")):
+        checked = csv_check.check_csv(raw, LIMITS)
+        assert checked.utf8_bytes == expected  # UTF-8, no BOM, as for a comma file
+        assert (checked.row_count, checked.column_count) == (1, 2)
+
+
+def test_a_file_that_cannot_be_rewritten_safely_is_refused(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(csv, "writer", lambda *a, **k: _BrokenWriter())
+    error = refused(csv_check.check_csv, b"a;b\n1;2\n", LIMITS)
+    assert (error.status, error.code) == (422, ErrorCode.BAD_CSV)
+
+
+def test_a_rewrite_that_changes_the_rows_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    real = csv.writer
+
+    def lossy(out: Any, **kwargs: Any) -> Any:
+        class Drop:
+            def writerows(self, rows: Any) -> None:
+                real(out, **kwargs).writerows(list(rows)[:-1])
+
+        return Drop()
+
+    monkeypatch.setattr(csv, "writer", lossy)
+    error = refused(csv_check.check_csv, b"a;b\n1;2\n3;4\n", LIMITS)
+    assert error.code == ErrorCode.BAD_CSV
+
+
+class _BrokenWriter:
+    def writerows(self, rows: Any) -> None:
+        raise csv.Error("boom")

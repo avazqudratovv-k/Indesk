@@ -169,9 +169,11 @@ def finish_run(
     now: datetime,
     attempt: int = 1,
     report: ReportDraft | None = None,
+    payload: BaseModel | None = None,
 ) -> bool:
     """Finish the run if it is still in `expected`. One transaction: status, closing line, audit
-    row, the quota event of a counted run, and the refund of a busy or capped one. False (and
+    row, the closing line's payload, the quota event of a counted run, and the refund of a busy or
+    capped one. A payload without a closing line is dropped (it lives on that line). False (and
     nothing written) when someone else finished it first."""
     require_run_transition(expected, RunStatus.FINISHED)
     check_finish(outcome, reason)
@@ -197,7 +199,7 @@ def finish_run(
         # "Busy today" is not the user's run: the daily run slot taken at POST /runs goes back.
         quota.release_run(db, user_id=owner, day=clock.quota_day(created_at))
     if final is not None:
-        db.add(_step_row(run_id, owner, _next_seq(db, run_id), final, attempt, None, now))
+        db.add(_step_row(run_id, owner, _next_seq(db, run_id), final, attempt, payload, now))
     if report is not None:  # same transaction: a reader that sees `finished` sees the report
         report_store.insert_report(db, run_id, owner, report, now)
     # `target` holds "<run id>:<reason or outcome>": audit_log has no column for the reason.

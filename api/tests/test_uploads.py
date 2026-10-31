@@ -453,3 +453,17 @@ def test_redis_down_refuses_the_upload(make_client: MakeClient, tmp_path: Path) 
     app.dependency_overrides[get_settings] = lambda: down
     err(post(client), 503, "NOT_READY")
     assert stored_files(settings) == []
+
+
+def test_semicolon_upload_is_stored_comma_separated(
+    alice: TestClient, settings: Settings, db_connection: Any
+) -> None:
+    response = post(alice, "역명;승차인원\n합정;100\n성수;90\n".encode(), "서울.csv")
+    assert response.status_code == 201
+    assert response.json()["row_count"] == 2
+    (path,) = stored_files(settings)
+    stored = "역명,승차인원\n합정,100\n성수,90\n".encode()
+    assert path.read_bytes() == stored
+    with Session(bind=db_connection) as db:
+        row = db.scalar(select(Upload))
+        assert row is not None and row.sha256 == hashlib.sha256(stored).hexdigest()

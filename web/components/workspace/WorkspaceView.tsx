@@ -28,6 +28,8 @@ export default function WorkspaceView({ offers, mockOutcome }: { offers: PlanOff
   const [tab, setTab] = useState<Tab>("ask");
   const [run, setRun] = useState<RunSummary | null>(null);
   const [runKey, setRunKey] = useState(0);
+  // A suggestion from a Not answerable card: the Ask tab fills its question box with it (the counter makes the same text count again).
+  const [prefill, setPrefill] = useState<{ text: string; n: number } | null>(null);
   const [running, setRunning] = useState(false);
   const live = useLiveRun(session.signedIn ? session.user.id : null);
   const mockMode = mockOutcome !== undefined;
@@ -103,14 +105,14 @@ export default function WorkspaceView({ offers, mockOutcome }: { offers: PlanOff
             </Link>
           ) : null}
         </div>
-        {session.status === "unknown" ? <p className={styles.sub} role="status">{tCommon("loading")}</p> : session.signedIn ? <AskPanel userId={session.user.id} freeLeft={free ? free.left : null} plan={plan} onRun={onRun} submit={mockMode ? undefined : { stage: live.stage, progress: live.progress, fileStatus: live.fileStatus, failure: live.failure, activeRunId: live.activeRunId, followingRunId: live.run?.id ?? null, onWatchActive: () => void live.watchActive().then(() => setTab("run")), onFileRemoved: live.forgetFile, onDismissFailure: live.clearFailure }} /> : <SignedOutCard />}
+        {session.status === "unknown" ? <p className={styles.sub} role="status">{tCommon("loading")}</p> : session.signedIn ? <AskPanel prefill={prefill} userId={session.user.id} freeLeft={free ? free.left : null} plan={plan} onRun={onRun} submit={mockMode ? undefined : { stage: live.stage, progress: live.progress, fileStatus: live.fileStatus, failure: live.failure, activeRunId: live.activeRunId, followingRunId: live.run?.id ?? null, onWatchActive: () => void live.watchActive().then(() => setTab("run")), onFileRemoved: live.forgetFile, onDismissFailure: live.clearFailure }} /> : <SignedOutCard />}
       </div>
 
       <div id="ws-panel-run" role="tabpanel" aria-labelledby="ws-tab-run" hidden={tab !== "run"} className={styles.panel}>
         {mockMode ? (
           <RunTab run={run} runKey={runKey} scenario={mockOutcome} onBack={() => { setTab("ask"); buttons.current[0]?.focus(); }} onRunningChange={setRunning} />
         ) : (
-          <RealRunTab live={live} onBack={() => { setTab("ask"); buttons.current[0]?.focus(); }} />
+          <RealRunTab live={live} onBack={() => { setTab("ask"); buttons.current[0]?.focus(); }} onAskInstead={(text) => { setPrefill((last) => ({ text, n: (last?.n ?? 0) + 1 })); setTab("ask"); buttons.current[0]?.focus(); }} />
         )}
       </div>
     </main>

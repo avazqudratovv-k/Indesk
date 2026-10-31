@@ -44,7 +44,8 @@ export default function RunLive({ run, scenario: initial, onBack, onRunningChang
   const failedAgent = mock.finished ? (Object.entries(mock.agents).find(([, view]) => view.state === "failed")?.[0] as keyof typeof mock.agents | undefined) : undefined;
   const reportReady = mock.finished && mock.scenario !== "failed";
   const latest = mock.step > 0 ? mock.events[mock.step - 1] : null;
-  const announcement = mock.finished ? t(`live.finishedAnnounce.${mock.scenario}`) : latest ? `${home(`${latest.agent}.name`)}: ${t(`live.events.${latest.key}`)}` : t("live.running");
+  // Event keys come from the run (scripted or server), so the type cannot list them; hence the cast.
+  const announcement = mock.finished ? t(`live.finishedAnnounce.${mock.scenario}`) : latest ? `${home(`${latest.agent}.name`)}: ${t(`live.events.${latest.key}` as Parameters<typeof t>[0])}` : t("live.running");
 
   return (
     <div className={styles.run}>

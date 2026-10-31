@@ -26,3 +26,10 @@ export function parseRowsLocation(location: string | null): { from: number; to: 
   const match = /^rows (\d{1,9})\s*[–-]\s*(\d{1,9})$/.exec(location ?? "");
   return match ? { from: Number(match[1]), to: Number(match[2]) } : null;
 }
+
+// "p3" or "page 3" (the server's Evidence.location / doc_location for a PDF) gives the page number; anything else gives null.
+export function pageOf(location: string | null | undefined): number | null {
+  const match = /^(?:p|page)\s?(\d{1,6})$/i.exec(location ?? "");
+  const page = match ? Number(match[1]) : 0;
+  return page >= 1 ? page : null;
+}

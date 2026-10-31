@@ -1,0 +1,447 @@
+/* Board MyPage: main 1180 px, 36 px top and 32 px sides, 24 px gap. Phones: 22 px top, 20 px sides. */
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 36px 32px 0;
+  /* Korean breaks between words, not inside them. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.title {
+  margin: 0;
+  font: 300 38px/1.1 var(--sans);
+  letter-spacing: -0.02em;
+}
+
+/* Midnight: the board paints page headlines with a white-to-lilac gradient. */
+:global([data-theme="dark"]) .title {
+  background: linear-gradient(180deg, #ffffff 12%, #bfb7ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule2);
+}
+
+.sectionTitle {
+  margin: 0;
+  font: 300 28px/1.2 var(--sans);
+  letter-spacing: -0.03em;
+}
+
+.help {
+  max-width: 640px;
+  margin: -4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--mute);
+}
+
+.list,
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fileList {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 20px;
+  padding: 16px 20px;
+  border: 1px solid var(--rule2);
+  border-left-width: 4px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.rowOk {
+  border-left-color: var(--ok);
+}
+
+.rowPartial {
+  border-left-color: var(--warn);
+}
+
+.rowMain {
+  flex: 3 1 340px;
+  min-width: 0;
+}
+
+.rowTitle {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 700;
+}
+
+.rowMeta {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  color: var(--mute);
+}
+
+.rowStatus {
+  display: flex;
+  flex: 1 1 150px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.rowFact {
+  font-size: 12.5px;
+  color: var(--mute);
+}
+
+.rowActions {
+  display: flex;
+  flex: 1 1 220px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.confirmBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.confirmText {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.danger {
+  border-color: var(--badLine);
+  color: var(--bad);
+}
+
+.dangerSolid {
+  border-color: var(--bad);
+  background: var(--bad);
+  color: var(--paper);
+}
+
+.rowError {
+  max-width: 320px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--bad);
+  text-align: right;
+}
+
+.fileRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--rule);
+}
+
+.fileRow:first-child {
+  border-top: 0;
+}
+
+.fileName {
+  flex: 1 1 220px;
+  min-width: 0;
+  overflow: hidden;
+  font: 500 14px var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileGone .fileName {
+  color: var(--mute);
+  text-decoration: line-through;
+}
+
+.fileFact {
+  font: 500 12.5px var(--mono);
+  color: var(--mute);
+}
+
+/* The pages-or-rows cell is empty for some files; on phones it takes no room. */
+.fileFact:empty {
+  display: none;
+}
+
+.kind {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font: 700 11.5px var(--mono);
+  color: var(--paper);
+}
+
+.kindCsv {
+  background: var(--c-bea);
+}
+
+.kindPdf {
+  background: var(--c-hou);
+}
+
+.kindImage {
+  background: var(--c-cham);
+}
+
+.kindText {
+  background: var(--mute);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: var(--accentSoft);
+  color: var(--accentText);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pillGone {
+  background: var(--medal);
+  color: var(--mute);
+}
+
+.state,
+.empty {
+  margin: 0;
+  color: var(--mute);
+  font-size: 15px;
+}
+
+.empty {
+  padding: 32px;
+  border: 2px dashed var(--rule2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  text-align: center;
+}
+
+.errorCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 1px solid var(--badLine);
+  border-radius: 14px;
+  background: var(--badBg);
+  color: var(--bad);
+}
+
+.errorCard p {
+  margin: 0;
+}
+
+.more {
+  align-self: flex-start;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accentInk);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.headerText {
+  min-width: 0;
+}
+
+.headerLine {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  color: var(--mute);
+  overflow-wrap: anywhere;
+}
+
+/* Phones: one column, the right column first (usage, account), then reports and files. Board: two columns from 760 px. */
+.columns {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.primary,
+.aside {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.primary {
+  gap: 24px;
+}
+
+.aside {
+  order: -1;
+  gap: 20px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border: 1px solid var(--rule2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.usageText {
+  margin: 0;
+  font: 500 24px/1.25 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.bar {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--track);
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--accent);
+}
+
+@media (min-width: 760px) {
+  /* File rows on desktop: a grid, so every row lines up and Delete never wraps. The size, count and deletes-in columns
+     are fixed widths (wide enough for "258.7 KB", "4,079 rows" and "Deleted in 23 h") because a flexible width would
+     change with each row's text; only the name column flexes and is cut with an ellipsis. */
+  .fileRow {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) 80px 96px 140px auto;
+    gap: 14px;
+  }
+
+  .fileFact:empty {
+    display: block;
+  }
+
+  .fileRow > .kind {
+    justify-self: start;
+  }
+
+  .fileRow > .pill {
+    justify-self: start;
+  }
+
+  .fileRow > .confirmBox {
+    justify-self: end;
+  }
+
+  .columns {
+    flex-flow: row wrap;
+    align-items: flex-start;
+    gap: 36px;
+  }
+
+  .primary {
+    flex: 2 1 560px;
+  }
+
+  .aside {
+    order: 0;
+    flex: 1 1 340px;
+  }
+}
+
+@media (max-width: 759.98px) {
+  .main {
+    padding: 22px 20px 0;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+
+  .rowActions,
+  .confirmBox {
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .rowError {
+    text-align: left;
+  }
+}

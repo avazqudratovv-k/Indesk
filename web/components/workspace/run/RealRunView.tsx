@@ -9,6 +9,7 @@ import { endCard } from "@/lib/run/live/reasons";
 import { describeTrace } from "@/lib/run/live/trace";
 import type { LiveStep, Outcome } from "@/lib/run/live/types";
 import { countAgentsDone, countToolCalls, deriveAgents, RUN_AGENTS, sumTokens, type AgentView, type RunAgent } from "@/lib/run/mock-run";
+import { markUnused, RUN_WORKERS, runKind } from "./agent-status";
 import type { Connection } from "./use-live-run";
 import AgentTimeline from "./AgentTimeline";
 import GuardrailsPanel from "./GuardrailsPanel";
@@ -16,12 +17,13 @@ import LiveTrace from "./LiveTrace";
 import OutcomeCards from "./OutcomeCards";
 import RealAgentWork from "./RealAgentWork";
 import RunEndCard, { RunNotice } from "./RunEndCard";
+import { notAnswerableCopy } from "./not-answerable-copy";
 import RunHeader from "./RunHeader";
 import RunTiles from "./RunTiles";
 import TeamStage from "./TeamStage";
 import styles from "./RunLive.module.css";
 
-type Props = { run: LiveRun; connection: Connection; onReconnect: () => void; onBack: () => void };
+type Props = { run: LiveRun; connection: Connection; onReconnect: () => void; onBack: () => void; onAskInstead: (text: string) => void };
 
 // Once a run is over, an agent still shown as working can never finish (its worker is gone): it ends as failed when the
 // run did not succeed, otherwise as done. A spinner never keeps turning on a finished run.
@@ -35,7 +37,7 @@ function settle(agents: Record<RunAgent, AgentView>, outcome: Outcome): Record<R
 // The live view of a real Ask run: the existing run components, fed with the run's own events. Nothing here is
 // scripted: counts come from events, the text of each line from message keys (never from the server), and a stub run
 // is labelled as simulated.
-export default function RealRunView({ run, connection, onReconnect, onBack }: Props) {
+export default function RealRunView({ run, connection, onReconnect, onBack, onAskInstead }: Props) {
   const t = useTranslations("workspace");
   const home = useTranslations("home.team");
   const heading = useRef<HTMLHeadingElement>(null);
@@ -60,8 +62,10 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
   const step = events.length;
   const agents = useMemo(() => {
     const raw = deriveAgents(events, step);
-    return run.done ? settle(raw, run.done.outcome) : raw;
+    const settled = run.done ? settle(raw, run.done.outcome) : raw;
+    return markUnused(settled, runKind(settled));
   }, [events, step, run.done]);
+  const workers = RUN_WORKERS[runKind(agents) ?? "csv"];
   const simulated = isSimulated(run.steps);
   const card = run.done ? endCard(run.done.outcome, run.done.reason) : null;
   const lost = !finished && connection !== "live";
@@ -79,14 +83,26 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
   }, [finished]);
 
   const ok = card?.kind === "report";
-  const mark = card ? (ok ? { tone: card.outcome === "answered" ? ("ok" as const) : ("warn" as const), text: t("real.mark.finished") } : { tone: "bad" as const, text: t("real.mark.failed") }) : null;
+  const label = card?.kind === "problem" ? card.label : null;
+  // The mark follows the outcome: only failed, rejected and busy runs "did not finish".
+  const mark = !card
+    ? null
+    : ok
+      ? { tone: card.outcome === "answered" ? ("ok" as const) : ("warn" as const), text: t("real.mark.finished") }
+      : label === "notAnswerable"
+        ? { tone: "neutral" as const, text: t("real.mark.notAnswerable") }
+        : label === "needsBetterInput"
+          ? { tone: "warn" as const, text: t("real.mark.needsBetterInput") }
+          : { tone: "bad" as const, text: t("real.mark.failed") };
   const latest = events.length > 0 ? events[events.length - 1] : null;
+  const na = run.done?.notAnswerable;
+  const problemHead = card?.kind === "problem" ? (na && label === "notAnswerable" ? notAnswerableCopy(na, message).head : message(`reasons.${card.reason}.head`)) : "";
   const announcement = lost
     ? t("real.announce.lost")
     : card
       ? ok
         ? t(run.done?.reportId ? "real.announce.finishedReport" : "real.announce.finishedNoReport")
-        : `${t("real.announce.failed")} ${message(`reasons.${card.reason}.head`)}`
+        : `${t(label === "notAnswerable" ? "real.announce.notAnswerable" : label === "needsBetterInput" ? "real.announce.needsBetterInput" : "real.announce.failed")} ${problemHead}`
       : latest
         ? `${home(`${latest.agent}.name`)}: ${latest.text ?? ""}`
         : events.length === 0 && run.status === "queued"
@@ -104,9 +120,9 @@ export default function RealRunView({ run, connection, onReconnect, onBack }: Pr
         </p>
       ) : null}
       <RunHeader ref={heading} title={run.question} finished={finished} onBack={onBack} real={{ mark }} />
-      <RunTiles key={run.id} toolCalls={toolCalls} tokens={sumTokens(events, step)} agentsDone={countAgentsDone(agents)} agentCount={RUN_AGENTS.length} finished={finished} real={{ startMs: run.createdAt ?? run.startedAt, endMs: run.finishedAt }} />
+      <RunTiles key={run.id} toolCalls={toolCalls} tokens={sumTokens(events, step)} agentsDone={countAgentsDone(agents, workers)} agentCount={workers.length} finished={finished} real={{ startMs: run.startedAt ?? run.createdAt, endMs: run.finishedAt, offsetMs: run.clockOffsetMs }} />
       {lost ? <RunNotice cause={connection === "signedOut" ? "signedOut" : connection === "tooManyStreams" ? "tooManyStreams" : "lost"} onReconnect={onReconnect} /> : null}
-      {card ? <RunEndCard card={card} reportId={run.done?.reportId ?? null} headingRef={endHeading} onChange={onBack} /> : null}
+      {card ? <RunEndCard card={card} reportId={run.done?.reportId ?? null} notAnswerable={na ?? null} headingRef={endHeading} onChange={onBack} onAskInstead={onAskInstead} /> : null}
       {!finished && !lost && events.length === 0 ? (
         <p className={styles.note} role="status">
           {t("real.queued")}

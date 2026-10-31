@@ -46,6 +46,8 @@ jobs:
           cache-dependency-path: api/requirements-dev.txt
       - run: pip install -r requirements-dev.txt
       - run: ruff check .
+      - name: Run ruff format check
+        run: ruff format --check .
       - run: mypy .
       - run: pytest
 

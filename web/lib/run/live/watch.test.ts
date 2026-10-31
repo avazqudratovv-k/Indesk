@@ -38,7 +38,7 @@ class FakeSource implements SourceLike {
 
 const RUN = "123e4567-e89b-12d3-a456-426614174000";
 const stepData = (seq: number) => ({ seq, agent: "manager", kind: "say", state: "running", key: "plan", args: {}, tok: 0, bubble: null });
-const snap = (over: Partial<RunSnapshot> = {}): RunSnapshot => ({ id: RUN, status: "running", outcome: null, reason: null, reportId: null, question: "q", createdAt: null, startedAt: null, finishedAt: null, steps: [], ...over });
+const snap = (over: Partial<RunSnapshot> = {}): RunSnapshot => ({ id: RUN, status: "running", outcome: null, reason: null, reportId: null, question: "q", createdAt: null, startedAt: null, finishedAt: null, clockOffsetMs: null, steps: [], ...over });
 
 function setup(getRun: WatchDeps["getRun"] = async () => snap()) {
   const sources: FakeSource[] = [];

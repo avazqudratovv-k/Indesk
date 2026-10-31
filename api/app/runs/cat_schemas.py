@@ -16,6 +16,8 @@ from pydantic import (
 )
 
 from app.core.enums import ClaimOrigin, ClaimStatus, Confidence, ReportReason, RunOutcome
+from app.runs.numbers import QUANTITY_REASON
+from app.schemas.not_answerable import NotAnswerable
 from app.schemas.reports import EvidencePayload, ReportSummary
 
 MAX_CLAIMS: Final = 6
@@ -130,6 +132,10 @@ class ReportDraft(BaseModel):
     total_claims: int
     claims: list[ClaimRow]
     evidence: list[EvidenceRow]
+    # The quantity-word check (numbers.unsupported_quantity_words): how many sentences were dropped
+    # and how many claims were demoted. Counters only, never the text.
+    quantity_dropped: int = 0
+    quantity_demoted: int = 0
 
 
 class CatResult(BaseModel):
@@ -158,3 +164,25 @@ class CatPayload(BaseModel):
     prompt_version: str
     rows_mismatch: bool
     verdicts: list[VerdictRecord]
+    # Quantity words with no support (a size said in words): sentences dropped, claims demoted, and
+    # the closed reason code. Counters and a code, never the text.
+    quantity_dropped: int = 0
+    quantity_demoted: int = 0
+    quantity_reason: str | None = None
+    # Only when the run ends not_answerable: the closed reason code, facts from the file and the
+    # suggested questions (app.runs.not_answerable). Never model text.
+    not_answerable: NotAnswerable | None = None
+
+
+def payload_with_quantity(payload: CatPayload, draft: ReportDraft | None) -> CatPayload:
+    """`payload` with the quantity-word counters of the draft (and the reason code when either is
+    above zero). The draft's own text never goes in."""
+    if draft is None or not (draft.quantity_dropped or draft.quantity_demoted):
+        return payload
+    return payload.model_copy(
+        update={
+            "quantity_dropped": draft.quantity_dropped,
+            "quantity_demoted": draft.quantity_demoted,
+            "quantity_reason": QUANTITY_REASON,
+        }
+    )

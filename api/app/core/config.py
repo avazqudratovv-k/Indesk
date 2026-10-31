@@ -3,6 +3,7 @@ import tomllib
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Literal
+from urllib.parse import urlsplit
 
 from pydantic import (
     BaseModel,
@@ -19,6 +20,8 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 AUTH_SECRET_MIN_LENGTH = 32
 LIMITS_FILE = Path(__file__).resolve().parents[2] / "config" / "limits.toml"
+MAX_CHUNK_CHARS = 3000  # ceiling for chunk_chars, checked at startup (embedding input cap, P14b)
+MAX_EMBED_CHUNK_TOKENS = 6000  # below the model's 8,192-token input cap
 
 
 class Limits(BaseModel):
@@ -77,6 +80,30 @@ class Limits(BaseModel):
     retrieval_rrf_k: PositiveInt
     retrieval_min_similarity: float = Field(ge=0, le=1)
     retrieval_min_terms: PositiveInt
+    # Ask: a column the plan names that is not in the file counts as a near-miss of a real column
+    # (a typo, not a missing column) at or above this similarity.
+    column_match_similarity: float = Field(ge=0, le=1)
+    # Daily purge: rows per batch, days before a finished run without a report goes, and days
+    # before an ai_calls row goes.
+    purge_batch: PositiveInt
+    purge_no_report_days: PositiveInt
+    ai_calls_retention_days: PositiveInt
+    # Read and delete limits per user (reads fail open, deletes fail closed).
+    reads_per_minute: PositiveInt
+    deletes_per_hour: PositiveInt
+    # A chunk whose estimated tokens pass this is not embedded (it stays searchable by words).
+    embed_chunk_max_tokens: PositiveInt = MAX_EMBED_CHUNK_TOKENS
+
+    @model_validator(mode="after")
+    def _chunks_fit_the_embedding_model(self) -> "Limits":
+        # The embedding model reads at most 8,192 tokens per text (Google's model page, owner answer
+        # P14b Q3). At one token per character, the worst case for Korean, 3,000 characters stay
+        # well under it. A bigger chunk size stops the server at startup.
+        if self.chunk_chars > MAX_CHUNK_CHARS:
+            raise ValueError(f"chunk_chars must be at most {MAX_CHUNK_CHARS}")
+        if self.embed_chunk_max_tokens > MAX_EMBED_CHUNK_TOKENS:
+            raise ValueError(f"embed_chunk_max_tokens must be at most {MAX_EMBED_CHUNK_TOKENS}")
+        return self
 
     @model_validator(mode="after")
     def _overlap_is_small(self) -> "Limits":
@@ -97,6 +124,11 @@ def _split_commas(value: object) -> object:
     return value
 
 
+def _is_local_origin(origin: str) -> bool:
+    host = urlsplit(origin).hostname or ""
+    return host in ("localhost", "127.0.0.1")
+
+
 class Settings(BaseSettings):
     """Values come from environment variables only. Secrets are SecretStr, so they never print."""
 
@@ -108,6 +140,8 @@ class Settings(BaseSettings):
     postgres_password: SecretStr | None = None
     auth_secret: SecretStr | None = None
     gemini_api_key: SecretStr | None = None
+    # Absolute session length from login (SESSION_MAX_SECONDS); a refresh never extends past it.
+    session_max_seconds: PositiveInt = 21600
     # Comma-separated in the environment. Origins that may send a write request (CSRF check).
     allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:3000"]
     # Comma-separated IPs or CIDRs of reverse proxies whose X-Forwarded-For is believed.
@@ -136,6 +170,22 @@ class Settings(BaseSettings):
     def _production_needs_auth_secret(self) -> "Settings":
         if self.app_env == "production" and not self.auth_ready:
             raise ValueError("AUTH_SECRET must be set and at least 32 characters in production")
+        return self
+
+    @model_validator(mode="after")
+    def _production_is_safe_to_start(self) -> "Settings":
+        # Names only, never values: this text reaches the logs.
+        if self.app_env != "production":
+            return self
+        problems = []
+        if any(_is_local_origin(origin) for origin in self.allowed_origins):
+            problems.append("ALLOWED_ORIGINS must not contain localhost or 127.0.0.1")
+        if not self.trusted_proxies:
+            problems.append("TRUSTED_PROXIES must not be empty")
+        if not self.cookie_secure:
+            problems.append("cookies must be marked Secure")
+        if problems:
+            raise ValueError("unsafe production settings: " + "; ".join(problems))
         return self
 
     @field_validator("allowed_origins", "trusted_proxies", mode="before")

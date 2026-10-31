@@ -34,7 +34,7 @@ def acquire(redis: Redis, user_id: uuid.UUID, stream_id: str, limit: int) -> Non
     except (RedisError, OSError):
         raise AppError(503, ErrorCode.NOT_READY) from None
     if taken != 1:
-        raise AppError(429, ErrorCode.TOO_MANY_STREAMS)
+        raise AppError(429, ErrorCode.TOO_MANY_STREAMS, headers={"Retry-After": "5"})
 
 
 def refresh(redis: Redis, user_id: uuid.UUID, stream_id: str) -> None:

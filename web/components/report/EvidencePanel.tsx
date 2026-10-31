@@ -17,6 +17,17 @@ const kindColor: Record<string, string> = {
 
 // The evidence behind a claim: kind, title, text, then whatever the payload holds (code, rows, quote) and the source line.
 // `aside` is the board's right-hand panel (desktop); `inline` opens under a claim on phones (not on the board, DECISIONS).
+// The source line of a real item is "file · page · similarity". The file name wraps; every later segment stays on one line,
+// so "p. 4" and "4쪽" never split between the number and the word.
+function metaSegments(source: string) {
+  return source.split(" · ").map((part, index) => (
+    <span key={index} className={index === 0 ? undefined : styles.noBreak}>
+      {index === 0 ? "" : " · "}
+      {part}
+    </span>
+  ));
+}
+
 export default function EvidencePanel({ view, variant }: { view: EvidenceView | null; variant: "aside" | "inline" }) {
   const t = useTranslations("report.evidence");
   const root = variant === "aside" ? styles.aside : styles.inline;
@@ -73,7 +84,7 @@ export default function EvidencePanel({ view, variant }: { view: EvidenceView | 
         </ScrollRegion>
       ) : null}
       {view.quote ? <blockquote className={styles.quote}>{view.quote}</blockquote> : null}
-      {source ? <div className={styles.meta}>{source}</div> : null}
+      {source ? <div className={styles.meta}>{view.metaText ? metaSegments(source) : source}</div> : null}
     </aside>
   );
 }

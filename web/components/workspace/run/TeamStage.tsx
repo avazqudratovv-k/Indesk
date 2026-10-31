@@ -38,7 +38,7 @@ type Props = {
   finished: boolean;
   // The board's "EXAMPLE 5/6" stamp belongs to the scripted demo only; real runs turn it off.
   showStamp?: boolean;
-  // Real runs: Chameleon and Hound are not built, so they read "Coming later" instead of "Did not run".
+  // Real runs: Chameleon and Hound are not built, so they read "Not available yet" instead of "Did not run".
   real?: boolean;
 };
 
@@ -94,7 +94,7 @@ export default function TeamStage({ agents, events, step, reportReady, scenario,
           const [x, y, h] = POS[id];
           const bubble = id === "owl" ? (bubbleOwl ? t(`live.bubbles.${bubbleOwl}`) : "") : view.state === "working" ? t(`live.bubbles.${id}`) : "";
           const bad = key === "flagged" || key === "failed";
-          const idle = key === "didNotRun" || key === "comingLater" ? "waiting" : key;
+          const idle = key === "didNotRun" || key === "comingLater" || key === "notUsed" ? "waiting" : key;
           const pool = view.state === "working" ? 1 : bad ? 0.7 : view.state === "done" ? 0.4 : 0;
           const live = view.state === "working" ? "on" : view.state === "waiting" ? "dim" : "";
           const bob = id === "owl" ? !!bubble : view.state === "working";

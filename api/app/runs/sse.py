@@ -22,7 +22,9 @@ from app.ai.caps import SessionFactory
 from app.core.config import Limits
 from app.core.enums import RunOutcome, RunReason, RunStatus
 from app.db.models import AgentStep, Report, Run
+from app.runs.not_answerable import read_for_run
 from app.schemas.events import DoneEvent, StepEvent
+from app.schemas.not_answerable import NotAnswerable
 
 BATCH = 100
 MAX_ID = 10**9
@@ -35,6 +37,7 @@ class Snapshot:
     reason: RunReason | None
     report_id: uuid.UUID | None
     events: list[StepEvent]
+    not_answerable: NotAnswerable | None = None
 
 
 def parse_last_event_id(raw: str | None) -> int:
@@ -72,6 +75,11 @@ def read_snapshot(factory: SessionFactory, run_id: uuid.UUID, after: int) -> Sna
         report_id = (
             db.scalar(select(Report.id).where(Report.run_id == run_id)) if finished else None
         )
+        why = (
+            read_for_run(db, run_id)
+            if finished and head is not None and head.outcome == RunOutcome.NOT_ANSWERABLE
+            else None
+        )
         return Snapshot(
             finished=finished,
             outcome=RunOutcome(head.outcome)
@@ -82,6 +90,7 @@ def read_snapshot(factory: SessionFactory, run_id: uuid.UUID, after: int) -> Sna
             else None,
             report_id=report_id,
             events=events,
+            not_answerable=why,
         )
 
 
@@ -96,6 +105,7 @@ def format_done(seq: int, snap: Snapshot, run_id: uuid.UUID) -> str:
         outcome=snap.outcome or RunOutcome.FAILED,
         report_id=str(snap.report_id) if snap.report_id else None,
         reason=snap.reason,
+        not_answerable=snap.not_answerable,
     )
     return f"id: {seq}\nevent: done\ndata: {done.model_dump_json()}\n\n"
 

@@ -9,6 +9,7 @@ const SHOWN = 8;
 // RunLive announces only the newest line through one status element.
 export default function LiveTrace({ events, step, note }: { events: RunEvent[]; step: number; note?: string }) {
   const t = useTranslations("workspace");
+  // Event keys come from the run (scripted or server), so the type cannot list them; the cast below is for that.
   const home = useTranslations("home.team");
   const shown = events.slice(0, step).slice(-SHOWN);
   return (
@@ -29,7 +30,7 @@ export default function LiveTrace({ events, step, note }: { events: RunEvent[]; 
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/workspace/agent-${event.agent}.png`} alt="" width={20} height={20} />
                 </span>
-                <span className={event.kind === "say" ? styles.say : styles.tool}>{event.text ?? t(`live.events.${event.key}`)}</span>
+                <span className={event.kind === "say" ? styles.say : styles.tool}>{event.text ?? t(`live.events.${event.key}` as Parameters<typeof t>[0])}</span>
                 <span className={styles.srOnly}>{home(`${event.agent}.name`)}</span>
               </li>
             );

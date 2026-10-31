@@ -11,6 +11,7 @@ export type LiveRun = {
   createdAt: number | null;
   startedAt: number | null;
   finishedAt: number | null;
+  clockOffsetMs: number | null;
 };
 
 export type LiveAction =
@@ -21,7 +22,7 @@ export type LiveAction =
   | { type: "clear" };
 
 export function initialRun(id: string, question: string, status: RunStatus = "queued", now: number | null = null): LiveRun {
-  return { id, question, status, steps: [], done: null, createdAt: now, startedAt: null, finishedAt: null };
+  return { id, question, status, steps: [], done: null, createdAt: now, startedAt: null, finishedAt: null, clockOffsetMs: null };
 }
 
 function insertStep(steps: LiveStep[], step: LiveStep): LiveStep[] {
@@ -46,7 +47,7 @@ export function liveReducer(state: LiveRun | null, action: LiveAction): LiveRun 
       if (state && state.id !== snapshot.id) return state; // a late answer for a run we left
       let steps = state?.steps ?? [];
       for (const step of snapshot.steps) steps = insertStep(steps, step);
-      const done: LiveDone | null = snapshot.status === "finished" ? { outcome: snapshot.outcome ?? "failed", reason: snapshot.reason, reportId: snapshot.reportId } : (state?.done ?? null);
+      const done: LiveDone | null = snapshot.status === "finished" ? { outcome: snapshot.outcome ?? "failed", reason: snapshot.reason, reportId: snapshot.reportId, ...(snapshot.notAnswerable ? { notAnswerable: snapshot.notAnswerable } : {}) } : (state?.done ?? null);
       return {
         id: snapshot.id,
         question: snapshot.question || state?.question || "",
@@ -56,6 +57,7 @@ export function liveReducer(state: LiveRun | null, action: LiveAction): LiveRun 
         createdAt: snapshot.createdAt ?? state?.createdAt ?? null,
         startedAt: snapshot.startedAt ?? state?.startedAt ?? null,
         finishedAt: snapshot.finishedAt ?? state?.finishedAt ?? null,
+        clockOffsetMs: snapshot.clockOffsetMs ?? state?.clockOffsetMs ?? null,
       };
     }
     case "step": {

@@ -79,6 +79,24 @@ class RunOutcome(StrEnum):
     FAILED = "failed"
 
 
+class NotAnswerableReason(StrEnum):
+    """Why a run ended not_answerable: a closed list, the browser holds the text."""
+
+    PDF_NO_MATCH = "pdf_no_match"
+    PDF_NOT_IN_PASSAGES = "pdf_not_in_passages"
+    PDF_PAGE_RANGE = "pdf_page_range"
+    CSV_PERIOD = "csv_period"
+    CSV_NO_ROWS = "csv_no_rows"
+    CSV_MISSING_COLUMN = "csv_missing_column"
+
+
+class SuggestionKind(StrEnum):
+    CSV_RANK = "csv_rank"
+    CSV_TREND = "csv_trend"
+    PDF_ABOUT = "pdf_about"
+    PDF_PAGE = "pdf_page"
+
+
 class FileRole(StrEnum):
     SUBJECT = "subject"
     SOURCE = "source"
@@ -301,6 +319,9 @@ class TraceKey(StrEnum):
     SEARCH = "search"  # args: pages, matched (+ mode)
     BEST_PASSAGE = "bestPassage"  # args: page, score, similarity
     SEARCH_FAILED = "searchFailed"  # args: reason, attempt
+    # Hound notes (P14b), said before its closing line.
+    KEYWORD_ONLY_SIZE = "keywordOnlySize"  # keyword-only because of document size; args: reason
+    CHUNKS_SKIPPED = "chunksSkipped"  # chunks too big to embed, found by words; args: count
 
 
 class ReportReason(StrEnum):

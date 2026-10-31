@@ -7,6 +7,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useSession, useSessionActions } from "@/hooks/use-session";
 import { ApiError, apiErrorKey, retryMinutes } from "@/lib/api/errors";
 import { login, signup as signupRequest } from "@/lib/auth/api";
+import { dropPendingSessionEnded, postNotice } from "@/lib/auth/notice";
 import { safeNext } from "@/lib/auth/safe-next";
 import { validateAuth, type AuthErrors, type AuthField, type AuthMode, type AuthValues } from "./validate";
 import styles from "./AuthForm.module.css";
@@ -75,6 +76,9 @@ export default function AuthForm({ mode, next }: { mode: AuthMode; next?: string
         : await login({ email, password: values.password });
       setValues((current) => ({ ...current, password: "" }));
       setStatus("done");
+      // A login says welcome (this also replaces any pending "session ended"); a signup only drops that old notice.
+      if (signup) dropPendingSessionEnded();
+      else postNotice({ kind: "welcome", name: user.display_name });
       startSession(user);
       router.replace(destination);
     } catch (caught) {

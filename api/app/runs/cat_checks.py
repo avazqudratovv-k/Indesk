@@ -23,6 +23,8 @@ from app.runs.numbers import (
     matches_any,
     normal,
     number_tokens,
+    quantity_words,
+    unsupported_quantity_words,
 )
 
 PLACEHOLDER: Final = "(removed)"
@@ -296,6 +298,7 @@ class Verdict:
     status: ClaimStatus
     reason: ReportReason | None
     computed_value: str | None
+    quantity: bool = False  # demoted only because of a quantity word with no support
 
 
 def _unverified(reason: ReportReason, value: str | None = None) -> Verdict:
@@ -313,8 +316,14 @@ def _row_labels(row: list[Scalar]) -> list[str]:
 
 
 def check_claim(
-    text: str, refs: list[str], view: ResultView, question_numbers: set[Decimal]
+    text: str,
+    refs: list[str],
+    view: ResultView,
+    question_numbers: set[Decimal],
+    support: tuple[str, ...] = (),
 ) -> Verdict:
+    """`support` are the texts a quantity word of the claim may come from (the question, the labels
+    of the file; see quantity_support). Without any, a claim with such a word is not verified."""
     if not view.rows_ok:
         return _unverified(ReportReason.ROWS_MISMATCH)
     cells = [resolve(ref, view) for ref in refs]
@@ -351,6 +360,8 @@ def check_claim(
             or not all(_is_extreme(c, next(iter(directions)), view) for c in numeric)
         ):
             return _unverified(ReportReason.RANKING_UNCHECKED, shown)
+    if unsupported_quantity_words(text, *support):  # "about a million": no digit, no check
+        return Verdict(ClaimStatus.UNVERIFIED, ReportReason.NUMBER_MISMATCH, shown, quantity=True)
     return Verdict(ClaimStatus.VERIFIED, None, shown)
 
 
@@ -377,6 +388,17 @@ def prose_ok(text: str, view: ResultView, question_numbers: set[Decimal]) -> boo
 
 def has_number(text: str) -> bool:
     return bool(number_tokens(text))
+
+
+def has_figure(text: str) -> bool:
+    """A number written in digits, or a size said in words (a next step may have neither)."""
+    return has_number(text) or bool(quantity_words(text))
+
+
+def quantity_support(view: ResultView, question: str) -> tuple[str, ...]:
+    """Where a quantity word may come from on a CSV: the question and the labels of the rows."""
+    labels = (c for row in view.rows for c in row if isinstance(c, str) and c)
+    return (question, *labels)
 
 
 # ---- confidence ----

@@ -12,7 +12,6 @@ from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
 
 ACCESS_TTL = timedelta(minutes=15)
-REFRESH_TTL = timedelta(days=30)
 JWT_ALGORITHM = "HS256"
 
 # Library defaults: Argon2id with the RFC 9106 low-memory profile (t=3, m=64 MiB, p=4).

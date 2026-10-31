@@ -15,6 +15,7 @@ from app.core.enums import (
     StepState,
 )
 from app.schemas.common import ApiModel, Id
+from app.schemas.not_answerable import NotAnswerable
 from app.schemas.runs import MessageArgs, MessageKey
 
 
@@ -49,6 +50,7 @@ class DoneEvent(ApiModel):
     outcome: RunOutcome
     report_id: Id | None = None
     reason: RunReason | None = None  # additive: why a failed or rejected run ended
+    not_answerable: NotAnswerable | None = None  # additive: only when outcome is not_answerable
 
 
 RunEvent = Annotated[StepEvent | EvidenceEvent | DoneEvent, Field(discriminator="event")]

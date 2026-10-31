@@ -62,6 +62,8 @@ def test_bad_values_are_rejected_without_echoing_them(
 
 def test_production_requires_a_long_auth_secret(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("ALLOWED_ORIGINS", "https://indesk.example")
+    monkeypatch.setenv("TRUSTED_PROXIES", "10.0.0.0/8")
     for value in (None, "", "s" * 31):
         if value is None:
             monkeypatch.delenv("AUTH_SECRET", raising=False)
@@ -114,3 +116,54 @@ def test_production_startup_stops_without_a_secret(monkeypatch: pytest.MonkeyPat
             pass
     finally:
         get_settings.cache_clear()
+
+
+# ---- production start guard ----
+
+
+def _production(monkeypatch: pytest.MonkeyPatch, **env: str) -> None:
+    good = {
+        "APP_ENV": "production",
+        "AUTH_SECRET": "s" * 32,
+        "ALLOWED_ORIGINS": "https://indesk.example",
+        "TRUSTED_PROXIES": "10.0.0.0/8",
+    }
+    for name, value in {**good, **env}.items():
+        monkeypatch.setenv(name, value)
+
+
+def test_a_safe_production_config_starts(monkeypatch: pytest.MonkeyPatch) -> None:
+    _production(monkeypatch)
+    assert Settings().cookie_secure
+
+
+@pytest.mark.parametrize(
+    ("env", "named"),
+    [
+        ({"ALLOWED_ORIGINS": "https://indesk.example, http://localhost:3000"}, "ALLOWED_ORIGINS"),
+        ({"ALLOWED_ORIGINS": "http://127.0.0.1:3000"}, "ALLOWED_ORIGINS"),
+        ({"TRUSTED_PROXIES": ""}, "TRUSTED_PROXIES"),
+    ],
+)
+def test_production_refuses_unsafe_origins_and_proxies(
+    monkeypatch: pytest.MonkeyPatch, env: dict[str, str], named: str
+) -> None:
+    _production(monkeypatch, **env)
+    with pytest.raises(ValidationError) as caught:
+        Settings()
+    text = str(caught.value)
+    assert named in text
+    assert "s" * 32 not in text and "localhost:3000" not in text and "127.0.0.1:3000" not in text
+
+
+def test_production_refuses_cookies_that_are_not_secure(monkeypatch: pytest.MonkeyPatch) -> None:
+    _production(monkeypatch)
+    monkeypatch.setattr(Settings, "cookie_secure", property(lambda self: False))
+    with pytest.raises(ValidationError) as caught:
+        Settings()
+    assert "Secure" in str(caught.value) and "s" * 32 not in str(caught.value)
+
+
+def test_development_keeps_localhost_and_no_proxies() -> None:
+    settings = Settings()
+    assert settings.allowed_origins == ["http://localhost:3000"] and settings.trusted_proxies == []

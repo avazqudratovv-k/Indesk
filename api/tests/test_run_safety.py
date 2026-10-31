@@ -116,8 +116,9 @@ def test_language_from_the_hangul_share(question: str, lang: str) -> None:
 
 def settings_with(env: str, flag: bool) -> Settings:
     return Settings(
-        app_env=env, runs_dev_stub=flag, auth_secret="x" * 40, redis_url=_test_redis_url()
-    )
+        app_env=env, runs_dev_stub=flag, auth_secret="x" * 40, redis_url=_test_redis_url(),
+        allowed_origins=["https://indesk.example"], trusted_proxies=["10.0.0.0/8"],
+    )  # fmt: skip
 
 
 @pytest.mark.parametrize(

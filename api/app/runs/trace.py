@@ -9,7 +9,15 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Final
 
-from app.core.enums import AgentKey, Bubble, RunReason, StepKind, StepState, TraceKey
+from app.core.enums import (
+    AgentKey,
+    Bubble,
+    NotAnswerableReason,
+    RunReason,
+    StepKind,
+    StepState,
+    TraceKey,
+)
 
 TraceValue = str | int | float | bool | None
 
@@ -34,6 +42,9 @@ ALLOWED_ARGS: Final[Mapping[TraceKey, frozenset[str]]] = {
     TraceKey.SEARCH: frozenset({"pages", "matched", "mode"}),
     TraceKey.BEST_PASSAGE: frozenset({"page", "score", "similarity"}),
     TraceKey.SEARCH_FAILED: frozenset({"reason", "attempt"}),
+    # keywordOnlySize: reason is the code "document_size". chunksSkipped: chunks not embedded.
+    TraceKey.KEYWORD_ONLY_SIZE: frozenset({"reason"}),
+    TraceKey.CHUNKS_SKIPPED: frozenset({"count"}),
 }
 
 
@@ -62,8 +73,9 @@ class TraceLine:
                 raise BadTraceLine(f"argument {name} is not a code")
 
 
-def stopped_line(reason: RunReason) -> TraceLine:
-    """The closing line of a run that did not end in a normal answer."""
+def stopped_line(reason: RunReason | NotAnswerableReason) -> TraceLine:
+    """The closing line of a run that did not end in a normal answer. A not_answerable run names
+    its closed reason code; the browser shows an unknown code as the plain "The run stopped"."""
     return TraceLine(
         agent=AgentKey.MANAGER,
         kind=StepKind.SAY,

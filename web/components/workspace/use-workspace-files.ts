@@ -36,6 +36,12 @@ export function useWorkspaceFiles(mode: WorkspaceMode) {
       const partner: SlotId | null = slot === "fileA" ? "fileB" : slot === "fileB" ? "fileA" : null;
       const partnerKind = partner ? kindOfOther(partner) : null;
 
+      // Ask takes exactly one file: a drop of several is refused as a whole, never added in part.
+      if (mode === "ask" && slot === "files" && incoming.length > 1) {
+        setErrors((value) => ({ ...value, [slot]: [{ code: "slotFull", name: incoming[0].name }] }));
+        return { added: [], rejected: incoming.length };
+      }
+
       const accepted: SlotFile[] = [];
       const found: FileError[] = [];
       for (const file of incoming) {

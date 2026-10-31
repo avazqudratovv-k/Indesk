@@ -27,10 +27,20 @@ from app.runs.agents import AgentContext, AgentDone, AgentFailed, AgentResult
 from app.runs.ask_schemas import BeaverPayload
 from app.runs.cat_checks import ResultView
 from app.runs.cat_report import build_report
-from app.runs.cat_schemas import CatPayload, CatResult, ClaimsOut, VerdictRecord
+from app.runs.cat_schemas import (
+    CatPayload,
+    CatResult,
+    ClaimsOut,
+    ReportDraft,
+    VerdictRecord,
+    payload_with_quantity,
+)
 from app.runs.mapping import failure_from_gateway
+from app.runs.not_answerable import for_csv
+from app.runs.profile import CsvProfile, ProfileFailed, TimeSpan, build_profile, time_span
 from app.runs.prompts import CAT_PROMPT_VERSION, build_cat_prompt, new_nonce
 from app.runs.trace import TraceLine
+from app.schemas.not_answerable import NotAnswerable
 
 
 def _line(state: StepState, tok: int = 0, **args: int) -> TraceLine:
@@ -52,7 +62,10 @@ class CatAgent:
         view = ResultView.of(self._beaver.result, self._beaver.row_count)
         if not view.rows:
             ctx.emit(_line(StepState.RUNNING))
-            ctx.emit(_line(StepState.DONE, claims=0, verified=0), self._payload(view, []))
+            ctx.emit(
+                _line(StepState.DONE, claims=0, verified=0),
+                self._payload(view, []).model_copy(update={"not_answerable": self._why(ctx)}),
+            )
             return AgentDone(data=CatResult(outcome=RunOutcome.NOT_ANSWERABLE, report=None))
         if not ctx.gateway.is_configured():
             return AgentFailed(RunReason.MODEL_UNAVAILABLE)
@@ -77,7 +90,7 @@ class CatAgent:
                 StepState.DONE, tok=tokens, claims=draft.total_claims,
                 verified=draft.verified_count,
             ),
-            self._payload(view, records),
+            self._payload(view, records, draft),
         )  # fmt: skip
         all_verified = draft.verified_count == draft.total_claims
         outcome = RunOutcome.ANSWERED if all_verified else RunOutcome.PARTIAL
@@ -86,7 +99,24 @@ class CatAgent:
             data=CatResult(outcome=outcome, report=draft),
         )  # fmt: skip
 
-    def _payload(self, view: ResultView, records: list[VerdictRecord]) -> CatPayload:
-        return CatPayload(
+    def _why(self, ctx: AgentContext) -> NotAnswerable:
+        """Facts from the stored file (stdlib csv, no sandbox); unreadable ones are left out."""
+        profile: CsvProfile | None = None
+        span: TimeSpan | None = None
+        data = ctx.read_upload(ctx.upload_ids[0]) if ctx.upload_ids else None
+        if data is not None:
+            built = build_profile(data, self._limits)
+            if not isinstance(built, ProfileFailed):
+                profile, span = built, time_span(data, built)
+        return for_csv(
+            ctx.question, ctx.lang, row_count=self._beaver.row_count or None, profile=profile,
+            span=span,
+        )  # fmt: skip
+
+    def _payload(
+        self, view: ResultView, records: list[VerdictRecord], draft: ReportDraft | None = None
+    ) -> CatPayload:
+        payload = CatPayload(
             prompt_version=CAT_PROMPT_VERSION, rows_mismatch=not view.rows_ok, verdicts=records
         )
+        return payload_with_quantity(payload, draft)

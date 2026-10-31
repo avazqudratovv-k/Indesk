@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response
@@ -37,12 +38,15 @@ def signup(
     issued = service.signup(
         db,
         secret,
+        timedelta(seconds=settings.session_max_seconds),
         email=body.email,
         password=body.password,
         display_name=body.display_name,
         ip_hash=ip_hash,
     )
-    set_session_cookies(response, settings, issued.access_token, issued.refresh_token)
+    set_session_cookies(
+        response, settings, issued.access_token, issued.refresh_token, issued.session_ends_at
+    )
     return User.model_validate(issued.user)
 
 
@@ -57,8 +61,17 @@ def login(
     ip_hash: IpHash,
 ) -> User:
     _limit_login(redis, secret, ip_hash, body.email)
-    issued = service.login(db, secret, email=body.email, password=body.password, ip_hash=ip_hash)
-    set_session_cookies(response, settings, issued.access_token, issued.refresh_token)
+    issued = service.login(
+        db,
+        secret,
+        timedelta(seconds=settings.session_max_seconds),
+        email=body.email,
+        password=body.password,
+        ip_hash=ip_hash,
+    )
+    set_session_cookies(
+        response, settings, issued.access_token, issued.refresh_token, issued.session_ends_at
+    )
     return User.model_validate(issued.user)
 
 
@@ -71,8 +84,16 @@ def refresh(
     secret: Secret,
     ip_hash: IpHash,
 ) -> None:
-    issued = service.refresh(db, secret, token=request.cookies.get(REFRESH_COOKIE), ip_hash=ip_hash)
-    set_session_cookies(response, settings, issued.access_token, issued.refresh_token)
+    issued = service.refresh(
+        db,
+        secret,
+        timedelta(seconds=settings.session_max_seconds),
+        token=request.cookies.get(REFRESH_COOKIE),
+        ip_hash=ip_hash,
+    )
+    set_session_cookies(
+        response, settings, issued.access_token, issued.refresh_token, issued.session_ends_at
+    )
 
 
 @router.post("/logout", status_code=204)

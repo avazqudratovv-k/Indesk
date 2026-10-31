@@ -57,7 +57,10 @@
   display: block;
   font-size: 15px;
   font-weight: 700;
-  word-break: break-all;
+  /* One line with an ellipsis: a long name never breaks mid-word. The full name is in the title attribute. */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .meta {

@@ -67,8 +67,9 @@ def test_the_active_run_is_returned_as_a_run_view(rig: Rig) -> None:
     run_id = rig.start_ok()
     response = rig.alice.get("/api/runs/active")
     assert response.status_code == 200
-    assert response.json() == rig.alice.get(f"/api/runs/{run_id}").json()
-    assert response.json()["status"] == "queued"
+    same = rig.alice.get(f"/api/runs/{run_id}").json()
+    assert {**response.json(), "server_now": None} == {**same, "server_now": None}
+    assert response.json()["server_now"] and response.json()["status"] == "queued"
 
 
 def test_a_finished_run_is_not_active_and_other_users_are_not_shown(rig: Rig) -> None:

@@ -219,9 +219,31 @@ def parse_rows(text: str, limits: Limits) -> tuple[int, int]:
     return rows, width
 
 
+def to_comma_separated(text: str, delimiter: str) -> str:
+    """Rewrite a semicolon or tab file as comma-separated text (the sandbox reads commas only).
+    The result is parsed again and must give exactly the same rows; anything else is refused, so a
+    half-converted file is never stored."""
+    try:
+        original = list(csv.reader(io.StringIO(text), delimiter=delimiter, strict=True))
+        out = io.StringIO()
+        writer = csv.writer(out, delimiter=",", lineterminator="\n")
+        writer.writerows(original)
+        converted = out.getvalue()
+        again = list(csv.reader(io.StringIO(converted), delimiter=",", strict=True))
+    except csv.Error:
+        raise _refuse(422, ErrorCode.BAD_CSV) from None
+    if again != original:
+        raise _refuse(422, ErrorCode.BAD_CSV)
+    return converted
+
+
 def check_csv(data: bytes, limits: Limits) -> CheckedCsv:
-    """Content checks after the size and declared-type checks: sniff, decode, transcode, parse."""
+    """Content checks after the size and declared-type checks: sniff, decode, transcode, parse.
+    A semicolon or tab file is stored comma-separated; a comma file is stored as it came."""
     sniff_content(data)
     text = decode_to_text(data)
     rows, width = parse_rows(text, limits)
+    delimiter = detect_delimiter(text)
+    if delimiter != ",":
+        text = to_comma_separated(text, delimiter)
     return CheckedCsv(utf8_bytes=text.encode("utf-8"), row_count=rows, column_count=width)

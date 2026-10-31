@@ -24,15 +24,11 @@
   color: var(--ink);
 }
 
-/* Not available yet: the name is dimmed, there is no hover and no pointer cursor. The "Coming soon" line stays
+/* Not available yet: the name is dimmed, there is no hover and no pointer cursor. The "Not available yet" line stays
    at full --mute strength because it carries the meaning. */
 .mode[aria-disabled="true"] {
   color: var(--mute);
   cursor: default;
-}
-
-.name {
-  opacity: 0.6;
 }
 
 .mode[aria-disabled="true"]:hover {

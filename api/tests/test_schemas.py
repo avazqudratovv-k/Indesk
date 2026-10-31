@@ -60,6 +60,7 @@ def test_error_codes_are_the_agreed_list() -> None:
         "TOO_MANY_STREAMS",
         "TOO_MANY_FILES",
         "UPLOAD_IN_USE",
+        "RUN_IN_PROGRESS",
         "PDF_ENCRYPTED",
         "PDF_NO_TEXT",
         "PDF_TOO_MANY_PAGES",

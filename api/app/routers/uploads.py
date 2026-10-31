@@ -1,10 +1,19 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile
 
 from app.core import clock, ratelimit
 from app.core.errors import AppError, ErrorCode
-from app.routers.deps import AppSettings, CurrentUser, Db, IpHash, RedisDep
+from app.db.models import Upload as UploadRow
+from app.routers.deps import (
+    AppSettings,
+    CurrentUser,
+    Db,
+    DeleteLimit,
+    IpHash,
+    ReadLimit,
+    RedisDep,
+)
 from app.schemas.users import Upload
 from app.services import uploads as service
 from app.storage import LocalDiskStorage, Storage
@@ -48,20 +57,38 @@ def create_upload(
         stream=file.file,
         ip_hash=ip_hash,
     )
-    return Upload.model_validate(upload)
+    return _view(db, settings, [upload])[0]
 
 
-@router.get("", response_model=list[Upload])
-def list_uploads(db: Db, user: CurrentUser) -> list[Upload]:
-    return [Upload.model_validate(u) for u in service.list_uploads(db, user, clock.utcnow())]
+def _view(db: Db, settings: AppSettings, rows: list[UploadRow]) -> list[Upload]:
+    """The public shape of each upload, with pages_without_text filled in for PDFs."""
+    counts = service.pages_without_text(db, rows, settings.limits)
+    return [
+        Upload.model_validate(u).model_copy(update={"pages_without_text": counts[u.id]})
+        for u in rows
+    ]
 
 
-@router.delete("/{upload_id}", status_code=204)
+@router.get("", response_model=list[Upload], dependencies=[ReadLimit])
+def list_uploads(
+    db: Db,
+    settings: AppSettings,
+    user: CurrentUser,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    include_deleted: bool = False,
+) -> list[Upload]:
+    rows = service.list_uploads(
+        db, user, clock.utcnow(), limit=limit, include_deleted=include_deleted
+    )
+    return _view(db, settings, rows)
+
+
+@router.delete("/{upload_id}", status_code=204, dependencies=[DeleteLimit])
 def delete_upload(upload_id: str, db: Db, storage: StorageDep, user: CurrentUser) -> Response:
     service.delete_upload(db, storage, user, upload_id, clock.utcnow())
     return Response(status_code=204)
 
 
-@router.get("/{upload_id}", response_model=Upload)
-def get_upload(upload_id: str, db: Db, user: CurrentUser) -> Upload:
-    return Upload.model_validate(service.get_upload(db, user, upload_id, clock.utcnow()))
+@router.get("/{upload_id}", response_model=Upload, dependencies=[ReadLimit])
+def get_upload(upload_id: str, db: Db, settings: AppSettings, user: CurrentUser) -> Upload:
+    return _view(db, settings, [service.get_upload(db, user, upload_id, clock.utcnow())])[0]

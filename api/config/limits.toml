@@ -137,15 +137,21 @@ pdf_min_page_chars = 20
 
 # Target characters of a chunk, and the characters shared with the next chunk. Chunks never cross a page.
 # Owner-approved proposal for P14 (plan section 3); to be tuned on the demo PDF in P14b.
+# chunk_chars may not pass 3,000 (the server refuses to start): the embedding model reads 8,192 tokens at most
+# per text (Google's model page; owner answer in P14b), and Korean can cost about a token a character.
 chunk_chars = 1000
 chunk_overlap_chars = 150
+
+# A chunk whose estimated embedding tokens pass this is not embedded: it stays searchable by words and the trace says
+# so. Never truncated (a cut text would make a vector of something the passage does not say). At most 6,000.
+embed_chunk_max_tokens = 6000
 
 # --- PDF search (P14a part 2) ---
 
 # Embedding tokens (document chunks + question) one run may use, on top of max_tokens_per_run (embedding tokens are NOT
 # counted there). A PDF whose chunks need more than this is searched by keywords only. Owner-approved proposal for P14a;
-# about 40,000 tokens for a 30-page English PDF, up to the whole 100,000 for dense Korean. Tune in P14b from real numbers.
-max_embed_tokens_per_run = 100000
+# about 40,000 tokens for a 30-page English PDF, up to about 205000 for dense Korean (budget 250000).
+max_embed_tokens_per_run = 250000
 
 # Price of embedding input in USD per 1M tokens, used for the cost estimate in ai_calls.est_cost_usd.
 # FROM GOOGLE'S PRICE PAGE, NOT MEASURED. The owner re-checks it in P14b.
@@ -163,6 +169,36 @@ retrieval_rrf_k = 60
 # not_answerable with no writer call. NOT TUNED: 0.5 is a guess for gemini-embedding-2, to be measured in P14b.
 retrieval_min_similarity = 0.5
 retrieval_min_terms = 2
+
+# --- Missing column (Ask) ---
+
+# When Owl's plan, after its one retry, names a column the file does not have, the run ends not_answerable
+# (csv_missing_column) - unless that name is a near-miss of a real column (similarity at or above this, on names
+# of 4 or more characters; shorter names must match exactly after normalizing). A near-miss is a model slip, not a
+# missing column, so the run still fails as bad_model_output. Owner decision 2026-10-31.
+column_match_similarity = 0.85
+
+# --- Daily purge ---
+
+# Rows deleted per batch (each batch is one short transaction; passes repeat until nothing is left).
+purge_batch = 200
+
+# A finished run that never made a report is deleted this many days after it finished. The run's usage_events
+# row stays (the free-run count), only its run_id becomes NULL.
+purge_no_report_days = 30
+
+# ai_calls rows are deleted after this many days. usage_events, usage_daily and audit_log are never purged.
+ai_calls_retention_days = 90
+
+# --- Read and delete limits ---
+
+# GET /reports, /reports/{id}, /uploads and /uploads/{id} one user may make per minute, together (fixed window in
+# Redis). A flood guard. If Redis is down reads still work (fail open). Owner decision 2026-10-31.
+reads_per_minute = 120
+
+# DELETE /reports/{id} and /uploads/{id} one user may make per hour, together. If Redis is down deletes are refused
+# with 503 (fail closed). Owner decision 2026-10-31.
+deletes_per_hour = 30
 
 # Files per slot of a run. DECISIONS #80 (owner answers for task 2.5). Not enforced by uploads (one file per request);
 # POST /runs reads these. Ask takes ONE CSV in v1 (more is refused with TOO_MANY_FILES).

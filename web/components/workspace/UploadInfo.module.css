@@ -53,6 +53,11 @@
   color: var(--bad);
 }
 
+/* Not available yet is a plan, not an error: the neutral "soon" tone of the Chip (dashed, no red). */
+.laterLabel {
+  color: var(--ink2);
+}
+
 .pills {
   display: flex;
   flex-wrap: wrap;
@@ -80,6 +85,12 @@
 .noPill {
   background: var(--badBg);
   color: var(--bad);
+}
+
+.laterPill {
+  border: 1px dashed var(--rule2);
+  background: var(--paper2);
+  color: var(--ink2);
 }
 
 @media (max-width: 760px) {

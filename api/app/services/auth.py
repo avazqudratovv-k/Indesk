@@ -6,6 +6,7 @@ import secrets
 import unicodedata
 import uuid
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
@@ -14,7 +15,6 @@ from sqlalchemy.orm import Session
 from app.core import clock
 from app.core.errors import AppError, ErrorCode
 from app.core.security import (
-    REFRESH_TTL,
     create_access_token,
     dummy_hash,
     hash_password,
@@ -40,6 +40,7 @@ class IssuedSession:
     user: User
     access_token: str
     refresh_token: str
+    session_ends_at: datetime  # login time + the absolute session limit; cookies never outlive it
 
 
 def _audit(db: Session, action: str, user_id: uuid.UUID | None, ip_hash: str) -> None:
@@ -88,23 +89,29 @@ def _insert_user(db: Session, email: str, password_hash: str, display_name: str)
 
 
 def _new_refresh_row(
-    db: Session, user_id: uuid.UUID, family_id: uuid.UUID
+    db: Session,
+    user_id: uuid.UUID,
+    family_id: uuid.UUID,
+    session_started_at: datetime,
+    session_max: timedelta,
 ) -> tuple[str, RefreshToken]:
+    """A rotated token inherits `session_started_at`, so a refresh chain ends at login + limit."""
     token = new_refresh_token()
     row = RefreshToken(
         user_id=user_id,
         family_id=family_id,
         token_hash=hash_refresh_token(token),
-        expires_at=clock.utcnow() + REFRESH_TTL,
+        session_started_at=session_started_at,
+        expires_at=session_started_at + session_max,
     )
     db.add(row)
     db.flush()
     return token, row
 
 
-def _issue(db: Session, user: User, secret: str) -> IssuedSession:
-    refresh_token, _ = _new_refresh_row(db, user.id, uuid.uuid4())
-    return IssuedSession(user, create_access_token(user.id, secret), refresh_token)
+def _issue(db: Session, user: User, secret: str, session_max: timedelta) -> IssuedSession:
+    refresh_token, row = _new_refresh_row(db, user.id, uuid.uuid4(), clock.utcnow(), session_max)
+    return IssuedSession(user, create_access_token(user.id, secret), refresh_token, row.expires_at)
 
 
 def _revoke_family(db: Session, family_id: uuid.UUID) -> None:
@@ -116,12 +123,19 @@ def _revoke_family(db: Session, family_id: uuid.UUID) -> None:
 
 
 def signup(
-    db: Session, secret: str, *, email: str, password: str, display_name: str, ip_hash: str
+    db: Session,
+    secret: str,
+    session_max: timedelta,
+    *,
+    email: str,
+    password: str,
+    display_name: str,
+    ip_hash: str,
 ) -> IssuedSession:
     if db.scalar(select(User.id).where(User.email == email)) is not None:
         raise AppError(409, ErrorCode.EMAIL_TAKEN)
     user = _insert_user(db, email, hash_password(password), display_name)
-    issued = _issue(db, user, secret)
+    issued = _issue(db, user, secret, session_max)
     _audit(db, AUDIT_SIGNUP, user.id, ip_hash)
     try:
         db.commit()
@@ -131,7 +145,9 @@ def signup(
     return issued
 
 
-def login(db: Session, secret: str, *, email: str, password: str, ip_hash: str) -> IssuedSession:
+def login(
+    db: Session, secret: str, session_max: timedelta, *, email: str, password: str, ip_hash: str
+) -> IssuedSession:
     user = db.scalar(select(User).where(User.email == email, User.deleted_at.is_(None)))
     # An unknown email costs the same as a wrong password: verify against a dummy hash.
     good = verify_password(user.password_hash if user else dummy_hash(), password)
@@ -141,13 +157,15 @@ def login(db: Session, secret: str, *, email: str, password: str, ip_hash: str) 
         raise AppError(401, ErrorCode.INVALID_CREDENTIALS)
     if needs_rehash(user.password_hash):
         user.password_hash = hash_password(password)
-    issued = _issue(db, user, secret)
+    issued = _issue(db, user, secret, session_max)
     _audit(db, AUDIT_LOGIN, user.id, ip_hash)
     db.commit()
     return issued
 
 
-def refresh(db: Session, secret: str, *, token: str | None, ip_hash: str) -> IssuedSession:
+def refresh(
+    db: Session, secret: str, session_max: timedelta, *, token: str | None, ip_hash: str
+) -> IssuedSession:
     unauthenticated = AppError(401, ErrorCode.UNAUTHENTICATED)
     if not token:
         raise unauthenticated
@@ -164,17 +182,20 @@ def refresh(db: Session, secret: str, *, token: str | None, ip_hash: str) -> Iss
         _audit(db, AUDIT_REFRESH_REUSE, row.user_id, ip_hash)
         db.commit()
         raise unauthenticated
-    if row.revoked_at is not None or row.expires_at <= clock.utcnow():
+    # NULL (a row from before migration 0006) counts as the row's own creation time.
+    started = row.session_started_at or row.created_at
+    ends_at = started + session_max
+    if row.revoked_at is not None or min(row.expires_at, ends_at) <= clock.utcnow():
         raise unauthenticated
     user = db.get(User, row.user_id)
     if user is None or user.deleted_at is not None:
         _revoke_family(db, row.family_id)
         db.commit()
         raise unauthenticated
-    new_token, new_row = _new_refresh_row(db, user.id, row.family_id)
+    new_token, new_row = _new_refresh_row(db, user.id, row.family_id, started, session_max)
     row.replaced_by = new_row.id
     db.commit()
-    return IssuedSession(user, create_access_token(user.id, secret), new_token)
+    return IssuedSession(user, create_access_token(user.id, secret), new_token, ends_at)
 
 
 def logout(db: Session, *, token: str | None, ip_hash: str) -> None:

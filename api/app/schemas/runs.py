@@ -23,6 +23,7 @@ from app.core.enums import (
     StepState,
 )
 from app.schemas.common import ApiModel, Id
+from app.schemas.not_answerable import NotAnswerable
 
 # A trace line is a message key (translated in the browser) plus plain values, never model text.
 MessageKey = Annotated[str, StringConstraints(pattern=r"^[A-Za-z][A-Za-z0-9_]{0,63}$")]
@@ -138,3 +139,8 @@ class RunView(ApiModel):
     finished_at: AwareDatetime | None
     steps: list[AgentStep]
     report_id: Id | None
+    # Additive: only for a not_answerable run (filled by the service from the closing payload).
+    not_answerable: NotAnswerable | None = None
+    # Additive: the server clock (UTC) when the view was built, so the browser can work out its
+    # offset. Set by the service; never part of a list or a report.
+    server_now: AwareDatetime | None = None

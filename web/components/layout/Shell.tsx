@@ -1,5 +1,6 @@
 import Footer from "./Footer";
 import Navbar from "./Navbar";
+import NoticeHost from "./NoticeHost";
 import PageBackground from "./PageBackground";
 import TabBar from "./TabBar";
 import styles from "./Shell.module.css";
@@ -10,6 +11,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     <div className={styles.shell}>
       <PageBackground />
       <Navbar />
+      <NoticeHost />
       <div className={styles.content}>{children}</div>
       <Footer />
       <TabBar />

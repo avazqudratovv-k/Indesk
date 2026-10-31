@@ -66,6 +66,16 @@ class HoundAgent:
                 {"pages": doc.page_count, "matched": 0, "mode": found.mode},
                 tok=found.embed_tokens,
             )  # fmt: skip
+        if found.size_limited:  # not a silent fallback: the reader sees why there were no vectors
+            ctx.emit(
+                TraceLine(AgentKey.RETRIEVAL, StepKind.SAY, StepState.RUNNING,
+                          TraceKey.KEYWORD_ONLY_SIZE, {"reason": "document_size"})
+            )  # fmt: skip
+        if found.skipped_chunks:
+            ctx.emit(
+                TraceLine(AgentKey.RETRIEVAL, StepKind.SAY, StepState.RUNNING,
+                          TraceKey.CHUNKS_SKIPPED, {"count": found.skipped_chunks})
+            )  # fmt: skip
         ctx.emit(closing, payload)
         result = HoundResult(
             upload_id=doc.upload_id, filename=doc.filename, page_count=doc.page_count,

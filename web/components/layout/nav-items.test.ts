@@ -6,8 +6,8 @@ import { isBuilt, navItems, visibleNavItems, type NavItem } from "./nav-items";
 const keys = (items: NavItem[]) => items.map((item) => item.key);
 
 describe("nav items", () => {
-  it("hides People and My reports until they are built, signed in or not", () => {
-    expect(keys(visibleNavItems(true))).toEqual(["home", "workspace", "plans"]);
+  it("shows My reports to a signed-in person only, and keeps People hidden until it is built", () => {
+    expect(keys(visibleNavItems(true))).toEqual(["home", "workspace", "myReports", "plans"]);
     expect(keys(visibleNavItems(false))).toEqual(["home", "workspace", "plans"]);
   });
 
@@ -17,10 +17,9 @@ describe("nav items", () => {
     expect(keys(visibleNavItems(false, on))).toEqual(["home", "workspace", "plans"]);
   });
 
-  it("marks /people and /my as not built, everything else as built", () => {
+  it("marks /people as not built, everything else (including /my) as built", () => {
     expect(isBuilt("/people")).toBe(false);
-    expect(isBuilt("/my")).toBe(false);
-    for (const href of ["/", "/workspace", "/plans"]) expect(isBuilt(href)).toBe(true);
+    for (const href of ["/", "/workspace", "/my", "/plans"]) expect(isBuilt(href)).toBe(true);
   });
 });
 
@@ -31,8 +30,20 @@ describe("the mobile tab bar and the unbuilt pages", () => {
     expect(read("TabBar.tsx")).toContain("visibleNavItems(");
   });
 
-  it("makes /people and /my answer 404 while their flag is off", () => {
+  it("makes /people answer 404 while its flag is off", () => {
     expect(read("../../app/people/page.tsx")).toContain('if (!isBuilt("/people")) notFound();');
-    expect(read("../../app/my/page.tsx")).toContain('if (!isBuilt("/my")) notFound();');
+  });
+
+  it("serves /my behind RequireAuth, with no 404 guard", () => {
+    const page = read("../../app/my/page.tsx");
+    expect(page).toContain("<RequireAuth>");
+    expect(page).not.toContain("notFound");
+  });
+});
+
+describe("the shared report page", () => {
+  it("is not built: /s answers 404", () => {
+    expect(isBuilt("/s")).toBe(false);
+    expect(readFileSync(join(__dirname, "../../app/s/[token]/page.tsx"), "utf8")).toContain('if (!isBuilt("/s")) notFound();');
   });
 });

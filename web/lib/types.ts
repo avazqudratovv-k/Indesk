@@ -36,7 +36,6 @@ export type CustomConfig = {
   runs: number;
   max_file_mb: 25 | 100 | 250;
   data_tier: string;
-  retention_days: 90 | 180 | 365;
   parallel: 1 | 3 | 5;
 };
 
@@ -46,21 +45,21 @@ export type PlanOffer = {
   runs: number;
   price: number;
   period: "forever" | "month" | "once";
+  popular: boolean;
+};
+
+// The one set of limits the demo enforces for everyone (api/config/limits.toml). Shown on the Free card and under the cards.
+export type DemoLimits = {
   max_file_mb: number;
   csv_rows: number;
   pdf_pages: number;
-  retention_days: number;
-  popular: boolean;
+  runs_per_day: number;
 };
 
 export type CustomPlanOffer = {
   runs: { min: number; max: number; step: number; default: number };
   per_run: number;
   minimum: number;
-  max_file_mb: CustomConfig["max_file_mb"][];
-  data_tier: string[];
-  retention_days: CustomConfig["retention_days"][];
-  parallel: CustomConfig["parallel"][];
 };
 
 export type Subscription = {

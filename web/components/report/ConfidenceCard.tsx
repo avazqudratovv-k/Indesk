@@ -9,6 +9,9 @@ export default function ConfidenceCard({ report, claims, real = false }: { repor
   const t = useTranslations("report");
   if (!report.confidence) return null;
   const { verified_count: verified, total_claims: total } = report;
+  // A PDF report has nothing computed: its claims match a quote in the document (the same signal as the passage source chips).
+  const fromDocument = real && claims.some((claim) => claim.doc_quote !== null || claim.doc_location !== null);
+  const note = !real ? "simple.confNote" : fromDocument ? "simple.confNotePdf" : "simple.confNoteReal";
   const ordered = [...claims].sort((a, b) => a.n - b.n);
   return (
     <section className={styles.card}>
@@ -17,7 +20,7 @@ export default function ConfidenceCard({ report, claims, real = false }: { repor
         <div className={`${styles.level} ${styles[report.confidence]}`}>
           {t(`confidence.${report.confidence}`)} · {verified}/{total}
         </div>
-        <div className={styles.note}>{t(real ? "simple.confNoteReal" : "simple.confNote", { total, verified, open: total - verified })}</div>
+        <div className={styles.note}>{t(note, { total, verified, open: total - verified })}</div>
       </div>
       <div className={styles.bar} role="img" aria-label={t("simple.confBar", { verified, total })}>
         {ordered.map((claim) => (

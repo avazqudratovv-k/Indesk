@@ -9,6 +9,7 @@ import styles from "./Checkout.module.css";
 
 type CheckoutProps = {
   summary: string;
+  signedIn: boolean;
   // Success only: the parent applies the plan and closes the window.
   onDone: () => void;
   onCancel: () => void;
@@ -20,7 +21,7 @@ const PROCESSING_MS = 1200;
 
 // Fake checkout. Card values live only in this component's state: never logged, stored, put in a URL or sent anywhere.
 // The outcome is a local rule: 4000 0000 0000 0002 is declined, any other complete number succeeds.
-export default function Checkout({ summary, onDone, onCancel }: CheckoutProps) {
+export default function Checkout({ summary, signedIn, onDone, onCancel }: CheckoutProps) {
   const t = useTranslations("plans");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const timer = useRef<number | undefined>(undefined);
@@ -101,7 +102,9 @@ export default function Checkout({ summary, onDone, onCancel }: CheckoutProps) {
             {t(ok ? "checkout.successTitle" : "checkout.declinedTitle")}
           </h2>
           {ok ? <div className={styles.summary}>{summary}</div> : null}
-          <p className={styles.resultLine}>{t(ok ? "checkout.successLine" : "checkout.declinedLine")}</p>
+          <p className={styles.resultLine}>
+            {ok ? (signedIn ? `${t("checkout.successLine")} ${t("checkout.successAccountFree")}` : t("checkout.successLine")) : t("checkout.declinedLine")}
+          </p>
           <div className={styles.actions}>
             {ok ? (
               <button type="button" className={styles.pay} onClick={done}>

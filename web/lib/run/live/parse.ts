@@ -1,4 +1,5 @@
-import { BACKEND_AGENTS, BUBBLES, OUTCOMES, STEP_KINDS, STEP_STATES, type LiveDone, type LiveStep, type RunSnapshot, type TraceArgs, type UploadedFile } from "./types";
+import { plainText } from "@/lib/report/real/text";
+import { BACKEND_AGENTS, BUBBLES, NA_KINDS, NA_REASONS, OUTCOMES, STEP_KINDS, STEP_STATES, type LiveDone, type LiveStep, type NaFacts, type NaSuggestion, type NotAnswerable, type RunSnapshot, type TraceArgs, type UploadedFile } from "./types";
 
 const keyPattern = /^[A-Za-z][A-Za-z0-9_]{0,63}$/;
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -39,11 +40,92 @@ export function parseStep(value: unknown): LiveStep | null {
   return { seq, agent, kind, state, key, args: parseArgs(value.args), tok: typeof tok === "number" && Number.isFinite(tok) && tok >= 0 ? tok : 0, bubble };
 }
 
+// Caps mirror api/app/schemas/not_answerable.py (8 pages, 8 columns, 2 suggestions, 200 characters a suggestion).
+const NA_MAX_PAGES = 8;
+const NA_MAX_COLUMNS = 8;
+const NA_MAX_SUGGESTIONS = 2;
+const NA_MAX_SUGGESTION_CHARS = 200;
+const NA_MAX_NAME_CHARS = 80;
+const NA_MAX_NUMBER = 10_000_000;
+
+// A fact that is absent (or null) is left out; a present fact of the wrong type, range or length makes the whole object invalid.
+function naInt(value: unknown, min: number): number | null | undefined {
+  if (value === undefined || value === null) return undefined;
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= min && value <= NA_MAX_NUMBER ? value : null;
+}
+
+function naText(value: unknown, max: number): string | null | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== "string" || value.length > max) return null;
+  const clean = plainText(value, max);
+  return clean === "" ? null : clean;
+}
+
+function parseNaFacts(value: unknown): NaFacts | null {
+  if (!isRecord(value)) return null;
+  const facts: NaFacts = {};
+  const ints: [keyof NaFacts, string, number][] = [
+    ["pageCount", "page_count", 0],
+    ["pagesWithText", "pages_with_text", 0],
+    ["askedPage", "asked_page", 0],
+    ["rowCount", "row_count", 0],
+    ["yearMin", "year_min", 0],
+    ["yearMax", "year_max", 0],
+    ["askedYear", "asked_year", 0],
+  ];
+  for (const [name, field, min] of ints) {
+    const n = naInt(value[field], min);
+    if (n === null) return null;
+    if (n !== undefined) (facts as Record<string, number>)[name] = n;
+  }
+  const timeColumn = naText(value.time_column, NA_MAX_NAME_CHARS);
+  if (timeColumn === null) return null;
+  if (timeColumn !== undefined) facts.timeColumn = timeColumn;
+  const askedColumn = naText(value.asked_column, NA_MAX_NAME_CHARS);
+  if (askedColumn === null) return null;
+  if (askedColumn !== undefined) facts.askedColumn = askedColumn;
+  for (const [name, field, max, cap] of [
+    ["searchedPages", "searched_pages", NA_MAX_PAGES, 1],
+    ["columns", "columns", NA_MAX_COLUMNS, 0],
+  ] as const) {
+    const list = value[field];
+    if (list === undefined || list === null) continue;
+    if (!Array.isArray(list) || list.length > max) return null;
+    const items = list.map((item) => (name === "columns" ? naText(item, NA_MAX_NAME_CHARS) : naInt(item, cap)));
+    if (items.some((item) => item === null || item === undefined)) return null;
+    if (items.length > 0) (facts as Record<string, unknown>)[name] = items;
+  }
+  return facts;
+}
+
+function parseNaSuggestion(value: unknown): NaSuggestion | null {
+  if (!isRecord(value)) return null;
+  const kind = oneOf(NA_KINDS, value.kind);
+  const text = naText(value.text, NA_MAX_SUGGESTION_CHARS);
+  return kind && text ? { text, kind } : null;
+}
+
+// The `not_answerable` object of a run (run view and done event). Strict: an unknown reason or kind, a wrong type, too
+// many items or a too long string makes the whole object null, and the screen falls back to the generic card.
+export function parseNotAnswerable(value: unknown): NotAnswerable | null {
+  if (!isRecord(value)) return null;
+  const reason = oneOf(NA_REASONS, value.reason);
+  const facts = parseNaFacts(value.facts);
+  const list = value.suggestions === undefined || value.suggestions === null ? [] : value.suggestions;
+  if (!reason || !facts || !Array.isArray(list) || list.length > NA_MAX_SUGGESTIONS) return null;
+  const suggestions = list.map(parseNaSuggestion);
+  if (suggestions.some((item) => item === null)) return null;
+  return { reason, facts, suggestions: suggestions as NaSuggestion[] };
+}
+
 export function parseDone(value: unknown): LiveDone | null {
   if (!isRecord(value)) return null;
   const outcome = oneOf(OUTCOMES, value.outcome);
   if (!outcome) return null;
-  return { outcome, reason: typeof value.reason === "string" ? value.reason : null, reportId: typeof value.report_id === "string" ? value.report_id : null };
+  const done: LiveDone = { outcome, reason: typeof value.reason === "string" ? value.reason : null, reportId: typeof value.report_id === "string" ? value.report_id : null };
+  const notAnswerable = outcome === "not_answerable" ? parseNotAnswerable(value.not_answerable) : null;
+  if (notAnswerable) done.notAnswerable = notAnswerable;
+  return done;
 }
 
 function time(value: unknown): number | null {
@@ -52,30 +134,40 @@ function time(value: unknown): number | null {
   return Number.isFinite(ms) ? ms : null;
 }
 
-export function parseRunSnapshot(value: unknown): RunSnapshot | null {
+// `arrivedAt` is the browser time when the response arrived; the offset is server_now minus that.
+export function parseRunSnapshot(value: unknown, arrivedAt: number = Date.now()): RunSnapshot | null {
   if (!isRecord(value) || !isRunId(value.id)) return null;
   const status = oneOf(["queued", "running", "finished"] as const, value.status);
   if (!status) return null;
   const steps = Array.isArray(value.steps) ? value.steps.map(parseStep).filter((step): step is LiveStep => step !== null) : [];
-  return {
+  const outcome = oneOf(OUTCOMES, value.outcome);
+  const serverNow = time(value.server_now);
+  const snapshot: RunSnapshot = {
     id: value.id,
     status,
-    outcome: oneOf(OUTCOMES, value.outcome),
+    outcome,
     reason: typeof value.reason === "string" ? value.reason : null,
     reportId: typeof value.report_id === "string" ? value.report_id : null,
     question: typeof value.question === "string" ? value.question : "",
     createdAt: time(value.created_at),
     startedAt: time(value.started_at),
     finishedAt: time(value.finished_at),
+    clockOffsetMs: serverNow === null ? null : serverNow - arrivedAt,
     steps,
   };
+  const notAnswerable = outcome === "not_answerable" ? parseNotAnswerable(value.not_answerable) : null;
+  if (notAnswerable) snapshot.notAnswerable = notAnswerable;
+  return snapshot;
 }
 
 export function parseUpload(value: unknown): UploadedFile | null {
   if (!isRecord(value) || typeof value.id !== "string") return null;
   const expiresAt = time(value.expires_at);
   if (expiresAt === null) return null;
-  return { id: value.id, expiresAt, rowCount: typeof value.row_count === "number" ? value.row_count : null };
+  const upload: UploadedFile = { id: value.id, expiresAt, rowCount: typeof value.row_count === "number" ? value.row_count : null };
+  const blank = value.pages_without_text;
+  if (typeof blank === "number" && Number.isSafeInteger(blank) && blank >= 0) upload.pagesWithoutText = blank;
+  return upload;
 }
 
 export function parseCreated(value: unknown): { id: string } | null {

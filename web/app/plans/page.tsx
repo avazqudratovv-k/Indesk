@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import PlansView from "@/components/plans/PlansView";
-import { getMockCustomPlanOffer, listMockPlanOffers } from "@/mocks";
+import { getMockCustomPlanOffer, getMockDemoLimits, listMockPlanOffers } from "@/mocks";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("plans");
@@ -9,5 +9,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <PlansView offers={listMockPlanOffers()} custom={getMockCustomPlanOffer()} />;
+  return <PlansView offers={listMockPlanOffers()} custom={getMockCustomPlanOffer()} limits={getMockDemoLimits()} />;
 }

@@ -156,9 +156,9 @@ def test_a_bad_plan_is_retried_once_then_works(factory: SessionFactory, first: A
     assert top3_payload(factory, world)["attempt"] == 1  # Beaver's own attempt
 
 
-@pytest.mark.parametrize("bad", [ok("nope"), plan_answer(columns=["no_such_column"])])
-def test_a_bad_plan_twice_fails_with_the_mapped_reason(factory: SessionFactory, bad: Any) -> None:
+def test_a_bad_plan_twice_fails_with_the_mapped_reason(factory: SessionFactory) -> None:
     world = make_world(factory)
+    bad = ok("nope")
     rig, client, _ = ask_rig(factory, world, bad, bad)
     run_job(world.run_id, rig.deps)
     failed_with(factory, world, RunReason.BAD_MODEL_OUTPUT)
