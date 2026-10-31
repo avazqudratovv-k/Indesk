@@ -1,6 +1,6 @@
 # SPEC.md — Indesk
 
-Lives at: `docs/ai/SPEC.md`. Working name: **Indesk** (earlier "Insight Desk"). Status: design finished (FINAL DESIGN PROJECT 2); the backend foundation and the Ask run are built, the agents and reports are not (see `STATE.md`). Last updated 2026-10-26.
+Lives at: `docs/ai/SPEC.md`. Working name: **Indesk** (earlier "Insight Desk"). Status: design finished (FINAL DESIGN PROJECT 2); the Ask run for CSV and PDF files is built with Owl, Beaver, Hound and Cat, as are reports and My page; Check, Compare and Vision are not built (see `STATE.md`). Last updated 2026-10-31.
 Rule used in this file: only what we decided. Anything not decided is marked `OPEN:` with a recommendation.
 
 ## 1. The problem
@@ -34,7 +34,7 @@ There is **no admin role** in v1. Operate through the database and logs.
 3. The visitor sees the agents' trace and the report. To run their own files they must sign up.
 
 **B. Sign up and log in**
-1. Sign up with email, password, display name (no verification code until after deploy). 2. Log in. 3. Lands in Workspace. Plan starts as Free (2 runs). Sign-ups are limited to 5 per hour per IP.
+1. Sign up with email, password, display name (no verification code until after deploy). 2. Log in. 3. Lands in Workspace. Plan starts as Free (3 free runs in total, one-time, not monthly; deleting a report does not give one back, DECISIONS #295). Sign-ups are limited to 5 per hour per IP.
 
 **C. Ask a question**
 1. Workspace, tab "1 Ask a question", mode "Ask a question".
@@ -70,7 +70,7 @@ There is **no admin role** in v1. Operate through the database and logs.
 1. Lists reports (status Private / Shared with expiry) and uploaded file names (name, type, size; "Deleted" after 24 h). 2. Share/Unshare, delete with 7-day undo.
 
 **K. Plans**
-1. Free (2 runs), Pro ₩12,000/mo (50 runs), Pay-as-you-go ₩6,500 for 20 runs, Custom plan calculator (₩130 per run, minimum ₩12,000). Prices are KRW only (DECISIONS #74). 2. Simulated "demo checkout".
+1. Free (3 runs in total), Pro ₩12,000/mo (50 runs), Pay-as-you-go ₩6,500 for 20 runs, Custom plan calculator (₩130 per run, minimum ₩12,000). Prices are KRW only (DECISIONS #74). 2. Simulated "demo checkout".
 
 **L. People**
 1. Signed-in users search by name or handle (2+ characters, 20 results max). Only people who opted in are found.
@@ -110,7 +110,7 @@ There is **no admin role** in v1. Operate through the database and logs.
 
 ## 6. Constraints
 - **Deadline:** a soft target of 2026-11-01 to 2026-11-03 (since 2026-10-26; it was a hard date before); 12 to 14 hours a day planned. Only Tier A is aimed at that date.
-- **Budget:** $0 while developing on the Gemini free tier. After moving to the paid tier, a **$20 monthly limit** until deploy. Per-run cost caps (estimated at paid prices, tracked even on the free tier): Ask about $0.05, Check about $0.12, Compare about $0.08.
+- **Budget:** $0 while developing on the Gemini free tier. After moving to the paid tier, a **$20 monthly limit** until deploy. Per-run cost caps (estimated at paid prices, tracked even on the free tier): Ask about $0.05, Check about $0.12, Compare about $0.08. **As built:** the run cap is a token count (60,000 tokens, plus 250,000 embedding tokens for a PDF), not dollars (DECISIONS #167, #291).
 - **AI provider:** Google Gemini only, key only on the server. **Free-tier warning:** Google's pricing page says free-tier content is used to improve Google's products; paid tier is not. So while on the free tier, use only the public Seoul demo data and test files, never real private files. Move to the paid tier before recruiters or anyone else upload their own files. The move happens before the link is shared with anyone (decided Oct 25).
 - **Must-learn (first AI project):** FastAPI, pandas, computer vision/OCR, NLP, RAG, LLMs, agent orchestration. The user wants to understand each step.
 - **Languages:** English and Korean first; all text in translation files so Japanese, Russian and Uzbek can be added after (the design already has all five).
@@ -135,7 +135,7 @@ Every sentence on a public page that promises something must be backed by a buil
 - "Sign-ups are limited per hour" (rate limit, ROADMAP 3.5).
 - Plan option groups (file size, data size, retention, parallel runs) are advertised only when the backend enforces them (DECISIONS #75).
 - "Sandbox: no network, 5 s CPU limit" (Beaver) must be true by deploy (ROADMAP section 3, sandbox runner).
-- "Images work" must be true by deploy. **IN CONFLICT (2026-10-25):** the Report shows photo-of-chart claims as Example, and Vision (ROADMAP 3.20) is after Nov 1. To be decided at the deploy checklist: change the copy or change the line. Not decided here.
+- "Images are not available yet" (was "Images work"). Decided 2026-10-31: Vision (ROADMAP 3.20) comes after the deploy, so the copy says "Not available yet" (DECISIONS #303, #320).
 - "Every number links to the row or page it came from" must be true or be removed.
 - "This run was not used up" must be true or be removed.
 
@@ -146,10 +146,10 @@ Status of each claim as of 2026-10-26 (HEAD b2a13b2). "Copy" is the English text
 - "Originals are deleted after 24 h": the expiry sweep was built in P4 (hourly, `upload_swept`). Keep the copy. Depends on the scheduler service running (exactly one) and on a deploy check that the sweep ran.
 - "A failed agent is never hidden: it shows Failed and can be retried" (Copy, run tab "How each agent can end"): **not true yet.** There is no retry endpoint; the run itself retries each step once on its own (DECISIONS #42). Build the endpoint or remove "and can be retried".
 - "Every claim comes with its proof" (Copy, Ask description): **true only after Cat and the reports exist (P9 and 4.4).** Today a real run has no claims or evidence.
-- "Free plan, 2 free runs", "2 free runs · no card needed" and "Uses 1 of your 2 free runs": **mock until P10.** The server has no plan quota or run counting yet.
-- "PDF up to 10 pages", "a photo of a chart or a PDF" (Home hero lede), "Five animal agents" (Home hero, plans): **not true for the Nov 1 scope.** Nov 1 is CSV only with Owl, Beaver and Cat. Change the copy at deploy, or ship PDF, Hound and Chameleon first.
-- "Reports kept for 30 days" (and 60 and 90 by plan): **no retention job yet** (ROADMAP 3.16). Reports do not exist yet either.
-- "Images work": stays **IN CONFLICT** (see above). Vision is Tier C and the Ask tab now refuses images ("Not available yet").
+- "Free plan, 2 free runs", "2 free runs · no card needed" and "Uses 1 of your 2 free runs": the server counts free runs since P10; the number is **3 in total**, one-time, not monthly (DECISIONS #261, #295). Any copy still saying 2 is stale.
+- "PDF up to 10 pages" (the limit is 30 pages since P14a, #275), "a photo of a chart or a PDF" (Home hero lede), "Five animal agents" (Home hero, plans): **not true for the Nov 1 scope.** Nov 1 is CSV only with Owl, Beaver and Cat. Change the copy at deploy, or ship PDF, Hound and Chameleon first.
+- "Reports kept for 30 days" (and 60 and 90 by plan): **not true as built.** A daily purge job deletes reports past `expires_at` (DECISIONS #297), but per-plan retention is not enforced; the web says "Available until {date}" (#309).
+- "Images are not available yet": the copy is true; the Ask tab refuses images ("Not available yet") and Vision comes after the deploy (#303).
 - The "How each agent can end" panel on the run tab must read as an example of possible endings, not as what happened in this run.
 - "Every number links to the row or page it came from": not built (needs P9 evidence).
 

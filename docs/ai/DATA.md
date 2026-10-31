@@ -28,7 +28,7 @@ Legend: R = required. Types: uuid, text, int, bool, ts (timestamp), jsonb, vecto
 | deleted_at | ts | no | |
 
 ### refresh_tokens
-id uuid R; user_id uuid R; family_id uuid R (all tokens from one login; if an old token is reused, the whole family is revoked); token_hash text R (never store the token); replaced_by uuid (the next token after rotation); expires_at ts R; revoked_at ts. The access token is short-lived and travels in an httpOnly cookie, not in this table.
+id uuid R; user_id uuid R; family_id uuid R (all tokens from one login; if an old token is reused, the whole family is revoked); token_hash text R (never store the token); replaced_by uuid (the next token after rotation); expires_at ts R; revoked_at ts. The access token is short-lived and travels in an httpOnly cookie, not in this table. `session_started_at` ts (migration 0006, nullable, NULL is treated as `created_at`): the time of the login; rotated tokens inherit it, and the session ends 6 hours after it (`SESSION_MAX_SECONDS` 21600, DECISIONS #292).
 
 ### subscriptions
 id; user_id; plan (free, pro, custom) R; status R; custom_config jsonb (runs 10 to 1000, max_file_mb 25/100/250, data_tier, retention_days 90/180/365, parallel 1/3/5); provider_customer_id text (simulated in v1); current_period_end ts.
@@ -37,7 +37,7 @@ id; user_id; plan (free, pro, custom) R; status R; custom_config jsonb (runs 10 
 id; user_id; provider_ref text; amount int (cents); currency text; status text; test_mode bool R (always true in v1).
 
 ### usage_events
-id; user_id R; run_id; kind R (run, credit_purchase); amount int R (a run records 1); created_at R. Plan quota is computed from this table. Retention 90 days.
+id; user_id R; run_id; kind R (run, credit_purchase); amount int R (a run records 1); created_at R. Plan quota is computed from this table. **Kept forever** (it is the free-run count); never purged (DECISIONS #298).
 
 ### uploads
 | Field | Type | R | Limits / notes |
@@ -49,8 +49,8 @@ id; user_id R; run_id; kind R (run, credit_purchase); amount int R (a run record
 | size | int | yes | Free 5 MB (owner decision, replaces the old 2 MB, see DECISIONS #79); Pro 25 MB; Custom 25/100/250 MB |
 | sha256 | text | yes | |
 | storage_key | text | no | removed at deletion |
-| page_count | int | no | PDF: Free 10, Pro 200 |
-| row_count | int | no | CSV: Free 5,000, Pro 200,000, Custom 200,000 or 1,000,000 |
+| page_count | int | no | PDF: 30 pages for everyone (`max_pdf_pages`, DECISIONS #275) |
+| row_count | int | no | CSV: 20,000 data rows for everyone (`max_rows`, DECISIONS #278; was 5,000) |
 | status | text | yes | uploaded, ready, deleted |
 | moderation | text | yes | pending, passed, blocked |
 | created_at | ts | yes | |
@@ -113,13 +113,13 @@ id; report_id R; token_hash R (random token, shown once); created_at R; expires_
 | tokens_in, tokens_out | int | yes | |
 | est_cost_usd | numeric | yes | at paid prices |
 | latency_ms | int | yes | counts against the 35 s budget |
-| created_at | ts | yes | retention 90 days |
+| created_at | ts | yes | purged after 90 days by the daily `purge_expired` job (DECISIONS #297) |
 
 ### usage_daily (feeds the daily caps)
 day date R; user_id uuid (null = the global row); runs int; model_calls int; est_cost_usd numeric. Unique on (day, user_id). **As built (P2/P6, DECISIONS #113):** one row per `(day, scope)`, scope = `global` or `user:<uuid>`, plus a surrogate id; a CHECK ties scope to user_id. Caps (config, starting values): per user 30 runs and 300 model calls per day; global 100 runs and 1,000 model calls per day; the cached example is excluded. When a cap is reached the run is refused before any model call with outcome `rejected` and reason `daily_cap_user` or `daily_cap_global`, and it does not count as a run.
 
 ### audit_log
-id; user_id; action R; target; ip_hash; created_at R. Retention 90 days.
+id; user_id; action R; target; ip_hash; created_at R. Kept; never purged (DECISIONS #298).
 **Actions written so far:** `signup`, `login`, `login_failed`, `refresh_reuse`, `logout` (P3); `upload_created`, `upload_swept` (P4); `run_created`, `run_finished` (P7). For `run_finished` the target is `"<run_id>:<reason or outcome>"` (DECISIONS #173); for the others it is an id. No file name, question or content is stored.
 
 ### benchmark_runs
@@ -159,7 +159,7 @@ Paths are accepted. "Auth" = signed-in user; "Owner" = signed-in user who owns t
 | Get report | `GET /api/reports/{id}` | none | report, claims, evidence | Owner |
 | Update style | `PATCH /api/reports/{id}` | template, typeface, text_size | report | Owner |
 | Export | `GET /api/reports/{id}/export?format=...` (pdf, docx, xlsx or csv) | format | file | Owner |
-| Delete / undo | `DELETE /api/reports/{id}`, `POST /api/reports/{id}/restore` | none | ok | Owner (restore within 7 days) |
+| Delete / undo | `DELETE /api/reports/{id}`, `POST /api/reports/{id}/restore` | none | ok | Owner (restore within 7 days). **As built:** `DELETE` is a hard delete of the whole run, 409 `RUN_IN_PROGRESS` while active; no restore, no refund (DECISIONS #295) |
 | Create / revoke share link | `POST /api/reports/{id}/share`, `DELETE /api/reports/{id}/share` | none | link (token shown once), expires_at | Owner |
 | Public report | `GET /api/shared/{token}` | token | read-only report | Anyone with a live link |
 | My reports | `GET /api/reports` | none | list with status | Auth (own) |
@@ -169,9 +169,9 @@ Paths are accepted. "Auth" = signed-in user; "Owner" = signed-in user who owns t
 | Demo checkout | `POST /api/checkout` | plan or custom config | simulated payment, subscription | Auth |
 | Try example | `GET /api/example` | none | cached example run and report | Everyone |
 
-Built so far (HEAD b2a13b2; check `api/app/routers/` before relying on this): `POST /api/auth/signup|login|refresh|logout`, `GET /api/me` (no PATCH yet), `POST /api/uploads` (CSV only), `GET /api/uploads` (a bare array), `GET /api/uploads/{id}`, `POST /api/runs` (Ask only; 202; optional `Idempotency-Key`), `GET /api/runs/{id}`, `GET /api/runs/{id}/events` (SSE), `GET /api/health`, `GET /api/ready`. Everything else in the table is not built. Error bodies are `{"error":{"code":"..."}}` (DECISIONS #103).
+Built so far (HEAD 93cbc38; check `api/app/routers/` before relying on this): `POST /api/auth/signup|login|refresh|logout`, `GET /api/me` (no PATCH yet), `GET /api/usage`, `GET /api/example`, `POST /api/uploads` (CSV and PDF), `GET /api/uploads` (a bare array; `limit`, `include_deleted`), `GET /api/uploads/{id}`, `DELETE /api/uploads/{id}`, `POST /api/runs` (Ask only; 202; optional `Idempotency-Key`), `GET /api/runs/active`, `GET /api/runs/{id}` (with `server_now` and, for a not answerable run, `not_answerable {reason, facts, suggestions}`), `GET /api/runs/{id}/events` (SSE), `GET /api/reports` (owner only, newest first, `limit` 20 max 50, keyset cursor; only `answered` and `partial` runs have a report), `GET /api/reports/{id}`, `DELETE /api/reports/{id}`, `GET /api/health`, `GET /api/ready`. Everything else in the table is not built. Error bodies are `{"error":{"code":"..."}}` (DECISIONS #103).
 
-Rate limits (decided): 5 sign-ups per hour per IP; 30 runs per day per user on paid plans (the plan quota applies first); 30 people searches per minute per user. AI daily caps are in `usage_daily` above. A run refused by a cap returns the reason `daily_cap_user` or `daily_cap_global`.
+Rate limits (decided): 5 sign-ups per hour per IP; 30 people searches per minute per user. **As built:** 10 runs and 50 model calls per user per day, 150 runs and 600 calls for the whole site; 3 free runs per account in total (the old "30 runs per day on paid plans" is stale, DECISIONS #261). Report and upload reads 120 per minute per user (fail open), report and upload deletes 30 per hour per user (fail closed) (DECISIONS #296). AI daily caps are in `usage_daily` above. A run refused by a cap returns the reason `daily_cap_user` or `daily_cap_global`.
 
 ## 4. Example mock records
 Use these shapes for the UI-first mock data. The Seoul figures are placeholders until the real dataset is checked.
@@ -313,13 +313,14 @@ A trace line is `agent`, `kind`, `state`, `key`, `args`, `tok`, `bubble`. A stri
 ### Migrations
 - `0001` initial schema (P2).
 - `0002` one active run per user (P7, additive): a partial unique index `uq_runs_user_id_active` on `runs(user_id) WHERE status <> 'finished'`. A second run start for the same user fails at the database; the API answers 409 `RUN_ACTIVE`. Also enforced by an advisory lock on the user (DECISIONS #164).
+- `0003` quota and failure kind (P10a, DECISIONS #249, #252). `0004` app role grants (P10c, #255). `0005` `document_pages` and `chunks` with pgvector (P14a, #276; needs the `vector` extension created by a superuser on an existing volume). `0006` adds `refresh_tokens.session_started_at` (nullable, backfilled from the earliest `created_at` per family; DECISIONS #292). `reports.deleted_at` and `reports.pdf_key` exist but nothing writes them (#297).
 
 ### Usage rules for `ai_calls` and `usage_daily`
 - One `ai_calls` row per attempt at one model, written by the gateway after the call. Columns hold model, attempt (1 to 3), purpose, status, tokens in and out, latency. They never hold a prompt, a response, a question or file text. `est_cost_usd` stays 0 until a price table exists (DECISIONS #159). `run_id` and `step_id` are set to null if the run is deleted.
 - Before every attempt the gateway reserves one slot with one SQL upsert per scope on `usage_daily` (`INSERT ... ON CONFLICT DO UPDATE ... WHERE model_calls < cap`): the user row first, then the global row, in one transaction. If either is at its cap the transaction rolls back, so a refused reservation counts nothing. A fallback attempt takes its own slot. If a cap is full the call is not made and the outcome is `cap_reached`. If the counter store fails the outcome is `model_unavailable` (fail closed). See DECISIONS #158.
-- Dev caps are in `api/config/limits.toml`: `daily_calls_per_user` 50 and `daily_calls_global` 200 per UTC day; production values are set at deploy (DECISIONS #160). The `runs` column of `usage_daily` is not written yet (run counting is P10).
-- `tokens_in` and `tokens_out` on a run are summed from `ai_calls`; `max_tokens_per_run` (60,000) stops a run with `budget_exceeded`.
-- Retention of 90 days for `ai_calls`, `usage_events` and `audit_log` has indexes on `created_at` but **no cleanup job yet** (ROADMAP 3.16).
+- Caps are in `api/config/limits.toml` (set 2026-10-27, DECISIONS #261): per user 10 runs and 50 model calls, whole site 150 runs and 600 calls per UTC day. The `runs` column of `usage_daily` has been written since P10a (#250). `usage_daily` is never purged (#298).
+- `tokens_in` and `tokens_out` on a run are summed from `ai_calls`; `max_tokens_per_run` (60,000) stops a run with `budget_exceeded`. A PDF run has a separate embedding budget of 250,000 tokens (DECISIONS #291).
+- Retention: the daily `purge_expired` job deletes only `ai_calls` older than 90 days (plus expired reports with their runs and finished runs without a report older than 30 days). `usage_events`, `usage_daily` and `audit_log` are kept on purpose (DECISIONS #297, #298). An earlier version of this line promised a 90-day cleanup of all three; that was wrong.
 
 ## summary_json shapes (as built for the Ask report in ROADMAP 2.7; Check and Compare still to confirm at 3.13 and 3.14)
 Taken from `web/mocks/reports.json`. Every shape has `answer`.

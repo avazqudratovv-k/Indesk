@@ -38,7 +38,7 @@ Repo: this one (monorepo: `web/`, `api/`, `docs/`). Product detail: `docs/ai/SPE
 - Answers come only from the user's files, never from model world knowledge. A claim without evidence is never shown as verified.
 - Numbers are computed in code (pandas on the whole file) and the app renders them; the model only sees column names, a sample and results. Charts and report styling never go through the AI.
 - Agents return structured results (claim, value, method, evidence, confidence, caveats) validated by Pydantic; output that doesn't fit is rejected, not rendered.
-- Orchestration is our own typed state machine; no agent framework. Step cap 12, one retry per agent step, per-run cost caps (Ask $0.05, Check $0.12, Compare $0.08).
+- Orchestration is our own typed state machine; no agent framework. Step cap 12, one retry per agent step, per-run caps in tokens: 60,000 model tokens per run and 250,000 embedding tokens per PDF run (the dollar targets Ask $0.05, Check $0.12, Compare $0.08 are planned; the code enforces tokens, DECISIONS #167, #291).
 - Generated code runs only in the Docker sandbox: no network, 5 s CPU, memory limit.
 - Storage and payments sit behind interfaces (local disk now, simulated demo checkout). Originals and extracted data are deleted after 24 h; reports keep their evidence snapshots.
 - New API fields are additive; change the API before the frontend that uses it.
@@ -62,7 +62,7 @@ Repo: this one (monorepo: `web/`, `api/`, `docs/`). Product detail: `docs/ai/SPE
 - Follow `docs/security/SECURITY.md` and `.claude/rules/security.md`. Never trust the client: prices, plan, roles, user IDs and limits are decided on the server; every private record (report, upload) is checked for ownership on the server.
 - Auth: Argon2 passwords; short-lived access token in an httpOnly cookie plus a rotating refresh token stored hashed.
 - Share links: random token stored hashed, read-only, expire after 7 days, revocable. People search: opt-in users only, 2+ characters, max 20 results.
-- Rate limits: 5 sign-ups per hour per IP, 30 runs per day per user on paid plans, 30 people searches per minute per user.
+- Rate limits: 5 sign-ups per hour per IP, 10 runs and 50 model calls per user per day (150 and 600 for the whole site), 30 people searches per minute per user (not built). Sessions end 6 hours after login (DECISIONS #292).
 - Changes that touch auth, payments, uploads, personal data or AI: name the security rule you applied and how you tested it in the report. A control is "done" only with a passing test; otherwise say "not verified".
 
 ## Code style
