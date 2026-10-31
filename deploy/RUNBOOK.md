@@ -74,7 +74,7 @@ Generate the auth secret and paste it into `.env`.
 openssl rand -hex 32
 ```
 
-Open `.env` and fill in: the three `POSTGRES_*` passwords, `AUTH_SECRET`, `GEMINI_API_KEY` (the paid key, with a monthly limit set in Google AI Studio), and check `EDGE_SUBNET` against step 1.
+Open `.env` and fill in: the three `POSTGRES_*` passwords, `AUTH_SECRET`, `GEMINI_API_KEY` (the paid key; a Google Cloud budget only alerts and does not stop spending, the hard limits are the app's daily caps plus a Google quota; see "Gemini key and budget"), and check `EDGE_SUBNET` against step 1.
 
 ```
 nano .env
