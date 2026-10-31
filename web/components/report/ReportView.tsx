@@ -8,6 +8,7 @@ import type { Evidence } from "@/lib/types";
 import type { ReportBundle } from "@/lib/report/get-report";
 import ClaimList from "./ClaimList";
 import ConfidenceCard from "./ConfidenceCard";
+import DownloadButtons from "./DownloadButtons";
 import EvidencePanel from "./EvidencePanel";
 import ExampleBanner from "./ExampleBanner";
 import GrowthChart from "./GrowthChart";
@@ -54,11 +55,12 @@ export default function ReportView({ bundle, real, example = false }: { bundle: 
   return (
     <ProseLangProvider lang={real?.lang ?? undefined}>
     <main className={styles.main}>
-      {real && !example ? null : <ExampleBanner />}
-      {real?.note ? <p className={styles.langNote}>{t(`langNote.${real.note}`)}</p> : null}
+      {real && !example ? null : <div data-print="hide"><ExampleBanner /></div>}
+      {real?.note ? <p className={styles.langNote} data-print="hide">{t(`langNote.${real.note}`)}</p> : null}
       <ReportPaper report={report} real={Boolean(real)} />
-      <div className={styles.toolbar}>
+      <div className={styles.toolbar} data-print="hide">
         <ViewToggle value={view} onChange={setView} />
+        {real ? <DownloadButtons bundle={bundle} /> : null}
         <p className={styles.later}>{t("later")}</p>
       </div>
       {claims.length === 0 ? (

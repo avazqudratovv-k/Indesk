@@ -31,7 +31,7 @@ export default function TabBar() {
   const session = useSession();
 
   return (
-    <nav className={styles.tabbar} aria-label={t("label")}>
+    <nav data-print="hide" className={styles.tabbar} aria-label={t("label")}>
       {visibleTabs(session.signedIn)
         .map((tab) => {
           const active = isActive(pathname, tab.href);

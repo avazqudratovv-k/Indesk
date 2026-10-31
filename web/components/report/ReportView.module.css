@@ -59,3 +59,20 @@
     padding: 22px 20px 0;
   }
 }
+
+/* Print: no side padding (the page margin is set in globals.css), cards are not split across pages. */
+@media print {
+  .main {
+    max-width: none;
+    padding: 0;
+    gap: 16px;
+  }
+
+  .cols {
+    display: block;
+  }
+
+  .article > * {
+    break-inside: avoid;
+  }
+}

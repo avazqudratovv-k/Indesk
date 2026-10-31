@@ -5,7 +5,7 @@ import styles from "./Footer.module.css";
 export default function Footer() {
   const t = useTranslations("footer");
   return (
-    <footer className={styles.foot}>
+    <footer data-print="hide" className={styles.foot}>
       <DemoNotice />
       <p className={styles.tagline}>{t("tagline")}</p>
     </footer>

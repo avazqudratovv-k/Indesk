@@ -41,3 +41,22 @@ textarea:focus-visible {
     transition: none !important;
   }
 }
+
+/* Print (the report's "Download PDF"): only the report card and the active view. The shell, switches, notices and footer go;
+   DownloadButtons prints in the light theme by switching data-theme for the length of the print. */
+@page {
+  margin: 14mm;
+}
+
+@media print {
+  [data-print="hide"] {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: transparent !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

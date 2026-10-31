@@ -97,7 +97,7 @@ describe("a real report (Simple view)", () => {
     const html = report("answered");
     expect(html).not.toContain("Growth since");
     expect(html).not.toMatch(/<pre|Share<|Style &amp; download|Ask more/);
-    expect(html).toContain("Sharing, download and follow-up questions come in a later version.");
+    expect(html).toContain("Sharing and follow-up questions come in a later version.");
   });
 
   it("shows the language note only when told to, and never says it is a translation", () => {
