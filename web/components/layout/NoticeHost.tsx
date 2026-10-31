@@ -46,7 +46,7 @@ export default function NoticeHost() {
 
   const message = notice ? noticeMessage(notice) : null;
   return (
-    <div className={styles.region} role="status" aria-live="polite">
+    <div className={styles.region} data-print="hide" role="status" aria-live="polite">
       {message ? (
         <div className={styles.notice} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>
           <p className={styles.text}>{t(message.key, message.values)}</p>

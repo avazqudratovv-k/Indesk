@@ -141,3 +141,14 @@
     text-align: left;
   }
 }
+
+@media print {
+  .paper {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+
+  .row {
+    break-inside: avoid;
+  }
+}

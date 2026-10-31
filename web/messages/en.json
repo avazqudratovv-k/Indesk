@@ -1166,7 +1166,15 @@
         "pandas": "pandas"
       }
     },
-    "later": "Sharing, download and follow-up questions come in a later version.",
+    "later": "Sharing and follow-up questions come in a later version.",
+    "download": {
+      "pdf": "Download PDF",
+      "md": {
+        "button": "Download .md",
+        "count": "{verified} of {total} claims verified",
+        "evidence": "Evidence"
+      }
+    },
     "states": {
       "loading": "Loading the report…",
       "notFound": {

@@ -4,7 +4,7 @@ import styles from "./PageBackground.module.css";
 // Sits behind the whole shell and never takes clicks.
 export default function PageBackground() {
   return (
-    <div className={styles.bg} aria-hidden="true">
+    <div className={styles.bg} data-print="hide" aria-hidden="true">
       <i className={styles.art} />
       <i className={styles.noise} />
     </div>

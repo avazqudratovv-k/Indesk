@@ -1166,7 +1166,15 @@
         "pandas": "pandas"
       }
     },
-    "later": "공유, 다운로드, 후속 질문은 이후 버전에서 제공됩니다.",
+    "later": "공유와 후속 질문은 이후 버전에서 제공됩니다.",
+    "download": {
+      "pdf": "PDF 다운로드",
+      "md": {
+        "button": ".md 다운로드",
+        "count": "주장 {total}개 중 {verified}개 검증됨",
+        "evidence": "근거"
+      }
+    },
     "states": {
       "loading": "보고서를 불러오는 중…",
       "notFound": {

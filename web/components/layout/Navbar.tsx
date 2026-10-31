@@ -35,7 +35,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className={`${styles.mast} ${session.signedIn ? styles.compact : ""}`}>
+    <header data-print="hide" className={`${styles.mast} ${session.signedIn ? styles.compact : ""}`}>
       <div className={styles.inner}>
         <Link href="/" className={`${styles.brand} ${tapped ? styles.tap : ""}`} aria-label={t("brand")} onClick={tapBrand}>
           <BrandMark />

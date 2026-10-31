@@ -1,0 +1,30 @@
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+}
+
+.primary {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent);
+  color: var(--accentInk);
+  font: 700 14px var(--sans);
+  cursor: pointer;
+}
+
+/* Smaller and quieter, but still a 44 px touch target. */
+.link {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--accentText);
+  font: 600 13px var(--sans);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
