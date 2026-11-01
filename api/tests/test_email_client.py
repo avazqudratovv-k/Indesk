@@ -59,7 +59,9 @@ def test_it_posts_the_documented_request() -> None:
     assert "re_test_key" not in request.content.decode() and "re_test_key" not in str(request.url)
 
 
-@pytest.mark.parametrize("body", [b"", b"not json", b"[1]", b'{"id": 5}', b"x" * (MAX_BODY_BYTES + 1)])
+@pytest.mark.parametrize(
+    "body", [b"", b"not json", b"[1]", b'{"id": 5}', b"x" * (MAX_BODY_BYTES + 1)]
+)
 def test_an_accepted_mail_is_a_success_even_when_the_answer_is_unreadable(body: bytes) -> None:
     assert client_for(answer(200, body)).send(MESSAGE) == EmailOk(message_id=None)
 

@@ -45,6 +45,9 @@ def test_the_text_states_the_real_lifetime() -> None:
 
 
 def test_a_trailing_slash_on_the_base_is_dropped_and_html_is_escaped() -> None:
-    assert link_for(EmailTokenPurpose.RESET, BASE + "/", TOKEN) == f"{BASE}/reset-password#token={TOKEN}"
+    assert (
+        link_for(EmailTokenPurpose.RESET, BASE + "/", TOKEN)
+        == f"{BASE}/reset-password#token={TOKEN}"
+    )
     html = render(EmailTokenPurpose.RESET, "en", 'https://x.test/"><script>', TOKEN).html
     assert "<script>" not in html and "&lt;script&gt;" in html

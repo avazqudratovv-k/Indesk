@@ -13,17 +13,21 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core import clock
+from app.core.enums import EmailTokenPurpose
 from app.core.errors import AppError, ErrorCode
 from app.core.security import (
     create_access_token,
     dummy_hash,
+    hash_email_token,
     hash_password,
     hash_refresh_token,
     needs_rehash,
+    new_email_token,
     new_refresh_token,
     verify_password,
 )
-from app.db.models import AuditLog, RefreshToken, User
+from app.db.models import AuditLog, EmailToken, RefreshToken, User
+from app.email.templates import TOKEN_TTL
 
 HANDLE_ATTEMPTS = 5
 SLUG_MAX = 20  # slug + "-" + 6 hex stays within the 30-character handle limit
@@ -33,6 +37,7 @@ AUDIT_LOGIN = "login"
 AUDIT_LOGIN_FAILED = "login_failed"
 AUDIT_REFRESH_REUSE = "refresh_reuse"
 AUDIT_LOGOUT = "logout"
+AUDIT_PASSWORD_RESET = "password_reset"  # noqa: S105
 
 
 @dataclass
@@ -208,4 +213,66 @@ def logout(db: Session, *, token: str | None, ip_hash: str) -> None:
         return
     _revoke_family(db, row.family_id)
     _audit(db, AUDIT_LOGOUT, row.user_id, ip_hash)
+    db.commit()
+
+
+def create_reset_token(db: Session, email: str) -> tuple[User, str, EmailToken] | None:
+    """For an existing, not deleted account: retire its older unused reset tokens and add a new
+    one. Flushes, does not commit (the caller commits once the email is queued). None otherwise."""
+    user = db.scalar(select(User).where(User.email == email, User.deleted_at.is_(None)))
+    if user is None:
+        return None
+    now = clock.utcnow()
+    db.execute(
+        update(EmailToken)
+        .where(
+            EmailToken.user_id == user.id,
+            EmailToken.purpose == EmailTokenPurpose.RESET.value,
+            EmailToken.used_at.is_(None),
+        )
+        .values(used_at=now)
+    )
+    token = new_email_token()
+    row = EmailToken(
+        user_id=user.id,
+        purpose=EmailTokenPurpose.RESET.value,
+        token_hash=hash_email_token(token),
+        expires_at=now + TOKEN_TTL[EmailTokenPurpose.RESET],
+    )
+    db.add(row)
+    db.flush()
+    return user, token, row
+
+
+def reset_password(db: Session, *, token: str, new_password: str, ip_hash: str) -> None:
+    """One code for every bad token. On success the password changes, every login of the user ends
+    (refresh tokens revoked, older access tokens refused) and nobody is signed in."""
+    invalid = AppError(400, ErrorCode.RESET_TOKEN_INVALID)
+    row = db.scalar(
+        select(EmailToken)
+        .where(EmailToken.token_hash == hash_email_token(token))
+        .with_for_update()  # two requests with one token run one after the other
+    )
+    now = clock.utcnow()
+    if (
+        row is None
+        or row.purpose != EmailTokenPurpose.RESET.value
+        or row.used_at is not None
+        or row.expires_at <= now
+    ):
+        raise invalid
+    user = db.get(User, row.user_id)
+    if user is None or user.deleted_at is not None:
+        raise invalid
+    user.password_hash = hash_password(new_password)
+    user.tokens_valid_after = now
+    if user.email_verified_at is None:
+        user.email_verified_at = now
+    row.used_at = now
+    db.execute(
+        update(RefreshToken)
+        .where(RefreshToken.user_id == user.id, RefreshToken.revoked_at.is_(None))
+        .values(revoked_at=now)
+    )
+    _audit(db, AUDIT_PASSWORD_RESET, user.id, ip_hash)
     db.commit()

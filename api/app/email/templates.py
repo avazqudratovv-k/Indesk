@@ -51,8 +51,7 @@ _COPY: dict[tuple[EmailTokenPurpose, str], _Copy] = {
     (EmailTokenPurpose.RESET, "ko"): _Copy(
         subject="Indesk 비밀번호 재설정",
         intro=(
-            "Indesk 계정의 비밀번호 재설정이 요청되었습니다. "
-            "아래 링크에서 새 비밀번호를 정하세요:"
+            "Indesk 계정의 비밀번호 재설정이 요청되었습니다. 아래 링크에서 새 비밀번호를 정하세요:"
         ),
         button="새 비밀번호 정하기",
         expires="링크는 한 번만 사용할 수 있으며 30분 후에 만료됩니다.",

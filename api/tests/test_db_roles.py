@@ -259,8 +259,10 @@ def test_the_app_role_can_use_email_tokens_and_the_new_user_columns(app_engine: 
         token = make_email_token(db, user)
         db.execute(text("UPDATE email_tokens SET used_at = now() WHERE id = :i"), {"i": token.id})
         db.execute(
-            text("UPDATE users SET email_verified_at = now(), tokens_valid_after = now()"
-                 " WHERE id = :u"),
+            text(
+                "UPDATE users SET email_verified_at = now(), tokens_valid_after = now()"
+                " WHERE id = :u"
+            ),
             {"u": user.id},
         )
         assert db.execute(text("SELECT count(*) FROM email_tokens")).scalar_one() >= 1

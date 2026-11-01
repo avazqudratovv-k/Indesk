@@ -115,7 +115,9 @@ def test_a_base_url_must_be_a_plain_origin(monkeypatch: pytest.MonkeyPatch, valu
 def test_the_link_comes_from_the_setting_only(monkeypatch: pytest.MonkeyPatch) -> None:
     production(monkeypatch)
     base = Settings().email_link_base
-    assert link_for(EmailTokenPurpose.RESET, base, "t") == "https://indesk.uz/reset-password#token=t"
+    assert (
+        link_for(EmailTokenPurpose.RESET, base, "t") == "https://indesk.uz/reset-password#token=t"
+    )
 
 
 # ---- the from-address ----

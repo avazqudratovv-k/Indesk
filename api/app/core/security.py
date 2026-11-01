@@ -2,10 +2,12 @@
 
 import hashlib
 import hmac
+import math
 import secrets
 import uuid
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
+from typing import NamedTuple
 
 import jwt
 from argon2 import PasswordHasher
@@ -47,6 +49,14 @@ def hash_refresh_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
+def new_email_token() -> str:
+    return secrets.token_urlsafe(32)  # 32 random bytes
+
+
+def hash_email_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
+
+
 def keyed_hash(secret: str, value: str) -> str:
     """HMAC-SHA256 of a value (IP, email). Not reversible without the secret."""
     return hmac.new(secret.encode(), value.encode(), hashlib.sha256).hexdigest()
@@ -58,8 +68,14 @@ def create_access_token(user_id: uuid.UUID, secret: str, now: datetime | None = 
     return jwt.encode(claims, secret, algorithm=JWT_ALGORITHM)
 
 
-def decode_access_token(token: str, secret: str) -> uuid.UUID | None:
-    """The user id in a valid token, or None for anything wrong (expired, tampered, alg=none)."""
+class AccessClaims(NamedTuple):
+    user_id: uuid.UUID
+    issued_at: int  # whole seconds (floor), as the token stores them
+
+
+def decode_access_token(token: str, secret: str) -> AccessClaims | None:
+    """The user id and issue time in a valid token, or None for anything wrong (expired, tampered,
+    alg=none)."""
     try:
         claims = jwt.decode(
             token,
@@ -67,6 +83,6 @@ def decode_access_token(token: str, secret: str) -> uuid.UUID | None:
             algorithms=[JWT_ALGORITHM],  # always pinned
             options={"require": ["sub", "iat", "exp"]},
         )
-        return uuid.UUID(claims["sub"])
+        return AccessClaims(uuid.UUID(claims["sub"]), math.floor(claims["iat"]))
     except (jwt.PyJWTError, ValueError, TypeError):
         return None

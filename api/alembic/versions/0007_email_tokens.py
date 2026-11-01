@@ -54,8 +54,12 @@ def upgrade() -> None:
     op.create_index("ix_email_tokens_user_id_purpose", "email_tokens", ["user_id", "purpose"])
     op.create_index("ix_email_tokens_expires_at", "email_tokens", ["expires_at"])
 
-    op.add_column("users", sa.Column("email_verified_at", sa.DateTime(timezone=True), nullable=True))
-    op.add_column("users", sa.Column("tokens_valid_after", sa.DateTime(timezone=True), nullable=True))
+    op.add_column(
+        "users", sa.Column("email_verified_at", sa.DateTime(timezone=True), nullable=True)
+    )
+    op.add_column(
+        "users", sa.Column("tokens_valid_after", sa.DateTime(timezone=True), nullable=True)
+    )
     # Existing accounts count as verified. Only this column changes.
     op.execute("UPDATE users SET email_verified_at = now() WHERE email_verified_at IS NULL")
 

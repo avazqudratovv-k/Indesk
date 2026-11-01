@@ -43,3 +43,19 @@ class LoginRequest(BaseModel):
     email: Email
     # A short password is just a wrong password; only the upper bound protects the hasher.
     password: Annotated[str, Field(min_length=1, max_length=128, repr=False)]
+
+
+class ForgotPasswordRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    email: Email
+    # Any other value than en or ko is treated as en by the service.
+    lang: Annotated[str | None, Field(default=None, max_length=16)]
+
+
+class ResetPasswordRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    token: Annotated[str, Field(min_length=1, max_length=256, repr=False)]
+    # Same rule as sign-up.
+    new_password: Annotated[str, Field(min_length=10, max_length=128, repr=False)]

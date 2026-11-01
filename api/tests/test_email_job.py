@@ -94,7 +94,9 @@ def test_after_the_last_retry_one_log_line_and_one_audit_row_with_metadata_only(
     db_connection: Connection, caplog: pytest.LogCaptureFixture, last: int | None
 ) -> None:
     caplog.set_level(logging.INFO, logger="indesk.email")
-    user_id = attempt(db_connection, FakeEmailClient(failure(EmailFailureKind.SERVER_ERROR, 503)), last)
+    user_id = attempt(
+        db_connection, FakeEmailClient(failure(EmailFailureKind.SERVER_ERROR, 503)), last
+    )
 
     (row,) = audit_rows(db_connection)
     assert (row.user_id, row.target) == (user_id, "reset:server_error:503")
