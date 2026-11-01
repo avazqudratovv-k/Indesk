@@ -25,6 +25,8 @@ class ErrorCode(StrEnum):
     RATE_LIMITED = "RATE_LIMITED"
     UNAUTHENTICATED = "UNAUTHENTICATED"
     ORIGIN_NOT_ALLOWED = "ORIGIN_NOT_ALLOWED"
+    VERIFY_TOKEN_INVALID = "VERIFY_TOKEN_INVALID"  # noqa: S105  # 400: unknown, used, expired, other purpose
+    EMAIL_NOT_VERIFIED = "EMAIL_NOT_VERIFIED"  # 403: POST /runs while verification is required
     RESET_TOKEN_INVALID = "RESET_TOKEN_INVALID"  # noqa: S105  # 400: unknown, used, expired or wrong-purpose
     # Uploads.
     CONSENT_REQUIRED = "CONSENT_REQUIRED"

@@ -35,6 +35,8 @@ class SignupRequest(BaseModel):
     # Length is checked here, before anything is hashed.
     password: Annotated[str, Field(min_length=10, max_length=128, repr=False)]
     display_name: DisplayName
+    # The language of the verification email and the stored preference; anything but en or ko is en.
+    lang: Annotated[str | None, Field(default=None, max_length=16)]
 
 
 class LoginRequest(BaseModel):
@@ -59,3 +61,9 @@ class ResetPasswordRequest(BaseModel):
     token: Annotated[str, Field(min_length=1, max_length=256, repr=False)]
     # Same rule as sign-up.
     new_password: Annotated[str, Field(min_length=10, max_length=128, repr=False)]
+
+
+class VerifyConfirmRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    token: Annotated[str, Field(min_length=1, max_length=256, repr=False)]

@@ -42,6 +42,8 @@ def test_error_codes_are_the_agreed_list() -> None:
         "UNAUTHENTICATED",
         "ORIGIN_NOT_ALLOWED",
         "RESET_TOKEN_INVALID",
+        "VERIFY_TOKEN_INVALID",
+        "EMAIL_NOT_VERIFIED",
         "CONSENT_REQUIRED",
         "FILE_TOO_LARGE",
         "UNSUPPORTED_TYPE",

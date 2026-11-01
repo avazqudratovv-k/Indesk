@@ -4,7 +4,9 @@ from pydantic import (
     AwareDatetime,
     BaseModel,
     ConfigDict,
+    Field,
     SerializerFunctionWrapHandler,
+    computed_field,
     model_serializer,
 )
 
@@ -30,6 +32,13 @@ class User(BaseModel):
     notify: bool
     created_at: AwareDatetime
     deleted_at: AwareDatetime | None
+    # Read from the row to compute `email_verified`; the time itself is not part of the answer.
+    email_verified_at: AwareDatetime | None = Field(default=None, exclude=True)
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def email_verified(self) -> bool:
+        return self.email_verified_at is not None
 
 
 class Upload(BaseModel):
