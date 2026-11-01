@@ -194,6 +194,13 @@ ai_calls_retention_days = 90
 # or expired. Owner decision 2026-11-02.
 email_token_retention_days = 7
 
+# --- Email ---
+
+# Emails the whole site may queue per UTC day (password reset and verification together). Over it, the request
+# still answers normally but nothing is sent. Resend's Free plan allows 100 a day and 3,000 a month (resend.com/pricing,
+# read 2026-11-02), so 50 leaves room. Owner decision 2026-11-02.
+email_daily_global = 50
+
 # --- Read and delete limits ---
 
 # GET /reports, /reports/{id}, /uploads and /uploads/{id} one user may make per minute, together (fixed window in

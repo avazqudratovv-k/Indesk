@@ -25,9 +25,12 @@ x-api-env: &api-env
   ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?set ALLOWED_ORIGINS}
   TRUSTED_PROXIES: ${EDGE_SUBNET:?set EDGE_SUBNET}
   RUNS_DEV_STUB: "0"
+  APP_BASE_URL: ${APP_BASE_URL:?set APP_BASE_URL} # where email links point; one of ALLOWED_ORIGINS
+  EMAIL_VERIFICATION_REQUIRED: ${EMAIL_VERIFICATION_REQUIRED:?set EMAIL_VERIFICATION_REQUIRED} # 0 or 1
 
 services:
   # Only the worker runs the model gateway (app/jobs/runs.py build_deps), so only the worker gets the Gemini key.
+  # The same goes for the Resend key and the from-address: the api only enqueues email jobs (app/email/queue.py).
   api:
     build:
       context: ./api
@@ -81,6 +84,8 @@ services:
     environment:
       <<: *api-env
       GEMINI_API_KEY: ${GEMINI_API_KEY:?set GEMINI_API_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY:?set RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM:?set EMAIL_FROM}
     restart: unless-stopped
     logging: *logging
     read_only: true

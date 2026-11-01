@@ -91,6 +91,7 @@ def test_cookies_are_secure_only_in_production(make_client: MakeClient) -> None:
         app_env="production",
         auth_secret=TEST_AUTH_SECRET,
         allowed_origins=["https://indesk.example"],
+        app_base_url="https://indesk.example",
         trusted_proxies=["10.0.0.0/8"],
         redis_url=Settings().redis_url.get_secret_value().rsplit("/", 1)[0] + "/15",
     )
