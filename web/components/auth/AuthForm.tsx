@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useSession, useSessionActions } from "@/hooks/use-session";
 import { ApiError, apiErrorKey, retryMinutes } from "@/lib/api/errors";
 import { login, signup as signupRequest } from "@/lib/auth/api";
 import { dropPendingSessionEnded, postNotice } from "@/lib/auth/notice";
+import { mailLang } from "@/lib/auth/recovery";
 import { safeNext } from "@/lib/auth/safe-next";
 import { validateAuth, type AuthErrors, type AuthField, type AuthMode, type AuthValues } from "./validate";
 import styles from "./AuthForm.module.css";
@@ -22,6 +23,7 @@ const afterAuthDefault = "/workspace";
 export default function AuthForm({ mode, next }: { mode: AuthMode; next?: string }) {
   const t = useTranslations("auth");
   const tApi = useTranslations("apiErrors");
+  const locale = useLocale();
   const session = useSession();
   const { startSession } = useSessionActions();
   const router = useRouter();
@@ -72,7 +74,7 @@ export default function AuthForm({ mode, next }: { mode: AuthMode; next?: string
     try {
       const email = values.email.trim();
       const user = signup
-        ? await signupRequest({ email, password: values.password, displayName: values.name.trim() })
+        ? await signupRequest({ email, password: values.password, displayName: values.name.trim(), lang: mailLang(locale) })
         : await login({ email, password: values.password });
       setValues((current) => ({ ...current, password: "" }));
       setStatus("done");

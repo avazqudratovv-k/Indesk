@@ -97,6 +97,8 @@ export default function SessionProvider({ session: initial, children }: { sessio
     tell("signedIn");
   }, []);
 
+  const updateUser = useCallback((user: User) => setSession(signedInSession(user)), []);
+
   const userId = session.user?.id ?? null;
   const endSession = useCallback(async () => {
     await logout();
@@ -106,6 +108,6 @@ export default function SessionProvider({ session: initial, children }: { sessio
     tell("signedOut");
   }, [signedOut, userId]);
 
-  const value = useMemo<SessionApi>(() => ({ session, startSession, endSession }), [session, startSession, endSession]);
+  const value = useMemo<SessionApi>(() => ({ session, startSession, updateUser, endSession }), [session, startSession, updateUser, endSession]);
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

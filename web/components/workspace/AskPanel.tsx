@@ -2,6 +2,7 @@
 
 import { useRef, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
+import ResendLink from "@/components/auth/ResendLink";
 import DemoNotice from "@/components/ui/DemoNotice";
 import { apiErrorKey, retryMinutes, ApiError } from "@/lib/api/errors";
 import type { FileStatus } from "@/lib/run/live/submit";
@@ -239,6 +240,7 @@ export default function AskPanel({ prefill = null, userId, freeLeft, plan, onRun
 function SubmitProblem({ submit, failure, names }: { submit: SubmitState; failure: NonNullable<SubmitState["failure"]>; names: Record<string, string> }) {
   const t = useTranslations("workspace");
   const tErrors = useTranslations("apiErrors");
+  const tVerify = useTranslations("verify");
   const error = new ApiError(0, failure.code, failure.retryAfter);
   const key = apiErrorKey(error);
   const limits = { mb: MAX_FILE_MB, pages: MAX_PDF_PAGES, chars: MAX_PDF_CHARS, rows: MAX_CSV_ROWS };
@@ -246,6 +248,15 @@ function SubmitProblem({ submit, failure, names }: { submit: SubmitState; failur
   const name = failure.fileId ? names[failure.fileId] : undefined;
   // The server's counts, not a number of ours: without them (or without a file name) the generic line is used.
   const text = failure.code === "RUN_ACTIVE" ? (submit.activeRunId ? t("submit.activeRunWatch") : t("submit.activeRun")) : failure.code === "TOO_MANY_ROWS" && name && failure.rowLimit ? tErrors("TOO_MANY_ROWS_DETAIL", { name, rows: failure.rowLimit.rows, max: failure.rowLimit.max }) : name ? t("submit.fileError", { name, message: base }) : base;
+  // The run gate is not a failure: it says what to do, with the same Resend button as the banner.
+  if (failure.code === "EMAIL_NOT_VERIFIED") {
+    return (
+      <div className={styles.problem} role="alert">
+        <span>{tVerify("gate")}</span>
+        <ResendLink />
+      </div>
+    );
+  }
   return (
     <div className={styles.problem} role="alert">
       <span>{text}</span>

@@ -1348,7 +1348,9 @@
     "PDF_TOO_MUCH_TEXT": "This PDF has more than {chars, number} characters of text.",
     "PDF_UNREADABLE": "This PDF could not be read. Check that the file is a normal PDF.",
     "PARSER_BUSY": "The PDF reader is busy. Try again in a moment.",
-    "RESET_TOKEN_INVALID": "This link is not valid anymore. Ask for a new one."
+    "RESET_TOKEN_INVALID": "This link is not valid anymore. Ask for a new one.",
+    "VERIFY_TOKEN_INVALID": "This link is not valid anymore. It may have been used or it may have expired.",
+    "EMAIL_NOT_VERIFIED": "Confirm your email to run an analysis."
   },
   "recovery": {
     "backToLogin": "Back to log in",
@@ -1373,5 +1375,24 @@
       "confirmRequired": "Enter the new password again.",
       "confirmMismatch": "The two passwords are not the same."
     }
+  },
+  "verify": {
+    "banner": {
+      "text": "Please confirm your email. We sent you a link.",
+      "resend": "Resend link",
+      "resending": "Sending…",
+      "sent": "A new link is on its way."
+    },
+    "page": {
+      "title": "Confirm your email",
+      "confirming": "Confirming your email…",
+      "verified": "Your email is confirmed.",
+      "verifiedSub": "You can run analyses now.",
+      "toWorkspace": "Go to the workspace",
+      "invalid": "This link is not valid anymore. It may have been used or it may have expired.",
+      "resend": "Resend link",
+      "logIn": "Log in to get a new link"
+    },
+    "gate": "Confirm your email to run an analysis. We sent you a link."
   }
 }

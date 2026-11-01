@@ -37,6 +37,7 @@ const user = (over: Partial<User>): User => ({
   theme: "light",
   default_view: "simple",
   notify: false,
+  email_verified: true,
   created_at: "2026-10-01T00:00:00Z",
   deleted_at: null,
   ...over,
@@ -45,7 +46,7 @@ const user = (over: Partial<User>): User => ({
 function header(locale: "en" | "ko", u: User) {
   return render(
     locale,
-    <SessionContext.Provider value={{ session: signedInSession(u), startSession: () => {}, endSession: async () => {} }}>
+    <SessionContext.Provider value={{ session: signedInSession(u), startSession: () => {}, updateUser: () => {}, endSession: async () => {} }}>
       <MyHeader />
     </SessionContext.Provider>,
   );

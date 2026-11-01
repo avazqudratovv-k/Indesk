@@ -79,7 +79,7 @@ export function dropPendingSessionEnded(): void {
 
 export function isAuthPath(pathname: string | null): boolean {
   if (!pathname) return false;
-  return ["/login", "/signup", "/forgot-password", "/reset-password"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  return ["/login", "/signup", "/forgot-password", "/reset-password", "/verify-email"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
 export type BeforeSignOut = "signedIn" | "unknownWithHint" | "unknown" | "signedOut";

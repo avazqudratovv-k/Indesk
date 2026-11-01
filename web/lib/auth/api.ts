@@ -4,11 +4,11 @@ import type { User } from "@/lib/types";
 // Auth endpoints never trigger a refresh on 401: a wrong password is an answer, not an expired session.
 const noRefresh = { refreshOn401: false } as const;
 
-export function signup(input: { email: string; password: string; displayName: string }): Promise<User> {
+export function signup(input: { email: string; password: string; displayName: string; lang: "en" | "ko" }): Promise<User> {
   return apiClient().request<User>("/api/auth/signup", {
     ...noRefresh,
     method: "POST",
-    json: { email: input.email, password: input.password, display_name: input.displayName },
+    json: { email: input.email, password: input.password, display_name: input.displayName, lang: input.lang },
   });
 }
 
@@ -36,4 +36,14 @@ export function resetPassword(input: { token: string; newPassword: string }): Pr
     method: "POST",
     json: { token: input.token, new_password: input.newPassword },
   });
+}
+
+// 204 on success; VERIFY_TOKEN_INVALID (400) for every bad token. The token is passed through, never kept.
+export function confirmEmail(token: string): Promise<undefined> {
+  return apiClient().request("/api/auth/verify/confirm", { ...noRefresh, method: "POST", json: { token } });
+}
+
+// Signed in only (a 401 here is a real expired session, so the normal refresh applies). 204 also when already verified.
+export function resendVerification(): Promise<undefined> {
+  return apiClient().request("/api/auth/verify/resend", { method: "POST" });
 }
