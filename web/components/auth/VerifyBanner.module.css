@@ -1,0 +1,19 @@
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-bottom: 16px;
+  padding: 6px 8px 6px 16px;
+  border: 1px dashed var(--rule2);
+  border-radius: 12px;
+  background: var(--warm);
+  color: var(--ink);
+}
+
+.text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}

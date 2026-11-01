@@ -43,7 +43,9 @@ def reset(client: TestClient, token: str, password: str = NEW_PASSWORD) -> Any:
 
 
 def jobs() -> list[Any]:
-    return Queue("default", connection=Redis.from_url(_test_redis_url())).jobs
+    # Sign-up also queues a verification email; these tests are about reset emails only.
+    queue = Queue("default", connection=Redis.from_url(_test_redis_url()))
+    return [job for job in queue.jobs if job.args[0] == "reset"]
 
 
 def sent_token() -> str:
@@ -59,7 +61,13 @@ def request_token(client: TestClient, **kw: Any) -> str:
 
 def rows(conn: Connection) -> list[EmailToken]:
     with Session(bind=conn) as db:
-        return list(db.scalars(select(EmailToken).order_by(EmailToken.created_at)))
+        return list(
+            db.scalars(
+                select(EmailToken)
+                .where(EmailToken.purpose == "reset")
+                .order_by(EmailToken.created_at)
+            )
+        )
 
 
 def the_user(conn: Connection) -> User:
@@ -158,7 +166,7 @@ def test_redis_down_fails_closed(make_client: MakeClient, auth_settings: Setting
 def test_the_daily_cap_still_answers_202_and_sends_nothing(
     make_client: MakeClient, auth_settings: Settings, db_connection: Connection
 ) -> None:
-    limits = auth_settings.limits.model_copy(update={"email_daily_global": 1})
+    limits = auth_settings.limits.model_copy(update={"email_daily_global": 2})
     client = make_client(auth_settings.model_copy(update={"limits": limits}))
     signup(client)
     assert forgot(client).status_code == 202 and len(jobs()) == 1
@@ -256,10 +264,8 @@ def test_unknown_expired_and_wrong_purpose_tokens_share_one_answer(
         response = reset(ada, token)
         assert response.status_code == 400 and response.json() == ERR_RESET
     with Session(bind=db_connection) as db:  # the wrong-purpose token was not used up
-        assert (
-            db.scalars(select(EmailToken).where(EmailToken.purpose == "verify")).one().used_at
-            is None
-        )
+        mine = EmailToken.token_hash == hashlib.sha256(verify.encode()).hexdigest()
+        assert db.scalars(select(EmailToken).where(mine)).one().used_at is None
 
 
 def test_the_new_password_follows_the_signup_rules(ada: TestClient) -> None:

@@ -1348,7 +1348,9 @@
     "PDF_TOO_MUCH_TEXT": "이 PDF는 텍스트가 {chars, number}자를 넘습니다.",
     "PDF_UNREADABLE": "이 PDF를 읽을 수 없습니다. 정상적인 PDF 파일인지 확인하세요.",
     "PARSER_BUSY": "PDF 읽기 서비스가 바쁩니다. 잠시 후 다시 시도하세요.",
-    "RESET_TOKEN_INVALID": "이 링크는 더 이상 사용할 수 없습니다. 새 링크를 요청하세요."
+    "RESET_TOKEN_INVALID": "이 링크는 더 이상 사용할 수 없습니다. 새 링크를 요청하세요.",
+    "VERIFY_TOKEN_INVALID": "이 링크는 더 이상 사용할 수 없습니다. 이미 사용했거나 만료되었을 수 있습니다.",
+    "EMAIL_NOT_VERIFIED": "분석을 실행하려면 이메일을 확인하세요."
   },
   "recovery": {
     "backToLogin": "로그인으로 돌아가기",
@@ -1373,5 +1375,24 @@
       "confirmRequired": "새 비밀번호를 한 번 더 입력하세요.",
       "confirmMismatch": "두 비밀번호가 같지 않습니다."
     }
+  },
+  "verify": {
+    "banner": {
+      "text": "이메일을 확인해 주세요. 링크를 보냈습니다.",
+      "resend": "링크 다시 보내기",
+      "resending": "보내는 중…",
+      "sent": "새 링크를 보냈습니다."
+    },
+    "page": {
+      "title": "이메일 확인",
+      "confirming": "이메일을 확인하는 중…",
+      "verified": "이메일이 확인되었습니다.",
+      "verifiedSub": "이제 분석을 실행할 수 있습니다.",
+      "toWorkspace": "작업 공간으로 가기",
+      "invalid": "이 링크는 더 이상 사용할 수 없습니다. 이미 사용했거나 만료되었을 수 있습니다.",
+      "resend": "링크 다시 보내기",
+      "logIn": "로그인하고 새 링크 받기"
+    },
+    "gate": "분석을 실행하려면 이메일을 확인하세요. 링크를 보냈습니다."
   }
 }

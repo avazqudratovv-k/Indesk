@@ -8,6 +8,7 @@ import { useUsage } from "@/hooks/use-usage";
 import { freePill } from "@/lib/usage/api";
 import type { RunScenario } from "@/lib/run/mock-run";
 import type { PlanOffer } from "@/lib/types";
+import VerifyBanner from "@/components/auth/VerifyBanner";
 import AskPanel, { type RunSubmission, type RunSummary } from "./AskPanel";
 import RealRunTab from "./RealRunTab";
 import RunTab from "./RunTab";
@@ -68,6 +69,7 @@ export default function WorkspaceView({ offers, mockOutcome }: { offers: PlanOff
 
   return (
     <main className={styles.main}>
+      <VerifyBanner />
       <div className={styles.tabs} role="tablist" aria-label={t("tabsLabel")}>
         {tabs.map((value, index) => (
           <button

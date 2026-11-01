@@ -15,6 +15,9 @@ export function takeResetToken(location: HashLocation, history: ReplaceHistory):
   return token !== null && token.length >= 1 && token.length <= TOKEN_MAX_CHARS ? token : null;
 }
 
+// The same fragment rule serves the verify page: `#token=...` is read once and removed from the address bar.
+export { takeResetToken as takeFragmentToken };
+
 export type RecoveryErrorKey = "emailRequired" | "emailInvalid" | "emailTooLong" | "passwordRequired" | "passwordTooShort" | "passwordTooLong" | "confirmRequired" | "confirmMismatch";
 
 export function validateForgot(email: string): RecoveryErrorKey | null {

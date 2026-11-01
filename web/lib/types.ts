@@ -15,6 +15,8 @@ export type User = {
   theme: "light" | "dark";
   default_view: "simple" | "detailed";
   notify: boolean;
+  // True once the address is proven (a verify link or a password reset). Older accounts were backfilled as verified.
+  email_verified: boolean;
   created_at: string;
   deleted_at: string | null;
 };

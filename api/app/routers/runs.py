@@ -54,6 +54,9 @@ def create_run(
     enqueue: EnqueueDep,
     idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
 ) -> RunCreated:
+    # Before anything is counted or stored. Off by default; the owner turns it on.
+    if settings.email_verification_required and user.email_verified_at is None:
+        raise AppError(403, ErrorCode.EMAIL_NOT_VERIFIED)
     # Every request of a signed-in user counts, accepted or not. Redis down: refused (503).
     ratelimit.hit(redis, f"rl:run:{user.id}", settings.limits.runs_per_hour, ratelimit.RUN_WINDOW)
     key = service.check_idempotency_key(idempotency_key)

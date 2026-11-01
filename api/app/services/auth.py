@@ -13,7 +13,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core import clock
-from app.core.enums import EmailTokenPurpose
+from app.core.enums import EmailTokenPurpose, Lang
 from app.core.errors import AppError, ErrorCode
 from app.core.security import (
     create_access_token,
@@ -38,6 +38,7 @@ AUDIT_LOGIN_FAILED = "login_failed"
 AUDIT_REFRESH_REUSE = "refresh_reuse"
 AUDIT_LOGOUT = "logout"
 AUDIT_PASSWORD_RESET = "password_reset"  # noqa: S105
+AUDIT_EMAIL_VERIFIED = "email_verified"
 
 
 @dataclass
@@ -70,12 +71,13 @@ def _violated_constraint(exc: IntegrityError) -> str | None:
     return name if isinstance(name, str) else None
 
 
-def _insert_user(db: Session, email: str, password_hash: str, display_name: str) -> User:
+def _insert_user(db: Session, email: str, password_hash: str, display_name: str, lang: str) -> User:
     for _ in range(HANDLE_ATTEMPTS):
         user = User(
             email=email,
             password_hash=password_hash,
             display_name=display_name,
+            lang=lang,
             handle=make_handle(display_name, _suffix()),
         )
         try:
@@ -136,10 +138,11 @@ def signup(
     password: str,
     display_name: str,
     ip_hash: str,
+    lang: str | None = None,
 ) -> IssuedSession:
     if db.scalar(select(User.id).where(User.email == email)) is not None:
         raise AppError(409, ErrorCode.EMAIL_TAKEN)
-    user = _insert_user(db, email, hash_password(password), display_name)
+    user = _insert_user(db, email, hash_password(password), display_name, mail_lang(lang))
     issued = _issue(db, user, secret, session_max)
     _audit(db, AUDIT_SIGNUP, user.id, ip_hash)
     try:
@@ -216,18 +219,20 @@ def logout(db: Session, *, token: str | None, ip_hash: str) -> None:
     db.commit()
 
 
-def create_reset_token(db: Session, email: str) -> tuple[User, str, EmailToken] | None:
-    """For an existing, not deleted account: retire its older unused reset tokens and add a new
-    one. Flushes, does not commit (the caller commits once the email is queued). None otherwise."""
-    user = db.scalar(select(User).where(User.email == email, User.deleted_at.is_(None)))
-    if user is None:
-        return None
+def mail_lang(lang: str | None) -> str:
+    """The language of an email and of a new account: en or ko, anything else is en."""
+    return lang if lang in (Lang.EN.value, Lang.KO.value) else Lang.EN.value
+
+
+def issue_token(db: Session, user: User, purpose: EmailTokenPurpose) -> tuple[str, EmailToken]:
+    """Retire the user's older unused tokens of this purpose and add a new one. Flushes, does not
+    commit (the caller commits once the email is queued)."""
     now = clock.utcnow()
     db.execute(
         update(EmailToken)
         .where(
             EmailToken.user_id == user.id,
-            EmailToken.purpose == EmailTokenPurpose.RESET.value,
+            EmailToken.purpose == purpose.value,
             EmailToken.used_at.is_(None),
         )
         .values(used_at=now)
@@ -235,35 +240,53 @@ def create_reset_token(db: Session, email: str) -> tuple[User, str, EmailToken] 
     token = new_email_token()
     row = EmailToken(
         user_id=user.id,
-        purpose=EmailTokenPurpose.RESET.value,
+        purpose=purpose.value,
         token_hash=hash_email_token(token),
-        expires_at=now + TOKEN_TTL[EmailTokenPurpose.RESET],
+        expires_at=now + TOKEN_TTL[purpose],
     )
     db.add(row)
     db.flush()
+    return token, row
+
+
+def create_reset_token(db: Session, email: str) -> tuple[User, str, EmailToken] | None:
+    """For an existing, not deleted account: a new reset token. None otherwise."""
+    user = db.scalar(select(User).where(User.email == email, User.deleted_at.is_(None)))
+    if user is None:
+        return None
+    token, row = issue_token(db, user, EmailTokenPurpose.RESET)
     return user, token, row
 
 
-def reset_password(db: Session, *, token: str, new_password: str, ip_hash: str) -> None:
-    """One code for every bad token. On success the password changes, every login of the user ends
-    (refresh tokens revoked, older access tokens refused) and nobody is signed in."""
-    invalid = AppError(400, ErrorCode.RESET_TOKEN_INVALID)
+def _lock_live_token(
+    db: Session, token: str, purpose: EmailTokenPurpose, invalid: AppError
+) -> tuple[EmailToken, User]:
+    """The locked row of a usable token of this purpose and its live user, or `invalid`."""
     row = db.scalar(
         select(EmailToken)
         .where(EmailToken.token_hash == hash_email_token(token))
         .with_for_update()  # two requests with one token run one after the other
     )
-    now = clock.utcnow()
     if (
         row is None
-        or row.purpose != EmailTokenPurpose.RESET.value
+        or row.purpose != purpose.value
         or row.used_at is not None
-        or row.expires_at <= now
+        or row.expires_at <= clock.utcnow()
     ):
         raise invalid
     user = db.get(User, row.user_id)
     if user is None or user.deleted_at is not None:
         raise invalid
+    return row, user
+
+
+def reset_password(db: Session, *, token: str, new_password: str, ip_hash: str) -> None:
+    """One code for every bad token. On success the password changes, every login of the user ends
+    (refresh tokens revoked, older access tokens refused) and nobody is signed in."""
+    row, user = _lock_live_token(
+        db, token, EmailTokenPurpose.RESET, AppError(400, ErrorCode.RESET_TOKEN_INVALID)
+    )
+    now = clock.utcnow()
     user.password_hash = hash_password(new_password)
     user.tokens_valid_after = now
     if user.email_verified_at is None:
@@ -275,4 +298,17 @@ def reset_password(db: Session, *, token: str, new_password: str, ip_hash: str) 
         .values(revoked_at=now)
     )
     _audit(db, AUDIT_PASSWORD_RESET, user.id, ip_hash)
+    db.commit()
+
+
+def confirm_email(db: Session, *, token: str, ip_hash: str) -> None:
+    """One code for every bad token. No login is needed: the token is the proof."""
+    row, user = _lock_live_token(
+        db, token, EmailTokenPurpose.VERIFY, AppError(400, ErrorCode.VERIFY_TOKEN_INVALID)
+    )
+    now = clock.utcnow()
+    if user.email_verified_at is None:
+        user.email_verified_at = now
+    row.used_at = now
+    _audit(db, AUDIT_EMAIL_VERIFIED, user.id, ip_hash)
     db.commit()
