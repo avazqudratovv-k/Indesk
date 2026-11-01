@@ -20,7 +20,8 @@
     "loggedOut": "You are logged out.",
     "sessionEndedHours": "Your session ended after {hours, plural, one {# hour} other {# hours}}. Please log in again.",
     "sessionEnded": "Your session ended. Please log in again.",
-    "close": "Close"
+    "close": "Close",
+    "passwordChanged": "Your password was changed. Log in with the new one."
   },
   "tabBar": {
     "label": "Main",
@@ -300,7 +301,8 @@
       "Uploaded files are deleted after 24 hours",
       "Code runs in a sandbox with no internet",
       "Demo: no real payments are taken"
-    ]
+    ],
+    "forgotLink": "Forgot password?"
   },
   "plans": {
     "title": "Plans and usage",
@@ -1345,6 +1347,31 @@
     "PDF_TOO_MANY_PAGES": "This PDF has more than {pages, number} pages.",
     "PDF_TOO_MUCH_TEXT": "This PDF has more than {chars, number} characters of text.",
     "PDF_UNREADABLE": "This PDF could not be read. Check that the file is a normal PDF.",
-    "PARSER_BUSY": "The PDF reader is busy. Try again in a moment."
+    "PARSER_BUSY": "The PDF reader is busy. Try again in a moment.",
+    "RESET_TOKEN_INVALID": "This link is not valid anymore. Ask for a new one."
+  },
+  "recovery": {
+    "backToLogin": "Back to log in",
+    "forgot": {
+      "title": "Forgot your password?",
+      "sub": "Enter your email and we will send a link to choose a new password.",
+      "cta": "Send link",
+      "submitting": "Sending…",
+      "sent": "If an account exists for this address, we sent a link."
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "sub": "Use at least 10 characters.",
+      "newPassword": "New password",
+      "confirm": "Confirm new password",
+      "cta": "Change password",
+      "submitting": "Changing…",
+      "invalid": "This link is not valid anymore. It may have been used or it may have expired.",
+      "requestNew": "Get a new link"
+    },
+    "errors": {
+      "confirmRequired": "Enter the new password again.",
+      "confirmMismatch": "The two passwords are not the same."
+    }
   }
 }
