@@ -5,7 +5,7 @@ from app.db.models.reports import Claim, Evidence, Report
 from app.db.models.runs import AgentStep, Run, RunFile
 from app.db.models.uploads import Upload
 from app.db.models.usage import AiCall, AuditLog, UsageDaily, UsageEvent
-from app.db.models.users import RefreshToken, User
+from app.db.models.users import EmailToken, RefreshToken, User
 
 __all__ = [
     "AgentStep",
@@ -14,6 +14,7 @@ __all__ = [
     "Chunk",
     "Claim",
     "DocumentPage",
+    "EmailToken",
     "Evidence",
     "RefreshToken",
     "Report",

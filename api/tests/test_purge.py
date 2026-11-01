@@ -18,6 +18,7 @@ from app.db.models import (
     AiCall,
     AuditLog,
     Claim,
+    EmailToken,
     Evidence,
     Report,
     Run,
@@ -37,6 +38,7 @@ from tests.factories import (
     NOW,
     add,
     make_claim,
+    make_email_token,
     make_evidence,
     make_report,
     make_run,
@@ -115,7 +117,9 @@ def test_runs_in_batches_until_nothing_is_left(
     lines = [r.getMessage() for r in caplog.records if r.name == "indesk.purge"]
     assert len(lines) == 4
     assert lines[0].startswith("purge pass: expired_runs=2 ")
-    assert lines[-1] == "purge pass: expired_runs=0 old_no_report_runs=0 ai_calls=0 pdf_failed=0"
+    assert lines[-1] == (
+        "purge pass: expired_runs=0 old_no_report_runs=0 ai_calls=0 email_tokens=0 pdf_failed=0"
+    )
 
 
 def test_old_finished_runs_without_a_report_go_after_the_limit(
@@ -207,6 +211,36 @@ def test_ai_calls_older_than_the_retention_go(session: Session, storage: LocalDi
     assert set(session.scalars(select(AiCall.id))) == {edge.id, fresh.id}
 
 
+def test_used_or_expired_email_tokens_go_after_seven_days(
+    session: Session, storage: LocalDiskStorage
+) -> None:
+    user = make_user(session)
+    week = timedelta(days=7)
+    gone = [
+        make_email_token(session, user, expires_at=NOW - week - timedelta(seconds=1)),  # expired
+        make_email_token(
+            session,
+            user,
+            purpose="verify",
+            expires_at=NOW + timedelta(days=1),  # still valid, but used long ago
+            used_at=NOW - week - timedelta(seconds=1),
+        ),
+    ]
+    kept = [
+        make_email_token(session, user, expires_at=NOW - week),  # exactly 7 days: kept
+        make_email_token(session, user, expires_at=NOW + timedelta(minutes=5)),  # live
+        make_email_token(
+            session, user, expires_at=NOW + timedelta(days=1), used_at=NOW - timedelta(days=2)
+        ),  # used recently
+    ]
+
+    done = purge_expired(session, storage, LIMITS, NOW)
+
+    assert done.email_tokens == len(gone)
+    assert set(session.scalars(select(EmailToken.id))) == {t.id for t in kept}
+    assert count(session, User) == 1  # the user is never touched
+
+
 def test_is_idempotent(session: Session, storage: LocalDiskStorage) -> None:
     run = finished_run(session, make_user(session), ago=timedelta(days=40))
     make_report(session, run, expires_at=NOW - timedelta(days=1))
@@ -251,7 +285,13 @@ def test_the_new_keys_are_required_and_drift_is_rejected() -> None:
     values = load_limits().model_dump()
     assert (values["purge_batch"], values["purge_no_report_days"]) == (200, 30)
     assert values["ai_calls_retention_days"] == 90
-    for key in ("purge_batch", "purge_no_report_days", "ai_calls_retention_days"):
+    assert values["email_token_retention_days"] == 7
+    for key in (
+        "purge_batch",
+        "purge_no_report_days",
+        "ai_calls_retention_days",
+        "email_token_retention_days",
+    ):
         with pytest.raises(ValueError):
             Limits(**{k: v for k, v in values.items() if k != key})
         with pytest.raises(ValueError):

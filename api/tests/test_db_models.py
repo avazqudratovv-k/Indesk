@@ -15,6 +15,7 @@ from app.db.models import (
     AiCall,
     AuditLog,
     Claim,
+    EmailToken,
     Evidence,
     RefreshToken,
     Report,
@@ -29,6 +30,7 @@ from tests.factories import (
     NOW,
     add,
     make_claim,
+    make_email_token,
     make_evidence,
     make_report,
     make_run,
@@ -202,6 +204,22 @@ def test_refresh_tokens_store_only_a_hash_and_a_family(session: Session) -> None
             RefreshToken(user_id=user.id, family_id=family, token_hash="sha256:aa", expires_at=NOW),
         ),
     )
+
+
+def test_email_tokens_store_only_a_hash_one_purpose_and_a_unique_hash(session: Session) -> None:
+    columns = {c.name for c in inspect(EmailToken).columns}
+    assert {"token_hash", "purpose", "expires_at", "used_at", "user_id"} <= columns
+    assert not {"token", "email", "secret"} & columns
+    user = make_user(session)
+    first = make_email_token(session, user, purpose="verify")
+    rejected(session, lambda s: make_email_token(s, user, token_hash=first.token_hash))
+    rejected(session, lambda s: make_email_token(s, user, purpose="login"))
+
+
+def test_new_user_columns_start_empty(session: Session) -> None:
+    user = make_user(session)
+    session.refresh(user)
+    assert user.email_verified_at is None and user.tokens_valid_after is None
 
 
 # ---- uploads ----
@@ -486,6 +504,7 @@ def test_deleting_a_user_removes_everything_they_own_and_nothing_else(session: S
                 user_id=user.id, family_id=uuid.uuid4(), token_hash=f"h-{user.id}", expires_at=NOW
             ),
         )
+        make_email_token(session, user)
         add(session, UsageEvent(user_id=user.id, run_id=run.id, kind="run", amount=1))
         add(session, UsageDaily(day=date(2026, 10, 25), scope=f"user:{user.id}", user_id=user.id))
         add(
@@ -513,6 +532,7 @@ def test_deleting_a_user_removes_everything_they_own_and_nothing_else(session: S
         Report,
         Claim,
         RefreshToken,
+        EmailToken,
         UsageEvent,
         UsageDaily,
         AiCall,
@@ -539,6 +559,7 @@ def test_deleting_a_user_removes_everything_they_own_and_nothing_else(session: S
 def test_every_owned_table_has_an_indexed_owner_column(session: Session) -> None:
     owner_column = {
         "refresh_tokens": "user_id",
+        "email_tokens": "user_id",
         "uploads": "user_id",
         "runs": "user_id",
         "run_files": "owner_id",

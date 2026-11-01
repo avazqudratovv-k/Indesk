@@ -12,7 +12,7 @@ from sqlalchemy import Connection, func, select
 
 from app.core.config import Settings
 from app.core.security import keyed_hash
-from app.db.models import UsageDaily, UsageEvent
+from app.db.models import UsageDaily, UsageEvent, User
 from tests.ai_helpers import factory_for
 from tests.conftest import TEST_AUTH_SECRET
 from tests.factories import make_user
@@ -126,3 +126,24 @@ def test_a_first_run_without_the_account_still_clears_the_login_and_signup_keys(
     with factory() as db:
         done = script.reset_quota(settings_in("development", tmp_path), db, redis, None)
     assert redis.keys == set() and done == ["redis rate-limit keys deleted: 1"]
+
+
+def test_mark_verified_touches_only_the_smoke_account_and_only_in_development(
+    db_connection: Connection, tmp_path: Path
+) -> None:
+    script = load_script()
+    factory = factory_for(db_connection)
+    with factory() as db, db.begin():
+        smoke = make_user(db, email=script.EMAIL)
+        other = make_user(db)
+        smoke_id, other_id = smoke.id, other.id
+    with factory() as db:
+        assert script.mark_verified(settings_in("production", tmp_path), db) is False
+        assert script.mark_verified(settings_in("test", tmp_path), db) is False
+        assert db.get(User, smoke_id).email_verified_at is None  # type: ignore[union-attr]
+    with factory() as db:
+        assert script.mark_verified(settings_in("development", tmp_path), db) is True
+    with factory() as db:
+        assert db.get(User, smoke_id).email_verified_at is not None  # type: ignore[union-attr]
+        assert db.get(User, other_id).email_verified_at is None  # type: ignore[union-attr]
+        assert script.mark_verified(settings_in("development", tmp_path), db) is False  # no-op

@@ -14,6 +14,11 @@ class Plan(StrEnum):
     CUSTOM = "custom"
 
 
+class EmailTokenPurpose(StrEnum):
+    RESET = "reset"
+    VERIFY = "verify"
+
+
 class Lang(StrEnum):
     EN = "en"
     KO = "ko"

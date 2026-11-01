@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import CheckConstraint, ForeignKey, Index, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.enums import DefaultView, Lang, Plan, Theme
+from app.core.enums import DefaultView, EmailTokenPurpose, Lang, Plan, Theme
 from app.db.base import Base, Timestamp, created_at_col, enum_check, uuid_pk
 
 
@@ -25,6 +25,11 @@ class User(Base):
     notify: Mapped[bool] = mapped_column(default=True, server_default=text("true"))
     created_at: Mapped[created_at_col]
     deleted_at: Mapped[Timestamp | None]
+    # Set when the address is proven (a verify link or a password reset). Existing accounts were
+    # backfilled by migration 0007.
+    email_verified_at: Mapped[Timestamp | None]
+    # An access token issued before this moment is refused (set by a password reset).
+    tokens_valid_after: Mapped[Timestamp | None]
 
     __table_args__ = (
         CheckConstraint(
@@ -63,3 +68,24 @@ class RefreshToken(Base):
     created_at: Mapped[created_at_col]
 
     __table_args__ = (Index("ix_refresh_tokens_expires_at", "expires_at"),)
+
+
+class EmailToken(Base):
+    """A single-use link token for password reset or email verification. Only a hash is stored. A
+    token of one purpose must never be accepted for the other."""
+
+    __tablename__ = "email_tokens"
+
+    id: Mapped[uuid_pk]
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    purpose: Mapped[str] = mapped_column(Text)
+    token_hash: Mapped[str] = mapped_column(Text, unique=True)
+    expires_at: Mapped[Timestamp]
+    used_at: Mapped[Timestamp | None]
+    created_at: Mapped[created_at_col]
+
+    __table_args__ = (
+        enum_check("purpose", EmailTokenPurpose, "purpose"),
+        Index("ix_email_tokens_user_id_purpose", "user_id", "purpose"),
+        Index("ix_email_tokens_expires_at", "expires_at"),
+    )

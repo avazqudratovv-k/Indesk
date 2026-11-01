@@ -88,6 +88,7 @@ class Limits(BaseModel):
     purge_batch: PositiveInt
     purge_no_report_days: PositiveInt
     ai_calls_retention_days: PositiveInt
+    email_token_retention_days: PositiveInt
     # Read and delete limits per user (reads fail open, deletes fail closed).
     reads_per_minute: PositiveInt
     deletes_per_hour: PositiveInt

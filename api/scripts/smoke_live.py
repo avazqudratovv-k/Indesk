@@ -43,9 +43,10 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # so `app` imports from /app/scripts
 
-from sqlalchemy import delete, select, text  # noqa: E402
+from sqlalchemy import delete, select, text, update  # noqa: E402
 from sqlalchemy.orm import Session  # noqa: E402
 
+from app.core import clock  # noqa: E402
 from app.core.config import Settings, get_settings  # noqa: E402
 from app.core.enums import UsageKind  # noqa: E402
 from app.core.ratelimit import redis_client  # noqa: E402
@@ -193,6 +194,21 @@ def reset_quota(settings: Settings, db: Session, redis: Any, ip: str | None) -> 
     return done
 
 
+def mark_verified(settings: Settings, db: Session) -> bool:
+    """Dev only: the smoke account is made through the sign-up API, so it starts unverified; mark it
+    verified like every seeded account, so the run gate (EMAIL_VERIFICATION_REQUIRED) never stops
+    it. Touches only email_verified_at of this one account and only when it is still empty."""
+    if settings.app_env != "development":
+        return False
+    done = db.execute(
+        update(User)
+        .where(User.email == EMAIL, User.email_verified_at.is_(None))
+        .values(email_verified_at=clock.utcnow())
+    )
+    db.commit()
+    return bool(done.rowcount)  # type: ignore[attr-defined]  # CursorResult has rowcount
+
+
 def dump(title: str, value: Any) -> None:
     print(f"\n--- {title}")
     print(value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, indent=2))
@@ -278,6 +294,10 @@ def main() -> None:
                 print(f"reset-quota: {line}")
     api = Api(args.api)
     sign_in(api)
+    settings = get_settings()
+    with Session(get_engine(settings.database_url.get_secret_value())) as db:
+        if mark_verified(settings, db):
+            print("smoke account marked as email-verified (development only)")
     upload_id = find_or_upload(api, args.csv)
     status, created = api.json_call(
         "POST",
