@@ -13,6 +13,9 @@ logger = logging.getLogger("indesk.ratelimit")
 
 SIGNUP_LIMIT, SIGNUP_WINDOW = 5, 60 * 60  # per client IP
 LOGIN_LIMIT, LOGIN_WINDOW = 10, 15 * 60  # per client IP + email
+FORGOT_IP_LIMIT, FORGOT_IP_WINDOW = 10, 60 * 60  # password forgot, per client IP
+FORGOT_EMAIL_LIMIT, FORGOT_EMAIL_WINDOW = 3, 60 * 60  # per hashed email, account or not
+RESET_LIMIT, RESET_WINDOW = 10, 15 * 60  # password reset, per client IP
 UPLOAD_WINDOW = 60 * 60  # per user; the number of uploads is `uploads_per_hour` in limits.toml
 RUN_WINDOW = 60 * 60  # per user; the number of run requests is `runs_per_hour` in limits.toml
 READ_WINDOW = 60  # per user; the number of reads is `reads_per_minute` in limits.toml

@@ -41,6 +41,7 @@ def test_error_codes_are_the_agreed_list() -> None:
         "RATE_LIMITED",
         "UNAUTHENTICATED",
         "ORIGIN_NOT_ALLOWED",
+        "RESET_TOKEN_INVALID",
         "CONSENT_REQUIRED",
         "FILE_TOO_LARGE",
         "UNSUPPORTED_TYPE",

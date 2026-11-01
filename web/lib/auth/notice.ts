@@ -3,7 +3,7 @@ import { SESSION_MAX_SECONDS } from "@/lib/limits";
 // One-shot notices after a sign-in change ("Welcome back", "You are logged out", "Your session ended"). A notice sits in
 // sessionStorage under ONE key until the NoticeHost reads and deletes it, so a reload never shows it twice. Nothing here
 // is a secret: it holds a kind, a display name or a flag, never a token.
-export type Notice = { kind: "welcome"; name: string } | { kind: "loggedOut" } | { kind: "sessionEnded"; sixHours: boolean };
+export type Notice = { kind: "welcome"; name: string } | { kind: "loggedOut" } | { kind: "sessionEnded"; sixHours: boolean } | { kind: "passwordChanged" };
 
 export type NoticeStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -42,6 +42,7 @@ function parseNotice(value: unknown): Notice | null {
   const data = value as Record<string, unknown>;
   if (data.kind === "welcome") return { kind: "welcome", name: typeof data.name === "string" ? data.name.slice(0, maxNameChars) : "" };
   if (data.kind === "loggedOut") return { kind: "loggedOut" };
+  if (data.kind === "passwordChanged") return { kind: "passwordChanged" };
   if (data.kind === "sessionEnded") return { kind: "sessionEnded", sixHours: data.sixHours === true };
   return null;
 }
@@ -78,7 +79,7 @@ export function dropPendingSessionEnded(): void {
 
 export function isAuthPath(pathname: string | null): boolean {
   if (!pathname) return false;
-  return ["/login", "/signup"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  return ["/login", "/signup", "/forgot-password", "/reset-password"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
 export type BeforeSignOut = "signedIn" | "unknownWithHint" | "unknown" | "signedOut";
@@ -102,7 +103,7 @@ export function sessionEndedNotice(loginAt: number | null, now: number): Notice 
   return { kind: "sessionEnded", sixHours: sessionEndedAfterLimit(loginAt, now) };
 }
 
-export type NoticeMessage = { key: "welcome" | "welcomeNoName" | "loggedOut" | "sessionEndedHours" | "sessionEnded"; values?: { name?: string; hours?: number } };
+export type NoticeMessage = { key: "welcome" | "welcomeNoName" | "loggedOut" | "passwordChanged" | "sessionEndedHours" | "sessionEnded"; values?: { name?: string; hours?: number } };
 
 export function noticeMessage(notice: Notice): NoticeMessage {
   if (notice.kind === "welcome") {
@@ -110,5 +111,6 @@ export function noticeMessage(notice: Notice): NoticeMessage {
     return name ? { key: "welcome", values: { name } } : { key: "welcomeNoName" };
   }
   if (notice.kind === "loggedOut") return { key: "loggedOut" };
+  if (notice.kind === "passwordChanged") return { key: "passwordChanged" };
   return notice.sixHours ? { key: "sessionEndedHours", values: { hours: SESSION_MAX_SECONDS / 3600 } } : { key: "sessionEnded" };
 }

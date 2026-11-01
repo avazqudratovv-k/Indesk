@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import AiCall, Run, UsageEvent
 from tests.db_helpers import alembic_config, recreate_database
-from tests.factories import NOW, make_run, make_user
+from tests.factories import NOW, make_run, make_user_before_0007
 
 INDEX = "uq_usage_events_run_id_run"
 
@@ -37,7 +37,7 @@ def old_database() -> Engine:
     command.upgrade(alembic_config(url), "0002")
     engine = create_engine(url)
     with Session(engine) as db, db.begin():
-        user = make_user(db)
+        user = make_user_before_0007(db)
         answered = make_run(db, user, status="finished", outcome="answered", counted=True)
         failed = make_run(
             db, user, status="finished", outcome="failed", outcome_reason="model_busy"

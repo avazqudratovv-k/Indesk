@@ -15,7 +15,7 @@ from app.core import clock
 from app.core.config import Settings
 from app.db.models import RefreshToken
 from tests.db_helpers import alembic_config, recreate_database
-from tests.factories import make_user
+from tests.factories import make_user_before_0007
 from tests.test_auth import cookie_headers, login, refresh_value, signup, with_cookie
 
 SIX_HOURS = timedelta(hours=6)
@@ -184,8 +184,7 @@ def test_backfill_uses_the_earliest_created_at_of_each_family() -> None:
     engine = create_engine(url)
     t0 = datetime(2026, 10, 1, 8, 0, tzinfo=UTC)
     with Session(engine) as db, db.begin():
-        user = make_user(db)
-        db.flush()
+        user = make_user_before_0007(db)
         for token, family, offset in [
             ("a1", "11111111-1111-1111-1111-111111111111", 0),
             ("a2", "11111111-1111-1111-1111-111111111111", 90),

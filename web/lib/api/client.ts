@@ -73,7 +73,9 @@ export function createApiClient(deps: ClientDeps): ApiClient {
     if (!response.ok) throw await errorFromResponse(response);
     if (response.status === 204) return undefined as T;
     try {
-      return (await response.json()) as T;
+      // An empty success body (the 202 of password/forgot) is "nothing", not an error.
+      const text = await response.text();
+      return (text === "" ? undefined : JSON.parse(text)) as T;
     } catch {
       throw new ApiError(response.status, "UNKNOWN");
     }

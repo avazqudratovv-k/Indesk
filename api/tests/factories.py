@@ -3,13 +3,16 @@
 import itertools
 import uuid
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 from typing import Any
 
+from sqlalchemy import insert
 from sqlalchemy.orm import Session
 
 from app.db.models import (
     AgentStep,
     Claim,
+    EmailToken,
     Evidence,
     Report,
     Run,
@@ -37,6 +40,35 @@ def make_user(session: Session, **kw: Any) -> User:
         "handle": f"user{n}",
     }
     return add(session, User(**{**values, **kw}))
+
+
+def make_user_before_0007(session: Session) -> User:
+    """A user inserted with only the columns that exist before migration 0007, for tests that
+    build rows in an old database. The ORM insert of `make_user` would name the newer columns.
+    Returns a stand-in that has just the `id` the other builders read."""
+    n = next(_counter)
+    user_id = session.execute(
+        insert(User)
+        .values(
+            email=f"old{n}@example.com",
+            password_hash="$argon2id$v=19$m=65536,t=3,p=4$not-a-real-hash",
+            display_name=f"Old {n}",
+            handle=f"old{n}",
+        )
+        .returning(User.id)
+    ).scalar_one()
+    return SimpleNamespace(id=user_id)  # type: ignore[return-value]
+
+
+def make_email_token(session: Session, user: User, **kw: Any) -> EmailToken:
+    n = next(_counter)
+    values: dict[str, Any] = {
+        "user_id": user.id,
+        "purpose": "reset",
+        "token_hash": f"{n:064x}",
+        "expires_at": NOW + timedelta(minutes=30),
+    }
+    return add(session, EmailToken(**{**values, **kw}))
 
 
 def make_upload(session: Session, user: User, **kw: Any) -> Upload:

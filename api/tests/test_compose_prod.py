@@ -42,11 +42,33 @@ def test_the_dev_stub_is_off_and_production_mode_is_fixed(prod: dict[str, Any]) 
     assert "SANDBOX_TEST_MODE" not in yaml.safe_dump(prod)
 
 
-def test_only_the_worker_gets_the_gemini_key(prod: dict[str, Any]) -> None:
-    for name, service in prod["services"].items():
-        has_key = "GEMINI_API_KEY" in (service.get("environment") or {})
-        assert has_key == (name == "worker"), name
+# Each secret and who may hold it. A service not listed for a variable must not have it.
+ENV_ALLOW_LIST: dict[str, set[str]] = {
+    "GEMINI_API_KEY": {"worker"},  # only the worker runs the model gateway
+    "RESEND_API_KEY": {"worker"},  # only the worker sends email; the api just enqueues
+    "EMAIL_FROM": {"worker"},
+    "APP_BASE_URL": {"api", "worker", "scheduler"},  # the x-api-env anchor
+    "EMAIL_VERIFICATION_REQUIRED": {"api", "worker", "scheduler"},
+}
+
+
+def test_each_secret_goes_only_to_the_services_allowed_to_have_it(prod: dict[str, Any]) -> None:
+    for variable, allowed in ENV_ALLOW_LIST.items():
+        holders = {
+            name
+            for name, service in prod["services"].items()
+            if variable in (service.get("environment") or {})
+        }
+        assert holders == allowed, variable
     assert "env_file" not in yaml.safe_dump(prod)
+
+
+def test_the_email_settings_are_required_with_no_default(prod: dict[str, Any]) -> None:
+    worker = prod["services"]["worker"]["environment"]
+    api = prod["services"]["api"]["environment"]
+    for env, name in ((worker, "RESEND_API_KEY"), (worker, "EMAIL_FROM"), (api, "APP_BASE_URL")):
+        assert env[name] == f"${{{name}:?set {name}}}", name
+    assert api["EMAIL_VERIFICATION_REQUIRED"].startswith("${EMAIL_VERIFICATION_REQUIRED:?")
 
 
 def test_database_roles(prod: dict[str, Any]) -> None:

@@ -200,6 +200,11 @@ export default function AuthForm({ mode, next }: { mode: AuthMode; next?: string
             </span>
           ) : null}
           {error("password")}
+          {signup ? null : (
+            <Link href="/forgot-password" className={styles.forgot}>
+              {t("forgotLink")}
+            </Link>
+          )}
         </div>
         <button type="submit" className={styles.cta} disabled={busy || status === "done"}>
           {busy ? t(`${mode}.submitting`) : t(`${mode}.cta`)}

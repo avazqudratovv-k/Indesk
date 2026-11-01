@@ -6,9 +6,16 @@ from redis import Redis
 
 from app.core import ratelimit
 from app.core.cookies import REFRESH_COOKIE, clear_session_cookies, set_session_cookies
+from app.core.enums import EmailTokenPurpose, Lang
 from app.core.security import keyed_hash
+from app.email.queue import EmailRequest, enqueue_email
 from app.routers.deps import AppSettings, Db, IpHash, RedisDep, Secret
-from app.schemas.auth import LoginRequest, SignupRequest
+from app.schemas.auth import (
+    ForgotPasswordRequest,
+    LoginRequest,
+    ResetPasswordRequest,
+    SignupRequest,
+)
 from app.schemas.users import User
 from app.services import auth as service
 
@@ -102,3 +109,65 @@ def logout(
 ) -> None:
     service.logout(db, token=request.cookies.get(REFRESH_COOKIE), ip_hash=ip_hash)
     clear_session_cookies(response, settings)
+
+
+def forgot_guard(redis: RedisDep, ip_hash: IpHash) -> None:
+    """Runs before the body is checked. Redis down: 503 (fail closed)."""
+    ratelimit.hit(
+        redis, f"rl:forgot:{ip_hash}", ratelimit.FORGOT_IP_LIMIT, ratelimit.FORGOT_IP_WINDOW
+    )
+
+
+def reset_guard(redis: RedisDep, ip_hash: IpHash) -> None:
+    ratelimit.hit(redis, f"rl:reset:{ip_hash}", ratelimit.RESET_LIMIT, ratelimit.RESET_WINDOW)
+
+
+def _mail_lang(lang: str | None) -> str:
+    return lang if lang in (Lang.EN.value, Lang.KO.value) else Lang.EN.value
+
+
+@router.post("/password/forgot", status_code=202, dependencies=[Depends(forgot_guard)])
+def forgot_password(
+    body: ForgotPasswordRequest,
+    db: Db,
+    settings: AppSettings,
+    secret: Secret,
+    redis: RedisDep,
+) -> Response:
+    """Always the same empty 202, whether or not the account exists, is deleted, or the daily
+    email cap is used up. The email limit counts every request."""
+    ratelimit.hit(
+        redis,
+        f"rl:forgot-email:{keyed_hash(secret, body.email)}",
+        ratelimit.FORGOT_EMAIL_LIMIT,
+        ratelimit.FORGOT_EMAIL_WINDOW,
+    )
+    created = service.create_reset_token(db, body.email)
+    if created is not None:
+        user, token, row = created
+        request = EmailRequest(
+            purpose=EmailTokenPurpose.RESET,
+            user_id=user.id,
+            to=user.email,
+            lang=_mail_lang(body.lang),
+            token=token,
+            token_id=row.id,
+        )
+        if enqueue_email(redis, settings.limits, request):
+            db.commit()
+        else:
+            db.rollback()  # nothing was sent, so the older link keeps working
+    return Response(status_code=202)
+
+
+@router.post("/password/reset", status_code=204, dependencies=[Depends(reset_guard)])
+def reset_password(
+    body: ResetPasswordRequest,
+    db: Db,
+    settings: AppSettings,
+    ip_hash: IpHash,
+) -> Response:
+    service.reset_password(db, token=body.token, new_password=body.new_password, ip_hash=ip_hash)
+    response = Response(status_code=204)
+    clear_session_cookies(response, settings)
+    return response

@@ -246,6 +246,55 @@ def test_a_missing_extension_stops_the_migration_with_a_clear_message(database_u
         admin.dispose()
 
 
+# ---- migration 0007: email tokens ----
+
+
+def test_the_app_role_can_use_email_tokens_and_the_new_user_columns(app_engine: Engine) -> None:
+    from sqlalchemy.orm import Session  # noqa: PLC0415
+
+    from tests.factories import make_email_token  # noqa: PLC0415
+
+    with Session(app_engine) as db:
+        user = make_user(db)
+        token = make_email_token(db, user)
+        db.execute(text("UPDATE email_tokens SET used_at = now() WHERE id = :i"), {"i": token.id})
+        db.execute(
+            text(
+                "UPDATE users SET email_verified_at = now(), tokens_valid_after = now()"
+                " WHERE id = :u"
+            ),
+            {"u": user.id},
+        )
+        assert db.execute(text("SELECT count(*) FROM email_tokens")).scalar_one() >= 1
+        db.execute(text("DELETE FROM email_tokens WHERE id = :i"), {"i": token.id})
+        db.rollback()
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "DROP TABLE email_tokens",
+        "ALTER TABLE email_tokens ADD COLUMN sneaky text",
+        "TRUNCATE email_tokens",
+        "ALTER TABLE users DROP COLUMN email_verified_at",
+    ],
+)
+def test_the_app_role_cannot_change_the_email_token_schema(
+    app_engine: Engine, statement: str
+) -> None:
+    with app_engine.connect() as conn, pytest.raises(ProgrammingError) as caught:
+        conn.execute(text(statement))
+    assert isinstance(caught.value.orig, InsufficientPrivilege)
+
+
+def test_email_tokens_belong_to_the_migrator(migrator_engine: Engine) -> None:
+    with migrator_engine.connect() as conn:
+        owner = conn.execute(
+            text("SELECT tableowner FROM pg_tables WHERE tablename = 'email_tokens'")
+        ).scalar()
+    assert owner == MIGRATOR
+
+
 # ---- DELETE /reports/{id}: the app role can delete a run and the foreign keys cascade ----
 
 

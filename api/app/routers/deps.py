@@ -1,7 +1,7 @@
 """Request dependencies shared by routers. `current_user` is the one later prompts depend on."""
 
 import logging
-import uuid
+import math
 from typing import Annotated
 
 from fastapi import Depends, Request
@@ -73,9 +73,14 @@ RedisDep = Annotated[Redis, Depends(get_redis)]
 def current_user(request: Request, db: Db, secret: Secret) -> User:
     """The signed-in user from the access cookie. 401 on anything wrong; never trusts the client."""
     token = request.cookies.get(ACCESS_COOKIE)
-    user_id: uuid.UUID | None = decode_access_token(token, secret) if token else None
-    user = db.get(User, user_id) if user_id else None
-    if user is None or user.deleted_at is not None:
+    claims = decode_access_token(token, secret) if token else None
+    user = db.get(User, claims.user_id) if claims else None
+    if claims is None or user is None or user.deleted_at is not None:
+        raise AppError(401, ErrorCode.UNAUTHENTICATED)
+    # A password reset ends every token issued before it (whole seconds, so a token issued in the
+    # same second after the reset still works). NULL: no reset has happened.
+    valid_after = user.tokens_valid_after
+    if valid_after is not None and claims.issued_at < math.floor(valid_after.timestamp()):
         raise AppError(401, ErrorCode.UNAUTHENTICATED)
     return user
 

@@ -63,6 +63,7 @@ def test_bad_values_are_rejected_without_echoing_them(
 def test_production_requires_a_long_auth_secret(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("ALLOWED_ORIGINS", "https://indesk.example")
+    monkeypatch.setenv("APP_BASE_URL", "https://indesk.example")
     monkeypatch.setenv("TRUSTED_PROXIES", "10.0.0.0/8")
     for value in (None, "", "s" * 31):
         if value is None:
@@ -126,6 +127,7 @@ def _production(monkeypatch: pytest.MonkeyPatch, **env: str) -> None:
         "APP_ENV": "production",
         "AUTH_SECRET": "s" * 32,
         "ALLOWED_ORIGINS": "https://indesk.example",
+        "APP_BASE_URL": "https://indesk.example",
         "TRUSTED_PROXIES": "10.0.0.0/8",
     }
     for name, value in {**good, **env}.items():

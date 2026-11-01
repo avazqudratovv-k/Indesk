@@ -1,5 +1,7 @@
 import ipaddress
+import re
 import tomllib
+import unicodedata
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Literal
@@ -19,6 +21,10 @@ from pydantic import (
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 AUTH_SECRET_MIN_LENGTH = 32
+DEV_LINK_BASE = "http://localhost:3000"  # where email links point outside production
+MAX_EMAIL_FROM_CHARS = 200
+_FROM_ADDRESS = r"[^<>@\s]{1,64}@[^<>@\s]+\.[^<>@\s]+"
+EMAIL_FROM_PATTERN = re.compile(rf"^(?:{_FROM_ADDRESS}|[^<>@]{{1,100}} <{_FROM_ADDRESS}>)$")
 LIMITS_FILE = Path(__file__).resolve().parents[2] / "config" / "limits.toml"
 MAX_CHUNK_CHARS = 3000  # ceiling for chunk_chars, checked at startup (embedding input cap, P14b)
 MAX_EMBED_CHUNK_TOKENS = 6000  # below the model's 8,192-token input cap
@@ -88,6 +94,9 @@ class Limits(BaseModel):
     purge_batch: PositiveInt
     purge_no_report_days: PositiveInt
     ai_calls_retention_days: PositiveInt
+    email_token_retention_days: PositiveInt
+    # Emails the whole site may queue per UTC day (Resend's free plan allows 100 a day).
+    email_daily_global: PositiveInt
     # Read and delete limits per user (reads fail open, deletes fail closed).
     reads_per_minute: PositiveInt
     deletes_per_hour: PositiveInt
@@ -140,6 +149,15 @@ class Settings(BaseSettings):
     postgres_password: SecretStr | None = None
     auth_secret: SecretStr | None = None
     gemini_api_key: SecretStr | None = None
+    # Email (Resend). Only the worker gets the key and the from-address; the API only needs the base
+    # URL (to build links) and the verification flag. See app/email/.
+    resend_api_key: SecretStr | None = None
+    email_from: str | None = None  # "Indesk <no-reply@indesk.uz>"
+    # The origin that links in emails point to, such as https://indesk.uz. Never taken from a
+    # request. Required in production; development and tests fall back to localhost.
+    app_base_url: str | None = None
+    # When on, POST /runs needs a verified email (Prompt 5). Off by default; flipped by the owner.
+    email_verification_required: bool = False
     # Absolute session length from login (SESSION_MAX_SECONDS); a refresh never extends past it.
     session_max_seconds: PositiveInt = 21600
     # Comma-separated in the environment. Origins that may send a write request (CSRF check).
@@ -163,6 +181,11 @@ class Settings(BaseSettings):
         return secret is not None and len(secret.get_secret_value()) >= AUTH_SECRET_MIN_LENGTH
 
     @property
+    def email_link_base(self) -> str:
+        """Where an email link points. Production always has APP_BASE_URL (the start guard)."""
+        return self.app_base_url or DEV_LINK_BASE
+
+    @property
     def cookie_secure(self) -> bool:
         return self.app_env == "production"
 
@@ -184,6 +207,13 @@ class Settings(BaseSettings):
             problems.append("TRUSTED_PROXIES must not be empty")
         if not self.cookie_secure:
             problems.append("cookies must be marked Secure")
+        base = self.app_base_url
+        if base is None:
+            problems.append("APP_BASE_URL must be set")
+        elif not base.startswith("https://") or _is_local_origin(base):
+            problems.append("APP_BASE_URL must be an https address that is not localhost")
+        elif base not in self.allowed_origins:
+            problems.append("APP_BASE_URL must be one of ALLOWED_ORIGINS")
         if problems:
             raise ValueError("unsafe production settings: " + "; ".join(problems))
         return self
@@ -192,6 +222,40 @@ class Settings(BaseSettings):
     @classmethod
     def _comma_list(cls, value: object) -> object:
         return _split_commas(value)
+
+    @field_validator("app_base_url")
+    @classmethod
+    def _base_url_shape(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        cleaned = value.rstrip("/")
+        parts = urlsplit(cleaned)
+        if (
+            parts.scheme not in ("http", "https")
+            or not parts.hostname
+            or parts.path
+            or parts.query
+            or parts.fragment
+            or parts.username is not None
+            or any(ch.isspace() or ord(ch) < 32 for ch in cleaned)
+        ):
+            raise ValueError("must be an origin such as https://indesk.uz (no path)")
+        return cleaned
+
+    @field_validator("email_from")
+    @classmethod
+    def _from_shape(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        # No control characters (header injection); an address inside or on its own.
+        if (
+            len(value) > MAX_EMAIL_FROM_CHARS
+            or any(unicodedata.category(ch).startswith("C") for ch in value)
+            or not EMAIL_FROM_PATTERN.match(value)
+        ):
+            raise ValueError('must be an address or "Name <address>"')
+        return value
 
     @field_validator("allowed_origins")
     @classmethod
@@ -222,7 +286,15 @@ class Settings(BaseSettings):
             raise ValueError("must start with redis:// or rediss://")
         return value
 
-    @field_validator("postgres_password", "auth_secret", "gemini_api_key", mode="before")
+    @field_validator(
+        "postgres_password",
+        "auth_secret",
+        "gemini_api_key",
+        "resend_api_key",
+        "email_from",
+        "app_base_url",
+        mode="before",
+    )
     @classmethod
     def _empty_is_unset(cls, value: object) -> object:
         return None if value == "" else value

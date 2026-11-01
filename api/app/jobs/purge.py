@@ -1,4 +1,5 @@
-"""Delete expired reports (with their runs), old finished runs without a report and old ai_calls.
+"""Delete expired reports (with their runs), old finished runs without a report, old ai_calls and
+old email tokens.
 `python -m app.jobs.purge` runs it once by hand; the scheduler (app/jobs/scheduler.py) runs it
 daily.
 It uses DATABASE_URL, which is the app role in compose (DECISIONS #118)."""

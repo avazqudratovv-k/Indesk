@@ -118,6 +118,7 @@ def settings_with(env: str, flag: bool) -> Settings:
     return Settings(
         app_env=env, runs_dev_stub=flag, auth_secret="x" * 40, redis_url=_test_redis_url(),
         allowed_origins=["https://indesk.example"], trusted_proxies=["10.0.0.0/8"],
+        app_base_url="https://indesk.example",
     )  # fmt: skip
 
 
