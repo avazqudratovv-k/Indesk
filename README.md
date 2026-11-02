@@ -30,7 +30,7 @@ Upload a CSV or a PDF, ask a question, and get an answer made of checked claims 
 
 ## Honest limits
 - A question about data the file does not have can still be answered using other columns. The first sentence of the answer says so.
-- Vision (images) is "Not available yet".
+- Vision agent (Chameleon): roadmap, not built yet.
 - Check a document and Compare are not built; they say "Not available yet".
 - A free account gets 3 runs in total, not per month.
 - Cat marks a claim it cannot verify as unverified instead of claiming proof. A claim is shown as verified only when the code checked it against the file.
