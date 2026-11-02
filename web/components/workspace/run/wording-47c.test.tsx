@@ -12,15 +12,23 @@ const view = (state: AgentView["state"]): AgentView => ({ state, flags: 0 });
 const failedPdfRun = (): Record<RunAgent, AgentView> => ({ owl: view("done"), chameleon: view("waiting"), beaver: view("skipped"), hound: view("waiting"), cat: view("waiting") });
 
 describe("one word for unbuilt things", () => {
-  it("never says Coming soon, Coming later, 곧 제공, 추후 제공 or 준비 중", () => {
+  it("never says Coming later, 곧 제공, 추후 제공 or 준비 중", () => {
     const text = JSON.stringify({ en, ko });
-    for (const old of ["Coming soon", "Coming later", "곧 제공", "추후 제공", "준비 중"]) expect(text).not.toContain(old);
+    for (const old of ["Coming later", "곧 제공", "추후 제공", "준비 중"]) expect(text).not.toContain(old);
   });
 
-  it("uses Not available yet / 아직 쓸 수 없음 for the modes, the Home cards, the agent and the upload panel", () => {
-    const places = (m: typeof en) => [m.home.modes.comingSoon, m.home.team.comingLater, m.workspace.modes.soon, m.workspace.live.status.comingLater, m.workspace.artifacts.states.comingLater, m.workspace.info.later];
-    for (const label of places(en)) expect(label).toMatch(/^(Not available yet|This agent is not available yet\.)$/);
-    for (const label of places(ko as unknown as typeof en)) expect(label).toMatch(/^(아직 쓸 수 없음|이 에이전트는 아직 쓸 수 없습니다\.)$/);
+  it("uses Not available yet / 아직 쓸 수 없음 for the modes and the upload panel", () => {
+    const places = (m: typeof en) => [m.home.modes.comingSoon, m.workspace.modes.soon, m.workspace.info.later];
+    for (const label of places(en)) expect(label).toMatch(/^Not available yet$/);
+    for (const label of places(ko as unknown as typeof en)) expect(label).toMatch(/^아직 쓸 수 없음$/);
+  });
+
+  it("shows Chameleon as a roadmap item: Coming soon / 곧 출시 and a Roadmap card text", () => {
+    const badges = (m: typeof en) => [m.home.team.comingLater, m.workspace.live.status.comingLater, m.workspace.artifacts.status.comingLater];
+    for (const label of badges(en)) expect(label).toBe("Coming soon");
+    for (const label of badges(ko as unknown as typeof en)) expect(label).toBe("곧 출시");
+    expect(en.workspace.artifacts.states.comingLater).toMatch(/^Roadmap: vision-based document analysis\./);
+    expect(ko.workspace.artifacts.states.comingLater).toMatch(/^로드맵: 비전 기반 문서 분석\./);
   });
 });
 

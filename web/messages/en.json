@@ -136,7 +136,7 @@
         "see": "Each claim with its evidence and a verdict."
       },
       "seeLabelLater": "Planned:",
-      "comingLater": "Not available yet"
+      "comingLater": "Coming soon"
     },
     "modes": {
       "title": "Three ways to work with your files",
@@ -588,7 +588,7 @@
         "failed": "Failed",
         "flagged": "{count, number} flagged",
         "didNotRun": "Did not start",
-        "comingLater": "Not available yet",
+        "comingLater": "Coming soon",
         "notUsed": "Not used"
       },
       "feedTitle": "Live trace",
@@ -728,14 +728,14 @@
         "waiting": "Waiting",
         "failed": "Failed",
         "didNotRun": "Did not start",
-        "comingLater": "Not available yet",
+        "comingLater": "Coming soon",
         "notUsed": "Not used"
       },
       "states": {
         "waiting": "Waiting for this agent to start…",
         "failed": "No answer after 35 s and one retry.",
         "didNotRun": "This agent did not start, because the run ended before its turn.",
-        "comingLater": "This agent is not available yet.",
+        "comingLater": "Roadmap: vision-based document analysis. It will read charts and scanned pages.",
         "notUsed": "Not used in this run"
       },
       "handover": {

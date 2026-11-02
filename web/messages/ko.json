@@ -136,7 +136,7 @@
         "see": "주장별 근거와 판정."
       },
       "seeLabelLater": "예정:",
-      "comingLater": "아직 쓸 수 없음"
+      "comingLater": "곧 출시"
     },
     "modes": {
       "title": "파일을 활용하는 세 가지 방법",
@@ -588,7 +588,7 @@
         "failed": "실패",
         "flagged": "{count, number}건 표시",
         "didNotRun": "시작하지 않음",
-        "comingLater": "아직 쓸 수 없음",
+        "comingLater": "곧 출시",
         "notUsed": "사용 안 함"
       },
       "feedTitle": "실시간 추적",
@@ -728,14 +728,14 @@
         "waiting": "대기 중",
         "failed": "실패",
         "didNotRun": "시작하지 않음",
-        "comingLater": "아직 쓸 수 없음",
+        "comingLater": "곧 출시",
         "notUsed": "사용 안 함"
       },
       "states": {
         "waiting": "이 에이전트가 시작하기를 기다리는 중…",
         "failed": "35초 후 재시도에도 응답이 없습니다.",
         "didNotRun": "이 에이전트의 차례가 오기 전에 실행이 끝나서 시작하지 못했습니다.",
-        "comingLater": "이 에이전트는 아직 쓸 수 없습니다.",
+        "comingLater": "로드맵: 비전 기반 문서 분석. 차트와 스캔한 페이지를 읽게 될 예정입니다.",
         "notUsed": "이 실행에서는 사용하지 않았습니다"
       },
       "handover": {
