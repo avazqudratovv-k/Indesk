@@ -46,7 +46,7 @@ _COPY: dict[tuple[EmailTokenPurpose, str], _Copy] = {
         button="Choose a new password",
         expires="The link works once and expires in 30 minutes.",
         ignore="If you did not ask for this, ignore this email. Your password stays the same.",
-        demo="Indesk is a demo. Do not upload private or sensitive files.",
+        demo="Do not upload private or sensitive files.",
     ),
     (EmailTokenPurpose.RESET, "ko"): _Copy(
         subject="Indesk 비밀번호 재설정",
@@ -56,7 +56,7 @@ _COPY: dict[tuple[EmailTokenPurpose, str], _Copy] = {
         button="새 비밀번호 정하기",
         expires="링크는 한 번만 사용할 수 있으며 30분 후에 만료됩니다.",
         ignore="요청하지 않았다면 이 메일을 무시하세요. 비밀번호는 그대로 유지됩니다.",
-        demo="Indesk는 데모입니다. 개인 정보나 민감한 파일은 업로드하지 마세요.",
+        demo="개인 정보나 민감한 파일은 업로드하지 마세요.",
     ),
     (EmailTokenPurpose.VERIFY, "en"): _Copy(
         subject="Confirm your email for Indesk",
@@ -64,7 +64,7 @@ _COPY: dict[tuple[EmailTokenPurpose, str], _Copy] = {
         button="Confirm my email",
         expires="The link works once and expires in 24 hours.",
         ignore="If you did not sign up, ignore this email.",
-        demo="Indesk is a demo. Do not upload private or sensitive files.",
+        demo="Do not upload private or sensitive files.",
     ),
     (EmailTokenPurpose.VERIFY, "ko"): _Copy(
         subject="Indesk 이메일 확인",
@@ -72,7 +72,7 @@ _COPY: dict[tuple[EmailTokenPurpose, str], _Copy] = {
         button="이메일 확인하기",
         expires="링크는 한 번만 사용할 수 있으며 24시간 후에 만료됩니다.",
         ignore="가입하지 않았다면 이 메일을 무시하세요.",
-        demo="Indesk는 데모입니다. 개인 정보나 민감한 파일은 업로드하지 마세요.",
+        demo="개인 정보나 민감한 파일은 업로드하지 마세요.",
     ),
 }
 

@@ -107,7 +107,7 @@ describe("the page", () => {
     expect(html).toContain("Deleting a report removes its evidence and the saved run. It does not give back a free run.");
     expect(html).toContain("The file and its extracted text are deleted about 24 hours after upload. Reports keep the evidence they quoted.");
     expect(html).toContain("Deletes the file and its extracted text now. Reports that used it keep their evidence.");
-    expect(html).toContain("Indesk is a demo. Do not upload private or sensitive files.");
+    expect(html).toContain("Do not upload private or sensitive files.");
   });
 
   it("marks each section busy while it loads", () => {

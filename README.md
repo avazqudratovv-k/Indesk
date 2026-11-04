@@ -1,6 +1,6 @@
 # Indesk
 
-Upload a CSV or a PDF, ask a question, and get an answer made of checked claims with the evidence next to them. Indesk is a portfolio demo, not a product for real users. **Indesk is a demo. Do not upload private or sensitive files.**
+Upload a CSV or a PDF, ask a question, and get an answer made of checked claims with the evidence next to them. **Do not upload private or sensitive files.**
 
 ## Live demo
 - Site: https://indesk.76-13-198-17.sslip.io
