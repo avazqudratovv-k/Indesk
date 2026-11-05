@@ -43,7 +43,7 @@ Repo: this one (monorepo: `web/`, `api/`, `docs/`). Product detail: `docs/ai/SPE
 - Storage and payments sit behind interfaces (local disk now, simulated demo checkout). Originals and extracted data are deleted after 24 h; reports keep their evidence snapshots.
 - New API fields are additive; change the API before the frontend that uses it.
 - Touch targets at least 44 px on mobile. Every data view has loading, empty and error states.
-- Every page footer and the upload area show the demo notice: "Indesk is a demo. Do not upload private or sensitive files."
+- Every page footer and the upload area show the notice: "Do not upload private or sensitive files." Payment copy says: "Payments are simulated for now and under development."
 
 ## Gemini rules
 - All AI features use Google Gemini, through ONE server-side gateway module. No other code calls a model. The browser never calls Google.

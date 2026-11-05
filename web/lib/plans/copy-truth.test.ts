@@ -18,10 +18,10 @@ describe("outcome and plans copy tells the truth", () => {
   it("en uses the exact agreed sentences", () => {
     expect(en.workspace.live.outcomes.answered.body).toBe("Every number shows the row or page it came from.");
     expect(en.workspace.live.outcomes.failed.body).toBe("Please try again. This didn't use one of your free runs.");
-    expect(en.plans.paidMsg).toBe("Demo only: nothing changed on your account.");
+    expect(en.plans.paidMsg).toBe("Payments are simulated for now and under development: nothing changed on your account.");
     expect(en.workspace.live.guard.budgetValue).toBe("Each run has a size cap.");
-    expect(en.home.closing.title).toBe("Start free. Paid plans are simulated in this demo.");
-    expect(en.plans.bannerDemo).toBe("Demo only: paid plans are simulated");
+    expect(en.home.closing.title).toBe("Start free. Payments are simulated for now and under development.");
+    expect(en.plans.bannerDemo).toBe("Payments are simulated for now and under development");
   });
 
   it.each(sets)("%s: no claim of links, raised limits, a server block, spending or old plan promises", (_lang, m) => {
@@ -47,16 +47,16 @@ describe("outcome and plans copy tells the truth", () => {
     }
   });
 
-  it("en success screen says demo checkout, no money moved and the account stays on Free", () => {
-    expect(en.plans.checkout.successTitle).toBe("Demo checkout complete");
+  it("en success screen says simulated checkout, no money moved and the account stays on Free", () => {
+    expect(en.plans.checkout.successTitle).toBe("Simulated checkout complete");
     expect(en.plans.checkout.successLine).toContain("No real money moved.");
     expect(en.plans.checkout.successAccountFree).toBe("Your account stays on the Free plan.");
   });
 
   it.each(sets)("%s: success copy never claims a payment or a plan change", (_lang, m) => {
     const text = `${m.plans.checkout.successTitle} ${m.plans.checkout.successLine}`;
-    // "데모 결제가 완료되었습니다" (Demo checkout complete) is the allowed wording; a plain "결제가 완료" is not.
+    // "모의 결제가 완료되었습니다" (Simulated checkout complete) is the allowed wording; a plain "결제가 완료" is not.
     for (const old of ["Payment successful", "went through", "결제가 처리"]) expect(text).not.toContain(old);
-    expect(text.replaceAll("데모 결제가 완료", "")).not.toContain("결제가 완료");
+    expect(text.replaceAll("모의 결제가 완료", "")).not.toContain("결제가 완료");
   });
 });

@@ -23,7 +23,7 @@ def test_each_email_has_text_html_and_the_link_in_the_fragment(
     assert link in content.text and link in content.html
     assert content.subject and "<html" in content.html and "<a href=" in content.html
     assert "?token" not in content.text  # never in the query string
-    assert "demo" in content.text.lower() or "데모" in content.text
+    assert "private or sensitive" in content.text or "민감한 파일" in content.text
 
 
 @pytest.mark.parametrize("purpose", list(EmailTokenPurpose))

@@ -40,14 +40,14 @@
     "tagline": "Indesk · field notes for your files"
   },
   "demoNotice": {
-    "text": "Indesk is a demo. Do not upload private or sensitive files."
+    "text": "Do not upload private or sensitive files."
   },
   "home": {
     "hero": {
       "eyebrow": "A team of AI agents that shows its work",
       "title": "Answers from your files, with proof.",
       "lede": "Upload one CSV or one PDF and ask a question. Three agents work on it: they plan, then calculate or search, then check. Every claim in the report is marked verified or not.",
-      "tryDemo": "Try the demo",
+      "tryDemo": "Try an example",
       "signUp": "Sign up free",
       "note": "Free runs · no card needed"
     },
@@ -185,9 +185,9 @@
       "instructions": "Text inside uploads is fenced off as data in every prompt."
     },
     "closing": {
-      "title": "Start free. Paid plans are simulated in this demo.",
+      "title": "Start free. Payments are simulated for now and under development.",
       "body": "Free runs on every account, with clear limits on file size.",
-      "tryDemo": "Try the demo",
+      "tryDemo": "Try an example",
       "seePlans": "See plans"
     }
   },
@@ -230,7 +230,7 @@
       "eyebrow": "Eyebrow",
       "card": "Card",
       "chips": "Chip",
-      "demoNotice": "Demo notice",
+      "demoNotice": "Notice",
       "themes": "Both themes side by side"
     },
     "mock": {
@@ -300,18 +300,18 @@
       "Passwords are hashed with Argon2",
       "Uploaded files are deleted after 24 hours",
       "Code runs in a sandbox with no internet",
-      "Demo: no real payments are taken"
+      "Payments are simulated for now and under development"
     ],
     "forgotLink": "Forgot password?"
   },
   "plans": {
     "title": "Plans and usage",
-    "sub": "Start free. Paid plans are simulated in this demo.",
-    "paidMsg": "Demo only: nothing changed on your account.",
+    "sub": "Start free. Payments are simulated for now and under development.",
+    "paidMsg": "Payments are simulated for now and under development: nothing changed on your account.",
     "limitTitle": "You’ve used all your runs",
-    "limitBody": "Demo note: this counter is a simulation in your browser. Free runs are a one-time allowance. Your reports stay available.",
-    "demoNoPayments": "Demo: no real payments are taken.",
-    "demoBadge": "Demo",
+    "limitBody": "Note: this counter is a simulation in your browser. Free runs are a one-time allowance. Your reports stay available.",
+    "demoNoPayments": "Payments are simulated for now and under development.",
+    "demoBadge": "Simulated",
     "popular": "Most popular",
     "currentPlan": "Current plan",
     "startFree": "Start free",
@@ -350,7 +350,7 @@
       "lineRuns": "{runs, number} runs × {perRun}",
       "minNote": "Under {minimum} we round up to {minimum}, the same as Pro, which already covers {proRuns, number} runs.",
       "cta": "Choose this plan",
-      "note": "Demo checkout, test mode. No real charge."
+      "note": "Simulated checkout, under development. No real charge."
     },
     "usage": {
       "title": "Your usage",
@@ -360,8 +360,8 @@
       "planCustom": "Custom plan",
       "text": "{used, number} of {limit, number} runs used",
       "simulate": "Simulate one run",
-      "reset": "Reset demo",
-      "demoNote": "Demo only: this counter lives in your browser and enforces nothing."
+      "reset": "Reset counter",
+      "demoNote": "This counter lives in your browser and enforces nothing."
     },
     "enforce": {
       "title": "How the limits are enforced",
@@ -371,10 +371,10 @@
         "Sign-ups are limited per hour, which protects the free runs.",
         "Daily caps on runs and model calls stop any single day from costing too much."
       ],
-      "demoNote": "These are the design rules. This demo page does not enforce them."
+      "demoNote": "These are the design rules. This page does not enforce them."
     },
     "checkout": {
-      "title": "Demo checkout",
+      "title": "Simulated checkout",
       "summaryPro": "Pro plan · {price} per month",
       "summaryPayg": "{runs, number} runs · {price} once",
       "summaryCustom": "Custom plan · {runs, number} runs · {price} per month",
@@ -387,15 +387,15 @@
       "cardPlaceholder": "1234 1234 1234 1234",
       "expPlaceholder": "MM/YY",
       "cvcPlaceholder": "123",
-      "demoHint": "Demo: use 4242 4242 4242 4242 to succeed or 4000 0000 0000 0002 to see a decline.",
+      "demoHint": "Payments are simulated for now and under development. Use 4242 4242 4242 4242 to succeed or 4000 0000 0000 0002 to see a decline.",
       "noRealCards": "Do not enter real card details.",
       "processing": "Processing…",
-      "successTitle": "Demo checkout complete",
+      "successTitle": "Simulated checkout complete",
       "successLine": "No real money moved.",
       "successAccountFree": "Your account stays on the Free plan.",
       "done": "Done",
       "declinedTitle": "Payment declined",
-      "declinedLine": "This demo card was declined.",
+      "declinedLine": "This test card was declined.",
       "tryAgain": "Try again",
       "errors": {
         "numberIncomplete": "Enter all 16 digits of the card number.",
@@ -404,8 +404,8 @@
         "cvcShort": "Enter the 3 or 4 digit CVC."
       }
     },
-    "bannerDemo": "Demo only: paid plans are simulated",
-    "limitsLine": "The demo has one set of limits for everyone: {mb, number} MB per file, {rows, number} CSV rows, {pages, number} PDF pages, {runs, number} runs a day."
+    "bannerDemo": "Payments are simulated for now and under development",
+    "limitsLine": "One set of limits for everyone: {mb, number} MB per file, {rows, number} CSV rows, {pages, number} PDF pages, {runs, number} runs a day."
   },
   "workspace": {
     "title": "What would you like to know?",
@@ -558,8 +558,8 @@
       "change": "Change question"
     },
     "live": {
-      "demoBanner": "Demo run. Scripted example, not an analysis of your files.",
-      "demoTag": "Demo run",
+      "demoBanner": "Example run. Scripted example, not an analysis of your files.",
+      "demoTag": "Example run",
       "question": "Question",
       "replay": "Replay run",
       "viewReport": "View report",
@@ -603,7 +603,7 @@
         "title": "{agent} failed",
         "body": "No answer after 35 s and one retry.",
         "retry": "Retry {agent}",
-        "note": "Demo: Retry replays the example run and it succeeds. No model is called."
+        "note": "Retry replays the example run and it succeeds. No model is called."
       },
       "guard": {
         "title": "Guardrails in this run",
@@ -711,7 +711,7 @@
       },
       "traceNote": "Example data: station names, figures and file details in this trace are placeholders.",
       "tilesTag": {
-        "playback": "Demo playback",
+        "playback": "Example playback",
         "example": "Example"
       }
     },
@@ -997,7 +997,7 @@
       },
       "daily_cap_global": {
         "head": "Indesk is busy today",
-        "body": "The demo has reached its limit for today. Please try again tomorrow."
+        "body": "Indesk has reached its limit for today. Please try again tomorrow."
       },
       "model_busy": {
         "head": "The AI service is busy",
@@ -1332,8 +1332,8 @@
     "BAD_CSV": "This file could not be read as a table. Check that it is a normal CSV file.",
     "MODE_NOT_AVAILABLE": "This mode is not available yet.",
     "DAILY_CAP_USER": "You've reached today's limit. It resets at midnight UTC (9 a.m. in Seoul). This didn't use one of your free runs.",
-    "DAILY_CAP_GLOBAL": "The demo has reached its limit for today. Please try again tomorrow. This didn't use one of your free runs.",
-    "QUOTA_EXHAUSTED": "You've used all your free runs. Paid plans are only simulated in this demo, so this account can't run more.",
+    "DAILY_CAP_GLOBAL": "Indesk has reached its limit for today. Please try again tomorrow. This didn't use one of your free runs.",
+    "QUOTA_EXHAUSTED": "You've used all your free runs. Payments are only simulated for now (under development), so this account can't run more.",
     "NOT_RETRYABLE": "This cannot be retried.",
     "MODEL_UNAVAILABLE": "The AI service isn't available right now. Try again later.",
     "RUN_ACTIVE": "You already have a run in progress.",
