@@ -3,9 +3,8 @@
 Upload a CSV or a PDF, ask a question, and get an answer made of checked claims with the evidence next to them. **Do not upload private or sensitive files.**
 
 ## Live demo
-- Site: https://indesk.76-13-198-17.sslip.io
-- Sample report: `/reports/example` (the cached example, built from the public Seoul subway data; it costs no AI calls).
-- Live demo: https://indesk.76-13-198-17.sslip.io (deployed 2026-10-31; moving to indesk.uz).
+- Site: https://indesk.uz
+- Sample report: https://indesk.uz/reports/example (cached example built from the public Seoul subway data; it costs no AI calls).
 
 ## Stack
 - `web/`: Next.js (App Router), TypeScript, CSS Modules, next-intl (English and Korean)
