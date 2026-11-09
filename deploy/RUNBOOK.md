@@ -376,7 +376,7 @@ Expected: `backup written: /root/indesk-backups/indesk-<date>.dump`
 2. Copy the dump to the Mac once. `C:` Use the file name from the line above.
 
 ```
-scp root@76.13.198.17:/root/indesk-backups/indesk-<date>.dump ~/Downloads/
+scp root@<server-ip>:/root/indesk-backups/indesk-<date>.dump ~/Downloads/
 ```
 
 Expected: the file is copied; a size of more than 0 bytes.
@@ -828,13 +828,13 @@ Two rules, because the server's nginx file for Indesk has been changed by certbo
 
 The simple, safe path: edit `server_name` in the installed file `/etc/nginx/conf.d/indesk.conf` directly, in both server blocks, and let certbot extend the existing certificate with `--expand`. The repo file stays untouched.
 
-1. In the domain's DNS, add an A record `indesk.uz` pointing to `76.13.198.17`. Wait until it resolves.
+1. In the domain's DNS, add an A record `indesk.uz` pointing to `<server-ip>`. Wait until it resolves.
 
 ```
 dig +short indesk.uz
 ```
 
-Expected: `76.13.198.17`
+Expected: `<server-ip>`
 
 2. Back up nginx and take the checksum of the other site's file (as in step 7).
 
