@@ -55,11 +55,11 @@ Logs: `docker compose logs -f api worker`. Stop (keeps the database): `docker co
 
 ## Tests
 Counts are from the last run recorded in `docs/ai/STATE.md` (owner-reported); they are "as of the last run", not re-measured for this README.
-- API, 1450 passed (43 `sandbox` and `parser` tests are deselected by default). Full check:
+- API, 1,587 tests (43 `sandbox` and `parser` tests are deselected by default). Full check:
   ```
   docker compose run --rm --build api sh -c "ruff check . && ruff format --check . && mypy . && pytest -q"
   ```
-- Web, 513 tests: `npm test` in `web/` (also `npm run lint`, `npm run typecheck`, `npm run build`).
+- Web, 527 tests: `npm test` in `web/` (also `npm run lint`, `npm run typecheck`, `npm run build`).
 - Sandbox, 21 tests. These need the sandbox service in test mode (see `api/README.md`):
   ```
   docker compose -f compose.yaml -f compose.sandbox-test.yaml up -d --build sandbox
